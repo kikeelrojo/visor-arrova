@@ -213,9 +213,9 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
       <button id="tabMem" aria-pressed="false">Memorias</button>
       <button id="tabDatos" aria-pressed="false">Mediciones</button>
     </div>
+    <button class="btn ico" id="btnRefrescar" title="Actualizar: carga la última versión publicada" aria-label="Actualizar"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16.2 10.6A6.2 6.2 0 1 1 14.4 5.6M14.9 2.6v3.4h-3.4"/></svg></button>
     <select id="selProyecto" aria-label="Proyecto"></select>
     <select id="selModelo" aria-label="Modelo"></select>
-    <button class="btn ico" id="btnRefrescar" title="Actualizar: carga la última versión publicada" aria-label="Actualizar"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16.2 10.6A6.2 6.2 0 1 1 14.4 5.6M14.9 2.6v3.4h-3.4"/></svg></button>
     <div class="estado" id="estado"></div>
     <div class="sp"></div>
     <button class="btn panel-toggle" id="btnPanel">Panel</button>
@@ -549,7 +549,7 @@ async function elegirModelo(id) {
     S.modelo = D;
     V3.cargar(D);
     $("vacio").hidden = true;
-    $("estado").textContent = D.titulo + " · " + D.fecha + " · " + D.elementos.length + " elementos";
+    $("estado").textContent = D.fecha + " · " + D.elementos.length + " elementos";
     rotulo(); Datos.refrescar();
   } catch (e) { $("estado").textContent = ""; toast(e.message); }
 }
