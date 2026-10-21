@@ -566,14 +566,14 @@ const V3 = (() => {
   let ctrl = new THREE.OrbitControls(cam, canvas);
   ctrl.enableDamping = false; ctrl.screenSpacePanning = true;
   ctrl.addEventListener("change", pedir);
-  let root = null, D = null, elems = [], meshes = [], aristas = [], conGlobal = {}, nivelDe = () => 0, resalta = null, realce = [];
+  let root = null, D = null, elems = [], meshes = [], aristas = [], instLineas = [], conGlobal = {}, nivelDe = () => 0, resalta = null, realce = [];
   let estilo = "linea", explota = 0, explotaAnim = 0, caja = new THREE.Box3(), sel = null;
   const grupoVis = {}, plantaVis = {};
   const matCache = {};
   const GRUPOS = {maqueta: "Maqueta", muros: "Muros", forjados: "Forjados", cubiertas: "Cubiertas", carpinterias: "Carpinterías",
     estructura: "Estructura", techos: "Techos y cámaras", barandillas: "Barandillas", mobiliario: "Mobiliario", recintos: "Recintos",
-    piel: "Piel (vista)", revoco: "Revoco de fachada", alfeizares: "Alféizares", entorno: "Entorno"};
-  const OCULTOS = {recintos: 1};
+    piel: "Piel (vista)", revoco: "Revoco de fachada", alfeizares: "Alféizares", entorno: "Entorno", instalaciones: "Instalaciones"};
+  const OCULTOS = {recintos: 1, instalaciones: 1};
   const planos = {z: new THREE.Plane(new THREE.Vector3(0, 0, -1), 0), x: new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0), y: new THREE.Plane(new THREE.Vector3(0, -1, 0), 0)};
 
   function rgb(c, f) { return c ? new THREE.Color(c[0] / 255, c[1] / 255, c[2] / 255) : new THREE.Color(f || 0xdddddd); }
@@ -604,13 +604,15 @@ const V3 = (() => {
   const realceMat = () => matCache.__r || (matCache.__r = new THREE.LineBasicMaterial({color: colores().accent, depthTest: false, transparent: true}));
   const lineaTenue = () => matCache.__lt || (matCache.__lt = new THREE.LineBasicMaterial({color: colores().ink, transparent: true, opacity: 0.12}));
   const selMat = () => matCache.__sel || (matCache.__sel = new THREE.LineBasicMaterial({color: colores().accent}));
+  const instMat = c => matCache["__i" + c] || (matCache["__i" + c] = new THREE.LineBasicMaterial({color: rgb(c, 0x000000), depthTest: false, transparent: true}));
+  const instSel = () => matCache.__is || (matCache.__is = new THREE.LineBasicMaterial({color: colores().accent, depthTest: false, transparent: true}));
 
   function cargar(datos) {
     D = datos;
     for (const k in matCache) { matCache[k].dispose(); delete matCache[k]; }
     if (root) { scene.remove(root); root.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
     root = new THREE.Group(); scene.add(root);
-    elems = []; meshes = []; aristas = []; sel = null; resalta = null; quitaRealce();
+    elems = []; meshes = []; aristas = []; instLineas = []; sel = null; resalta = null; quitaRealce();
     const orden = D.plantas.map(p => p.id).filter(p => p !== "entorno");
     nivelDe = p => Math.max(0, orden.indexOf(p));
     const fundidas = Array.isArray(D.aristas) && D.aristas.length > 0;
@@ -630,6 +632,13 @@ const V3 = (() => {
         g.add(mesh); meshes.push(mesh);
         if (!fundidas) { const ed = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 25), lineaMat()); ed.userData = {arista: true, g: e.g, p: e.p, elem: true}; g.add(ed); aristas.push(ed); }
         geo.dispose();
+      }
+      // instalaciones: líneas de su color, dibujadas por encima de todo (van dentro de muros, techos y suelos)
+      if (e.l) for (const pl of e.l) {
+        const v = new Float32Array(pl.length); for (let k = 0; k < v.length; k++) v[k] = pl[k] / 1000;
+        const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(v, 3));
+        const ln = new THREE.Line(geo, instMat(e.c)); ln.renderOrder = 6; ln.userData = {g, inst: true};
+        g.add(ln); instLineas.push(ln);
       }
       root.add(g); elems.push(g);
     });
@@ -789,6 +798,8 @@ const V3 = (() => {
     quitaRealce();
     for (const g of gs) for (const m of g.children) if (m.isMesh) {
       const l = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 25), resalta ? realceMat() : selMat()); l.userData.realce = true; l.renderOrder = 10; g.add(l); realce.push(l);
+    } else if (m.isLine && m.userData.inst) {
+      const l = new THREE.Line(m.geometry.clone(), instSel()); l.userData.realce = true; l.renderOrder = 11; g.add(l); realce.push(l);
     }
   }
   function resaltar(indices) {
@@ -816,6 +827,13 @@ const V3 = (() => {
     const r = canvas.getBoundingClientRect();
     const p = new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     const rc = new THREE.Raycaster(); rc.setFromCamera(p, cam);
+    // las instalaciones van por encima de todo: se eligen antes que lo que tengan delante (a unos 6 px de la línea)
+    const visL = instLineas.filter(l => l.userData.g.visible);
+    if (visL.length) {
+      rc.params.Line.threshold = cam === ortho ? (ortho.top - ortho.bottom) / ortho.zoom / Math.max(1, canvas.clientHeight) * 6 : 0.05;
+      const hl = rc.intersectObjects(visL, false);
+      if (hl.length) { inspeccion(hl[0].object.userData.g); return; }
+    }
     const vis = meshes.filter(m => m.userData.g.visible);
     const hits = rc.intersectObjects(vis, false).filter(h => renderer.clippingPlanes.every(pl => pl.distanceToPoint(h.point) >= -1e-4));
     inspeccion(hits.length ? hits[0].object.userData.g : null);
@@ -2066,6 +2084,11 @@ function ficha(D, e) {
     superficie_fabrica_m2: "Fábrica (m²)", acabado_interior_m2: "Acabado interior (m²)", acabado_interior: "Acabado interior", alto_mm: "Alto (mm)",
     superficie_cara_m2: "Cara del paño (m²)", mochetas_y_dinteles_m2: "Mochetas y dinteles (m²)", mochetas: "Huecos con mochetas"};
   for (const k in ET) if (I[k] != null && I[k] !== "" && !(carp && k === "medidas")) h += "<br>" + ET[k] + ": " + escH(I[k]);
+  if (e.g === "instalaciones") {
+    const EI = {red: "Red", elemento: "Elemento", diametro: "Diámetro / sección", cotas: "Cota", altura: "Altura sobre el suelo", recorrido: "Recorrido", vertical: "Vertical", "rótulo": "En el plano"};
+    for (const k in EI) if (I[k] != null && I[k] !== "") h += "<br>" + EI[k] + ": " + escH(I[k]);
+    if (I.nota) h += "<br><span class=nota>" + escH(I.nota) + "</span>";
+  }
   if (T) {
     if (T.panos) h += "<br>Paños: " + escH(T.panos.join(" + "));
     if (T.sistema) h += "<br>Sistema: " + escH(T.sistema);
