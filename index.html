@@ -2138,7 +2138,7 @@ const Datos = (() => {
     if (P.presup === undefined) { P.presup = null; try { const f = (P.indice || {}).presupuestos; if (f) { const r = await fetch("datos/" + P.id + "/" + f, {cache: "no-store"}); if (r.ok) P.presup = (await r.json()).docs || []; } } catch (e) { /* sin presupuestos */ } }
     if (!P.presup || !P.presup.length) { el.innerHTML = ""; return; }
     el.innerHTML = "<h3>Presupuesto del proyecto</h3>" + P.presup.map(d => '<div class="ppto-doc"><b>' + escH(d.titulo) + "</b><span>" + escH(d.nota || "") + '</span><div class="fila">' +
-      d.archivos.map(a => '<a class="btn" href="datos/' + P.id + "/" + a.archivo + '" download>' + escH(a.fmt) + "</a>").join("") + "</div></div>").join("") +
+      d.archivos.map(a => '<a class="btn" href="' + (/^https?:/.test(a.archivo) ? a.archivo : "datos/" + P.id + "/" + a.archivo) + '" download target="_blank" rel="noopener">' + escH(a.fmt) + "</a>").join("") + "</div></div>").join("") +
       '<div class="sub">Las tablas de abajo son las mediciones del modelo que se está viendo; el presupuesto descargable lleva las suyas (las de su fecha).</div>';
   }
   // precios: los publicados con el proyecto (precios.json) y lo que se cambie aquí (en este navegador)
