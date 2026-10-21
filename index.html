@@ -138,6 +138,7 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 details.hechas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-weight:700}
 .notas-datos{max-width:760px}
 .ldocs button .cnt{float:right;font-style:normal;font-weight:700;font-size:var(--s-xs);color:var(--warn);border:0.5px solid var(--warn);min-width:16px;text-align:center;padding:0 3px;margin-left:6px}
+h3 .adm{color:#7b1d2c}
 #notasHerr .btn.on{background:var(--ink);color:var(--paper)}
 .ppto input{width:84px;border:0.5px solid var(--ink);background:var(--paper);padding:2px 4px;text-align:right;font-variant-numeric:tabular-nums}
 .vacio{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px}
@@ -2500,10 +2501,11 @@ const Notas = (() => {
       if (!ok) return;
       await todas();
       const el = $("comentariosDatos"); if (!el) return;        // se busca después de esperar: la tabla se rehace a menudo
-      el.innerHTML = "<h3>Comentarios</h3>" + '<div class="notas notas-datos">' + htmlLista(deDoc("mediciones", null)) + compositor("compDatos", "Comentario sobre las mediciones o el presupuesto…") + "</div>";
+      el.innerHTML = "<h3>Comentarios" + (esAdmin ? ' <span class="adm">· administrador</span>' : "") + "</h3>" + '<div class="notas notas-datos">' + htmlLista(deDoc("mediciones", null)) + compositor("compDatos", "Comentario sobre las mediciones o el presupuesto…") + "</div>";
       engancha(el, "mediciones", null); return;
     }
     $("secNotas").hidden = !ok; if (!ok || !docAct) return;
+    $("secNotas").querySelector("h3").innerHTML = "Comentarios" + (esAdmin ? ' <span class="adm">· administrador</span>' : "");
     await todas();
     const el = $("notasDoc"); if (!el) return;
     el.innerHTML = htmlLista(deDoc(ambito, docAct)) + compositor("compDoc", pend ? "Comentario…" : "Comentario general del documento, o marca algo en la página con las herramientas de arriba…");
