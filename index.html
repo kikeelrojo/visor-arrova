@@ -616,8 +616,10 @@ const V3 = (() => {
   const realceMat = () => matCache.__r || (matCache.__r = new THREE.LineBasicMaterial({color: colores().accent, depthTest: false, transparent: true}));
   const lineaTenue = () => matCache.__lt || (matCache.__lt = new THREE.LineBasicMaterial({color: colores().ink, transparent: true, opacity: 0.12}));
   const selMat = () => matCache.__sel || (matCache.__sel = new THREE.LineBasicMaterial({color: colores().accent}));
-  const instMat = c => matCache["__i" + c] || (matCache["__i" + c] = new THREE.LineBasicMaterial({color: rgb(c, 0x000000), depthTest: false, transparent: true}));
-  const instRel = c => matCache["__r" + c] || (matCache["__r" + c] = new THREE.MeshBasicMaterial({color: rgb(c, 0xffffff), depthTest: false, transparent: true, side: THREE.DoubleSide}));
+  // el negro de las láminas (registros, cuadros) se pinta con el color de la tinta del tema, para que se vea también en oscuro
+  const tinta = c => (c && c[0] + c[1] + c[2] < 90) ? colores().ink : rgb(c, 0x000000);
+  const instMat = c => matCache["__i" + c] || (matCache["__i" + c] = new THREE.LineBasicMaterial({color: tinta(c), depthTest: false, transparent: true}));
+  const instRel = c => matCache["__r" + c] || (matCache["__r" + c] = new THREE.MeshBasicMaterial({color: (c && c[0] + c[1] + c[2] < 90) ? colores().ink : (c && c[0] + c[1] + c[2] > 750 ? colores().paper : rgb(c, 0xffffff)), depthTest: false, transparent: true, side: THREE.DoubleSide}));
   const instSel = () => matCache.__is || (matCache.__is = new THREE.LineBasicMaterial({color: colores().accent, depthTest: false, transparent: true}));
 
   function cargar(datos) {
