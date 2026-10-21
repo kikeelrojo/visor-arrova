@@ -1,10 +1,11 @@
 {
  "formato": "arrova-presupuestos",
  "proyecto": "lodosa",
+ "fecha": "2026-10-21 20:00",
  "docs": [
   {
    "titulo": "Presupuesto de la vivienda (obra nueva)",
-   "nota": "PEM 361.845,25 € · propuesta de octubre, mediciones del BIM del 14-oct y opción 2 de cubiertas · borrador para el aparejador",
+   "nota": "PEM 361.925,63 € · 21-10-2026 18:45",
    "archivos": [
     {
      "fmt": "Excel",
@@ -18,7 +19,7 @@
   },
   {
    "titulo": "Presupuesto conjunto (derribo + obra nueva)",
-   "nota": "PEM 383.184,53 € · mismas mediciones",
+   "nota": "PEM 383.264,91 € · 21-10-2026 18:45",
    "archivos": [
     {
      "fmt": "Excel",
@@ -27,6 +28,20 @@
     {
      "fmt": "Presto (BC3)",
      "archivo": "presupuestos/Presupuesto_Conjunto_Lodosa_2026-10.bc3"
+    }
+   ]
+  },
+  {
+   "titulo": "Presupuesto del derribo",
+   "nota": "PEM 21.339,28 € · 11-10-2026 19:39",
+   "archivos": [
+    {
+     "fmt": "Excel",
+     "archivo": "presupuestos/Presupuesto_Derribo_Lodosa_2026-10.xlsx"
+    },
+    {
+     "fmt": "Presto (BC3)",
+     "archivo": "presupuestos/Presupuesto_Derribo_Lodosa_2026-10.bc3"
     }
    ]
   }

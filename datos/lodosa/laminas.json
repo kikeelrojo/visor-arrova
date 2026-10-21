@@ -1,8 +1,8 @@
 {
  "formato": "arrova-laminas",
+ "proyecto": "lodosa",
+ "fecha": "2026-10-21 20:00",
  "doc": "basico op3.vwx",
- "conjunto": "visor",
- "fecha": "2026-10-21 19:00",
  "hojas": [
   {
    "n": "LO-A1",
@@ -151,7 +151,7 @@
  ],
  "pdfs": [
   {
-   "archivo": "laminas/PDF/basico op3.pdf",
+   "archivo": "laminas/basico op3.pdf",
    "titulo": "Juego completo de láminas",
    "nota": "27 páginas · 21-10-2026 19:00"
   }
