@@ -153,6 +153,8 @@ details.hechas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-w
 h3 .adm{color:#7b1d2c}
 .acciones .btn{line-height:16px;height:28px;padding:5px 4px;font-weight:400;text-align:center;overflow:hidden;text-overflow:ellipsis}
 a.btn.rojo{color:var(--warn);border-color:var(--warn)}
+header .barra .ico{width:26px;height:26px;padding:0;display:inline-grid;place-items:center;flex:0 0 auto}
+header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:square}
 #notasHerr .btn.on{background:var(--ink);color:var(--paper)}
 .ppto input{width:84px;border:0.5px solid var(--ink);background:var(--paper);padding:2px 4px;text-align:right;font-variant-numeric:tabular-nums}
 .vacio{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px}
@@ -213,6 +215,7 @@ a.btn.rojo{color:var(--warn);border-color:var(--warn)}
     </div>
     <select id="selProyecto" aria-label="Proyecto"></select>
     <select id="selModelo" aria-label="Modelo"></select>
+    <button class="btn ico" id="btnRefrescar" title="Actualizar: carga la última versión publicada" aria-label="Actualizar"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16.2 10.6A6.2 6.2 0 1 1 14.4 5.6M14.9 2.6v3.4h-3.4"/></svg></button>
     <div class="estado" id="estado"></div>
     <div class="sp"></div>
     <button class="btn panel-toggle" id="btnPanel">Panel</button>
@@ -484,7 +487,7 @@ async function cargarPublicado() {
 
 async function obtener(x) {
   if (typeof x !== "string") return x;
-  const r = await fetch(x); if (!r.ok) throw new Error("No se pudo leer " + x); return r.json();
+  const r = await fetch(x, {cache: "no-cache"}); if (!r.ok) throw new Error("No se pudo leer " + x); return r.json();
 }
 
 function leerArchivos(files) {
@@ -2367,7 +2370,7 @@ const Docs = (() => {
   async function ver(d, b) {
     actual = d; [...$("listaDocs").children].forEach(x => x.classList.toggle("on", x === b));
     ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + "." + tipo, d.archivo);
-    const url = "datos/" + S.proyecto.id + "/" + d.archivo;
+    const url = "datos/" + S.proyecto.id + "/" + d.archivo + (d.nota ? "?v=" + encodeURIComponent(d.nota).slice(0, 60) : "");   // la nota lleva la fecha del archivo: si cambia, se baja de nuevo
     $("btnAbrirPdf").hidden = false; $("btnAbrirPdf").href = url;
     Notas.enDoc(tipo, d);
     const pag = $("docsPag"); pag.innerHTML = '<div class="vacio-doc">Cargando…</div>';
@@ -2774,6 +2777,9 @@ $("inLong").addEventListener("keydown", e => { if (e.key === "Enter") { const L 
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { V3.tema(); V2.tema(); });
 new MutationObserver(() => { V3.tema(); V2.tema(); }).observe(document.documentElement, {attributes: true, attributeFilter: ["data-theme"]});
 
+// refrescar: vuelve a pedir la página con una marca nueva, para saltarse lo guardado en el navegador
+$("btnRefrescar").onclick = () => { try { const u = new URL(location.href); u.searchParams.set("v", Date.now().toString(36)); location.replace(u.toString()); } catch (e) { location.reload(); } };
+if (/[?&]v=/.test(location.search)) try { history.replaceState(null, "", location.pathname + location.search.replace(/[?&]v=[^&]*/, "").replace(/^&/, "?") + location.hash); } catch (e) { /* vista previa */ }
 (async function inicio() {
   const est = ls("visor.estilo"); if (est) { const b = document.querySelector('[data-estilo="' + est + '"]'); if (b) b.click(); }
   await cargarPublicado();
