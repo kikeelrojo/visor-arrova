@@ -119,6 +119,26 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 .ppto-doc b{display:block;font-size:var(--s-m)}.ppto-doc span{display:block;font-size:var(--s-xs);margin:2px 0 6px}
 .ldocs button.marcado{font-weight:700;border-left:2px solid var(--warn);padding-left:6px}
 .ldocs button.marcado span{color:var(--warn)}
+.pg{position:relative}
+.marcas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.docs.anotando .marcas{pointer-events:auto;touch-action:none;cursor:crosshair}
+.marcas .pin{pointer-events:auto;cursor:pointer}
+.mk{fill:none;stroke:#c8102e;stroke-width:1.6px;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
+.mk.prov{stroke-dasharray:5 4}.mk.foco{stroke-width:2.8px}
+.pin circle{fill:#c8102e}.pin.foco circle{fill:#000}.pin text{fill:#fff;font-weight:700;text-anchor:middle;font-family:var(--f)}
+.nota-i{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:7px 0;cursor:pointer;background-image:radial-gradient(circle,var(--ink) 0.5px,transparent 0.7px);background-size:4px 2px;background-repeat:repeat-x;background-position:0 100%}
+.nota-i .txt{font-size:var(--s-s);line-height:1.4;overflow-wrap:anywhere}
+.nota-i .meta{font-size:var(--s-xs);text-align:right;white-space:nowrap;line-height:1.35}
+.nota-i .acc{grid-column:1/-1;font-size:var(--s-xs)}
+.nota-i.resp{padding-left:14px;background-image:none}
+.nota-i.foco{box-shadow:inset 2px 0 0 var(--warn);padding-left:8px}
+.nota-i .ped{border-color:var(--warn);color:var(--warn)}
+.pg-ref{font-size:var(--s-xs)}
+.comp{margin-top:10px}.comp textarea{resize:vertical;min-height:58px;display:block;font-family:var(--f);font-size:var(--s-s);line-height:1.4}.comp.resp{margin:4px 0 8px 14px}
+details.hechas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-weight:700}
+.notas-datos{max-width:760px}
+.ldocs button .cnt{float:right;font-style:normal;font-weight:700;font-size:var(--s-xs);color:var(--warn);border:0.5px solid var(--warn);min-width:16px;text-align:center;padding:0 3px;margin-left:6px}
+#notasHerr .btn.on{background:var(--ink);color:var(--paper)}
 .ppto input{width:84px;border:0.5px solid var(--ink);background:var(--paper);padding:2px 4px;text-align:right;font-variant-numeric:tabular-nums}
 .vacio{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px}
 .vacio div{max-width:380px;line-height:1.5}
@@ -371,6 +391,17 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
             <a class="btn" id="btnAbrirPdf" target="_blank" rel="noopener">Abrir el PDF</a>
           </div>
           <p class="nota">«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.</p>
+        </div>
+        <div class="sec" id="secNotas" hidden>
+          <h3>Comentarios</h3>
+          <div class="fila" id="notasHerr" role="group" aria-label="Marcar en la página">
+            <button class="btn on" data-nh="ver" title="Moverse por el documento">Ver</button>
+            <button class="btn" data-nh="nota" title="Un punto en la página">Nota</button>
+            <button class="btn" data-nh="mano" title="A mano alzada (lápiz o dedo)">Mano</button>
+            <button class="btn" data-nh="rect" title="Recuadro">Recuadro</button>
+            <button class="btn" data-nh="flecha" title="Flecha: de dónde a dónde">Flecha</button>
+          </div>
+          <div class="notas" id="notasDoc"></div>
         </div>
       </div>
     </aside>
@@ -2129,7 +2160,7 @@ const Datos = (() => {
     $("datos").querySelectorAll("tr[data-f]").forEach(tr => tr.onclick = e => { if (e.target.tagName === "INPUT") return; V3.resaltar(new Set(ultimo.filas[+tr.dataset.f])); modo("3d"); });
     $("datos").querySelectorAll(".ppto input").forEach(inp => { inp.onclick = e => e.stopPropagation(); inp.onchange = () => { ponPrecio(inp.dataset.k, inp.value); totales(); }; });
     $("btnPrecios").onclick = () => guardarArchivo("precios_" + (S.proyecto ? S.proyecto.id : "proyecto") + ".json", JSON.stringify({formato: "arrova-precios", proyecto: S.proyecto && S.proyecto.id, precios: precios()}, null, 1));
-    totales(); presupuestosProy();
+    totales(); presupuestosProy(); Notas.enDatos();
     $("btnCsv").onclick = () => (ultimo = construir()) && guardarArchivo(((S.proyecto ? S.proyecto.id : "modelo") + "_" + V3.datos().modelo + "_mediciones.csv").replace(/\s+/g, "_"), "\ufeff" + ultimo.csv);
   }
   async function presupuestosProy() {
@@ -2190,6 +2221,7 @@ const Docs = (() => {
     }
     L.forEach((d, i) => {
       const b = document.createElement("button"); b.innerHTML = escH(d.titulo || d.archivo) + (d.nota ? "<span>" + escH(d.nota) + "</span>" : "");
+      b.dataset.arch = d.archivo;
       if (d.marcado) b.classList.add("marcado");
       b.onclick = () => ver(d, b); el.appendChild(b);
     });
@@ -2202,6 +2234,7 @@ const Docs = (() => {
     ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + "." + tipo, d.archivo);
     const url = "datos/" + S.proyecto.id + "/" + d.archivo;
     $("btnAbrirPdf").hidden = false; $("btnAbrirPdf").href = url;
+    Notas.enDoc(tipo, d);
     const pag = $("docsPag"); pag.innerHTML = '<div class="vacio-doc">Cargando…</div>';
     try {
       const L = await pdfjs();
@@ -2221,7 +2254,9 @@ const Docs = (() => {
       const px = Math.min(esc_ * dpr, Math.sqrt(16e6 / (v.width * v.height)));   // tope de iOS para un canvas
       const c = document.createElement("canvas"); c.width = Math.round(v.width * px); c.height = Math.round(v.height * px);
       c.style.width = Math.round(v.width * esc_) + "px"; c.style.height = Math.round(v.height * esc_) + "px";
-      c._p = p; c._esc = px; c._css = esc_; pag.appendChild(c); obs.observe(c);
+      c._p = p; c._esc = px; c._css = esc_;
+      const w = document.createElement("div"); w.className = "pg"; w.appendChild(c); pag.appendChild(w); obs.observe(c);
+      Notas.pagina(w, n, v.width, v.height, esc_);
     }
   }
   function dibuja(c) { const v = c._p.getViewport({scale: c._esc}); c._p.render({canvasContext: c.getContext("2d"), viewport: v}); }
@@ -2232,6 +2267,233 @@ const Docs = (() => {
   }
   addEventListener("resize", () => { if ((S.modo === "lam" || S.modo === "mem") && pdf && !z) pinta(); });
   return {abrir, zoom};
+})();
+
+/* ============================================================ comentarios y anotaciones (Supabase) */
+// Una fila por comentario: proyecto, ámbito (mediciones / memorias / laminas), documento, página, texto, autor y fecha;
+// si lleva marca, «dibujo» en puntos del PDF (vectorial, no depende del zoom). Se puede resolver (queda quién y cuándo);
+// borrar solo desde el Mac. Sin configuración de Supabase (notas.json) no aparece nada; ?notas=local para probar.
+const Notas = (() => {
+  let cfg, cache = null, cargando = null, ultimaCarga = 0;
+  let herr = "ver", pend = null, ambito = null, docAct = null, focoId = null;
+  const paginas = new Map();                    // n → {g, W, H, esc}
+  const local = /[?&]notas=local/.test(location.search);
+  const LKEY = "visor.notas.local";
+  async function config() {
+    if (cfg !== undefined) return cfg;
+    if (local) return (cfg = {local: true});
+    try { const r = await fetch("notas.json", {cache: "no-store"}); cfg = r.ok ? await r.json() : null; } catch (e) { cfg = null; }
+    if (cfg && !(cfg.url && cfg.clave)) cfg = null;
+    return cfg;
+  }
+  function cab(extra) {
+    const h = Object.assign({apikey: cfg.clave, "Content-Type": "application/json"}, extra || {});
+    if (!/^sb_/.test(cfg.clave)) h.Authorization = "Bearer " + cfg.clave;    // las claves antiguas (JWT) van también aquí
+    return h;
+  }
+  async function api(metodo, ruta, cuerpo, extra) {
+    const r = await fetch(cfg.url.replace(/\/$/, "") + "/rest/v1/" + ruta, {method: metodo, headers: cab(extra), body: cuerpo ? JSON.stringify(cuerpo) : undefined});
+    if (!r.ok) throw new Error("Comentarios: " + r.status + " " + (await r.text()).slice(0, 160));
+    return r.status === 204 ? null : r.json();
+  }
+  const proy = () => S.proyecto ? S.proyecto.id : "";
+  async function todas(forzar) {
+    if (!await config()) return null;
+    if (cache && !forzar && Date.now() - ultimaCarga < 15000) return cache;
+    if (cargando) return cargando;
+    cargando = (async () => {
+      try {
+        if (cfg.local) cache = (ls(LKEY) || []).filter(n => n.proyecto === proy());
+        else cache = await api("GET", "notas?select=*&proyecto=eq." + encodeURIComponent(proy()) + "&borrado=eq.false&order=creado.asc");
+        ultimaCarga = Date.now();
+      } catch (e) { toast(e.message, 4000); cache = cache || []; }
+      cargando = null; return cache;
+    })();
+    return cargando;
+  }
+  async function crear(f) {
+    const fila = Object.assign({proyecto: proy(), autor: autor(), texto: ""}, f);
+    if (cfg.local) {
+      const L = ls(LKEY) || []; Object.assign(fila, {id: "l" + Date.now() + Math.random().toString(36).slice(2, 6), creado: new Date().toISOString(), borrado: false});
+      L.push(fila); ls(LKEY, L); cache.push(fila); return fila;
+    }
+    const r = await api("POST", "notas", fila, {Prefer: "return=representation"});
+    cache.push(r[0]); return r[0];
+  }
+  async function resolver(n, si) {
+    const cambio = {resuelto_por: si ? autor() : null};
+    if (cfg.local) {
+      const L = ls(LKEY) || [], x = L.find(y => y.id === n.id); Object.assign(x, cambio, {resuelto_en: si ? new Date().toISOString() : null}); ls(LKEY, L); Object.assign(n, x); return;
+    }
+    const r = await api("PATCH", "notas?id=eq." + n.id, cambio, {Prefer: "return=representation"});
+    Object.assign(n, r[0]);
+  }
+  // quién: se escribe una vez y lo recuerda este navegador
+  const autor = () => ls("visor.autor") || "";
+  function fecha(t) { const d = new Date(t); const p = x => String(x).padStart(2, "0"); return p(d.getDate()) + "-" + p(d.getMonth() + 1) + "-" + d.getFullYear() + " " + p(d.getHours()) + ":" + p(d.getMinutes()); }
+  const deDoc = (amb, doc) => (cache || []).filter(n => n.ambito === amb && (doc == null ? !n.doc : n.doc === doc));
+  function numeros(lst) { const m = new Map(); let i = 0; for (const n of lst) if (!n.respuesta_a && n.dibujo) m.set(n.id, ++i); return m; }
+
+  /* ---------- lista (panel de láminas y memorias, y bloque de mediciones) */
+  function htmlLista(lst, conCompositor) {
+    const raiz = lst.filter(n => !n.respuesta_a), resp = id => lst.filter(n => n.respuesta_a === id), num = numeros(lst);
+    const uno = (n, sub) => '<div class="nota-i' + (sub ? " resp" : "") + (n.id === focoId ? " foco" : "") + '" data-id="' + n.id + '">' +
+      '<div class="txt">' + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.pagina ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
+      '<div class="meta"><b>' + escH(n.autor) + "</b><br>" + fecha(n.creado) + "</div>" +
+      (sub ? "" : '<div class="acc">' + (n.resuelto_por ? '<span class="nota">Resuelto por ' + escH(n.resuelto_por) + (n.resuelto_en ? " · " + fecha(n.resuelto_en) : "") + '</span> <button class="lnk" data-r="0">Reabrir</button>'
+        : '<button class="lnk" data-resp>Responder</button> <button class="lnk" data-r="1">Resolver</button>') + "</div>") + "</div>" +
+      (sub ? "" : resp(n.id).map(r => uno(r, true)).join(""));
+    const abiertas = raiz.filter(n => !n.resuelto_por), hechas = raiz.filter(n => n.resuelto_por);
+    let h = abiertas.map(n => uno(n)).join("") || '<p class="nota">Sin comentarios todavía.</p>';
+    if (hechas.length) h += '<details class="hechas"><summary>Resueltos (' + hechas.length + ")</summary>" + hechas.map(n => uno(n)).join("") + "</details>";
+    return h;
+  }
+  function compositor(id, texto) {
+    const a = autor();
+    return '<div class="comp" id="' + id + '">' + (pend ? '<p class="nota"><b>Marca en la página ' + pend.pagina + "</b>: escribe el comentario.</p>" : "") +
+      (a ? '<p class="nota">Comentas como <b>' + escH(a) + '</b> <button class="lnk" data-quien>cambiar</button></p>' : '<input class="filtro" data-nombre placeholder="Tu nombre (se ve con cada comentario)">') +
+      '<textarea class="filtro" rows="3" placeholder="' + escH(texto) + '"></textarea><div class="fila"><button class="btn" data-guardar>Publicar</button>' +
+      (pend ? '<button class="btn" data-cancelar>Quitar la marca</button>' : "") + "</div></div>";
+  }
+  function engancha(el, amb, doc) {
+    const comp = el.querySelector(".comp");
+    if (comp) {
+      const q = comp.querySelector("[data-quien]"); if (q) q.onclick = () => { ls("visor.autor", ""); pinta(); };
+      const c = comp.querySelector("[data-cancelar]"); if (c) c.onclick = () => { pend = null; pinta(); };
+      comp.querySelector("[data-guardar]").onclick = async () => {
+        const nom = comp.querySelector("[data-nombre]"), ta = comp.querySelector("textarea");
+        if (nom) { if (!nom.value.trim()) { nom.focus(); toast("Escribe tu nombre"); return; } ls("visor.autor", nom.value.trim().slice(0, 60)); }
+        const t = ta.value.trim(); if (!t && !pend) { ta.focus(); return; }
+        const f = {ambito: amb, doc: doc, texto: t};
+        if (comp.dataset.resp) f.respuesta_a = comp.dataset.resp;
+        if (pend && !comp.dataset.resp) { f.pagina = pend.pagina; f.dibujo = pend.dibujo; }
+        try { const n = await crear(f); if (!comp.dataset.resp) pend = null; focoId = n.id; pinta(); } catch (e) { toast(e.message, 4000); }
+      };
+      if (pend) setTimeout(() => comp.querySelector("textarea").focus(), 0);
+    }
+    el.querySelectorAll(".nota-i").forEach(d => {
+      const n = (cache || []).find(x => x.id === d.dataset.id); if (!n) return;
+      d.querySelectorAll("[data-r]").forEach(b => b.onclick = async e => {
+        e.stopPropagation();
+        if (!autor()) { toast("Escribe primero tu nombre abajo"); return; }
+        try { await resolver(n, b.dataset.r === "1"); pinta(); } catch (er) { toast(er.message, 4000); }
+      });
+      const rb = d.querySelector("[data-resp]");
+      if (rb) rb.onclick = e => {
+        e.stopPropagation();
+        el.querySelectorAll(".comp.resp").forEach(x => x.remove());
+        const sv = pend; pend = null;
+        const w = document.createElement("div"); w.innerHTML = compositor("compResp", "Respuesta…"); const c = w.firstChild; c.classList.add("resp"); c.dataset.resp = n.id;
+        d.after(c); engancha({querySelector: () => c, querySelectorAll: () => []}, amb, doc); pend = sv; c.querySelector("textarea").focus();
+      };
+      d.onclick = () => { focoId = n.id; if (n.pagina) irA(n); pinta(); };
+    });
+  }
+
+  /* ---------- marcas sobre las páginas */
+  const NS = "http://www.w3.org/2000/svg";
+  function forma(d) {
+    const p = d.p;
+    if (d.t === "mano") return "M" + p.map(q => q[0].toFixed(1) + " " + q[1].toFixed(1)).join("L");
+    if (d.t === "rect") { const [a, b] = p; return "M" + a[0] + " " + a[1] + "H" + b[0] + "V" + b[1] + "H" + a[0] + "Z"; }
+    if (d.t === "flecha") {
+      const [a, b] = p, an = Math.atan2(b[1] - a[1], b[0] - a[0]), L = Math.min(14, Math.hypot(b[0] - a[0], b[1] - a[1]) / 3) || 8;
+      const c1 = [b[0] - L * Math.cos(an - 0.45), b[1] - L * Math.sin(an - 0.45)], c2 = [b[0] - L * Math.cos(an + 0.45), b[1] - L * Math.sin(an + 0.45)];
+      return "M" + a.join(" ") + "L" + b.join(" ") + "M" + c1.join(" ") + "L" + b.join(" ") + "L" + c2.join(" ");
+    }
+    return "";
+  }
+  function marcas(n) {
+    const P = paginas.get(n); if (!P) return;
+    const lst = deDoc(ambito, docAct), num = numeros(lst), g = P.g;
+    while (g.firstChild) g.removeChild(g.firstChild);
+    const r = 9 / P.esc;                                     // tamaño en pantalla constante
+    const pon = (d, id, k, prov) => {
+      if (d.t !== "nota") { const pa = document.createElementNS(NS, "path"); pa.setAttribute("d", forma(d)); pa.setAttribute("class", "mk" + (prov ? " prov" : "") + (id === focoId ? " foco" : "")); g.appendChild(pa); }
+      const q = d.t === "rect" ? [Math.min(d.p[0][0], d.p[1][0]), Math.min(d.p[0][1], d.p[1][1])] : d.p[0];
+      const c = document.createElementNS(NS, "g"); c.setAttribute("class", "pin" + (id === focoId ? " foco" : "")); c.setAttribute("transform", "translate(" + q[0] + " " + q[1] + ")");
+      c.innerHTML = '<circle r="' + r + '"/><text y="' + (r * 0.36) + '" font-size="' + (r * 1.05) + '">' + (k || "·") + "</text>";
+      if (id) c.onclick = e => { e.stopPropagation(); focoId = id; pinta(); }; g.appendChild(c);
+    };
+    for (const x of lst) if (x.dibujo && x.pagina === n && !x.respuesta_a && !x.resuelto_por) pon(x.dibujo, x.id, num.get(x.id));
+    if (pend && pend.pagina === n) pon(pend.dibujo, null, "", true);
+  }
+  function pagina(cont, n, W, H, esc) {
+    // la capa de marcas de una página del PDF, en puntos del PDF
+    const s = document.createElementNS(NS, "svg"); s.setAttribute("viewBox", "0 0 " + W + " " + H); s.setAttribute("class", "marcas");
+    const g = document.createElementNS(NS, "g"); s.appendChild(g); cont.appendChild(s);
+    paginas.set(n, {g, W, H, esc, s}); marcas(n);
+    let cur = null;
+    const pt = e => { const b = s.getBoundingClientRect(); return [+((e.clientX - b.left) / b.width * W).toFixed(1), +((e.clientY - b.top) / b.height * H).toFixed(1)]; };
+    s.addEventListener("pointerdown", e => {
+      if (herr === "ver") return;
+      e.preventDefault(); s.setPointerCapture(e.pointerId);
+      const p = pt(e);
+      if (herr === "nota") { pend = {pagina: n, dibujo: {t: "nota", p: [p]}}; pinta(); return; }
+      cur = {t: herr, p: herr === "mano" ? [p] : [p, p]}; pend = {pagina: n, dibujo: cur}; marcas(n);
+    });
+    s.addEventListener("pointermove", e => {
+      if (!cur) return; const p = pt(e);
+      if (cur.t === "mano") { const u = cur.p[cur.p.length - 1]; if (Math.hypot(p[0] - u[0], p[1] - u[1]) > 1.2 / esc * 2) cur.p.push(p); } else cur.p[1] = p;
+      marcas(n);
+    });
+    const fin = () => {
+      if (!cur) return; const d = cur; cur = null;
+      const [a, b] = [d.p[0], d.p[d.p.length - 1]];
+      if (d.p.length < 2 || (d.t !== "mano" && Math.hypot(b[0] - a[0], b[1] - a[1]) < 3)) { pend = null; marcas(n); return; }
+      if (d.t === "rect") d.p = [[Math.min(a[0], b[0]), Math.min(a[1], b[1])], [Math.max(a[0], b[0]), Math.max(a[1], b[1])]];
+      pinta();
+    };
+    s.addEventListener("pointerup", fin); s.addEventListener("pointercancel", fin);
+  }
+  function irA(n) {
+    const P = paginas.get(n.pagina); if (!P) return;
+    const q = n.dibujo ? n.dibujo.p[0] : [0, 0], el = $("docs"), b = P.s.getBoundingClientRect(), e = el.getBoundingClientRect();
+    el.scrollTo({top: el.scrollTop + b.top - e.top + q[1] / P.H * b.height - el.clientHeight / 3, left: el.scrollLeft + b.left - e.left + q[0] / P.W * b.width - el.clientWidth / 2, behavior: "smooth"});
+  }
+  function herramienta(h) {
+    herr = h; document.querySelectorAll("#notasHerr [data-nh]").forEach(b => b.classList.toggle("on", b.dataset.nh === h));
+    $("docs").classList.toggle("anotando", h !== "ver");
+  }
+
+  /* ---------- montaje */
+  async function pinta() {
+    const ok = await config();
+    if (ambito === "mediciones") {
+      if (!ok) return;
+      await todas();
+      const el = $("comentariosDatos"); if (!el) return;        // se busca después de esperar: la tabla se rehace a menudo
+      el.innerHTML = "<h3>Comentarios</h3>" + '<div class="notas notas-datos">' + htmlLista(deDoc("mediciones", null)) + compositor("compDatos", "Comentario sobre las mediciones o el presupuesto…") + "</div>";
+      engancha(el, "mediciones", null); return;
+    }
+    $("secNotas").hidden = !ok; if (!ok || !docAct) return;
+    await todas();
+    const el = $("notasDoc"); if (!el) return;
+    el.innerHTML = htmlLista(deDoc(ambito, docAct)) + compositor("compDoc", pend ? "Comentario…" : "Comentario general del documento, o marca algo en la página con las herramientas de arriba…");
+    engancha(el, ambito, docAct);
+    for (const n of paginas.keys()) marcas(n);
+    const f = el.querySelector(".nota-i.foco"); if (f && f.scrollIntoView) f.scrollIntoView({block: "nearest"});
+    cuentas();
+  }
+  function cuentas() {
+    // cuántos comentarios abiertos tiene cada documento, en la lista de la izquierda del panel
+    document.querySelectorAll("#listaDocs button[data-arch]").forEach(b => {
+      const k = deDoc(ambito, b.dataset.arch).filter(n => !n.respuesta_a && !n.resuelto_por).length;
+      let s = b.querySelector(".cnt"); if (!k) { if (s) s.remove(); return; }
+      if (!s) { s = document.createElement("i"); s.className = "cnt"; b.prepend(s); } s.textContent = k;
+    });
+  }
+  function enDoc(t, d) { ambito = t; docAct = d ? d.archivo : null; pend = null; focoId = null; paginas.clear(); pinta(); }
+  function enDatos() { ambito = "mediciones"; pend = null; pinta(); }
+  document.querySelectorAll("#notasHerr [data-nh]").forEach(b => b.onclick = () => herramienta(herr === b.dataset.nh && b.dataset.nh !== "ver" ? "ver" : b.dataset.nh));
+  setInterval(async () => {                                 // lo que escriban otros aparece solo
+    if (document.hidden || !(S.modo === "lam" || S.modo === "mem" || S.modo === "datos") || !cfg) return;
+    const n0 = cache ? cache.length + "|" + cache.filter(n => n.resuelto_por).length : "";
+    await todas(true);
+    const n1 = cache.length + "|" + cache.filter(n => n.resuelto_por).length;
+    if (n0 !== n1 && !document.querySelector(".comp textarea:focus")) pinta();
+  }, 20000);
+  return {enDoc, enDatos, pagina, herramienta};
 })();
 
 /* ============================================================ interfaz */
