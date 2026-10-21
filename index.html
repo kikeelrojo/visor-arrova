@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Visor arrova</title>
+<link rel="icon" href="icono-32.png" sizes="32x32">
+<link rel="icon" href="icono.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icono-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Visor arrova">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* Composición: una sola hoja; vista a sangre con el aspa arriba a la derecha y dos escuadras;
@@ -139,7 +148,7 @@ details.hechas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-w
 .notas-datos{max-width:760px}
 .ldocs button .cnt{float:right;font-style:normal;font-weight:700;font-size:var(--s-xs);color:var(--warn);border:0.5px solid var(--warn);min-width:16px;text-align:center;padding:0 3px;margin-left:6px}
 h3 .adm{color:#7b1d2c}
-.adm-tag{color:var(--warn);border:0.5px solid var(--warn);font-weight:700;padding:4px 8px;white-space:nowrap;letter-spacing:.02em}
+.adm-tag{color:var(--warn);border:0.5px solid var(--warn);background:transparent;font-weight:700;padding:4px 8px;white-space:nowrap;letter-spacing:.02em;cursor:pointer}
 #notasHerr .btn.on{background:var(--ink);color:var(--paper)}
 .ppto input{width:84px;border:0.5px solid var(--ink);background:var(--paper);padding:2px 4px;text-align:right;font-variant-numeric:tabular-nums}
 .vacio{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px}
@@ -197,7 +206,7 @@ h3 .adm{color:#7b1d2c}
     <select id="selModelo" aria-label="Modelo"></select>
     <div class="estado" id="estado"></div>
     <div class="sp"></div>
-    <span class="adm-tag" id="marcaAdmin" hidden title="Este navegador puede borrar cualquier comentario">Modo admin</span>
+    <button class="adm-tag" id="marcaAdmin" hidden title="Este navegador puede borrar cualquier comentario. Tócalo para guardar el visor como app ya en modo admin">Modo admin</button>
     <a class="btn" id="btnEditor" href="?editor" target="_blank" rel="noopener" title="El editor de planos, aparte del visor">Editor ↗</a>
     <button class="btn" id="btnVolver" hidden title="Volver al visor">Visor</button>
     <button class="btn" id="btnAbrir" title="Abrir los archivos del visor desde iCloud o del ordenador">Abrir…</button>
@@ -2536,6 +2545,13 @@ const Notas = (() => {
     if (n0 !== n1 && !document.querySelector(".comp textarea:focus")) pinta();
   }, 20000);
   config();                                 // al abrir: «Modo admin» arriba si este navegador tiene la clave
+  // una app guardada (pantalla de inicio, Dock) no comparte lo guardado con Safari: se guarda desde la dirección con la clave
+  $("marcaAdmin").onclick = () => {
+    const k = ls("visor.admin"); if (!k) return;
+    const q = location.search.replace(/[?&]admin=[0-9a-f]+/, "").replace(/^&/, "?");
+    try { history.replaceState(null, "", location.pathname + (q ? q + "&" : "?") + "admin=" + k + location.hash); } catch (e) { return; }
+    toast("Listo para guardar como app en modo admin: en el iPad, Compartir › Añadir a pantalla de inicio; en el Mac, Archivo › Añadir al Dock. No compartas esta dirección.", 9000);
+  };
   return {enDoc, enDatos, pagina, herramienta};
 })();
 
