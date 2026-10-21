@@ -123,16 +123,16 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 .marcas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 .docs.anotando .marcas{pointer-events:auto;touch-action:none;cursor:crosshair}
 .marcas .pin{pointer-events:auto;cursor:pointer}
-.mk{fill:none;stroke:#c8102e;stroke-width:1.6px;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
+.mk{fill:none;stroke:#7b1d2c;stroke-width:1.6px;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
 .mk.prov{stroke-dasharray:5 4}.mk.foco{stroke-width:2.8px}
-.pin circle{fill:#c8102e}.pin.foco circle{fill:#000}.pin text{fill:#fff;font-weight:700;text-anchor:middle;font-family:var(--f)}
+.pin.foco circle{stroke:#000;stroke-width:2px;vector-effect:non-scaling-stroke}.pin text{fill:#fff!important;font-weight:700;text-anchor:middle;font-family:var(--f)}
 .nota-i{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:7px 0;cursor:pointer;background-image:radial-gradient(circle,var(--ink) 0.5px,transparent 0.7px);background-size:4px 2px;background-repeat:repeat-x;background-position:0 100%}
 .nota-i .txt{font-size:var(--s-s);line-height:1.4;overflow-wrap:anywhere}
 .nota-i .meta{font-size:var(--s-xs);text-align:right;white-space:nowrap;line-height:1.35}
 .nota-i .acc{grid-column:1/-1;font-size:var(--s-xs)}
 .nota-i.resp{padding-left:14px;background-image:none}
-.nota-i.foco{box-shadow:inset 2px 0 0 var(--warn);padding-left:8px}
-.nota-i .ped{border-color:var(--warn);color:var(--warn)}
+.nota-i.foco{box-shadow:inset 2px 0 0 var(--c,var(--warn));padding-left:8px}
+.nota-i .ped{border-color:var(--c);color:var(--c)}.nota-i .meta b{color:var(--c)}
 .pg-ref{font-size:var(--s-xs)}
 .comp{margin-top:10px}.comp textarea{resize:vertical;min-height:58px;display:block;font-family:var(--f);font-size:var(--s-s);line-height:1.4}.comp.resp{margin:4px 0 8px 14px}
 details.hechas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-weight:700}
@@ -2297,6 +2297,12 @@ const Notas = (() => {
     return r.status === 204 ? null : r.json();
   }
   const proy = () => S.proyecto ? S.proyecto.id : "";
+  // llave secreta de este navegador: con cada comentario va solo su huella, y con la llave se puede borrar lo propio
+  let llave = ls("visor.llave");
+  if (!llave) { const a = new Uint8Array(24); crypto.getRandomValues(a); llave = [...a].map(x => x.toString(16).padStart(2, "0")).join(""); ls("visor.llave", llave); }
+  let huella = null;
+  const huellaP = (async () => { try { const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(llave)); huella = [...new Uint8Array(h)].map(x => x.toString(16).padStart(2, "0")).join(""); } catch (e) { huella = null; } })();
+  const mia = n => huella && n.llave_hash === huella;
   async function todas(forzar) {
     if (!await config()) return null;
     if (cache && !forzar && Date.now() - ultimaCarga < 15000) return cache;
@@ -2312,13 +2318,19 @@ const Notas = (() => {
     return cargando;
   }
   async function crear(f) {
-    const fila = Object.assign({proyecto: proy(), autor: autor(), texto: ""}, f);
+    await huellaP;
+    const fila = Object.assign({proyecto: proy(), autor: autor(), texto: ""}, f, huella ? {llave_hash: huella} : {});
     if (cfg.local) {
       const L = ls(LKEY) || []; Object.assign(fila, {id: "l" + Date.now() + Math.random().toString(36).slice(2, 6), creado: new Date().toISOString(), borrado: false});
       L.push(fila); ls(LKEY, L); cache.push(fila); return fila;
     }
     const r = await api("POST", "notas", fila, {Prefer: "return=representation"});
     cache.push(r[0]); return r[0];
+  }
+  async function borrar(n) {
+    if (cfg.local) { const L = (ls(LKEY) || []).filter(y => y.id !== n.id); ls(LKEY, L); }
+    else if (!await api("POST", "rpc/borrar_nota", {p_id: n.id, p_llave: llave})) throw new Error("No se ha podido borrar (solo se borra desde el navegador con el que se escribió)");
+    cache = cache.filter(y => y.id !== n.id && y.respuesta_a !== n.id);
   }
   async function resolver(n, si) {
     const cambio = {resuelto_por: si ? autor() : null};
@@ -2331,15 +2343,23 @@ const Notas = (() => {
   // quién: se escribe una vez y lo recuerda este navegador
   const autor = () => ls("visor.autor") || "";
   function fecha(t) { const d = new Date(t); const p = x => String(x).padStart(2, "0"); return p(d.getDate()) + "-" + p(d.getMonth() + 1) + "-" + d.getFullYear() + " " + p(d.getHours()) + ":" + p(d.getMinutes()); }
+  const COL = ["#7b1d2c", "#1c2f66", "#1f4a2c", "#7a5410"];
+  function colorDe(a) {
+    const k = String(a || "").trim().toLowerCase();
+    if (/^enrique\b/.test(k)) return COL[0];
+    const otros = [];
+    for (const n of (cache || []).concat([{autor: autor()}])) { const x = String(n.autor || "").trim().toLowerCase(); if (x && !/^enrique\b/.test(x) && !otros.includes(x)) otros.push(x); }
+    const i = otros.indexOf(k); return COL[1 + (i < 0 ? 0 : i % 3)];
+  }
   const deDoc = (amb, doc) => (cache || []).filter(n => n.ambito === amb && (doc == null ? !n.doc : n.doc === doc));
   function numeros(lst) { const m = new Map(); let i = 0; for (const n of lst) if (!n.respuesta_a && n.dibujo) m.set(n.id, ++i); return m; }
 
   /* ---------- lista (panel de láminas y memorias, y bloque de mediciones) */
   function htmlLista(lst, conCompositor) {
     const raiz = lst.filter(n => !n.respuesta_a), resp = id => lst.filter(n => n.respuesta_a === id), num = numeros(lst);
-    const uno = (n, sub) => '<div class="nota-i' + (sub ? " resp" : "") + (n.id === focoId ? " foco" : "") + '" data-id="' + n.id + '">' +
+    const uno = (n, sub) => '<div class="nota-i' + (sub ? " resp" : "") + (n.id === focoId ? " foco" : "") + '" data-id="' + n.id + '" style="--c:' + colorDe(n.autor) + '">' +
       '<div class="txt">' + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.pagina ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
-      '<div class="meta"><b>' + escH(n.autor) + "</b><br>" + fecha(n.creado) + "</div>" +
+      '<div class="meta"><b>' + escH(n.autor) + "</b><br>" + fecha(n.creado) + (mia(n) ? '<br><button class="lnk" data-borrar>Borrar</button>' : "") + "</div>" +
       (sub ? "" : '<div class="acc">' + (n.resuelto_por ? '<span class="nota">Resuelto por ' + escH(n.resuelto_por) + (n.resuelto_en ? " · " + fecha(n.resuelto_en) : "") + '</span> <button class="lnk" data-r="0">Reabrir</button>'
         : '<button class="lnk" data-resp>Responder</button> <button class="lnk" data-r="1">Resolver</button>') + "</div>") + "</div>" +
       (sub ? "" : resp(n.id).map(r => uno(r, true)).join(""));
@@ -2378,6 +2398,12 @@ const Notas = (() => {
         if (!autor()) { toast("Escribe primero tu nombre abajo"); return; }
         try { await resolver(n, b.dataset.r === "1"); pinta(); } catch (er) { toast(er.message, 4000); }
       });
+      const bb = d.querySelector("[data-borrar]");
+      if (bb) bb.onclick = async e => {
+        e.stopPropagation();
+        if (!bb.dataset.seguro) { bb.dataset.seguro = 1; bb.textContent = "¿Seguro? Borrar"; setTimeout(() => { if (bb.isConnected) { delete bb.dataset.seguro; bb.textContent = "Borrar"; } }, 4000); return; }
+        try { await borrar(n); if (focoId === n.id) focoId = null; pinta(); } catch (er) { toast(er.message, 4000); }
+      };
       const rb = d.querySelector("[data-resp]");
       if (rb) rb.onclick = e => {
         e.stopPropagation();
@@ -2408,15 +2434,16 @@ const Notas = (() => {
     const lst = deDoc(ambito, docAct), num = numeros(lst), g = P.g;
     while (g.firstChild) g.removeChild(g.firstChild);
     const r = 9 / P.esc;                                     // tamaño en pantalla constante
-    const pon = (d, id, k, prov) => {
-      if (d.t !== "nota") { const pa = document.createElementNS(NS, "path"); pa.setAttribute("d", forma(d)); pa.setAttribute("class", "mk" + (prov ? " prov" : "") + (id === focoId ? " foco" : "")); g.appendChild(pa); }
+    const pon = (d, id, k, prov, col) => {
+      if (d.t !== "nota") { const pa = document.createElementNS(NS, "path"); pa.setAttribute("d", forma(d)); pa.setAttribute("class", "mk" + (prov ? " prov" : "") + (id === focoId ? " foco" : "")); pa.style.stroke = col; g.appendChild(pa); }
       const q = d.t === "rect" ? [Math.min(d.p[0][0], d.p[1][0]), Math.min(d.p[0][1], d.p[1][1])] : d.p[0];
       const c = document.createElementNS(NS, "g"); c.setAttribute("class", "pin" + (id === focoId ? " foco" : "")); c.setAttribute("transform", "translate(" + q[0] + " " + q[1] + ")");
+      c.style.fill = col;
       c.innerHTML = '<circle r="' + r + '"/><text y="' + (r * 0.36) + '" font-size="' + (r * 1.05) + '">' + (k || "·") + "</text>";
       if (id) c.onclick = e => { e.stopPropagation(); focoId = id; pinta(); }; g.appendChild(c);
     };
-    for (const x of lst) if (x.dibujo && x.pagina === n && !x.respuesta_a && !x.resuelto_por) pon(x.dibujo, x.id, num.get(x.id));
-    if (pend && pend.pagina === n) pon(pend.dibujo, null, "", true);
+    for (const x of lst) if (x.dibujo && x.pagina === n && !x.respuesta_a && !x.resuelto_por) pon(x.dibujo, x.id, num.get(x.id), false, colorDe(x.autor));
+    if (pend && pend.pagina === n) pon(pend.dibujo, null, "", true, colorDe(autor()));
   }
   function pagina(cont, n, W, H, esc) {
     // la capa de marcas de una página del PDF, en puntos del PDF
