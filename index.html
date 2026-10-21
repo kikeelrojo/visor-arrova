@@ -935,9 +935,8 @@ const V2 = (() => {
       const d = {o, id: o.uuid || ("i" + o.i), t: o.t, base: null, cerr: !!o.cerr, edit: false};
       if (o.t === 2 && o.p1 && o.p2) { d.base = [o.p1, o.p2]; d.edit = true; }
       else if ((o.t === 5 || o.t === 21) && o.v) {
-        const curva = o.t === 21 && o.v.some(v => v[2]);
-        d.base = curva && o.vp ? o.vp : o.v.map(v => [v[0], v[1]]);
-        d.edit = !curva;
+        d.base = o.v.map(v => [v[0], v[1]]); d.edit = true;
+        if (o.t === 21 && o.v.some(v => v[2])) { d.vt = o.v.map(v => v[2] || 0); d.vr = o.v.map(v => v[3] || 0); }   // Bézier, cúbico o arco
       }
       else if (o.t === 3 && o.v) d.base = o.v.map(v => [v[0], v[1]]), d.cerr = true;
       else if ((o.t === 6 || o.t === 4) && o.vp) { d.base = o.vp; d.cerr = o.t === 4; }
@@ -1019,40 +1018,130 @@ const V2 = (() => {
   const borrado = d => !d.nuevo && !d.copia && ((ed[d.id] || {}).borrado || (ed[d.id] || {}).consumido);
   const visible = d => (capaVis[capaDe(d)] !== false || capaDe(d) === capaAct) && claseVis[claseDe(d)] !== false;   // la capa activa siempre se ve
   function puntosDe(d) { return d.texto ? [puntoTexto(d)] : (d.caja ? cajaPoli(d) : forma(d)); }
-  // forma que se ve: la de los vértices, o la curva si la polilínea nueva lleva vértices curvos o de arco (como en VW)
-  function forma(d) { const g = geomN(d); return d.nuevo && d.o.vt && g ? curva(g, d.o.vt, d.o.vr || [], !!d.o.cerr) : g; }
-  function curva(v, vt, vr, cerr) {
-    const n = v.length; if (n < 3) return v;
-    const P_ = i => v[((i % n) + n) % n], T = i => (cerr || (i > 0 && i < n - 1)) ? (vt[((i % n) + n) % n] || 0) : 0;
-    const out = [];
-    const cat = (p0, p1, p2, p3, m) => { for (let s_ = 1; s_ <= m; s_++) { const t = s_ / m, t2 = t * t, t3 = t2 * t;
-      out.push([0.5 * (2 * p1[0] + (-p0[0] + p2[0]) * t + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2 + (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3),
-                0.5 * (2 * p1[1] + (-p0[1] + p2[1]) * t + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2 + (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3)]); } };
-    // arco de radio r en el vértice i: puntos de tangencia sobre los dos tramos y el arco entre ellos
+  // forma que se ve: la de los vértices, o la curva si la polilínea lleva vértices curvos (Bézier o cúbicos) o de arco, como en VW
+  function curvaDe(d) {
+    if (d.nuevo) return d.o.vt ? {vt: d.o.vt, vr: d.o.vr || []} : null;
+    if (d.copia) return null;
+    const e = ed[d.id] || {}; if (e.vt) return {vt: e.vt, vr: e.vr};
+    return d.vt ? {vt: d.vt, vr: d.vr} : null;
+  }
+  function forma(d) {
+    const g = geomN(d); if (!g) return g;
+    const cu = curvaDe(d); if (!cu) return d.copia && d.orig.vt ? (() => { const m = mDe(d.copia.pasos); return forma(d.orig).map(p => mAp(m, p)); })() : g;
+    const e = ed[d.id];
+    if (!d.nuevo && !(e && e.v) && d.o.vp && !(e && e.pasos) && !(e && (e.dx || e.dy))) return d.o.vp;   // sin tocar: la forma exacta de VW
+    return aplanar(prims(g, cu.vt, cu.vr, !!d.cerr));
+  }
+  function curva(v, vt, vr, cerr) { return aplanar(prims(v, vt, vr, cerr)); }
+  // primitivas de una polilínea: tramos rectos {L}, arcos {A: centro, r, a0, da (radianes)} y curvas {P: puntos}
+  function prims(v, vt, vr, cerr) {
+    const n = v.length, out = [];
+    if (n < 2) return out;
+    const P_ = i => v[((i % n) + n) % n], T = i => (cerr || (i > 0 && i < n - 1)) ? (vt[((i % n) + n) % n] || 0) : 0, R_ = i => vr[((i % n) + n) % n] || 0;
+    const anc = i => T(i) !== 1 && T(i) !== 2;
+    // arco del vértice i: tangente en los dos tramos (con radio 0, el mayor que cabe)
     const filete = i => {
-      const a = P_(i - 1), b = P_(i), c = P_(i + 1), r = vr[i] || 0;
+      const a = P_(i - 1), b = P_(i), c = P_(i + 1);
       const u = [a[0] - b[0], a[1] - b[1]], w = [c[0] - b[0], c[1] - b[1]], lu = Math.hypot(...u), lw = Math.hypot(...w);
-      if (!r || !lu || !lw) return [b];
-      const cosA = (u[0] * w[0] + u[1] * w[1]) / (lu * lw), A = Math.acos(Math.max(-1, Math.min(1, cosA)));
-      if (A < 1e-3 || A > Math.PI - 1e-3) return [b];
-      const t = Math.min(r / Math.tan(A / 2), lu * 0.999, lw * 0.999), r_ = t * Math.tan(A / 2);
-      const t1 = [b[0] + u[0] / lu * t, b[1] + u[1] / lu * t], t2 = [b[0] + w[0] / lw * t, b[1] + w[1] / lw * t];
-      const bis = [u[0] / lu + w[0] / lw, u[1] / lu + w[1] / lw], lb = Math.hypot(...bis), dc = r_ / Math.sin(A / 2);
-      const o = [b[0] + bis[0] / lb * dc, b[1] + bis[1] / lb * dc];
-      let a1 = Math.atan2(t1[1] - o[1], t1[0] - o[0]), a2 = Math.atan2(t2[1] - o[1], t2[0] - o[0]), da = a2 - a1;
+      if (!lu || !lw) return null;
+      const A = Math.acos(Math.max(-1, Math.min(1, (u[0] * w[0] + u[1] * w[1]) / (lu * lw))));
+      if (A < 1e-3 || A > Math.PI - 1e-3) return null;
+      let t = R_(i) ? R_(i) / Math.tan(A / 2) : Math.min(lu, lw) * (T(i - 1) === 3 || T(i + 1) === 3 ? 0.5 : 1);
+      t = Math.min(t, T(i - 1) === 3 ? lu / 2 : lu, T(i + 1) === 3 ? lw / 2 : lw);
+      const r = t * Math.tan(A / 2), t1 = [b[0] + u[0] / lu * t, b[1] + u[1] / lu * t], t2 = [b[0] + w[0] / lw * t, b[1] + w[1] / lw * t];
+      const bis = [u[0] / lu + w[0] / lw, u[1] / lu + w[1] / lw], lb = Math.hypot(...bis), dc = r / Math.sin(A / 2), o = [b[0] + bis[0] / lb * dc, b[1] + bis[1] / lb * dc];
+      const a1 = Math.atan2(t1[1] - o[1], t1[0] - o[0]); let da = Math.atan2(t2[1] - o[1], t2[0] - o[0]) - a1;
       while (da > Math.PI) da -= 2 * Math.PI; while (da < -Math.PI) da += 2 * Math.PI;
-      const m = Math.max(4, Math.ceil(Math.abs(da) * 180 / Math.PI / 8)), q = [];
-      for (let k_ = 0; k_ <= m; k_++) { const ang = a1 + da * k_ / m; q.push([o[0] + r_ * Math.cos(ang), o[1] + r_ * Math.sin(ang)]); }
-      return q;
+      return {t1, t2, A: {c: o, r, a0: a1, da}};
     };
-    const tramos = cerr ? n : n - 1;
-    for (let i = 0; i < tramos; i++) {
-      if (i === 0) { if (T(0) === 3) out.push(...filete(0)); else out.push(P_(0)); }
-      const j = i + 1;
-      if (T(i) === 2 || T(j) === 2) cat(T(i) === 2 ? P_(i - 1) : P_(i), P_(i), P_(j), T(j) === 2 ? P_(j + 1) : P_(j), 12);
-      if (T(j) === 3) out.push(...filete(j)); else if (!(T(i) === 2 || T(j) === 2)) out.push(P_(j));
+    let i0 = 0; if (cerr) { while (i0 < n && !anc(i0)) i0++; if (i0 === n) i0 = 0; }
+    const seq = []; for (let k_ = 0; k_ <= (cerr ? n : n - 1); k_++) seq.push(cerr ? (i0 + k_) % n : k_);
+    let cur = null;
+    const linea = p => { if (cur && Math.hypot(p[0] - cur[0], p[1] - cur[1]) > 1e-6) out.push({L: [cur, p]}); cur = p; };
+    const entra = i => { const f = T(i) === 3 ? filete(i) : null; if (!f) { if (cur) linea(P_(i)); else cur = P_(i); return null; } if (cur) linea(f.t1); else cur = f.t1; return f; };
+    const sale = f => { if (f) { out.push({A: f.A}); cur = f.t2; } };
+    sale(entra(seq[0]));
+    const inicio = out.length && out[0].A ? extremoP(out[0], false) : (cur || P_(seq[0]));
+    const ultimo = j => cerr && j === seq.length - 1;           // al cerrar, se vuelve al punto de partida (su arco ya está)
+    let k_ = 0;
+    while (k_ < seq.length - 1) {
+      let j = k_ + 1; const ctrl = [];
+      while (j < seq.length - 1 && !anc(seq[j])) { ctrl.push(seq[j]); j++; }
+      if (!ctrl.length) { if (ultimo(j)) linea(inicio); else sale(entra(seq[j])); k_ = j; continue; }
+      const fin = !ultimo(j) && T(seq[j]) === 3 ? filete(seq[j]) : null, C = ultimo(j) ? inicio : (fin ? fin.t1 : P_(seq[j])), A0 = cur, pts = [];
+      if (T(ctrl[0]) === 1) {           // Bézier: B-spline cuadrática (puntos de paso en los medios de controles seguidos)
+        const cps = ctrl.map(P_); let s_ = A0;
+        for (let q = 0; q < cps.length; q++) {
+          const e = q === cps.length - 1 ? C : [(cps[q][0] + cps[q + 1][0]) / 2, (cps[q][1] + cps[q + 1][1]) / 2];
+          for (let m = 1; m <= 12; m++) { const t = m / 12; pts.push([(1 - t) * (1 - t) * s_[0] + 2 * (1 - t) * t * cps[q][0] + t * t * e[0], (1 - t) * (1 - t) * s_[1] + 2 * (1 - t) * t * cps[q][1] + t * t * e[1]]); }
+          s_ = e;
+        }
+      } else {                           // cúbico: la curva pasa por los puntos
+        const ps = [A0, ...ctrl.map(P_), C];
+        for (let q = 0; q + 1 < ps.length; q++) { const p0 = ps[Math.max(0, q - 1)], p1 = ps[q], p2 = ps[q + 1], p3 = ps[Math.min(ps.length - 1, q + 2)];
+          for (let m = 1; m <= 12; m++) { const t = m / 12, t2 = t * t, t3 = t2 * t; pts.push([0.5 * (2 * p1[0] + (-p0[0] + p2[0]) * t + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2 + (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3), 0.5 * (2 * p1[1] + (-p0[1] + p2[1]) * t + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2 + (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3)]); } }
+      }
+      out.push({P: [A0].concat(pts)}); cur = C;
+      sale(fin); k_ = j;
     }
     return out;
+  }
+  function aplanar(ps) {
+    const out = [];
+    for (const p of ps) {
+      if (p.L) { if (!out.length) out.push(p.L[0]); out.push(p.L[1]); }
+      else if (p.A) { const {c, r, a0, da} = p.A, m = Math.max(4, Math.ceil(Math.abs(da) * 180 / Math.PI / 6)); for (let k_ = out.length ? 1 : 0; k_ <= m; k_++) { const a = a0 + da * k_ / m; out.push([c[0] + r * Math.cos(a), c[1] + r * Math.sin(a)]); } }
+      else if (p.P) { for (let k_ = out.length ? 1 : 0; k_ < p.P.length; k_++) out.push(p.P[k_]); }
+    }
+    return out;
+  }
+  // primitivas de cualquier objeto: círculos y arcos exactos, polilíneas con sus arcos
+  function primsDe(d) {
+    const o = d.o;
+    if (d.nuevo && o.tipo === "circulo") return [{A: {c: o.centro, r: o.r, a0: 0, da: 2 * Math.PI}}];
+    if (d.nuevo && o.tipo === "arco") return [{A: {c: o.centro, r: o.r, a0: o.ini * Math.PI / 180, da: o.barrido * Math.PI / 180}}];
+    const sinTocar = !d.nuevo && !d.copia && !ed[d.id];   // (los arcos y círculos de VW, exactos)
+    if (sinTocar && d.t === 4 && o.bb) { const w = Math.abs(o.bb[1][0] - o.bb[0][0]), h = Math.abs(o.bb[1][1] - o.bb[0][1]); if (Math.abs(w - h) < 0.01 * Math.max(w, h)) return [{A: {c: [(o.bb[0][0] + o.bb[1][0]) / 2, (o.bb[0][1] + o.bb[1][1]) / 2], r: w / 2, a0: 0, da: 2 * Math.PI}}]; }
+    if (sinTocar && d.t === 6 && o.p1 && o.p2 && o.ang) {
+      const da = o.ang[1] * Math.PI / 180, a0 = o.ang[0] * Math.PI / 180, ch = Math.hypot(o.p2[0] - o.p1[0], o.p2[1] - o.p1[1]), r = ch / (2 * Math.abs(Math.sin(da / 2)) || 1);
+      return [{A: {c: [o.p1[0] - r * Math.cos(a0), o.p1[1] - r * Math.sin(a0)], r, a0, da}}];
+    }
+    const cu = curvaDe(d), g = geomN(d) || forma(d); if (!g) return [];
+    if (cu) return prims(g, cu.vt, cu.vr, !!d.cerr);
+    const f = forma(d), out = []; for (let i = 0; i + 1 < f.length; i++) out.push({L: [f[i], f[i + 1]]}); if (d.cerr && f.length > 2) out.push({L: [f[f.length - 1], f[0]]});
+    return out;
+  }
+  const largoP = p => p.L ? Math.hypot(p.L[1][0] - p.L[0][0], p.L[1][1] - p.L[0][1]) : p.A ? p.A.r * Math.abs(p.A.da) : p.P.reduce((s_, q, i) => i ? s_ + Math.hypot(q[0] - p.P[i - 1][0], q[1] - p.P[i - 1][1]) : 0, 0);
+  function trozoP(p, f0, f1) {      // la parte de la primitiva entre las fracciones f0 y f1 de su largo
+    if (p.L) { const [a, b] = p.L, en = f => [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f]; return {L: [en(f0), en(f1)]}; }
+    if (p.A) return {A: {c: p.A.c, r: p.A.r, a0: p.A.a0 + p.A.da * f0, da: p.A.da * (f1 - f0)}};
+    const L = largoP(p), t0 = L * f0, t1 = L * f1, out = []; let s_ = 0;
+    for (let i = 1; i < p.P.length; i++) {
+      const a = p.P[i - 1], b = p.P[i], l = Math.hypot(b[0] - a[0], b[1] - a[1]), e0 = s_, e1 = s_ + l; s_ = e1;
+      if (e1 < t0 || e0 > t1 || !l) continue;
+      const fa = Math.max(0, (t0 - e0) / l), fb = Math.min(1, (t1 - e0) / l);
+      if (!out.length) out.push([a[0] + (b[0] - a[0]) * fa, a[1] + (b[1] - a[1]) * fa]);
+      out.push([a[0] + (b[0] - a[0]) * fb, a[1] + (b[1] - a[1]) * fb]);
+    }
+    return {P: out};
+  }
+  const extremoP = (p, fin) => p.L ? p.L[fin ? 1 : 0] : p.A ? [p.A.c[0] + p.A.r * Math.cos(p.A.a0 + (fin ? p.A.da : 0)), p.A.c[1] + p.A.r * Math.sin(p.A.a0 + (fin ? p.A.da : 0))] : p.P[fin ? p.P.length - 1 : 0];
+  // un trozo hecho de primitivas → arco (si es uno solo) o polilínea con vértices de arco (los arcos exactos en VW)
+  function aNuevo(ps) {
+    if (ps.length === 1 && ps[0].A) { const A = ps[0].A, s_ = A.da < 0;
+      return {tipo: "arco", centro: A.c, r: A.r, ini: (s_ ? A.a0 + A.da : A.a0) * 180 / Math.PI, barrido: Math.abs(A.da) * 180 / Math.PI, v: poliArco(A.c, A.r, (s_ ? A.a0 + A.da : A.a0) * 180 / Math.PI, Math.abs(A.da) * 180 / Math.PI)}; }
+    const v = [extremoP(ps[0], false)], vt = [0], vr = [0];
+    const pon = (p, t, r) => { const u = v[v.length - 1]; if (t === 0 && Math.hypot(p[0] - u[0], p[1] - u[1]) < 1e-6) return; v.push(p); vt.push(t); vr.push(r); };
+    for (const p of ps) {
+      if (p.L) pon(p.L[1], 0, 0);
+      else if (p.P) for (let i = 1; i < p.P.length; i++) pon(p.P[i], 0, 0);
+      else { const n_ = Math.max(1, Math.ceil(Math.abs(p.A.da) / (Math.PI * 0.9))), dd = p.A.da / n_;     // arcos de menos de 162°
+        for (let i = 0; i < n_; i++) { const am = p.A.a0 + dd * (i + 0.5), rv = p.A.r / Math.cos(dd / 2), ae = p.A.a0 + dd * (i + 1);
+          pon([p.A.c[0] + rv * Math.cos(am), p.A.c[1] + rv * Math.sin(am)], 3, p.A.r); pon([p.A.c[0] + p.A.r * Math.cos(ae), p.A.c[1] + p.A.r * Math.sin(ae)], 0, 0); } }
+    }
+    const n = {tipo: v.length === 2 ? "linea" : "polilinea", v};
+    if (vt.some(t => t)) { n.vt = vt; n.vr = vr; }
+    return n;
   }
 
   /* ---- índice espacial de segmentos para imán y selección (solo lo visible) */
@@ -1124,7 +1213,7 @@ const V2 = (() => {
   function attrDe(d) {
     // atributos como en la paleta de VW: los del objeto, o los de su clase («por clase»), con lo cambiado aquí encima
     const mod = d.nuevo ? d.o.attr : (d.copia ? d.copia.attr : (ed[d.id] || {}).attr);
-    const base = d.nuevo ? {porClase: true, fp: 0} : (d.copia ? attrDe(d.orig) : {lw: d.o.lw, pc: d.o.pc || [0, 0, 0], fp: d.o.fp, ff: d.o.ff, fb: d.o.fb, ls: d.o.ls, op: d.o.op});
+    const base = d.nuevo ? {porClase: true, fp: 0} : (d.copia ? attrDe(d.orig) : {lw: d.o.lw, pc: d.o.pc || [0, 0, 0], fp: d.o.fp, ff: d.o.ff, fb: d.o.fb, ls: d.o.ls, op: typeof d.o.op === "number" ? d.o.op : undefined});
     let a = Object.assign({}, base, mod || {});
     if (a.porClase) {
       const C = (P && P.clases[claseDe(d)]) || {}, fp_ = d.nuevo && !(mod && mod.porClase) ? 0 : C.fp;   // los nuevos, a línea
@@ -1205,7 +1294,10 @@ const V2 = (() => {
     // tiradores de vértices
     if (editable) for (const d of selec) if (d.edit) {
       const g = geomN(d); if (!g) continue; ctx.fillStyle = pap; ctx.strokeStyle = acc; ctx.lineWidth = 1;
-      g.forEach((p, i) => { const [sx, sy] = aP(p[0], p[1]); const on = vSel && vSel.d === d && vSel.k === i; ctx.fillStyle = on ? acc : pap; ctx.fillRect(sx - 4, sy - 4, 8, 8); ctx.strokeRect(sx - 4, sy - 4, 8, 8); });
+      const cu = curvaDe(d);
+      g.forEach((p, i) => { const [sx, sy] = aP(p[0], p[1]); const on = vSel && vSel.d === d && vSel.k === i, t = cu ? cu.vt[i] || 0 : 0; ctx.fillStyle = on ? acc : pap; ctx.beginPath();
+        if (t === 3) ctx.arc(sx, sy, 4.5, 0, 7); else if (t) { ctx.moveTo(sx, sy - 5); ctx.lineTo(sx + 5, sy); ctx.lineTo(sx, sy + 5); ctx.lineTo(sx - 5, sy); ctx.closePath(); } else ctx.rect(sx - 4, sy - 4, 8, 8);
+        ctx.fill(); ctx.stroke(); });
       if (d.t !== 2 && !(d.nuevo && d.o.tipo === "linea")) { const n = g.length; for (let i = 0; i < n - (d.cerr ? 0 : 1); i++) { const a = g[i], b = g[(i + 1) % n]; const [sx, sy] = aP((a[0] + b[0]) / 2, (a[1] + b[1]) / 2); ctx.beginPath(); ctx.moveTo(sx - 3, sy); ctx.lineTo(sx + 3, sy); ctx.moveTo(sx, sy - 3); ctx.lineTo(sx, sy + 3); ctx.stroke(); } }
     }
     // dibujo en curso
@@ -1291,7 +1383,7 @@ const V2 = (() => {
     const e = ed[d.id] || (ed[d.id] = {});
     f(e, false);
     // si al final no cambia nada, fuera
-    if (e.v && JSON.stringify(e.v) === JSON.stringify(d.base)) delete e.v;
+    if (e.v && JSON.stringify(e.v) === JSON.stringify(d.base) && (!e.vt || JSON.stringify(e.vt) === JSON.stringify(d.vt || null))) { delete e.v; delete e.vt; delete e.vr; }
     if (!e.dx && !e.dy) { delete e.dx; delete e.dy; }
     if (e.pasos && !e.pasos.length) delete e.pasos;
     if (e.clase === d.o.clase) delete e.clase;
@@ -1359,6 +1451,7 @@ const V2 = (() => {
       const c = {op: "editar", uuid: d.o.uuid, huella: d.o.h};
       if (e.attr) c.attr = attrR(e.attr);
       if (e.v) c.v = e.v.map(rP);
+      if (e.vt) { c.vt = e.vt; c.vr = e.vr.map(r2); }
       if (e.dx || e.dy) { c.dx = r2(e.dx); c.dy = r2(e.dy); }
       if (e.pasos) c.pasos = pasosR(e.pasos);
       if (e.clase) c.clase = e.clase;
@@ -1420,6 +1513,7 @@ const V2 = (() => {
   }
   function infoSel() {
     const n = selec.size; $("accSel").hidden = !n || !editable; $("btnQuitaV").hidden = !vSel; if (editable) pintaAtributos();
+    $("grpVert").hidden = !(editable && (vSel || herr === "poli" || herr === "poligono"));
     if (!n) { $("insp2d").innerHTML = '<span class="nota">' + (editable ? "Toca un objeto para seleccionarlo; arrastra en vacío para seleccionar por ventana." : "Toca un objeto para ver qué es.") + "</span>"; return; }
     if (n > 1) {
       let A = 0; for (const d of selec) { const m = medidas(d).find(t => t.startsWith("área")); if (m) A += parseFloat(m.replace("área ", "").replace(/\./g, "").replace(",", ".")); }
@@ -1640,10 +1734,29 @@ const V2 = (() => {
   }
   function cancelaPluma() { if (arrastre && arrastre.tipo === "mover" && arrastre.hecho) trasCambio(); tmp = null; arrastre = null; cursor = null; snap = null; ventana = null; $("btnFin").hidden = true; pedir(); }
   function setVertice(d, i, p) { edita(d, (e, nuevo) => { const g = (nuevo ? e.v : (e.v || d.base)).map(q => q.slice()); g[i] = p; e.v = g; }); }
-  function insertaVertice(d, i) { edita(d, (e, nuevo) => { const g = (nuevo ? e.v : (e.v || d.base)).map(q => q.slice()); const a = g[i], b = g[(i + 1) % g.length]; g.splice(i + 1, 0, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]); e.v = g; }); }
+  function tiposDe(d, e, nuevo) {
+    if (nuevo) return e.vt ? [e.vt, e.vr || (e.vr = e.vt.map(() => 0))] : null;
+    if (!e.vt && d.vt) { e.vt = d.vt.slice(); e.vr = d.vr.slice(); }
+    return e.vt ? [e.vt, e.vr] : null;
+  }
+  function insertaVertice(d, i) { edita(d, (e, nuevo) => { const g = (nuevo ? e.v : (e.v || d.base)).map(q => q.slice()); const a = g[i], b = g[(i + 1) % g.length]; g.splice(i + 1, 0, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]); e.v = g;
+    const tt = tiposDe(d, e, nuevo); if (tt) { tt[0].splice(i + 1, 0, 0); tt[1].splice(i + 1, 0, 0); } }); }
+  function tipoVertice(t) {
+    // como «Reformar» en VW: el vértice elegido pasa a esquina, curva o arco (con el radio de la casilla)
+    if (!vSel || !editable) return false;
+    const d = vSel.d, k_ = vSel.k; if (d.t === 2 || (d.nuevo && d.o.tipo === "linea")) return false;
+    guardaHist();
+    edita(d, (e, nuevo) => {
+      if (!nuevo && !e.v) e.v = d.base.map(q => q.slice());
+      let tt = tiposDe(d, e, nuevo); const n = (nuevo ? e.v : e.v).length;
+      if (!tt) { e.vt = new Array(n).fill(0); e.vr = new Array(n).fill(0); tt = [e.vt, e.vr]; }
+      tt[0][k_] = t; tt[1][k_] = t === 3 ? radioV() : 0;
+    });
+    trasCambio(); return true;
+  }
   function quitaVertice() {
     if (!vSel) return; const d = vSel.d, g = geomN(d); if (g.length <= (d.cerr ? 3 : 2)) { toast("No se pueden quitar más vértices"); return; }
-    guardaHist(); edita(d, (e, nuevo) => { const v = (nuevo ? e.v : (e.v || d.base)).map(q => q.slice()); v.splice(vSel.k, 1); e.v = v; }); vSel = null; trasCambio();
+    guardaHist(); edita(d, (e, nuevo) => { const v = (nuevo ? e.v : (e.v || d.base)).map(q => q.slice()); v.splice(vSel.k, 1); e.v = v; const tt = tiposDe(d, e, nuevo); if (tt) { tt[0].splice(vSel.k, 1); tt[1].splice(vSel.k, 1); } }); vSel = null; trasCambio();
   }
   function borrarSel() {
     if (!selec.size || !editable) return; guardaHist();
@@ -1832,18 +1945,16 @@ const V2 = (() => {
     const N = parseInt($("inLong").value, 10);
     if (!(N >= 2)) { toast("Escribe en la casilla en cuántas partes (2 o más) y vuelve a pulsar «Dividir»"); return; }
     const sel = [...selec].filter(d => !d.texto && !d.caja && forma(d) && forma(d).length >= 2);
-    if (!sel.length) { toast("Selecciona líneas o polilíneas"); return; }
+    if (!sel.length) { toast("Selecciona líneas, polilíneas, arcos o círculos"); return; }
     guardaHist(); const ns = [];
     for (const d of sel) {
-      let g = forma(d).slice(); if (d.cerr) g = g.concat([g[0]]);
-      const Ls = [0]; for (let i = 1; i < g.length; i++) Ls.push(Ls[i - 1] + Math.hypot(g[i][0] - g[i - 1][0], g[i][1] - g[i - 1][1]));
-      const tot = Ls[Ls.length - 1]; if (!tot) continue;
-      const en = t => { let i = 1; while (i < Ls.length - 1 && Ls[i] < t) i++; const f = (t - Ls[i - 1]) / ((Ls[i] - Ls[i - 1]) || 1); return [g[i - 1][0] + (g[i][0] - g[i - 1][0]) * f, g[i - 1][1] + (g[i][1] - g[i - 1][1]) * f]; };
+      // por primitivas: los tramos de arco y los círculos se parten en arcos, no en muchos vértices
+      const ps = primsDe(d), ls_ = ps.map(largoP), tot = ls_.reduce((a, b) => a + b, 0); if (!tot) continue;
       for (let k_ = 0; k_ < N; k_++) {
-        const t0 = tot * k_ / N, t1 = tot * (k_ + 1) / N, pts = [en(t0)];
-        for (let i = 1; i < g.length - 1; i++) if (Ls[i] > t0 + 1e-6 && Ls[i] < t1 - 1e-6) pts.push(g[i]);
-        pts.push(en(t1));
-        const n = {id: nid(), tipo: pts.length === 2 ? "linea" : "polilinea", v: pts, clase: claseDe(d), capa: capaDe(d), attr: attrDe(d)};
+        const t0 = tot * k_ / N, t1 = tot * (k_ + 1) / N, parte = []; let s0 = 0;
+        ps.forEach((p, i) => { const s1 = s0 + ls_[i]; if (s1 > t0 + 1e-9 && s0 < t1 - 1e-9 && ls_[i]) parte.push(trozoP(p, Math.max(0, (t0 - s0) / ls_[i]), Math.min(1, (t1 - s0) / ls_[i]))); s0 = s1; });
+        if (!parte.length) continue;
+        const n = Object.assign(aNuevo(parte), {id: nid(), clase: claseDe(d), capa: capaDe(d), attr: attrDe(d)});
         nuevos.push(n); ns.push(n);
       }
       if (d.nuevo) nuevos = nuevos.filter(n => n !== d.o); else if (d.copia) copias = copias.filter(c => c !== d.copia); else if (d.o.uuid) (ed[d.id] = ed[d.id] || {}).borrado = true;
@@ -1855,7 +1966,7 @@ const V2 = (() => {
   const radioV = () => { const r = parseFloat(String($("inRadio").value).replace(",", ".")); return r > 0 ? r : 300; };
   function setEditable(v) { editable = !!v; if (!editable) { cancelaPluma(); herr = "sel"; } vSel = null; infoSel(); pintaCapas(); pintaClases(); pedir(); }
   return {preparar, redim, encuadrar, pedir, deshacer, rehacer, borrarSel, aClase, aTrama, restauraSel, quitaVertice, terminaPoli, enviar, archivo, vaciar, longitud, setEditable, pintaClases, todasVis,
-    aplicaAtributo, booleana, dividir, cambios: () => cambios(), setModoV(v) { modoV = v; pedir(); }, setMas(v) { masSel = v; },
+    aplicaAtributo, booleana, dividir, cambios: () => cambios(), setModoV(v) { modoV = v; pedir(); }, setMas(v) { masSel = v; }, tipoVertice,
     setHerr(h) { if (tmp && (tmp.tipo === "poli" || tmp.tipo === "poligono") && tmp.pts.length >= 2) terminaPoli(); herr = h; cancelaPluma(); }, setOrto(v) { orto = v; }, setIman(v) { iman = v; }, setDedo(v) { dedo = v; }, setDup(v) { duplicar = v; },
     hay: () => !!P, tema() { patrones.clear(); pedir(); }};
 })();
@@ -2178,7 +2289,7 @@ tog("btnOrto", v => V2.setOrto(v)); tog("btnIman", v => V2.setIman(v)); tog("btn
 $("btnBorrarP").onclick = () => V2.borrarSel();
 $("btnDividir").onclick = () => V2.dividir();
 $("btnSumar").onclick = () => V2.booleana("sumar"); $("btnRestar").onclick = () => V2.booleana("restar"); $("btnInter").onclick = () => V2.booleana("intersectar");
-document.querySelectorAll("[data-vt]").forEach(b => b.onclick = () => { document.querySelectorAll("[data-vt]").forEach(x => x.classList.toggle("on", x === b)); V2.setModoV(+b.dataset.vt); });
+document.querySelectorAll("[data-vt]").forEach(b => b.onclick = () => { if (V2.tipoVertice(+b.dataset.vt)) return; document.querySelectorAll("[data-vt]").forEach(x => x.classList.toggle("on", x === b)); V2.setModoV(+b.dataset.vt); });
 $("atRell").onchange = e => V2.aplicaAtributo("relleno", e.target.value);
 $("atRellCol").onchange = e => { const c = [1, 3, 5].map(i => parseInt(e.target.value.slice(i, i + 2), 16)); V2.aplicaAtributo("fb", c); };
 $("atLs").onchange = e => V2.aplicaAtributo("ls", +e.target.value);
