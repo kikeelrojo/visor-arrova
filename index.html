@@ -148,7 +148,9 @@ details.hechas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-w
 .notas-datos{max-width:760px}
 .ldocs button .cnt{float:right;font-style:normal;font-weight:700;font-size:var(--s-xs);color:var(--warn);border:0.5px solid var(--warn);min-width:16px;text-align:center;padding:0 3px;margin-left:6px}
 h3 .adm{color:#7b1d2c}
-.adm-tag{color:var(--warn);border:0.5px solid var(--warn);background:transparent;font-weight:700;padding:4px 8px;white-space:nowrap;letter-spacing:.02em;cursor:pointer}
+header .btn{line-height:16px;height:28px;padding:5px 10px;font-weight:400;vertical-align:middle;min-width:92px;text-align:center}
+a.btn.rojo{color:var(--warn);border-color:var(--warn)}
+@media (max-width:900px){header .btn{min-width:0}}
 #notasHerr .btn.on{background:var(--ink);color:var(--paper)}
 .ppto input{width:84px;border:0.5px solid var(--ink);background:var(--paper);padding:2px 4px;text-align:right;font-variant-numeric:tabular-nums}
 .vacio{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px}
@@ -206,10 +208,10 @@ h3 .adm{color:#7b1d2c}
     <select id="selModelo" aria-label="Modelo"></select>
     <div class="estado" id="estado"></div>
     <div class="sp"></div>
-    <button class="adm-tag" id="marcaAdmin" hidden title="Este navegador puede borrar cualquier comentario. Tócalo para guardar el visor como app ya en modo admin">Modo admin</button>
-    <a class="btn" id="btnEditor" href="?editor" target="_blank" rel="noopener" title="El editor de planos, aparte del visor">Editor ↗</a>
+    <a class="btn rojo" id="btnEditor" href="?editor" target="_blank" rel="noopener" title="El editor de planos, aparte del visor">Editor ↗</a>
     <button class="btn" id="btnVolver" hidden title="Volver al visor">Visor</button>
     <button class="btn" id="btnAbrir" title="Abrir los archivos del visor desde iCloud o del ordenador">Abrir…</button>
+    <button class="btn" id="marcaAdmin" hidden title="Este navegador puede borrar cualquier comentario. Tócalo para guardar el visor como app ya en modo admin">Modo admin</button>
     <button class="btn panel-toggle" id="btnPanel">Panel</button>
     <input type="file" id="ficheros" multiple accept=".json,application/json">
   </header>
