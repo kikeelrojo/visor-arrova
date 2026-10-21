@@ -1,0 +1,159 @@
+{
+ "formato": "arrova-laminas",
+ "doc": "basico op3.vwx",
+ "conjunto": "visor",
+ "fecha": "2026-10-21 18:36",
+ "hojas": [
+  {
+   "n": "LO-A1",
+   "titulo": "Situación y emplazamiento"
+  },
+  {
+   "n": "LO-B1",
+   "titulo": "Estado actual"
+  },
+  {
+   "n": "LO-B2",
+   "titulo": "Estado actual"
+  },
+  {
+   "n": "LO-D1",
+   "titulo": "Plantas baja y primera"
+  },
+  {
+   "n": "LO-D2",
+   "titulo": "Plantas segunda y cubierta"
+  },
+  {
+   "n": "LO-D3",
+   "titulo": "Alzados y secciones"
+  },
+  {
+   "n": "LO-E1",
+   "titulo": "Estructura"
+  },
+  {
+   "n": "LO-F1",
+   "titulo": "Construcción plantas baja y primera"
+  },
+  {
+   "n": "LO-F2",
+   "titulo": "Construcción plantas segunda y cubierta"
+  },
+  {
+   "n": "LO-F3",
+   "titulo": "Muros y tabiques"
+  },
+  {
+   "n": "LO-F4",
+   "titulo": "Detalles constructivos"
+  },
+  {
+   "n": "LO-F5",
+   "titulo": "Sección constructiva A"
+  },
+  {
+   "n": "LO-F6",
+   "titulo": "Sección constructiva B"
+  },
+  {
+   "n": "LO-F7",
+   "titulo": "Sección constructiva C"
+  },
+  {
+   "n": "LO-G1",
+   "titulo": "Carpintería"
+  },
+  {
+   "n": "LO-G2",
+   "titulo": "Carpintería 2"
+  },
+  {
+   "n": "LO-G3",
+   "titulo": "Carpintería 3"
+  },
+  {
+   "n": "LO-H1",
+   "titulo": "Fontanería 1"
+  },
+  {
+   "n": "LO-H2",
+   "titulo": "Fontanería 2"
+  },
+  {
+   "n": "LO-H3",
+   "titulo": "Saneamiento 1"
+  },
+  {
+   "n": "LO-H4",
+   "titulo": "Saneamiento 2"
+  },
+  {
+   "n": "LO-H5",
+   "titulo": "Ventilación 1"
+  },
+  {
+   "n": "LO-H6",
+   "titulo": "Ventilación 2"
+  },
+  {
+   "n": "LO-H7",
+   "titulo": "Electricidad 1"
+  },
+  {
+   "n": "LO-H8",
+   "titulo": "Electricidad 2"
+  },
+  {
+   "n": "LO-H9",
+   "titulo": "Suelo radiante 1"
+  },
+  {
+   "n": "LO-H10",
+   "titulo": "Suelo radiante 2"
+  },
+  {
+   "n": "LO-I1",
+   "titulo": "Demolición y residuos"
+  },
+  {
+   "n": "Detalle 1",
+   "titulo": ""
+  },
+  {
+   "n": "Detalle 2",
+   "titulo": ""
+  },
+  {
+   "n": "Detalle 3",
+   "titulo": ""
+  },
+  {
+   "n": "Esquema riesgos cubierta",
+   "titulo": ""
+  },
+  {
+   "n": "Sht-8",
+   "titulo": "[Sheet Title]"
+  },
+  {
+   "n": "Sht-8.1",
+   "titulo": "[Sheet Title]"
+  },
+  {
+   "n": "Sht-8.2",
+   "titulo": "[Sheet Title]"
+  },
+  {
+   "n": "LO-D4",
+   "titulo": "Alzados"
+  }
+ ],
+ "pdfs": [
+  {
+   "archivo": "laminas/PDF/basico op3.pdf",
+   "titulo": "Juego completo de láminas",
+   "nota": "27 páginas · 21-10-2026 18:36"
+  }
+ ]
+}

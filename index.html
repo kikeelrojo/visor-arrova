@@ -83,6 +83,8 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 .paleta .btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round}
 .paleta .btn.on{background:var(--ink);color:var(--paper)}
 .modo-ed .tool2d{left:80px}
+.solo-editor .tabs,.solo-editor #selModelo,.solo-editor #btnEditor,.editor .tabs,.editor #selModelo,.editor #btnEditor{display:none!important}
+.editor:not(.solo-editor) #btnVolver{display:inline-block!important}
 .lcap{display:grid;gap:2px;font-size:var(--s-s);max-height:260px;overflow-y:auto}
 .lcap .lin{display:flex;align-items:center;gap:6px;min-width:0;padding:1px 0}
 .lcap .lin .chk{min-width:0;flex:1}
@@ -149,11 +151,10 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 
 <div class="app">
   <header>
-    <div class="marca">arrova <span>· visor</span></div>
+    <div class="marca">arrova <span id="marcaSub">· visor</span></div>
     <div class="tabs" role="group" aria-label="Modo">
       <button id="tab3d" aria-pressed="true">3D</button>
-      <button id="tab2d" aria-pressed="false">Plano</button>
-      <button id="tabEd" aria-pressed="false">Editor</button>
+      <button id="tab2d" aria-pressed="false">2D</button>
       <button id="tabLam" aria-pressed="false">Láminas</button>
       <button id="tabMem" aria-pressed="false">Memorias</button>
       <button id="tabDatos" aria-pressed="false">Mediciones</button>
@@ -162,6 +163,8 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
     <select id="selModelo" aria-label="Modelo"></select>
     <div class="estado" id="estado"></div>
     <div class="sp"></div>
+    <a class="btn" id="btnEditor" href="?editor" target="_blank" rel="noopener" title="El editor de planos, aparte del visor">Editor ↗</a>
+    <button class="btn" id="btnVolver" hidden title="Volver al visor">Visor</button>
     <button class="btn" id="btnAbrir" title="Abrir los archivos del visor desde iCloud o del ordenador">Abrir…</button>
     <button class="btn panel-toggle" id="btnPanel">Panel</button>
     <input type="file" id="ficheros" multiple accept=".json,application/json">
@@ -915,7 +918,9 @@ const V2 = (() => {
     escCapa = {}; for (const c of P.capas || []) escCapa[c.n] = c.esc || 100;
     // visibilidad: la de Vectorworks (capas y clases invisibles, apagadas) y lo que se haya tocado aquí
     const g = ls(claveVis()) || {};
-    capaVis = {}; for (const c of P.capas || []) capaVis[c.n] = g.capas && c.n in g.capas ? g.capas[c.n] : c.vis !== -1;
+    // si Vectorworks las da todas por ocultas (se exportó con una hoja activa), se enciende solo la capa de dibujo
+    const fiable = (P.capas || []).some(c => c.vis === 0 || c.vis === 2), cd = P.capa_dibujo || ((P.capas || [])[0] || {}).n;
+    capaVis = {}; for (const c of P.capas || []) capaVis[c.n] = g.capas && c.n in g.capas ? g.capas[c.n] : (fiable ? c.vis !== -1 : c.n === cd);
     claseVis = {}; for (const [n, c] of Object.entries(P.clases || {})) claseVis[n] = g.clases && n in g.clases ? g.clases[n] : c.vis !== -1;
     capaAct = P.capa_dibujo || ((P.capas || [])[0] || {}).n;
     const cl = $("selClase"); cl.innerHTML = "";
@@ -1088,7 +1093,9 @@ const V2 = (() => {
       ctx.lineWidth = ancho(d) * (sel ? 1.5 : 1); ctx.setLineDash(trazo(c, d.nuevo ? null : d.o.ls));
       if (d.texto) {
         const p = puntoTexto(d); if (p[0] < mx0 - 5000 || p[0] > mx1 + 5000 || p[1] < my0 - 5000 || p[1] > my1 + 5000) continue;
-        const [sx, sy] = aP(p[0], p[1]); const pt = (d.o.tam || 8) * 0.3528 * (escCapa[capaDe(d)] || 100) * k;   // pt de papel → mm a la escala de la capa
+        const [sx, sy] = aP(p[0], p[1]);
+        // Vectorworks da el tamaño en mm del modelo (200 = 2 mm de papel a 1:100); los muy pequeños se toman como puntos de papel
+        const t_ = d.o.tam || 8, pt = (t_ > 40 ? t_ : t_ * 0.3528 * (escCapa[capaDe(d)] || 100)) * k;
         if (pt < 3) continue;
         ctx.save(); ctx.translate(sx, sy); ctx.rotate(-giroTexto(d) * Math.PI / 180); ctx.font = (pt > 400 ? 400 : pt) + "px " + css("--f"); ctx.fillText(d.o.txt || "", 0, 0); ctx.restore();
         continue;
@@ -1549,7 +1556,7 @@ const V2 = (() => {
     const box = document.createElement("input"); box.placeholder = "Texto e Intro"; box.style.cssText = "position:absolute;z-index:5;border:0.5px solid var(--ink);background:var(--paper);padding:4px;font:12px var(--f)";
     const s = aP(p[0], p[1]); box.style.left = s[0] + "px"; box.style.top = (s[1] - 14) + "px";
     $("vista").appendChild(box); box.focus();
-    const ok = () => { const t = box.value.trim(); box.remove(); if (t) { guardaHist(); nuevos.push({id: nid(), tipo: "texto", txt: t, pos: p, tam: 6, clase: $("selClase").value, capa: capaAct}); trasCambio(); } };
+    const ok = () => { const t = box.value.trim(); box.remove(); if (t) { guardaHist(); nuevos.push({id: nid(), tipo: "texto", txt: t, pos: p, tam: Math.round(6 * 0.3528 * (escCapa[capaAct] || 100) * 10) / 10, clase: $("selClase").value, capa: capaAct}); trasCambio(); } };
     box.addEventListener("keydown", e => { if (e.key === "Enter") ok(); if (e.key === "Escape") box.remove(); });
     box.addEventListener("blur", ok, {once: true});
   }
@@ -1847,9 +1854,11 @@ async function abrir2d() {
 }
 function modo(m) {
   if (m === "ed" && S.soloVer) m = "2d";
+  if (S.soloEditor && m !== "ed") return;
   S.modo = m;
+  document.body.classList.toggle("editor", m === "ed");
   const plano = m === "2d" || m === "ed", doc = m === "lam" || m === "mem";
-  const tabs = {"3d": "tab3d", "2d": "tab2d", ed: "tabEd", lam: "tabLam", mem: "tabMem", datos: "tabDatos"};
+  const tabs = {"3d": "tab3d", "2d": "tab2d", lam: "tabLam", mem: "tabMem", datos: "tabDatos"};
   for (const [k_, id] of Object.entries(tabs)) $(id).setAttribute("aria-pressed", m === k_);
   $("c3d").hidden = m !== "3d"; $("c2d").hidden = !plano; $("p3d").hidden = m !== "3d" && m !== "datos"; $("p2d").hidden = !plano; $("pDocs").hidden = !doc;
   $("tool2d").hidden = m !== "ed"; $("paleta").hidden = m !== "ed";
@@ -1859,13 +1868,16 @@ function modo(m) {
   $("selModelo").hidden = m !== "3d" && m !== "datos";
   $("rotulo").hidden = m !== "3d";
   document.querySelectorAll(".aspa,.esq").forEach(x => x.hidden = m === "datos" || doc);
-  const h = {"3d": "", "2d": "#plano", ed: "#editor", lam: "#laminas", mem: "#memorias", datos: "#datos"}[m];
-  try { history.replaceState(null, "", h || location.pathname + location.search); } catch (e) { /* vista previa */ }
+  const h = {"3d": "", "2d": "#2d", ed: "", lam: "#laminas", mem: "#memorias", datos: "#datos"}[m];
+  if (!S.soloEditor) try { history.replaceState(null, "", h || location.pathname + location.search); } catch (e) { /* vista previa */ }
   if (m === "datos") { Datos.refrescar(); return; }
   if (doc) { $("vacio").hidden = true; Docs.abrir(m === "lam" ? "laminas" : "memorias"); return; }
   if (plano) { V2.setEditable(m === "ed"); abrir2d(); requestAnimationFrame(() => V2.redim()); } else { requestAnimationFrame(() => V3.redim()); if (!S.modelo) $("vacio").hidden = false; }
 }
-$("tab3d").onclick = () => modo("3d"); $("tab2d").onclick = () => modo("2d"); $("tabEd").onclick = () => modo("ed");
+$("tab3d").onclick = () => modo("3d"); $("tab2d").onclick = () => modo("2d");
+// el editor va aparte: en la web, en otra pestaña del navegador; dentro de Claude, en la misma página con «Visor» para volver
+$("btnEditor").onclick = e => { if (window.claude) { e.preventDefault(); S.volverA = S.modo; modo("ed"); } };
+$("btnVolver").onclick = () => modo(S.volverA || "2d");
 $("tabLam").onclick = () => modo("lam"); $("tabMem").onclick = () => modo("mem"); $("tabDatos").onclick = () => modo("datos");
 $("btnVerTodo").onclick = () => V3.resaltar(null);
 $("selProyecto").onchange = e => elegirProyecto(e.target.value);
@@ -1919,10 +1931,12 @@ new MutationObserver(() => { V3.tema(); V2.tema(); }).observe(document.documentE
   if (Object.keys(S.proyectos).length) rellenarProyectos(); else $("vacio").hidden = false;
   rotulo();
   const hs = {"#2d": "2d", "#plano": "2d", "#editor": "ed", "#laminas": "lam", "#memorias": "mem", "#datos": "datos"}[location.hash];
+  S.soloEditor = /(^|[?&])editor\b/.test(location.search) || hs === "ed";
+  if (S.soloEditor) { document.body.classList.add("solo-editor"); document.title = "Editor arrova"; $("marcaSub").textContent = "· editor"; }
   // quien solo puede ver la página en claude.ai (p. ej. el aparejador) no tiene el editor; en la web pública sí
   // (sus cambios salen como archivo, que solo recoge el Mac de Enrique)
   const u = await cap("user");
-  if (u && u.canEdit && !u.canEdit()) { S.soloVer = true; $("tabEd").hidden = true; }
-  if (hs) modo(hs);
+  if (u && u.canEdit && !u.canEdit()) { S.soloVer = true; $("btnEditor").hidden = true; }
+  if (S.soloEditor && !S.soloVer) modo("ed"); else if (hs && hs !== "ed") modo(hs);
 })();
 </script>
