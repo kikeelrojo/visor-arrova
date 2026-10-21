@@ -83,6 +83,14 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 .paleta .btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round}
 .paleta .btn.on{background:var(--ink);color:var(--paper)}
 .modo-ed .tool2d{left:80px}
+.sep-pal{font-size:8px;text-align:center;padding:5px 0 2px;border:0.5px solid var(--ink);border-top:0;letter-spacing:.04em}
+.tool2d #inRadio{width:60px}
+.attr{display:grid;gap:5px;font-size:var(--s-s);margin-top:6px}
+.attr label{display:grid;grid-template-columns:62px 1fr auto;gap:6px;align-items:center}
+.attr label.chk{display:flex}
+.attr select{min-width:0;width:100%}
+.attr input[type=color]{width:34px;height:22px;border:0.5px solid var(--ink);padding:0;background:none}
+.attr input[type=range]{accent-color:var(--ink)}
 .solo-editor .tabs,.solo-editor #selModelo,.solo-editor #btnEditor,.editor .tabs,.editor #selModelo,.editor #btnEditor{display:none!important}
 .editor:not(.solo-editor) #btnVolver{display:inline-block!important}
 .lcap{display:grid;gap:2px;font-size:var(--s-s);max-height:260px;overflow-y:auto}
@@ -192,6 +200,12 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
           <button class="btn" data-h="girar" title="Centro, punto de referencia y destino, o escribe el ángulo"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 8A6 6 0 1 0 16 12M15.5 3.5v4.5h-4.5"/></svg><span>Girar</span></button>
           <button class="btn" data-h="simetria" title="Dos puntos del eje (con «Duplicar», deja el original)"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2v16M8 5L3 15h5zM12 5l5 10h-5z"/></svg><span>Simetría</span></button>
           <button class="btn" data-h="medir" title="Distancia y ángulo entre dos puntos"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 13l11-9 3 3.5-11 9zM6 11l1.5 1.5M8.5 9l1.5 1.5M11 7l1.5 1.5"/></svg><span>Medir</span></button>
+          <button class="btn" data-h="desplazar" title="Desplazar (offset): escribe la distancia en mm y toca el lado"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 15l6-10h8M3 18l6-10h8"/></svg><span>Desplazar</span></button>
+          <div class="sep-pal">Modificar</div>
+          <button class="btn" id="btnDividir" title="Dividir en partes iguales: escribe el número de partes en la casilla"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h14M3 7v6M8 8v4M12 8v4M17 7v6"/></svg><span>Dividir</span></button>
+          <button class="btn" id="btnSumar" title="Sumar superficies"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h8v5h6v6H9v-5H3z"/></svg><span>Sumar</span></button>
+          <button class="btn" id="btnRestar" title="Restar superficies: la de más arriba recorta a las de debajo"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h10v10H3zM9 9h8v8H9"/></svg><span>Restar</span></button>
+          <button class="btn" id="btnInter" title="Intersecar superficies"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 3h10v10H3zM7 7h10v10H7zM7 7h6v6H7z"/></svg><span>Intersecar</span></button>
           <button class="btn" id="btnBorrarP" title="Borrar lo seleccionado"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 6h10M8 6V4h4v2M6 6l1 11h6l1-11"/></svg><span>Borrar</span></button>
       </div>
       <div class="tool2d" id="tool2d" hidden>
@@ -201,7 +215,14 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
         <button class="btn" id="btnOrto" aria-pressed="true" title="Ángulos de 0°, 45° y 90°">Orto</button>
         <button class="btn" id="btnIman" aria-pressed="true">Imán</button>
         <button class="btn" id="btnDedo" aria-pressed="false" title="Dibujar con el dedo (sin Apple Pencil)">Dedo</button>
+        <button class="btn" id="btnMas" aria-pressed="false" title="Cada toque añade (o quita) de la selección, como con mayúsculas">+ Selección</button>
         <button class="btn" id="btnDup" aria-pressed="false" title="Mover, girar y simetría dejan el original y hacen una copia">Duplicar</button>
+        <span class="grupo" id="grpVert" hidden role="group" aria-label="Tipo de vértice">
+          <button class="btn on" data-vt="0" title="Vértice de esquina">Esquina</button>
+          <button class="btn" data-vt="2" title="Vértice curvo (la curva pasa por el punto)">Curva</button>
+          <button class="btn" data-vt="3" title="Vértice de arco con el radio de la casilla">Arco</button>
+          <input id="inRadio" inputmode="decimal" placeholder="r mm" aria-label="Radio del vértice de arco" value="300">
+        </span>
         <button class="btn" id="btnFin" hidden>Terminar</button>
         <button class="btn" id="btnDeshacer">Deshacer</button>
         <button class="btn" id="btnRehacer">Rehacer</button>
@@ -296,6 +317,17 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
             <button class="btn" id="btnRestaura">Deshacer cambios del objeto</button>
           </div>
         </div>
+        <div class="sec ed-only">
+          <h3>Atributos</h3>
+          <div class="nota" id="atQue"></div>
+          <div class="attr">
+            <label>Relleno<select id="atRell"></select><input type="color" id="atRellCol" aria-label="Color del relleno"></label>
+            <label>Pluma<select id="atLs"></select><input type="color" id="atPenCol" aria-label="Color de la pluma"></label>
+            <label>Grosor<select id="atLw"></select></label>
+            <label>Opacidad<input type="range" id="atOp" min="0" max="100" step="5"><output id="oOp"></output></label>
+            <label class="chk"><input type="checkbox" id="atClase"> Todo por clase</label>
+          </div>
+        </div>
         <div class="sec">
           <h3>Capas <span class="mini"><button class="lnk" data-vis="capas" data-v="1">todas</button> · <button class="lnk" data-vis="capas" data-v="0">ninguna</button></span></h3>
           <div class="lcap" id="listaCapas2d"></div>
@@ -343,6 +375,7 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 
 <script src="lib/three.min.js"></script>
 <script src="lib/OrbitControls.js"></script>
+<script src="lib/clipper.js"></script>
 <script>
 "use strict";
 /* ============================================================ utilidades */
@@ -931,7 +964,7 @@ const V2 = (() => {
     const tr = $("selTrama"); tr.innerHTML = "<option value=''>Sin trama</option>";
     for (const t of P.tramas || []) { const op = document.createElement("option"); op.value = t; op.textContent = t; tr.appendChild(op); }
     const gc = ls(clave()); ed = (gc && gc.ed) || {}; nuevos = (gc && gc.nuevos) || []; copias = (gc && gc.copias) || []; hist = []; futuro = [];
-    indexar(); encuadrar(); resumen(); pintaCapas(); pintaClases();
+    indexar(); encuadrar(); resumen(); pintaCapas(); pintaClases(); opcionesAtributos(); pintaAtributos();
     $("info2d").innerHTML = "<b>" + esc(P.doc || "") + "</b>" + (P.capas || []).length + " capas · " + objs.length + " objetos · exportado " + esc(P.fecha || "") +
       (P.con_uuid ? "" : "<br><span style='color:var(--warn)'>Este plano no lleva identificadores: se puede dibujar encima, pero para editar lo existente hay que exportarlo de nuevo desde Vectorworks con el visor.</span>");
   }
@@ -983,9 +1016,44 @@ const V2 = (() => {
   function claseDe(d) { return d.nuevo ? d.o.clase : (d.copia ? (d.copia.clase || claseDe(d.orig)) : ((ed[d.id] || {}).clase || d.o.clase)); }
   function capaDe(d) { return d.nuevo ? (d.o.capa || capaAct) : d.o.capa; }
   function tramaDe(d) { if (d.nuevo) return d.o.trama; if (d.copia) return tramaDe(d.orig); const e = ed[d.id]; return e && "trama" in e ? e.trama : d.o.trama; }
-  const borrado = d => !d.nuevo && !d.copia && (ed[d.id] || {}).borrado;
-  const visible = d => capaVis[capaDe(d)] !== false && claseVis[claseDe(d)] !== false;
-  function puntosDe(d) { return d.texto ? [puntoTexto(d)] : (d.caja ? cajaPoli(d) : geomN(d)); }
+  const borrado = d => !d.nuevo && !d.copia && ((ed[d.id] || {}).borrado || (ed[d.id] || {}).consumido);
+  const visible = d => (capaVis[capaDe(d)] !== false || capaDe(d) === capaAct) && claseVis[claseDe(d)] !== false;   // la capa activa siempre se ve
+  function puntosDe(d) { return d.texto ? [puntoTexto(d)] : (d.caja ? cajaPoli(d) : forma(d)); }
+  // forma que se ve: la de los vértices, o la curva si la polilínea nueva lleva vértices curvos o de arco (como en VW)
+  function forma(d) { const g = geomN(d); return d.nuevo && d.o.vt && g ? curva(g, d.o.vt, d.o.vr || [], !!d.o.cerr) : g; }
+  function curva(v, vt, vr, cerr) {
+    const n = v.length; if (n < 3) return v;
+    const P_ = i => v[((i % n) + n) % n], T = i => (cerr || (i > 0 && i < n - 1)) ? (vt[((i % n) + n) % n] || 0) : 0;
+    const out = [];
+    const cat = (p0, p1, p2, p3, m) => { for (let s_ = 1; s_ <= m; s_++) { const t = s_ / m, t2 = t * t, t3 = t2 * t;
+      out.push([0.5 * (2 * p1[0] + (-p0[0] + p2[0]) * t + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2 + (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3),
+                0.5 * (2 * p1[1] + (-p0[1] + p2[1]) * t + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2 + (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3)]); } };
+    // arco de radio r en el vértice i: puntos de tangencia sobre los dos tramos y el arco entre ellos
+    const filete = i => {
+      const a = P_(i - 1), b = P_(i), c = P_(i + 1), r = vr[i] || 0;
+      const u = [a[0] - b[0], a[1] - b[1]], w = [c[0] - b[0], c[1] - b[1]], lu = Math.hypot(...u), lw = Math.hypot(...w);
+      if (!r || !lu || !lw) return [b];
+      const cosA = (u[0] * w[0] + u[1] * w[1]) / (lu * lw), A = Math.acos(Math.max(-1, Math.min(1, cosA)));
+      if (A < 1e-3 || A > Math.PI - 1e-3) return [b];
+      const t = Math.min(r / Math.tan(A / 2), lu * 0.999, lw * 0.999), r_ = t * Math.tan(A / 2);
+      const t1 = [b[0] + u[0] / lu * t, b[1] + u[1] / lu * t], t2 = [b[0] + w[0] / lw * t, b[1] + w[1] / lw * t];
+      const bis = [u[0] / lu + w[0] / lw, u[1] / lu + w[1] / lw], lb = Math.hypot(...bis), dc = r_ / Math.sin(A / 2);
+      const o = [b[0] + bis[0] / lb * dc, b[1] + bis[1] / lb * dc];
+      let a1 = Math.atan2(t1[1] - o[1], t1[0] - o[0]), a2 = Math.atan2(t2[1] - o[1], t2[0] - o[0]), da = a2 - a1;
+      while (da > Math.PI) da -= 2 * Math.PI; while (da < -Math.PI) da += 2 * Math.PI;
+      const m = Math.max(4, Math.ceil(Math.abs(da) * 180 / Math.PI / 8)), q = [];
+      for (let k_ = 0; k_ <= m; k_++) { const ang = a1 + da * k_ / m; q.push([o[0] + r_ * Math.cos(ang), o[1] + r_ * Math.sin(ang)]); }
+      return q;
+    };
+    const tramos = cerr ? n : n - 1;
+    for (let i = 0; i < tramos; i++) {
+      if (i === 0) { if (T(0) === 3) out.push(...filete(0)); else out.push(P_(0)); }
+      const j = i + 1;
+      if (T(i) === 2 || T(j) === 2) cat(T(i) === 2 ? P_(i - 1) : P_(i), P_(i), P_(j), T(j) === 2 ? P_(j + 1) : P_(j), 12);
+      if (T(j) === 3) out.push(...filete(j)); else if (!(T(i) === 2 || T(j) === 2)) out.push(P_(j));
+    }
+    return out;
+  }
 
   /* ---- índice espacial de segmentos para imán y selección (solo lo visible) */
   function indexar() {
@@ -998,7 +1066,7 @@ const V2 = (() => {
     for (const d of todos()) {
       if (borrado(d) || !visible(d)) continue;
       if (d.texto) { const p = puntoTexto(d); add(d, p, p); continue; }
-      const g = d.caja ? cajaPoli(d) : geomN(d), cerr = d.caja || d.cerr;
+      const g = d.caja ? cajaPoli(d) : forma(d), cerr = d.caja || d.cerr;
       if (g) { for (let i = 0; i + 1 < g.length; i++) add(d, g[i], g[i + 1]); if (cerr && g.length > 2) add(d, g[g.length - 1], g[0]); }
     }
     idx.C = C;
@@ -1053,13 +1121,28 @@ const V2 = (() => {
     const m = /l-0[.,](\d+)/.exec(c || ""); if (m) return parseFloat("0." + m[1]);
     const cl = (P && P.clases[c]) || {}; return cl.lw > 0 ? cl.lw * 0.0254 : 0.05;
   }
+  function attrDe(d) {
+    // atributos como en la paleta de VW: los del objeto, o los de su clase («por clase»), con lo cambiado aquí encima
+    const mod = d.nuevo ? d.o.attr : (d.copia ? d.copia.attr : (ed[d.id] || {}).attr);
+    const base = d.nuevo ? {porClase: true, fp: 0} : (d.copia ? attrDe(d.orig) : {lw: d.o.lw, pc: d.o.pc || [0, 0, 0], fp: d.o.fp, ff: d.o.ff, fb: d.o.fb, ls: d.o.ls, op: d.o.op});
+    let a = Object.assign({}, base, mod || {});
+    if (a.porClase) {
+      const C = (P && P.clases[claseDe(d)]) || {}, fp_ = d.nuevo && !(mod && mod.porClase) ? 0 : C.fp;   // los nuevos, a línea
+      a = Object.assign({}, a, {lw: C.lw, pc: C.pc, ls: C.ls, ff: C.ff, fb: C.fb, fp: fp_});
+    }
+    return a;
+  }
   function ancho(d) {
-    const c = claseDe(d), mm = mmDe(c, d.nuevo ? null : d.o.lw), esc_ = escCapa[capaDe(d)] || 100;
+    const c = claseDe(d), mm = mmDe(c, attrDe(d).lw), esc_ = escCapa[capaDe(d)] || 100;
     const real = mm * esc_ * k;                           // lo que mide impreso a la escala de su capa
     const pelo = Math.sqrt(Math.max(mm, 0.02) / 0.05) / dpr;   // mínimo visible: un píxel, más para los gruesos
     return Math.min(Math.max(real, pelo), 40);
   }
-  function trazo(c, ls) { if (/dot/i.test(c || "")) return [1, 2.5]; if (/dash/i.test(c || "") || (ls && ls < 0 && !/^l-0/.test(c || ""))) return [5, 3]; return []; }
+  function trazo(c, ls) {
+    const lsP = (P && P.clases["l-dotted"] || {}).ls;
+    if (ls != null) { if (ls === 0) return null; if (ls < 0) return ls === lsP || ls === -10 ? [1, 2.5] : [5, 3]; if (ls > 0 && ls !== 2) return [4, 2]; return []; }
+    if (/dot/i.test(c || "")) return [1, 2.5]; if (/dash/i.test(c || "")) return [5, 3]; return [];
+  }
   const esBlanco = c => c && c[0] > 250 && c[1] > 250 && c[2] > 250, esNegro = c => !c || (c[0] < 6 && c[1] < 6 && c[2] < 6);
   function colorCss(c, tinta, papel, a) {
     if (esNegro(c)) return a == null || a === 1 ? tinta : tinta;
@@ -1073,7 +1156,7 @@ const V2 = (() => {
     g.strokeStyle = col; g.globalAlpha = 0.5; g.lineWidth = 0.5; g.beginPath(); g.moveTo(0, 8); g.lineTo(8, 0); g.stroke();
     const p = ctx.createPattern(pc, "repeat"); patrones.set(col, p); return p;
   }
-  function penDe(d) { if (d.nuevo) return ((P.clases[d.o.clase] || {}).pc) || null; const e = ed[d.id]; if (e && e.clase && P.clases[e.clase]) return P.clases[e.clase].pc || null; return d.o.pc || null; }
+  function penDe(d) { return attrDe(d).pc || null; }
   let pend = false;
   function pedir() { if (!pend) { pend = true; requestAnimationFrame(() => { pend = false; dibujar(); }); } }
   function camino(g, cerr) { ctx.beginPath(); g.forEach((p, i) => { const [sx, sy] = aP(p[0], p[1]); if (i) ctx.lineTo(sx, sy); else ctx.moveTo(sx, sy); }); if (cerr) ctx.closePath(); }
@@ -1090,7 +1173,8 @@ const V2 = (() => {
       const pen = penDe(d), col = sel || cambiado ? acc : colorCss(pen, ink, pap);
       ctx.strokeStyle = col; ctx.fillStyle = col;
       const c = claseDe(d);
-      ctx.lineWidth = ancho(d) * (sel ? 1.5 : 1); ctx.setLineDash(trazo(c, d.nuevo ? null : d.o.ls));
+      const A_ = attrDe(d), dash = trazo(c, A_.ls);
+      ctx.lineWidth = ancho(d) * (sel ? 1.5 : 1); ctx.setLineDash(dash || []);
       if (d.texto) {
         const p = puntoTexto(d); if (p[0] < mx0 - 5000 || p[0] > mx1 + 5000 || p[1] < my0 - 5000 || p[1] > my1 + 5000) continue;
         const [sx, sy] = aP(p[0], p[1]);
@@ -1101,20 +1185,21 @@ const V2 = (() => {
         continue;
       }
       if (d.caja) { const q = cajaPoli(d); if (!q) continue; ctx.setLineDash([2, 2]); ctx.lineWidth = 0.6; camino(q, true); ctx.stroke(); continue; }
-      const g = geomN(d); if (!g || g.length < 2) continue;
+      const g = forma(d); if (!g || g.length < 2) continue;
       let fuera = true; for (const p of g) if (p[0] >= mx0 && p[0] <= mx1 && p[1] >= my0 && p[1] <= my1) { fuera = false; break; }
       if (fuera && g.length < 50) { let bx0 = Infinity, bx1 = -Infinity, by0 = Infinity, by1 = -Infinity; for (const p of g) { bx0 = Math.min(bx0, p[0]); bx1 = Math.max(bx1, p[0]); by0 = Math.min(by0, p[1]); by1 = Math.max(by1, p[1]); } if (bx1 < mx0 || bx0 > mx1 || by1 < my0 || by0 > my1) continue; }
       camino(g, d.cerr);
+      if (d.nuevo && d.o.huecos) for (const h of d.o.huecos) { h.forEach((p, i) => { const [sx, sy] = aP(p[0], p[1]); if (i) ctx.lineTo(sx, sy); else ctx.moveTo(sx, sy); }); ctx.closePath(); }
       if (d.cerr) {
-        const fp = d.nuevo ? 0 : d.o.fp, op = d.nuevo ? 1 : (d.o.op != null ? d.o.op / 100 : 1);
+        const fp = A_.fp, op = A_.op != null ? A_.op / 100 : 1;
         if (tramaDe(d)) { ctx.save(); ctx.fillStyle = patronTrama(col); ctx.fill("evenodd"); ctx.restore(); }
-        else if (fp === 1) { const fc = d.o.fb || d.o.ff; ctx.save(); ctx.globalAlpha = op; ctx.fillStyle = colorCss(fc || [255, 255, 255], ink, pap); ctx.fill("evenodd"); ctx.restore(); }
-        else if (fp > 1 && (d.o.ff || d.o.fb)) {   // trama de puntos de VW: mezcla de frente y fondo, en tono pastel
-          const a = d.o.ff || [255, 255, 255], b = d.o.fb || [255, 255, 255], mz = [0, 1, 2].map(i => Math.round((a[i] + b[i]) / 2));
+        else if (fp === 1) { const fc = A_.fb || A_.ff; ctx.save(); ctx.globalAlpha = op; ctx.fillStyle = sel || cambiado ? "rgba(0,64,255,0.06)" : colorCss(fc || [255, 255, 255], ink, pap); ctx.fill("evenodd"); ctx.restore(); }
+        else if (fp > 1 && (A_.ff || A_.fb)) {   // trama de puntos de VW: mezcla de frente y fondo, en tono pastel
+          const a = A_.ff || [255, 255, 255], b = A_.fb || [255, 255, 255], mz = [0, 1, 2].map(i => Math.round((a[i] + b[i]) / 2));
           ctx.save(); ctx.globalAlpha = op; ctx.fillStyle = colorCss(mz, ink, pap); ctx.fill("evenodd"); ctx.restore();
         }
       }
-      ctx.stroke();
+      if (dash) ctx.stroke();
     }
     ctx.setLineDash([]);
     // tiradores de vértices
@@ -1169,6 +1254,7 @@ const V2 = (() => {
       const p = pasoTmp(); if (p) fantasma(mPaso(p), acc);
       if (T === "girar" && pts.length >= 3) { const s = aP(pts[2][0], pts[2][1]); ctx.fillStyle = acc; ctx.font = "bold 11px " + css("--f"); ctx.fillText(fmt(p.girar[2], 1) + "°", s[0] + 10, s[1] - 10); }
     }
+    else if ((T === "poli" || T === "poligono") && tmp.vt && pts.length > 2 && tmp.vt.concat([modoV]).some(t => t)) { camino(curva(pts, tmp.vt.concat([modoV]), tmp.vr.concat([radioV()]), false), false); ctx.stroke(); }
     else if (pts.length > 1) { camino(pts, false); ctx.stroke(); }
     ctx.setLineDash([]);
     if (pts.length > 1 && T !== "girar" && T !== "simetria") {
@@ -1259,28 +1345,39 @@ const V2 = (() => {
   }
   const r2 = v => Math.round(v * 100) / 100, rP = p => [r2(p[0]), r2(p[1])];
   function pasosR(pasos) { return pasos.map(p => p.mover ? {mover: rP(p.mover)} : p.girar ? {girar: [r2(p.girar[0]), r2(p.girar[1]), Math.round(p.girar[2] * 1e4) / 1e4]} : {simetria: [rP(p.simetria[0]), rP(p.simetria[1])]}); }
+  function attrR(a) {
+    // al formato de VW: grosor en milésimas de pulgada, colores 0-255, opacidad %, «por clase»
+    if (a.porClase) return {porClase: true, fp: a.fp};
+    const o = {}; for (const k_ of ["lw", "pc", "fp", "ff", "fb", "ls", "op"]) if (a[k_] != null) o[k_] = a[k_];
+    return o;
+  }
   function cambios() {
     const out = [];
     for (const d of objs) {
       const e = ed[d.id]; if (!e) continue;
       if (e.borrado) { out.push({op: "borrar", uuid: d.o.uuid, huella: d.o.h}); continue; }
       const c = {op: "editar", uuid: d.o.uuid, huella: d.o.h};
+      if (e.attr) c.attr = attrR(e.attr);
       if (e.v) c.v = e.v.map(rP);
       if (e.dx || e.dy) { c.dx = r2(e.dx); c.dy = r2(e.dy); }
       if (e.pasos) c.pasos = pasosR(e.pasos);
       if (e.clase) c.clase = e.clase;
       if ("trama" in e) c.trama = e.trama || null;
-      out.push(c);
+      if (Object.keys(c).length > 3) out.push(c);       // los «consumidos» por una suma o resta sin más cambios no se mandan aquí
     }
     for (const cp of copias) {
       const o = porId.get(cp.de); if (!o || !o.o.uuid) continue;
-      const c = {op: "copiar", uuid: o.o.uuid, huella: o.o.h, pasos: pasosR(cp.pasos)}; if (cp.clase) c.clase = cp.clase; out.push(c);
+      const c = {op: "copiar", uuid: o.o.uuid, huella: o.o.h, pasos: pasosR(cp.pasos)}; if (cp.clase) c.clase = cp.clase; if (cp.attr) c.attr = attrR(cp.attr); out.push(c);
     }
     for (const n of nuevos) {
       const c = {op: "nuevo", tipo: n.tipo, clase: n.clase, capa: n.capa || capaAct};
       if (n.tipo === "circulo") { c.centro = rP(n.centro); c.r = r2(n.r); }
       else if (n.tipo === "arco") { c.centro = rP(n.centro); c.r = r2(n.r); c.ini = r2(n.ini); c.barrido = r2(n.barrido); }
       else if (n.v) c.v = n.v.map(rP);
+      if (n.vt) { c.vt = n.vt; c.vr = n.vr.map(r2); }
+      if (n.huecos) c.huecos = n.huecos.map(h => h.map(rP));
+      if (n.attr) c.attr = attrR(n.attr);
+      if (n.nativo) c.nativo = n.nativo;
       if (n.cerr) c.cerr = true; if (n.trama) c.trama = n.trama; if (n.tipo === "texto") { c.txt = n.txt; c.pos = rP(n.pos); c.tam = n.tam; if (n.rot) c.rot = r2(n.rot); }
       out.push(c);
     }
@@ -1306,7 +1403,7 @@ const V2 = (() => {
   }
   const m3 = x => fmt(x / 1000, 3) + " m";
   function medidas(d) {
-    const g = d.caja ? cajaPoli(d) : geomN(d), out = [];
+    const g = d.caja ? cajaPoli(d) : forma(d), out = [];
     if (d.nuevo && d.o.tipo === "circulo") return ["radio " + m3(d.o.r), "diámetro " + m3(2 * d.o.r), "área " + fmt(Math.PI * d.o.r * d.o.r / 1e6, 3) + " m²"];
     if (d.nuevo && d.o.tipo === "arco") return ["radio " + m3(d.o.r), "ángulo " + fmt(d.o.barrido, 1) + "°", "longitud " + m3(Math.PI * d.o.r * d.o.barrido / 180)];
     if (!g || g.length < 2) return out;
@@ -1322,7 +1419,7 @@ const V2 = (() => {
     return out;
   }
   function infoSel() {
-    const n = selec.size; $("accSel").hidden = !n || !editable; $("btnQuitaV").hidden = !vSel;
+    const n = selec.size; $("accSel").hidden = !n || !editable; $("btnQuitaV").hidden = !vSel; if (editable) pintaAtributos();
     if (!n) { $("insp2d").innerHTML = '<span class="nota">' + (editable ? "Toca un objeto para seleccionarlo; arrastra en vacío para seleccionar por ventana." : "Toca un objeto para ver qué es.") + "</span>"; return; }
     if (n > 1) {
       let A = 0; for (const d of selec) { const m = medidas(d).find(t => t.startsWith("área")); if (m) A += parseFloat(m.replace("área ", "").replace(/\./g, "").replace(",", ".")); }
@@ -1440,7 +1537,7 @@ const V2 = (() => {
   }
   function plumaAbajo(e) {
     const sp = [e.offsetX, e.offsetY];
-    if (!editable) { tocar(aM(sp[0], sp[1]), e.shiftKey); return; }
+    if (!editable) { tocar(aM(sp[0], sp[1]), e.shiftKey || masSel); return; }
     if (herr === "sel") {
       const t = tiradorEn(sp);
       if (t) {
@@ -1452,13 +1549,14 @@ const V2 = (() => {
       const r = 10 / k; let hit = null;
       for (const [d, a, b] of cerca(p[0], p[1], r)) { if (borrado(d)) continue; if (distSeg(p, a, b)[0] <= r) { hit = d; break; } }
       if (hit && selec.has(hit)) { const q = (iman_(p) || {p}).p; arrastre = {tipo: "mover", p0: q, excluir: new Set(selec), dx: 0, dy: 0}; return; }
-      if (hit) { tocar(p, e.shiftKey); const q = (iman_(p) || {p}).p; arrastre = {tipo: "mover", p0: q, excluir: new Set(selec), dx: 0, dy: 0, nuevoSel: true}; return; }
+      if (hit) { tocar(p, e.shiftKey || masSel); const q = (iman_(p) || {p}).p; arrastre = {tipo: "mover", p0: q, excluir: new Set(selec), dx: 0, dy: 0, nuevoSel: true}; return; }
       arrastre = {tipo: "ventana", p0: p}; return;
     }
     if (herr === "texto") { pideTexto(puntoDe(e)); return; }
+    if (herr === "desplazar") { if (!selec.size) toast("Selecciona primero lo que quieras desplazar"); else desplazarEn(aM(sp[0], sp[1])); return; }
     if (TRANSF.includes(herr) && !selec.size) { toast("Selecciona primero lo que quieras " + (herr === "mover" ? "mover o copiar" : herr === "girar" ? "girar" : "reflejar")); return; }
     const p = puntoDe(e, desdeDe());
-    if (!tmp) { tmp = {tipo: herr, pts: [p]}; cursor = p; $("btnFin").hidden = herr !== "poli" && herr !== "poligono"; pedir(); arrastre = {tipo: "dibujo", s0: sp, primero: true}; return; }
+    if (!tmp) { tmp = {tipo: herr, pts: [p], vt: [modoV], vr: [radioV()]}; cursor = p; $("btnFin").hidden = herr !== "poli" && herr !== "poligono"; pedir(); arrastre = {tipo: "dibujo", s0: sp, primero: true}; return; }
     arrastre = {tipo: "dibujo", s0: sp};
   }
   function plumaMueve(e) {
@@ -1481,10 +1579,10 @@ const V2 = (() => {
   function plumaArriba(e) {
     const a = arrastre; arrastre = null;
     if (!a || !editable) return;
-    if (a.tipo === "vertice" || a.tipo === "mover") { if (a.tipo === "mover" && !a.hecho) { if (!a.nuevoSel) tocar(aM(e.offsetX, e.offsetY), e.shiftKey); return; } snap = null; cursor = null; trasCambio(); return; }
+    if (a.tipo === "vertice" || a.tipo === "mover") { if (a.tipo === "mover" && !a.hecho) { if (!a.nuevoSel) tocar(aM(e.offsetX, e.offsetY), e.shiftKey || masSel); return; } snap = null; cursor = null; trasCambio(); return; }
     if (a.tipo === "ventana") {
       if (ventana) { const [p, q] = ventana; const x0 = Math.min(p[0], q[0]), x1 = Math.max(p[0], q[0]), y0 = Math.min(p[1], q[1]), y1 = Math.max(p[1], q[1]);
-        if (!e.shiftKey) selec.clear();
+        if (!e.shiftKey && !masSel) selec.clear();
         for (const d of todos()) { if (borrado(d) || !visible(d)) continue; const g = puntosDe(d); if (g && g.length && g.every(p => p[0] >= x0 && p[0] <= x1 && p[1] >= y0 && p[1] <= y1)) selec.add(d); }
       } else selec.clear();
       ventana = null; vSel = null; infoSel(); pedir(); return;
@@ -1502,7 +1600,7 @@ const V2 = (() => {
     if (T === "poli" || T === "poligono") {
       const p0 = tmp.pts[0];
       if (tmp.pts.length > 2 && Math.hypot(p[0] - p0[0], p[1] - p0[1]) * k < 10) { tmp.cerr = true; terminaPoli(); return; }
-      tmp.pts.push(p); pedir(); return;
+      tmp.pts.push(p); tmp.vt.push(modoV); tmp.vr.push(radioV()); pedir(); return;
     }
     if (T === "arco" && tmp.pts.length < 2) { tmp.pts.push(p); pedir(); return; }
     if (T === "girar" && tmp.pts.length < 2) { tmp.pts.push(p); pedir(); return; }
@@ -1526,7 +1624,9 @@ const V2 = (() => {
   function terminaPoli() {
     if (tmp && (tmp.tipo === "poli" || tmp.tipo === "poligono") && tmp.pts.length >= 2) {
       const cerr = !!tmp.cerr || (tmp.tipo === "poligono" && tmp.pts.length >= 3);
-      crea({tipo: cerr ? "poligono" : "polilinea", cerr, v: tmp.pts});
+      const n = {tipo: cerr ? "poligono" : "polilinea", cerr, v: tmp.pts};
+      if (tmp.vt.some(t => t)) { n.vt = tmp.vt.slice(0, tmp.pts.length); n.vr = tmp.vr.slice(0, tmp.pts.length); if (!cerr) { n.vt[0] = 0; n.vt[n.vt.length - 1] = 0; } }
+      crea(n);
     }
     tmp = null; cursor = null; $("btnFin").hidden = true; pedir();
   }
@@ -1535,6 +1635,7 @@ const V2 = (() => {
     guardaHist();
     n.id = nid(); n.clase = $("selClase").value; n.capa = capaAct;
     if (n.cerr && $("selTrama").value) n.trama = $("selTrama").value;
+    attrInicial(n);
     nuevos.push(n); trasCambio();
   }
   function cancelaPluma() { if (arrastre && arrastre.tipo === "mover" && arrastre.hecho) trasCambio(); tmp = null; arrastre = null; cursor = null; snap = null; ventana = null; $("btnFin").hidden = true; pedir(); }
@@ -1589,8 +1690,172 @@ const V2 = (() => {
     guardarArchivo(f, JSON.stringify(C, null, 1));
   }
   function vaciar() { guardaHist(); ed = {}; nuevos = []; copias = []; selec.clear(); vSel = null; trasCambio(); toast("Cambios vaciados (Deshacer los recupera)"); }
+  /* ---- atributos (como la paleta de VW) */
+  const LW_MM = [0.05, 0.10, 0.13, 0.18, 0.25, 0.35, 0.50, 0.70, 1.00];
+  let attrNuevo = null;            // lo que llevarán los objetos nuevos si se toca sin nada seleccionado
+  const hex = c => "#" + (c || [0, 0, 0]).map(v => ("0" + Math.round(v).toString(16)).slice(-2)).join("");
+  const deHex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  function opcionesAtributos() {
+    if (!$("atRell")) return;
+    $("atRell").innerHTML = '<option value="0">Sin relleno</option><option value="1">Sólido</option>' + (P.tramas || []).map(t => '<option value="t:' + esc(t) + '">Trama · ' + esc(t) + "</option>").join("");
+    const lss = new Map([[2, "Continua"], [0, "Sin línea"]]);
+    for (const [n, c] of Object.entries(P.clases || {})) if (c.ls != null && !lss.has(c.ls)) lss.set(c.ls, (c.ls < 0 ? "Tipo de línea " : "Trazo ") + c.ls + " · como " + n);
+    $("atLs").innerHTML = [...lss].map(([v, t]) => '<option value="' + v + '">' + esc(t) + "</option>").join("");
+    $("atLw").innerHTML = LW_MM.map(mm => '<option value="' + Math.round(mm / 0.0254) + '">' + fmt(mm, 2) + " mm</option>").join("");
+  }
+  function pintaAtributos() {
+    if (!P || !$("atRell")) return;
+    const d = [...selec][0], a = d ? attrDe(d) : (attrNuevo || attrDe({nuevo: true, o: {clase: $("selClase").value}}));
+    const tr = d ? tramaDe(d) : (attrNuevo && attrNuevo.trama);
+    $("atRell").value = tr ? "t:" + tr : (a.fp === 1 ? "1" : "0");
+    $("atRellCol").value = hex(a.fb || a.ff || [255, 255, 255]);
+    $("atLs").value = String(a.ls != null ? a.ls : 2); if ($("atLs").selectedIndex < 0) $("atLs").value = "2";
+    const lw = a.lw > 0 ? a.lw : 2; $("atLw").value = String(LW_MM.map(mm => Math.round(mm / 0.0254)).reduce((b, v) => Math.abs(v - lw) < Math.abs(b - lw) ? v : b));
+    $("atPenCol").value = hex(a.pc);
+    $("atOp").value = a.op != null ? a.op : 100; $("oOp").textContent = $("atOp").value + " %";
+    $("atClase").checked = !!a.porClase;
+    $("atQue").textContent = d ? (selec.size > 1 ? selec.size + " objetos seleccionados" : "El objeto seleccionado") : "Sin selección: lo que llevarán los objetos nuevos";
+  }
+  function aplicaAtributo(k, v) {
+    if (!editable) return;
+    const cambia = a => {
+      a = Object.assign({}, a);
+      if (k === "porClase") { a.porClase = v; return a; }
+      a.porClase = false;
+      if (k === "relleno") { if (String(v).startsWith("t:")) a.trama = v.slice(2); else { a.trama = null; a.fp = +v; if (+v === 1 && !a.fb) a.fb = [255, 255, 255]; } }
+      else { a[k] = v; if (k === "fb" && a.fp !== 1) { a.fp = 1; a.trama = null; } }
+      return a;
+    };
+    if (!selec.size) { attrNuevo = cambia(attrNuevo || attrDe({nuevo: true, o: {clase: $("selClase").value}})); pintaAtributos(); return; }
+    guardaHist();
+    for (const d of selec) {
+      const na = cambia(attrDe(d)), tr = "trama" in na ? na.trama : undefined; delete na.trama;
+      if (d.nuevo) { d.o.attr = na; if (tr !== undefined) { if (tr) d.o.trama = tr; else delete d.o.trama; } }
+      else if (d.copia) d.copia.attr = na;
+      else edita(d, e => { e.attr = na; if (tr !== undefined) e.trama = tr; });
+    }
+    trasCambio();
+  }
+  function attrInicial(n) {
+    // lo que se ha elegido sin selección pasa a los nuevos
+    if (!attrNuevo) return;
+    const a = Object.assign({}, attrNuevo); const tr = a.trama; delete a.trama;
+    n.attr = a; if (tr && n.cerr) n.trama = tr;
+  }
+
+  /* ---- geometría para desplazar y operar superficies (Clipper) */
+  const ESC_CL = 100;
+  const aCl = g => g.map(p => ({X: Math.round(p[0] * ESC_CL), Y: Math.round(p[1] * ESC_CL)}));
+  const deCl = q => q.map(p => [p.X / ESC_CL, p.Y / ESC_CL]);
+  const orient = path => { if (!window.ClipperLib.Clipper.Orientation(path)) path.reverse(); return path; };
+  function puntoEnPoli(p, g) { let dentro = false; for (let i = 0, j = g.length - 1; i < g.length; j = i++) { const a = g[i], b = g[j]; if ((a[1] > p[1]) !== (b[1] > p[1]) && p[0] < (b[0] - a[0]) * (p[1] - a[1]) / (b[1] - a[1]) + a[0]) dentro = !dentro; } return dentro; }
+  function ladoDe(g, p) {
+    let best = null; for (let i = 0; i + 1 < g.length; i++) { const [dd] = distSeg(p, g[i], g[i + 1]); if (!best || dd < best.dd) best = {dd, i}; }
+    const a = g[best.i], b = g[best.i + 1]; return ((b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0])) >= 0 ? 1 : -1;
+  }
+  function cruceRectas(a, b, c, d) { const r = [b[0] - a[0], b[1] - a[1]], s_ = [d[0] - c[0], d[1] - c[1]], den = r[0] * s_[1] - r[1] * s_[0]; if (Math.abs(den) < 1e-9) return null; const t = ((c[0] - a[0]) * s_[1] - (c[1] - a[1]) * s_[0]) / den; return [a[0] + t * r[0], a[1] + t * r[1]]; }
+  function offsetAbierto(g, dd) {
+    const L = [];
+    for (let i = 0; i + 1 < g.length; i++) { const a = g[i], b = g[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1, nx = -dy / l * dd, ny = dx / l * dd; L.push([[a[0] + nx, a[1] + ny], [b[0] + nx, b[1] + ny]]); }
+    if (!L.length) return null;
+    const out = [L[0][0]];
+    for (let i = 0; i + 1 < L.length; i++) out.push(cruceRectas(L[i][0], L[i][1], L[i + 1][0], L[i + 1][1]) || L[i][1]);
+    out.push(L[L.length - 1][1]); return out;
+  }
+  function offsetCerrado(g, dd) {
+    const C = window.ClipperLib; if (!C) { toast("Falta la librería de geometría"); return []; }
+    const co = new C.ClipperOffset(4, 0.25 * ESC_CL), sol = new C.Paths();
+    co.AddPath(orient(aCl(g)), C.JoinType.jtMiter, C.EndType.etClosedPolygon); co.Execute(sol, dd * ESC_CL);
+    return sol.map(deCl);
+  }
+  function offsetDe(d, L, p) {
+    if (d.texto || d.caja) return null;
+    if (d.nuevo && (d.o.tipo === "circulo" || d.o.tipo === "arco")) {
+      const r = Math.hypot(p[0] - d.o.centro[0], p[1] - d.o.centro[1]) < d.o.r ? d.o.r - L : d.o.r + L; if (r <= 0) return null;
+      return d.o.tipo === "circulo" ? [{tipo: "circulo", cerr: true, centro: d.o.centro.slice(), r, v: poliArco(d.o.centro, r, 0, 360)}]
+        : [{tipo: "arco", centro: d.o.centro.slice(), r, ini: d.o.ini, barrido: d.o.barrido, v: poliArco(d.o.centro, r, d.o.ini, d.o.barrido)}];
+    }
+    const g = forma(d); if (!g || g.length < 2) return null;
+    if (d.cerr) return offsetCerrado(g, puntoEnPoli(p, g) ? -L : L).map(q => ({tipo: "poligono", cerr: true, v: q}));
+    const q = offsetAbierto(g, ladoDe(g, p) * L); return q ? [{tipo: g.length === 2 ? "linea" : "polilinea", v: q}] : null;
+  }
+  function seleccionaNuevos(lista) { selec.clear(); const T2 = todos(); for (const n of lista) { const q = T2.find(x => x.o === n); if (q) selec.add(q); } infoSel(); pedir(); }
+  function desplazarEn(p) {
+    const L = parseFloat(String($("inLong").value).replace(",", "."));
+    if (!(L > 0)) { toast("Escribe la distancia en mm en la casilla y toca el lado hacia el que desplazar"); return; }
+    guardaHist(); const ns = [];
+    for (const d of [...selec]) {
+      const r = offsetDe(d, L, p); if (!r) continue;
+      const gid = nid();
+      for (const n of r) {
+        n.id = nid(); n.clase = claseDe(d); n.capa = capaDe(d); n.attr = attrDe(d); if (tramaDe(d) && n.cerr) n.trama = tramaDe(d);
+        if (!d.nuevo && !d.copia && d.o.uuid) n.nativo = {op: "desplazar", grupo: gid, uuid: d.o.uuid, d: L, punto: [Math.round(p[0] * 100) / 100, Math.round(p[1] * 100) / 100]};
+        nuevos.push(n); ns.push(n);
+      }
+    }
+    if (!ns.length) { hist.pop(); toast("No se puede desplazar eso (textos y símbolos no)"); return; }
+    trasCambio(); seleccionaNuevos(ns);
+  }
+  function booleana(tipo) {
+    if (!editable) return;
+    const C = window.ClipperLib; if (!C) { toast("Falta la librería de geometría"); return; }
+    const T = todos(), pos = new Map(T.map((d, i) => [d, i]));
+    const sel = [...selec].filter(d => !d.texto && !d.caja && d.cerr && forma(d)).sort((a, b) => pos.get(a) - pos.get(b));   // el de más arriba, el último (como en VW)
+    if (sel.length < 2) { toast("Selecciona al menos dos superficies cerradas"); return; }
+    const nativo = sel.every(d => !d.nuevo && !d.copia && d.o.uuid), gid = nid();
+    let grupos, cortes = [], consumidos;
+    if (tipo === "sumar") { grupos = [sel]; consumidos = sel; }
+    else if (tipo === "restar") { cortes = [sel[sel.length - 1]]; grupos = sel.slice(0, -1).map(x => [x]); consumidos = sel.slice(0, -1); }
+    else { grupos = [[sel[0]]]; cortes = sel.slice(1); consumidos = []; }
+    guardaHist(); const ns = [];
+    for (const grp of grupos) {
+      const c = new C.Clipper(), tree = new C.PolyTree();
+      grp.forEach(d => c.AddPath(orient(aCl(forma(d))), C.PolyType.ptSubject, true));
+      cortes.forEach(d => c.AddPath(orient(aCl(forma(d))), C.PolyType.ptClip, true));
+      c.Execute(tipo === "sumar" ? C.ClipType.ctUnion : tipo === "restar" ? C.ClipType.ctDifference : C.ClipType.ctIntersection, tree, C.PolyFillType.pftNonZero, C.PolyFillType.pftNonZero);
+      const ref = grp[0], g2 = gid + (tipo === "restar" ? "_" + grp[0].id : "");
+      for (const ex of C.JS.PolyTreeToExPolygons(tree)) {
+        const n = {id: nid(), tipo: "poligono", cerr: true, v: deCl(ex.outer), clase: claseDe(ref), capa: capaDe(ref), attr: attrDe(ref)};
+        if (ex.holes && ex.holes.length) n.huecos = ex.holes.map(deCl);
+        if (tramaDe(ref)) n.trama = tramaDe(ref);
+        if (nativo) n.nativo = {op: tipo, grupo: g2, uuids: grp.map(d => d.o.uuid), cortes: cortes.map(d => d.o.uuid)};
+        nuevos.push(n); ns.push(n);
+      }
+    }
+    if (!ns.length) { hist.pop(); toast(tipo === "intersectar" ? "No se solapan" : "No queda nada"); return; }
+    for (const d of consumidos) { if (d.nuevo) nuevos = nuevos.filter(n => n !== d.o); else if (d.copia) copias = copias.filter(c_ => c_ !== d.copia); else if (nativo) edita(d, e => { e.consumido = gid; }); else (ed[d.id] = ed[d.id] || {}).borrado = true; }
+    trasCambio(); seleccionaNuevos(ns);
+    toast({sumar: "Superficies sumadas", restar: "Superficie restada (la de arriba recorta a las de debajo)", intersectar: "Intersección hecha"}[tipo]);
+  }
+  function dividir() {
+    if (!editable) return;
+    const N = parseInt($("inLong").value, 10);
+    if (!(N >= 2)) { toast("Escribe en la casilla en cuántas partes (2 o más) y vuelve a pulsar «Dividir»"); return; }
+    const sel = [...selec].filter(d => !d.texto && !d.caja && forma(d) && forma(d).length >= 2);
+    if (!sel.length) { toast("Selecciona líneas o polilíneas"); return; }
+    guardaHist(); const ns = [];
+    for (const d of sel) {
+      let g = forma(d).slice(); if (d.cerr) g = g.concat([g[0]]);
+      const Ls = [0]; for (let i = 1; i < g.length; i++) Ls.push(Ls[i - 1] + Math.hypot(g[i][0] - g[i - 1][0], g[i][1] - g[i - 1][1]));
+      const tot = Ls[Ls.length - 1]; if (!tot) continue;
+      const en = t => { let i = 1; while (i < Ls.length - 1 && Ls[i] < t) i++; const f = (t - Ls[i - 1]) / ((Ls[i] - Ls[i - 1]) || 1); return [g[i - 1][0] + (g[i][0] - g[i - 1][0]) * f, g[i - 1][1] + (g[i][1] - g[i - 1][1]) * f]; };
+      for (let k_ = 0; k_ < N; k_++) {
+        const t0 = tot * k_ / N, t1 = tot * (k_ + 1) / N, pts = [en(t0)];
+        for (let i = 1; i < g.length - 1; i++) if (Ls[i] > t0 + 1e-6 && Ls[i] < t1 - 1e-6) pts.push(g[i]);
+        pts.push(en(t1));
+        const n = {id: nid(), tipo: pts.length === 2 ? "linea" : "polilinea", v: pts, clase: claseDe(d), capa: capaDe(d), attr: attrDe(d)};
+        nuevos.push(n); ns.push(n);
+      }
+      if (d.nuevo) nuevos = nuevos.filter(n => n !== d.o); else if (d.copia) copias = copias.filter(c => c !== d.copia); else if (d.o.uuid) (ed[d.id] = ed[d.id] || {}).borrado = true;
+    }
+    trasCambio(); seleccionaNuevos(ns); toast("Dividido en " + N + " partes iguales");
+  }
+  let masSel = false;              // «+ Selección»: en el iPad, cada toque suma a la selección
+  let modoV = 0;                   // vértice de polilínea: 0 esquina, 2 curva, 3 arco (como en VW)
+  const radioV = () => { const r = parseFloat(String($("inRadio").value).replace(",", ".")); return r > 0 ? r : 300; };
   function setEditable(v) { editable = !!v; if (!editable) { cancelaPluma(); herr = "sel"; } vSel = null; infoSel(); pintaCapas(); pintaClases(); pedir(); }
   return {preparar, redim, encuadrar, pedir, deshacer, rehacer, borrarSel, aClase, aTrama, restauraSel, quitaVertice, terminaPoli, enviar, archivo, vaciar, longitud, setEditable, pintaClases, todasVis,
+    aplicaAtributo, booleana, dividir, cambios: () => cambios(), setModoV(v) { modoV = v; pedir(); }, setMas(v) { masSel = v; },
     setHerr(h) { if (tmp && (tmp.tipo === "poli" || tmp.tipo === "poligono") && tmp.pts.length >= 2) terminaPoli(); herr = h; cancelaPluma(); }, setOrto(v) { orto = v; }, setIman(v) { iman = v; }, setDedo(v) { dedo = v; }, setDup(v) { duplicar = v; },
     hay: () => !!P, tema() { patrones.clear(); pedir(); }};
 })();
@@ -1907,10 +2172,20 @@ function rotulo() {
   $("rotulo").innerHTML = (S.proyecto ? S.proyecto.id : "") + " · " + D.titulo + "<span>" + $("selCam").selectedOptions[0].textContent + (+$("rExplota").value ? " · explotada" : "") + "</span>";
 }
 // 2D
-document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => { document.querySelectorAll("[data-h]").forEach(x => x.classList.toggle("on", x === b)); V2.setHerr(b.dataset.h); });
+document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => { document.querySelectorAll("[data-h]").forEach(x => x.classList.toggle("on", x === b)); V2.setHerr(b.dataset.h); $("grpVert").hidden = !["poli", "poligono"].includes(b.dataset.h); });
 const tog = (id, fn) => $(id).onclick = () => { const v = $(id).getAttribute("aria-pressed") !== "true"; $(id).setAttribute("aria-pressed", v); fn(v); };
-tog("btnOrto", v => V2.setOrto(v)); tog("btnIman", v => V2.setIman(v)); tog("btnDedo", v => V2.setDedo(v)); tog("btnDup", v => V2.setDup(v));
+tog("btnOrto", v => V2.setOrto(v)); tog("btnIman", v => V2.setIman(v)); tog("btnDedo", v => V2.setDedo(v)); tog("btnDup", v => V2.setDup(v)); tog("btnMas", v => V2.setMas(v));
 $("btnBorrarP").onclick = () => V2.borrarSel();
+$("btnDividir").onclick = () => V2.dividir();
+$("btnSumar").onclick = () => V2.booleana("sumar"); $("btnRestar").onclick = () => V2.booleana("restar"); $("btnInter").onclick = () => V2.booleana("intersectar");
+document.querySelectorAll("[data-vt]").forEach(b => b.onclick = () => { document.querySelectorAll("[data-vt]").forEach(x => x.classList.toggle("on", x === b)); V2.setModoV(+b.dataset.vt); });
+$("atRell").onchange = e => V2.aplicaAtributo("relleno", e.target.value);
+$("atRellCol").onchange = e => { const c = [1, 3, 5].map(i => parseInt(e.target.value.slice(i, i + 2), 16)); V2.aplicaAtributo("fb", c); };
+$("atLs").onchange = e => V2.aplicaAtributo("ls", +e.target.value);
+$("atPenCol").onchange = e => V2.aplicaAtributo("pc", [1, 3, 5].map(i => parseInt(e.target.value.slice(i, i + 2), 16)));
+$("atLw").onchange = e => V2.aplicaAtributo("lw", +e.target.value);
+$("atOp").oninput = e => { $("oOp").textContent = e.target.value + " %"; }; $("atOp").onchange = e => V2.aplicaAtributo("op", +e.target.value);
+$("atClase").onchange = e => V2.aplicaAtributo("porClase", e.target.checked);
 $("filtroClases").oninput = () => V2.pintaClases();
 $("selClase").onchange = () => V2.pintaClases();
 document.querySelectorAll("[data-vis]").forEach(b => b.onclick = () => V2.todasVis(b.dataset.vis, b.dataset.v === "1"));
