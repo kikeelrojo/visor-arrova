@@ -1,0 +1,1474 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Visor arrova</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Composición: una sola hoja; vista a sangre con el aspa arriba a la derecha y dos escuadras;
+   panel a la derecha separado por línea de puntos. Helvetica, blanco y negro, rótulos en bold. */
+:root{
+  --paper:#ffffff; --ink:#000000; --soft:#000000; --rule:#000000;
+  --accent:#0040ff; --accent-soft:#dfe6ff; --warn:#c8102e;
+  --f:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --s-xs:10px; --s-s:11px; --s-m:12px; --s-l:15px;
+  --panel:300px; --bar:44px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#0c0c0c;--ink:#f4f4f4;--soft:#f4f4f4;--rule:#f4f4f4;--accent:#7f9cff;--accent-soft:#1c2440;--warn:#ff6b7f;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0c0c0c;--ink:#f4f4f4;--soft:#f4f4f4;--rule:#f4f4f4;--accent:#7f9cff;--accent-soft:#1c2440;--warn:#ff6b7f;color-scheme:dark}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--f);font-size:var(--s-m);overflow:hidden;
+  padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+button,select,input{font-family:var(--f);font-size:var(--s-s);color:var(--ink)}
+.app{display:grid;grid-template-rows:var(--bar) 1fr;height:100%}
+header{display:flex;align-items:center;gap:12px;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));
+  border-bottom:0.5px solid var(--rule);min-width:0}
+header .marca{font-weight:700;letter-spacing:.02em;white-space:nowrap}
+header .marca span{font-weight:400}
+.tabs{display:flex;gap:0}
+.tabs button{border:0.5px solid var(--ink);background:transparent;padding:5px 12px;font-weight:700;cursor:pointer}
+.tabs button+button{border-left:0}
+.tabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+header .sp{flex:1}
+header select{max-width:220px}
+.estado{font-size:var(--s-xs);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.btn{border:0.5px solid var(--ink);background:transparent;padding:5px 10px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--accent-soft)}
+.btn.on,.btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.btn:focus-visible,.tabs button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.main{display:grid;grid-template-columns:1fr var(--panel);min-height:0}
+.vista{position:relative;min-width:0;min-height:0;touch-action:none;overflow:hidden}
+.vista canvas{display:block;width:100%;height:100%}
+.panel{border-left:0.5px solid var(--rule);overflow-y:auto;padding:12px 16px 32px;min-width:0}
+.sec{padding-block:10px}
+.sec+.sec{background-image:radial-gradient(circle,var(--ink) 0.55px,transparent 0.75px);background-size:4px 3px;background-repeat:repeat-x;background-position:0 0}
+.sec h3{font-size:var(--s-s);font-weight:700;margin:4px 0 8px;letter-spacing:.02em}
+.fila{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.fila+.fila{margin-top:6px}
+.chk{display:flex;align-items:center;gap:6px;font-size:var(--s-s);cursor:pointer;min-width:0}
+.chk input{margin:0;accent-color:var(--ink)}
+.lista{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+label.campo{display:grid;grid-template-columns:72px 1fr 44px;align-items:center;gap:8px;font-size:var(--s-s)}
+label.campo input[type=range]{width:100%;accent-color:var(--ink)}
+label.campo output{font-variant-numeric:tabular-nums;text-align:right}
+table.med{width:100%;border-collapse:collapse;font-size:var(--s-xs);font-variant-numeric:tabular-nums}
+table.med td{padding:2px 0;vertical-align:top}
+table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
+.insp{font-size:var(--s-s);line-height:1.45;word-break:break-word}
+.insp b{display:block;font-size:var(--s-m)}
+.nota{font-size:var(--s-xs);line-height:1.4}
+.aspa{position:absolute;top:10px;right:10px;width:14px;height:14px;pointer-events:none}
+.esq{position:absolute;width:14px;height:14px;pointer-events:none}
+.esq.a{top:30px;right:30px;border-top:0.5px solid var(--ink);border-right:0.5px solid var(--ink)}
+.esq.b{bottom:14px;left:14px;border-bottom:0.5px solid var(--ink);border-left:0.5px solid var(--ink)}
+.rotulo{position:absolute;left:34px;bottom:30px;font-weight:700;font-size:var(--s-s);pointer-events:none;max-width:60%}
+.rotulo span{display:block;font-weight:400;font-size:var(--s-xs)}
+.toast{position:absolute;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);
+  padding:7px 12px;font-size:var(--s-s);max-width:80%;pointer-events:none}
+.tool2d{position:absolute;top:10px;left:10px;right:44px;display:flex;flex-wrap:wrap;gap:4px;pointer-events:none}
+.tool2d>*{pointer-events:auto}
+.tool2d .btn{background:var(--paper)}
+.tool2d .btn.on,.tool2d .btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.tool2d .grupo{display:flex}
+.tool2d .grupo .btn+.btn{border-left:0}
+.tool2d input{width:70px;border:0.5px solid var(--ink);background:var(--paper);padding:5px 6px}
+.vacio{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px}
+.vacio div{max-width:380px;line-height:1.5}
+.vacio b{display:block;font-size:var(--s-l);margin-bottom:6px}
+.drop{outline:1px dashed var(--accent);outline-offset:-8px}
+#ficheros{display:none}
+.ped{display:inline-block;min-width:16px;padding:0 4px;border:0.5px solid var(--ink);text-align:center;font-weight:700}
+.panel-toggle{display:none}
+.realce{position:absolute;top:44px;left:34px;display:flex;gap:8px;align-items:center;font-size:var(--s-s);font-weight:700;background:var(--paper);padding:4px 0}
+.datos{position:absolute;inset:0;overflow:auto;padding:28px max(34px,env(safe-area-inset-right,0px)) 40px max(34px,env(safe-area-inset-left,0px));background:var(--paper)}
+.datos h2{font-size:var(--s-l);margin:0 0 4px}
+.datos h3{font-size:var(--s-m);margin:26px 0 6px}
+.datos .sub{font-size:var(--s-xs);margin-bottom:10px}
+.tabla{overflow-x:auto}
+.tabla table{border-collapse:collapse;width:100%;min-width:520px;font-size:var(--s-s);font-variant-numeric:tabular-nums}
+.tabla th{text-align:left;font-weight:700;padding:4px 10px 4px 0;border-bottom:0.5px solid var(--ink);white-space:nowrap}
+.tabla td{padding:4px 10px 4px 0;vertical-align:top;background-image:radial-gradient(circle,var(--ink) 0.5px,transparent 0.7px);background-size:4px 2px;background-repeat:repeat-x;background-position:0 100%}
+.tabla td.n,.tabla th.n{text-align:right;white-space:nowrap}
+.tabla tr.fila-tipo{cursor:pointer}
+.tabla tr.fila-tipo:hover td{background-color:var(--accent-soft)}
+.tabla tr.total td{font-weight:700;background-image:none;border-top:0.5px solid var(--ink)}
+.ficha-tipo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:4px 16px;padding:8px 0;font-size:var(--s-s);background-image:radial-gradient(circle,var(--ink) 0.5px,transparent 0.7px);background-size:4px 2px;background-repeat:repeat-x;background-position:0 100%}
+.ficha-tipo b{grid-column:1/-1}
+.ficha-tipo .comp{font-variant-numeric:tabular-nums}
+.comp{width:100%;border-collapse:collapse;margin:4px 0 6px;font-size:var(--s-xs);font-variant-numeric:tabular-nums}
+.comp td{padding:1px 0}.comp td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
+.insp .fuente,.ficha-tipo .fuente{font-size:var(--s-xs);font-style:italic}
+@media (max-width:820px){.ficha-tipo{grid-template-columns:1fr}}
+@media (max-width:820px){
+  .main{grid-template-columns:1fr;grid-template-rows:1fr auto}
+  .panel{border-left:0;border-top:0.5px solid var(--rule);max-height:42vh;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));
+    padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .panel.cerrado{display:none}
+  .panel-toggle{display:inline-block}
+  header .marca span,.estado,header .sp{display:none}
+  header{gap:8px;overflow-x:auto}
+  header select{max-width:110px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.medidas-carp{font-weight:700;font-size:20px;margin:6px 0 2px;letter-spacing:.01em}.medidas-carp span{display:block;font-weight:400;font-size:11px;letter-spacing:0}
+</style>
+
+<div class="app">
+  <header>
+    <div class="marca">arrova <span>· visor</span></div>
+    <div class="tabs" role="group" aria-label="Modo">
+      <button id="tab3d" aria-pressed="true">3D</button>
+      <button id="tab2d" aria-pressed="false">2D</button>
+      <button id="tabDatos" aria-pressed="false">Datos</button>
+    </div>
+    <select id="selProyecto" aria-label="Proyecto"></select>
+    <select id="selModelo" aria-label="Modelo"></select>
+    <div class="estado" id="estado"></div>
+    <div class="sp"></div>
+    <button class="btn" id="btnAbrir" title="Abrir los archivos del visor desde iCloud o del ordenador">Abrir…</button>
+    <button class="btn panel-toggle" id="btnPanel">Panel</button>
+    <input type="file" id="ficheros" multiple accept=".json,application/json">
+  </header>
+  <div class="main">
+    <div class="vista" id="vista">
+      <canvas id="c3d"></canvas>
+      <canvas id="c2d" hidden></canvas>
+      <svg class="aspa" viewBox="0 0 14 14" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="0.6" fill="none"/></svg>
+      <div class="esq a"></div><div class="esq b"></div>
+      <div class="rotulo" id="rotulo"></div>
+      <div class="datos" id="datos" hidden></div>
+      <div class="realce" id="barraRealce" hidden><span id="txtRealce"></span><button class="btn" id="btnVerTodo">Ver todo</button></div>
+      <div class="tool2d" id="tool2d" hidden>
+        <div class="grupo" role="group" aria-label="Herramienta">
+          <button class="btn on" data-h="sel" title="Seleccionar, mover y editar vértices">Seleccionar</button>
+          <button class="btn" data-h="linea">Línea</button>
+          <button class="btn" data-h="poli" title="Toca puntos; toca el primero para cerrar o «Terminar»">Polilínea</button>
+          <button class="btn" data-h="rect">Rectángulo</button>
+          <button class="btn" data-h="texto">Texto</button>
+          <button class="btn" data-h="medir">Medir</button>
+        </div>
+        <select id="selClase" aria-label="Clase"></select>
+        <select id="selTrama" aria-label="Trama"></select>
+        <input id="inLong" inputmode="decimal" placeholder="Long. mm" aria-label="Longitud en mm">
+        <button class="btn" id="btnOrto" aria-pressed="true" title="Ángulos de 0°, 45° y 90°">Orto</button>
+        <button class="btn" id="btnIman" aria-pressed="true">Imán</button>
+        <button class="btn" id="btnDedo" aria-pressed="false" title="Dibujar con el dedo (sin Apple Pencil)">Dedo</button>
+        <button class="btn" id="btnFin" hidden>Terminar</button>
+        <button class="btn" id="btnDeshacer">Deshacer</button>
+        <button class="btn" id="btnRehacer">Rehacer</button>
+      </div>
+      <div class="vacio" id="vacio" hidden><div><b>Sin modelo cargado</b>Abre los archivos que deja Vectorworks en <i>iCloud Drive › arrova visor › proyecto</i> (indice.json, modelo_*.json y plano.json), o arrástralos aquí.</div></div>
+      <div class="toast" id="toast" hidden></div>
+    </div>
+    <aside class="panel" id="panel">
+      <div id="p3d">
+        <div class="sec">
+          <h3>Vista</h3>
+          <div class="fila" role="group" aria-label="Estilo">
+            <button class="btn on" data-estilo="linea">Línea</button>
+            <button class="btn" data-estilo="masa">Masa</button>
+            <button class="btn" data-estilo="material">Material</button>
+            <button class="btn" data-estilo="mapa" title="Un color plano por material, para Visoid">Mapa</button>
+          </div>
+          <div class="fila">
+            <select id="selCam" aria-label="Cámara">
+              <option value="se">Axonometría SE</option><option value="so">Axonometría SO</option>
+              <option value="ne">Axonometría NE</option><option value="no">Axonometría NO</option>
+              <option value="planta">Planta</option>
+              <option value="an">Alzado norte</option><option value="as">Alzado sur</option>
+              <option value="ae">Alzado este</option><option value="ao">Alzado oeste</option>
+            </select>
+            <button class="btn" id="btnPersp" aria-pressed="false">Perspectiva</button>
+            <button class="btn" id="btnEncuadra3">Encuadrar</button>
+          </div>
+          <div id="perspOpts" hidden>
+            <div class="fila"><label class="campo">Focal<input type="range" id="rFocal" min="14" max="85" value="28"><output id="oFocal">28 mm</output></label></div>
+            <div class="fila"><label class="campo">Ojo<input type="range" id="rOjo" min="0" max="3000" step="50" value="1600"><output id="oOjo">1,60 m</output></label></div>
+            <div class="fila"><button class="btn" id="btnOjo" title="Cámara horizontal a la altura del ojo (dos puntos de fuga)">Poner a la altura del ojo</button></div>
+          </div>
+        </div>
+        <div class="sec">
+          <h3>Explotar por plantas</h3>
+          <label class="campo">Separación<input type="range" id="rExplota" min="0" max="8000" step="100" value="0"><output id="oExplota">0 m</output></label>
+        </div>
+        <div class="sec">
+          <h3>Sección</h3>
+          <label class="campo"><span class="chk"><input type="checkbox" id="cZ"> Altura</span><input type="range" id="rZ" min="0" max="15000" step="50" value="1200"><output id="oZ"></output></label>
+          <label class="campo"><span class="chk"><input type="checkbox" id="cX"> Corte X</span><input type="range" id="rX" min="0" max="1000" value="500"><output id="oX"></output></label>
+          <label class="campo"><span class="chk"><input type="checkbox" id="cY"> Corte Y</span><input type="range" id="rY" min="0" max="1000" value="500"><output id="oY"></output></label>
+          <div class="fila"><span class="chk"><input type="checkbox" id="cInv"> Ver el otro lado</span></div>
+        </div>
+        <div class="sec">
+          <h3>Capas</h3>
+          <div class="lista" id="listaGrupos"></div>
+        </div>
+        <div class="sec">
+          <h3>Plantas</h3>
+          <div class="lista" id="listaPlantas"></div>
+        </div>
+        <div class="sec">
+          <h3>Elemento</h3>
+          <div class="insp" id="insp"><span class="nota">Toca un elemento para ver qué es.</span></div>
+        </div>
+        <div class="sec">
+          <h3>Mediciones de lo visible</h3>
+          <table class="med" id="med"></table>
+        </div>
+        <div class="sec">
+          <h3>Exportar la vista</h3>
+          <div class="fila">
+            <select id="selEsc" aria-label="Escala">
+              <option value="50">1:50</option><option value="100" selected>1:100</option><option value="200">1:200</option><option value="500">1:500</option><option value="0">Ajustar a A3</option>
+            </select>
+            <button class="btn" id="btnSvg" title="Líneas vistas, vectorial (0,05 mm)">SVG a línea</button>
+            <button class="btn" id="btnPng">PNG</button>
+          </div>
+          <p class="nota">El SVG sale con las líneas ocultas quitadas, trazo de 0,05 mm, y textos vivos; la escala vale en axonometría y alzados.</p>
+        </div>
+        <div class="sec" id="secDudas" hidden>
+          <h3>Dudas del modelo</h3>
+          <div class="nota" id="dudas"></div>
+        </div>
+      </div>
+      <div id="p2d" hidden>
+        <div class="sec">
+          <h3>Plano</h3>
+          <div class="nota" id="info2d"></div>
+          <div class="fila"><button class="btn" id="btnEncuadre">Encuadrar todo</button></div>
+        </div>
+        <div class="sec">
+          <h3>Selección</h3>
+          <div class="insp" id="insp2d"><span class="nota">Toca una línea para seleccionarla. Arrastra en vacío para seleccionar por ventana.</span></div>
+          <div class="fila" id="accSel" hidden>
+            <button class="btn" id="btnBorrar">Borrar</button>
+            <button class="btn" id="btnAClase" title="Pone la clase elegida arriba">Poner clase</button>
+            <button class="btn" id="btnATrama" title="Pone la trama elegida arriba (polígonos cerrados)">Poner trama</button>
+            <button class="btn" id="btnQuitaV" hidden>Quitar vértice</button>
+            <button class="btn" id="btnRestaura">Deshacer cambios del objeto</button>
+          </div>
+        </div>
+        <div class="sec">
+          <h3>Cambios <span class="ped" id="nCambios">0</span></h3>
+          <div class="nota" id="resCambios"></div>
+          <div class="fila">
+            <button class="btn" id="btnEnviar" title="Los deja en esta página; Claude o el Mac los recogen">Enviar al Mac</button>
+            <button class="btn" id="btnArchivo" title="Guarda el archivo para dejarlo en iCloud › arrova visor › proyecto › cambios">Guardar archivo</button>
+            <button class="btn" id="btnVaciar">Vaciar</button>
+          </div>
+          <p class="nota">En Vectorworks, la orden <b>visor_vw.importar</b> aplica los cambios en tu capa de dibujo. Si un objeto se ha tocado en el Mac después de exportar, ese cambio se salta y se avisa.</p>
+        </div>
+        <div class="sec">
+          <h3>Gestos</h3>
+          <p class="nota">Lápiz: dibuja y selecciona. Un dedo: mueve el plano; dos dedos: zoom. Con «Dedo» activo, un dedo dibuja y dos mueven. Ratón: rueda para zoom, botón central o espacio para mover. Mientras dibujas una línea, escribe la longitud en mm y pulsa Intro.</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script src="lib/three.min.js"></script>
+<script src="lib/OrbitControls.js"></script>
+<script>
+"use strict";
+/* ============================================================ utilidades */
+const $ = id => document.getElementById(id);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt = (x, d = 2) => (Math.round(x * 10 ** d) / 10 ** d).toLocaleString("es-ES", {minimumFractionDigits: d, maximumFractionDigits: d});
+let toastT = 0;
+function toast(t, ms = 2600) { const el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => el.hidden = true, ms); }
+function ls(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }
+const capP = {};
+function cap(n) { if (!capP[n]) capP[n] = (window.claude && window.claude.use) ? window.claude.use(n).catch(() => null) : Promise.resolve(null); return capP[n]; }
+
+async function guardarArchivo(nombre, datos) {
+  const dl = await cap("downloads");
+  if (dl) {
+    try { await dl.save({filename: nombre, data: datos}); toast("Guardado: " + nombre); return true; }
+    catch (e) { toast(e && e.code === "declined" ? "No se ha guardado" : "No se pudo guardar (" + (e && e.code || "error") + ")"); return false; }
+  }
+  try {
+    const b = datos instanceof Blob ? datos : new Blob([datos]);
+    const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = nombre; document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); toast("Guardado: " + nombre); return true;
+  } catch (e) { toast("Este visor no puede guardar archivos aquí"); return false; }
+}
+
+/* ============================================================ datos */
+const S = {proyectos: {}, proyecto: null, modelo: null, modo: "3d"};
+// proyecto = {id, indice, modelos:{id: datos|url}, plano: datos|url, origen:"publicado"|"archivo"}
+
+async function cargarPublicado() {
+  try {
+    const r = await fetch("datos/proyectos.json", {cache: "no-store"});
+    if (!r.ok) return;
+    const L = await r.json();
+    for (const p of L.proyectos) {
+      const ri = await fetch("datos/" + p + "/indice.json", {cache: "no-store"});
+      if (!ri.ok) continue;
+      const I = await ri.json();
+      const P = {id: p, indice: I, modelos: {}, plano: null, origen: "publicado"};
+      for (const m of I.modelos) P.modelos[m.id] = "datos/" + p + "/" + m.archivo;
+      if (I.plano) P.plano = "datos/" + p + "/" + I.plano.archivo;
+      S.proyectos[p] = P;
+    }
+  } catch (e) { /* sin datos publicados */ }
+}
+
+async function obtener(x) {
+  if (typeof x !== "string") return x;
+  const r = await fetch(x); if (!r.ok) throw new Error("No se pudo leer " + x); return r.json();
+}
+
+function leerArchivos(files) {
+  const lst = [...files].filter(f => /\.json$/i.test(f.name));
+  if (!lst.length) { toast("Elige los .json del visor (indice, modelo_*, plano)"); return; }
+  Promise.all(lst.map(f => f.text().then(t => { try { return {f, d: JSON.parse(t)}; } catch (e) { return null; } }))).then(res => {
+    res = res.filter(Boolean);
+    const ind = res.find(r => r.d.formato === "arrova-visor-indice");
+    const id = (ind && ind.d.proyecto) || (res.find(r => r.d.proyecto) || {d: {}}).d.proyecto || "local";
+    const P = S.proyectos[id] && S.proyectos[id].origen === "archivo" ? S.proyectos[id] : {id, indice: ind ? ind.d : {proyecto: id, modelos: []}, modelos: {}, plano: null, origen: "archivo"};
+    if (ind) P.indice = ind.d;
+    let n = 0;
+    for (const r of res) {
+      if (r.d.formato === "arrova-visor-3d") { P.modelos[r.d.modelo] = r.d; n++;
+        if (!P.indice.modelos.find(m => m.id === r.d.modelo)) P.indice.modelos.push({id: r.d.modelo, titulo: r.d.titulo, archivo: r.f.name}); }
+      if (r.d.formato === "arrova-plano-2d") { P.plano = r.d; n++; }
+    }
+    if (!n) { toast("Ninguno de esos archivos es del visor"); return; }
+    // los modelos que el índice nombra y no se han abierto quedan fuera
+    P.indice.modelos = P.indice.modelos.filter(m => P.modelos[m.id]);
+    S.proyectos[id] = P;
+    rellenarProyectos(id);
+    toast("Abiertos " + n + " archivos de " + id);
+  });
+}
+
+function rellenarProyectos(sel) {
+  const s = $("selProyecto"); s.innerHTML = "";
+  for (const id of Object.keys(S.proyectos)) {
+    const o = document.createElement("option"); o.value = id;
+    o.textContent = id + (S.proyectos[id].origen === "archivo" ? " (archivos)" : ""); s.appendChild(o);
+  }
+  if (sel) s.value = sel;
+  elegirProyecto(s.value);
+}
+
+async function elegirProyecto(id) {
+  S.proyecto = S.proyectos[id] || null;
+  const s = $("selModelo"); s.innerHTML = "";
+  if (!S.proyecto) { $("vacio").hidden = false; return; }
+  for (const m of S.proyecto.indice.modelos) { const o = document.createElement("option"); o.value = m.id; o.textContent = m.titulo; s.appendChild(o); }
+  const pref = ls("visor.modelo." + id), nuevo = S.proyecto.indice.preferido;
+  const bim1 = S.proyecto.indice.modelos.find(m => m.id.startsWith("bim"));
+  if (nuevo && S.proyecto.modelos[nuevo] && ls("visor.preferido." + id) !== nuevo) { s.value = nuevo; ls("visor.preferido." + id, nuevo); }
+  else if (pref && S.proyecto.modelos[pref]) s.value = pref;
+  else if (bim1) s.value = bim1.id;
+  await elegirModelo(s.value);
+  if (S.modo === "2d") await abrir2d();
+}
+
+async function elegirModelo(id) {
+  if (!S.proyecto || !id) { $("vacio").hidden = S.modo !== "3d" ? true : false; return; }
+  ls("visor.modelo." + S.proyecto.id, id);
+  $("estado").textContent = "Cargando…";
+  try {
+    const D = await obtener(S.proyecto.modelos[id]);
+    S.proyecto.modelos[id] = D;
+    S.modelo = D;
+    V3.cargar(D);
+    $("vacio").hidden = true;
+    $("estado").textContent = D.titulo + " · " + D.fecha + " · " + D.elementos.length + " elementos";
+    rotulo(); Datos.refrescar();
+  } catch (e) { $("estado").textContent = ""; toast(e.message); }
+}
+
+/* ============================================================ 3D */
+const V3 = (() => {
+  const canvas = $("c3d");
+  const renderer = new THREE.WebGLRenderer({canvas, antialias: true, preserveDrawingBuffer: false});
+  renderer.localClippingEnabled = false;
+  const scene = new THREE.Scene();
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x888888, 0.75); hemi.position.set(0, 0, 1); scene.add(hemi);
+  const sol = new THREE.DirectionalLight(0xffffff, 0.55); sol.position.set(-0.5, -1, 1.6); scene.add(sol);
+  const ortho = new THREE.OrthographicCamera(-1, 1, 1, -1, -1000, 1000);
+  const persp = new THREE.PerspectiveCamera(50, 1, 0.05, 2000);
+  ortho.up.set(0, 0, 1); persp.up.set(0, 0, 1);
+  let cam = ortho;
+  let ctrl = new THREE.OrbitControls(cam, canvas);
+  ctrl.enableDamping = false; ctrl.screenSpacePanning = true;
+  ctrl.addEventListener("change", pedir);
+  let root = null, D = null, elems = [], meshes = [], aristas = [], conGlobal = {}, nivelDe = () => 0, resalta = null, realce = [];
+  let estilo = "linea", explota = 0, explotaAnim = 0, caja = new THREE.Box3(), sel = null;
+  const grupoVis = {}, plantaVis = {};
+  const matCache = {};
+  const GRUPOS = {maqueta: "Maqueta", muros: "Muros", forjados: "Forjados", cubiertas: "Cubiertas", carpinterias: "Carpinterías",
+    estructura: "Estructura", techos: "Techos y cámaras", barandillas: "Barandillas", mobiliario: "Mobiliario", recintos: "Recintos",
+    piel: "Piel (vista)", revoco: "Revoco de fachada", alfeizares: "Alféizares", entorno: "Entorno"};
+  const OCULTOS = {recintos: 1};
+  const planos = {z: new THREE.Plane(new THREE.Vector3(0, 0, -1), 0), x: new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0), y: new THREE.Plane(new THREE.Vector3(0, -1, 0), 0)};
+
+  function rgb(c, f) { return c ? new THREE.Color(c[0] / 255, c[1] / 255, c[2] / 255) : new THREE.Color(f || 0xdddddd); }
+  function colores() { return {paper: new THREE.Color(css("--paper") || "#fff"), ink: new THREE.Color(css("--ink") || "#000"), accent: new THREE.Color(css("--accent") || "#0040ff")}; }
+
+  function material(m) {
+    const k = estilo + "|" + m;
+    if (matCache[k]) return matCache[k];
+    const M = (D.materiales || {})[m] || {};
+    const C = colores();
+    const op = M.opacidad != null ? M.opacidad / 100 : 1;
+    const comun = {polygonOffset: true, polygonOffsetFactor: 0, polygonOffsetUnits: 0, side: THREE.DoubleSide};   // poco desplazamiento: las aristas que quedan 15 mm detrás del revoco no se ven a través
+    let mat;
+    if (estilo === "linea") mat = new THREE.MeshBasicMaterial(Object.assign({color: C.paper, transparent: op < 1, opacity: op < 1 ? 0.15 : 1, depthWrite: op >= 1}, comun));
+    else if (estilo === "masa") mat = new THREE.MeshLambertMaterial(Object.assign({color: 0xf6f6f4, transparent: op < 1, opacity: op < 1 ? 0.3 : 1, depthWrite: op >= 1}, comun));
+    else if (estilo === "material") mat = new THREE.MeshLambertMaterial(Object.assign({color: rgb(M.color), transparent: op < 1, opacity: op, depthWrite: op >= 1}, comun));
+    else mat = new THREE.MeshBasicMaterial(Object.assign({color: rgb(M.mapa || M.color)}, comun));
+    return (matCache[k] = mat);
+  }
+  // las aristas se adelantan 4 mm hacia la cámara al comprobar la profundidad: las de cada cara se ven, y las de lo que queda
+  // justo detrás de otra cara (p. ej. la obra 15 mm detrás del revoco) quedan ocultas
+  const acercar = m => { m.onBeforeCompile = sh => { sh.vertexShader = sh.vertexShader.replace("#include <project_vertex>",
+    "vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);\n" +
+    "if (projectionMatrix[3][3] > 0.5) { mvPosition.z += 0.004; } else { float L_ = length(mvPosition.xyz); mvPosition.xyz *= max(0.0, 1.0 - 0.004 / max(L_, 0.01)); }\n" +
+    "gl_Position = projectionMatrix * mvPosition;"); }; return m; };
+  const lineaMat = () => matCache["__l" + estilo] || (matCache["__l" + estilo] = acercar(new THREE.LineBasicMaterial({color: colores().ink, transparent: estilo !== "linea", opacity: estilo === "linea" ? 1 : 0.35})));
+  const fantasma = () => matCache.__f || (matCache.__f = new THREE.MeshBasicMaterial({color: colores().paper, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 0, polygonOffsetUnits: 0}));
+  const realceMat = () => matCache.__r || (matCache.__r = new THREE.LineBasicMaterial({color: colores().accent, depthTest: false, transparent: true}));
+  const lineaTenue = () => matCache.__lt || (matCache.__lt = new THREE.LineBasicMaterial({color: colores().ink, transparent: true, opacity: 0.12}));
+  const selMat = () => matCache.__sel || (matCache.__sel = new THREE.LineBasicMaterial({color: colores().accent}));
+
+  function cargar(datos) {
+    D = datos;
+    for (const k in matCache) { matCache[k].dispose(); delete matCache[k]; }
+    if (root) { scene.remove(root); root.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
+    root = new THREE.Group(); scene.add(root);
+    elems = []; meshes = []; aristas = []; sel = null; resalta = null; quitaRealce();
+    const orden = D.plantas.map(p => p.id).filter(p => p !== "entorno");
+    nivelDe = p => Math.max(0, orden.indexOf(p));
+    const fundidas = Array.isArray(D.aristas) && D.aristas.length > 0;
+    conGlobal = {};
+    D.elementos.forEach((e, i) => {
+      const g = new THREE.Group();
+      g.userData = {e, i, nivel: Math.max(0, orden.indexOf(e.p)), dir: e.dir || null};
+      for (const p of e.partes) {
+        const geo = new THREE.BufferGeometry();
+        const v = new Float32Array(p.v.length);
+        for (let k = 0; k < v.length; k++) v[k] = p.v[k] / 1000;
+        geo.setAttribute("position", new THREE.BufferAttribute(v, 3));
+        geo.setIndex(p.f);
+        const flat = geo.toNonIndexed(); flat.computeVertexNormals();
+        const mesh = new THREE.Mesh(flat, material(p.m));
+        mesh.userData = {g, parte: p};
+        g.add(mesh); meshes.push(mesh);
+        if (!fundidas) { const ed = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 25), lineaMat()); ed.userData = {arista: true, g: e.g, p: e.p, elem: true}; g.add(ed); aristas.push(ed); }
+        geo.dispose();
+      }
+      root.add(g); elems.push(g);
+    });
+    if (fundidas) for (const a of D.aristas) {
+      const v = new Float32Array(a.s.length); for (let k = 0; k < v.length; k++) v[k] = a.s[k] / 1000;
+      const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(v, 3));
+      const ls_ = new THREE.LineSegments(geo, lineaMat());
+      ls_.userData = {arista: true, g: a.g, p: a.p, m: a.m, global: a.p === "*", nivel: nivelDe(a.p), dir: a.dir || null};
+      if (a.p === "*") conGlobal[a.g + "|" + a.m] = true;
+      root.add(ls_); aristas.push(ls_);
+    }
+    // capas y plantas
+    const grupos = [...new Set(D.elementos.map(e => e.g))];
+    $("listaGrupos").innerHTML = "";
+    for (const k of grupos) { if (grupoVis[k] === undefined) grupoVis[k] = !OCULTOS[k]; $("listaGrupos").appendChild(chk(GRUPOS[k] || k, grupoVis[k], v => { grupoVis[k] = v; visibilidad(); })); }
+    $("listaPlantas").innerHTML = "";
+    for (const p of D.plantas) { if (!D.elementos.some(e => e.p === p.id)) continue; if (plantaVis[p.id] === undefined) plantaVis[p.id] = true; $("listaPlantas").appendChild(chk(p.nombre, plantaVis[p.id], v => { plantaVis[p.id] = v; visibilidad(); })); }
+    // dudas
+    const du = (D.dudas || []).concat(D.avisos || []);
+    $("secDudas").hidden = !du.length;
+    $("dudas").innerHTML = du.map(t => "<p>" + esc(t) + "</p>").join("");
+    visibilidad();
+    calcCaja();
+    aplicaEstilo(estilo);
+    vista($("selCam").value, true);
+    inspeccion(null);
+  }
+  function esc(t) { return String(t).replace(/[&<>]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;"})[c]); }
+  function chk(txt, val, fn) {
+    const l = document.createElement("label"); l.className = "chk";
+    const i = document.createElement("input"); i.type = "checkbox"; i.checked = val; i.onchange = () => fn(i.checked);
+    l.appendChild(i); l.appendChild(document.createTextNode(txt)); return l;
+  }
+  function visibilidad() {
+    for (const g of elems) { const e = g.userData.e; g.visible = grupoVis[e.g] !== false && plantaVis[e.p] !== false; }
+    // con el edificio entero y sin explotar, las aristas fundidas de todas las plantas (sin juntas entre plantas)
+    const todas = explota === 0 && D.plantas.every(p => p.id === "entorno" || plantaVis[p.id] !== false);
+    for (const a of aristas) {
+      const u = a.userData;
+      if (u.elem) { a.visible = estilo !== "mapa"; continue; }
+      const gl = todas && conGlobal[u.g + "|" + u.m];
+      const plantaOk = String(u.p).startsWith("fachada:") ? true : plantaVis[u.p] !== false;
+      a.visible = estilo !== "mapa" && grupoVis[u.g] !== false && (u.global ? !!gl : (plantaOk && !gl));
+    }
+    mediciones(); pedir();
+    try { Datos.refrescar(); } catch (e) { /* aún no está */ }
+  }
+  function calcCaja() {
+    caja = new THREE.Box3();
+    for (const g of elems) if (g.userData.e.g !== "entorno") caja.expandByObject(g);
+    if (caja.isEmpty()) for (const g of elems) caja.expandByObject(g);
+    const s = caja.getSize(new THREE.Vector3());
+    $("rZ").max = Math.ceil(s.z * 1000 + 500); $("rZ").min = Math.floor(caja.min.z * 1000);
+    cortes();
+  }
+  function aplicaEstilo(e) {
+    estilo = e;
+    for (const m of meshes) m.material = resalta && !resalta.has(m.userData.g.userData.i) ? fantasma() : material(m.userData.parte.m);
+    for (const a of aristas) a.material = resalta ? lineaTenue() : lineaMat();
+    visibilidad();
+    const C = colores();
+    renderer.setClearColor(estilo === "mapa" ? 0xffffff : C.paper, 1);
+    pedir();
+  }
+  function vista(tipo, encuadre) {
+    const c = caja.getCenter(new THREE.Vector3()), s = caja.getSize(new THREE.Vector3());
+    const r = Math.max(s.x, s.y, s.z) * 1.6 || 20;
+    const dirs = {se: [1, -1, 0.82], so: [-1, -1, 0.82], ne: [1, 1, 0.82], no: [-1, 1, 0.82], planta: [0, -0.0001, 1], an: [0, 1, 0], as: [0, -1, 0], ae: [1, 0, 0], ao: [-1, 0, 0]};
+    const d = new THREE.Vector3(...(dirs[tipo] || dirs.se)).normalize();
+    cam.position.copy(c).addScaledVector(d, r);
+    ctrl.target.copy(c);
+    if (cam === ortho) { ortho.zoom = 1; ajustaOrtho(Math.max(s.x, s.y, s.z) * 0.75 || 10); }
+    cam.lookAt(c); ctrl.update(); pedir();
+  }
+  let mitad = 10;
+  function ajustaOrtho(h) {
+    mitad = h || mitad;
+    const w = canvas.clientWidth || 1, hh = canvas.clientHeight || 1, a = w / hh;
+    ortho.left = -mitad * a; ortho.right = mitad * a; ortho.top = mitad; ortho.bottom = -mitad;
+    ortho.near = -1000; ortho.far = 1000; ortho.updateProjectionMatrix();
+  }
+  function setPersp(on) {
+    const pos = cam.position.clone(), tgt = ctrl.target.clone();
+    cam = on ? persp : ortho;
+    cam.position.copy(pos);
+    ctrl.dispose(); ctrl = new THREE.OrbitControls(cam, canvas); ctrl.screenSpacePanning = true; ctrl.target.copy(tgt); ctrl.addEventListener("change", pedir);
+    focal(+$("rFocal").value); redim(); ctrl.update(); pedir();
+  }
+  function focal(mm) { persp.fov = 2 * Math.atan(12 / mm) * 180 / Math.PI; persp.updateProjectionMatrix(); pedir(); }  // 24 mm de alto (35 mm)
+  function alOjo(h) {
+    const dz = h / 1000 + caja.min.z - cam.position.z;
+    cam.position.z += dz; ctrl.target.z = cam.position.z; ctrl.update(); pedir();
+  }
+  function cortes() {
+    const act = [];
+    const c = caja.getCenter(new THREE.Vector3()), s = caja.getSize(new THREE.Vector3());
+    const inv = $("cInv").checked ? -1 : 1;
+    const z = +$("rZ").value / 1000;
+    $("oZ").textContent = fmt(z, 2);
+    planos.z.normal.set(0, 0, -inv); planos.z.constant = inv * z;
+    if ($("cZ").checked) act.push(planos.z);
+    const x = caja.min.x + s.x * (+$("rX").value / 1000), y = caja.min.y + s.y * (+$("rY").value / 1000);
+    $("oX").textContent = fmt(x - caja.min.x, 1); $("oY").textContent = fmt(y - caja.min.y, 1);
+    planos.x.normal.set(-inv, 0, 0); planos.x.constant = inv * x;
+    planos.y.normal.set(0, -inv, 0); planos.y.constant = inv * y;
+    if ($("cX").checked) act.push(planos.x);
+    if ($("cY").checked) act.push(planos.y);
+    renderer.clippingPlanes = act;
+    pedir();
+  }
+  function setExplota(m) { const antes = explota; explota = m / 1000; if ((antes === 0) !== (explota === 0)) visibilidad(); anima(); }
+  function encuadra() {
+    const bb = new THREE.Box3();
+    for (const g of elems) if (g.visible && g.userData.e.g !== "entorno") { const o = g.position.clone(), d = g.userData.dir; if (d) g.position.set(d[0] * explota * 0.5, d[1] * explota * 0.5, 0); else g.position.z = g.userData.nivel * explota; g.updateMatrixWorld(true); bb.expandByObject(g); g.position.copy(o); g.updateMatrixWorld(true); }
+    if (bb.isEmpty()) return;
+    const c = bb.getCenter(new THREE.Vector3()), r = bb.getSize(new THREE.Vector3()).length() / 2;
+    const d = cam.position.clone().sub(ctrl.target);
+    ctrl.target.copy(c); cam.position.copy(c).add(d);
+    if (cam === ortho) { ortho.zoom = 1; ajustaOrtho(r * 1.0); }
+    else cam.position.copy(c).add(d.setLength(r / Math.tan(persp.fov * Math.PI / 360)));
+    ctrl.update(); pedir();
+  }
+  function anima() {
+    const paso = () => {
+      const d = explota - explotaAnim;
+      explotaAnim = Math.abs(d) < 0.01 ? explota : explotaAnim + d * 0.25;
+      const fuera = explotaAnim * 0.5;
+      for (const g of elems) { const d = g.userData.dir; if (d) g.position.set(d[0] * fuera, d[1] * fuera, 0); else g.position.z = g.userData.e.p === "entorno" ? 0 : g.userData.nivel * explotaAnim; }
+      for (const a of aristas) if (!a.userData.elem) { const d = a.userData.dir; if (d) a.position.set(d[0] * fuera, d[1] * fuera, 0); else a.position.z = (a.userData.global || a.userData.p === "entorno") ? 0 : a.userData.nivel * explotaAnim; }
+      render();
+      if (explotaAnim !== explota) requestAnimationFrame(paso);
+    };
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) explotaAnim = explota - 0.001;
+    requestAnimationFrame(paso);
+  }
+  function mediciones() {
+    if (!D) return;
+    const m = {}, ifc = {};
+    for (const g of elems) {
+      if (!g.visible) continue;
+      const e = g.userData.e;
+      if (e.g === "entorno" || e.g === "recintos") continue;
+      for (const p of e.partes) m[p.m] = (m[p.m] || 0) + (p.vol || 0);
+      if (e.ifc) ifc[e.ifc] = (ifc[e.ifc] || 0) + 1;
+    }
+    const filas = Object.entries(m).filter(([, v]) => v > 0.0005).sort((a, b) => b[1] - a[1]);
+    const nom = k => ((D.materiales || {})[k] || {}).nombre || k;
+    let h = filas.map(([k, v]) => "<tr><td>" + esc(nom(k)) + "</td><td>" + fmt(v, 2) + " m³</td></tr>").join("");
+    const tot = filas.reduce((a, b) => a + b[1], 0);
+    if (filas.length) h += "<tr><td><b>Total</b></td><td><b>" + fmt(tot, 2) + " m³</b></td></tr>";
+    const ent = Object.entries(ifc).sort((a, b) => b[1] - a[1]);
+    if (ent.length) h += "<tr><td colspan=2>&nbsp;</td></tr>" + ent.map(([k, v]) => "<tr><td>" + k + "</td><td>" + v + "</td></tr>").join("");
+    $("med").innerHTML = h || "<tr><td class=nota>Nada visible</td></tr>";
+  }
+  function quitaRealce() { for (const r of realce) { r.parent && r.parent.remove(r); r.geometry.dispose(); } realce = []; }
+  function realzar(gs) {
+    quitaRealce();
+    for (const g of gs) for (const m of g.children) if (m.isMesh) {
+      const l = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 25), resalta ? realceMat() : selMat()); l.userData.realce = true; l.renderOrder = 10; g.add(l); realce.push(l);
+    }
+  }
+  function resaltar(indices) {
+    resalta = indices && indices.size ? indices : null;
+    aplicaEstilo(estilo);
+    realzar(resalta ? elems.filter(g => resalta.has(g.userData.i)) : (sel ? [sel] : []));
+    $("barraRealce").hidden = !resalta;
+    if (resalta) $("txtRealce").textContent = resalta.size + " elementos resaltados";
+    pedir();
+  }
+  function inspeccion(g) {
+    sel = g;
+    realzar(resalta ? elems.filter(x => resalta.has(x.userData.i)).concat(g ? [g] : []) : (g ? [g] : []));
+    if (!g) { $("insp").innerHTML = '<span class="nota">Toca un elemento para ver qué es.</span>'; pedir(); return; }
+    $("insp").innerHTML = ficha(D, g.userData.e);
+    const b = $("insp").querySelector("[data-tipo]");
+    if (b) b.onclick = () => resaltar(new Set(elems.filter(x => x.userData.e.t === b.dataset.tipo).map(x => x.userData.i)));
+    pedir();
+  }
+  // selección por toque
+  let down = null;
+  canvas.addEventListener("pointerdown", e => { down = {x: e.clientX, y: e.clientY, t: Date.now()}; });
+  canvas.addEventListener("pointerup", e => {
+    if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6 || Date.now() - down.t > 600) return;
+    const r = canvas.getBoundingClientRect();
+    const p = new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    const rc = new THREE.Raycaster(); rc.setFromCamera(p, cam);
+    const vis = meshes.filter(m => m.userData.g.visible);
+    const hits = rc.intersectObjects(vis, false).filter(h => renderer.clippingPlanes.every(pl => pl.distanceToPoint(h.point) >= -1e-4));
+    inspeccion(hits.length ? hits[0].object.userData.g : null);
+  });
+  let pend = false;
+  function pedir() { if (!pend) { pend = true; requestAnimationFrame(() => { pend = false; render(); }); } }
+  function render() { renderer.render(scene, cam); }
+  function redim() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(w, h, false);
+    persp.aspect = w / h; persp.updateProjectionMatrix(); ajustaOrtho(); pedir();
+  }
+  new ResizeObserver(redim).observe(canvas);
+
+  /* ---------- exportar: SVG a línea con líneas ocultas quitadas */
+  const depthMat = new THREE.ShaderMaterial({
+    uniforms: {uNear: {value: 0}, uFar: {value: 1}}, clipping: true, side: THREE.DoubleSide,
+    vertexShader: "#include <clipping_planes_pars_vertex>\nvarying float vZ;\nvoid main(){vec4 mvPosition=modelViewMatrix*vec4(position,1.0);vZ=-mvPosition.z;gl_Position=projectionMatrix*mvPosition;\n#include <clipping_planes_vertex>\n}",
+    fragmentShader: "#include <clipping_planes_pars_fragment>\nuniform float uNear;uniform float uFar;varying float vZ;\nvoid main(){\n#include <clipping_planes_fragment>\nfloat t=clamp((vZ-uNear)/(uFar-uNear),0.0,1.0);vec3 e=fract(t*vec3(1.0,255.0,65025.0));e-=e.yzz*vec3(1.0/255.0,1.0/255.0,0.0);gl_FragColor=vec4(e,1.0);}"
+  });
+  function exportarSVG(escala) {
+    if (!D) return;
+    render();
+    const W0 = canvas.clientWidth, H0 = canvas.clientHeight;
+    const k = Math.min(4096 / Math.max(W0, H0), 3);
+    const W = Math.round(W0 * k), H = Math.round(H0 * k);
+    // profundidad en la vista: z lineal de cámara entre near y far del modelo visible
+    const bb = new THREE.Box3(); for (const g of elems) if (g.visible) bb.expandByObject(g);
+    const esq = []; for (let i = 0; i < 8; i++) esq.push(new THREE.Vector3(i & 1 ? bb.max.x : bb.min.x, i & 2 ? bb.max.y : bb.min.y, i & 4 ? bb.max.z : bb.min.z).applyMatrix4(cam.matrixWorldInverse));
+    let near = Math.min(...esq.map(p => -p.z)) - 0.5, far = Math.max(...esq.map(p => -p.z)) + 0.5;
+    if (cam === persp) near = Math.max(near, persp.near);
+    depthMat.uniforms.uNear.value = near; depthMat.uniforms.uFar.value = far;
+    const rt = new THREE.WebGLRenderTarget(W, H, {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
+    const aristasVis = new Map(); aristas.concat(realce).forEach(o => { let v = true; for (let x = o; x; x = x.parent) if (!x.visible) v = false; aristasVis.set(o, v && !(resalta && o.material === lineaTenue())); });
+    const ocultas = [];
+    root.traverse(o => { if (o.userData.arista || o.userData.realce) { ocultas.push([o, o.visible]); o.visible = false; } });
+    const transp = meshes.filter(m => m.material.transparent && m.visible);
+    transp.forEach(m => m.visible = false);
+    scene.overrideMaterial = depthMat;
+    const prevClear = renderer.getClearColor(new THREE.Color()), prevA = renderer.getClearAlpha();
+    renderer.setClearColor(0xffffff, 1);
+    renderer.setRenderTarget(rt); renderer.render(scene, cam);
+    const px = new Uint8Array(W * H * 4); renderer.readRenderTargetPixels(rt, 0, 0, W, H, px);
+    renderer.setRenderTarget(null); scene.overrideMaterial = null; renderer.setClearColor(prevClear, prevA);
+    ocultas.forEach(([o, v]) => o.visible = v); transp.forEach(m => m.visible = true); rt.dispose();
+    const prof = new Float32Array(W * H);
+    for (let i = 0; i < W * H; i++) prof[i] = px[i * 4] / 255 + px[i * 4 + 1] / 65025 + px[i * 4 + 2] / 16581375;
+    const maxVec = (x, y) => { let m = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const xx = x + dx, yy = y + dy; if (xx < 0 || yy < 0 || xx >= W || yy >= H) { m = 1; continue; } const v = prof[yy * W + xx]; if (v > m) m = v; } return m; };
+    const eps = 0.006 / (far - near);   // 6 mm: lo que está detrás del revoco (15 mm) queda oculto
+    const planosAct = renderer.clippingPlanes;
+    const segs = [];
+    const a = new THREE.Vector3(), b = new THREE.Vector3(), p = new THREE.Vector3(), q = new THREE.Vector3(), vc = new THREE.Vector3();
+    cam.updateMatrixWorld();
+    const visible = o => { for (let x = o; x; x = x.parent) if (!x.visible) return false; return true; };
+    const lineasExp = aristas.concat(realce).filter(o => aristasVis.get(o));
+    for (const o of lineasExp) {
+      {
+        const pos = o.geometry.attributes.position.array, mw = o.matrixWorld;
+        for (let i = 0; i < pos.length; i += 6) {
+          a.set(pos[i], pos[i + 1], pos[i + 2]).applyMatrix4(mw); b.set(pos[i + 3], pos[i + 4], pos[i + 5]).applyMatrix4(mw);
+          const pa = a.clone().project(cam), pb = b.clone().project(cam);
+          const lpx = Math.hypot((pb.x - pa.x) * W / 2, (pb.y - pa.y) * H / 2);
+          const n = Math.max(2, Math.min(600, Math.ceil(lpx / 1.5)));
+          let ini = -1, ult = -1;
+          const tramo = (i0, i1) => { if (i1 > i0) segs.push([a.clone().lerp(b, i0 / n), a.clone().lerp(b, i1 / n)]); };
+          for (let s = 0; s <= n; s++) {
+            p.copy(a).lerp(b, s / n);
+            let vis = planosAct.every(pl => pl.distanceToPoint(p) >= -1e-5);
+            if (vis) {
+              q.copy(p).project(cam);
+              const x = Math.floor((q.x + 1) / 2 * W), y = Math.floor((q.y + 1) / 2 * H);
+              if (x < 0 || y < 0 || x >= W || y >= H) vis = false;
+              else { vc.copy(p).applyMatrix4(cam.matrixWorldInverse); const t = (-vc.z - near) / (far - near); vis = t <= maxVec(x, y) + eps; }
+            }
+            if (vis) { if (ini < 0) ini = s; ult = s; } else if (ini >= 0) { tramo(ini, ult); ini = -1; }
+          }
+          if (ini >= 0) tramo(ini, ult);
+        }
+      }
+    }
+    // a coordenadas de papel (mm): ortográfica → metros del plano de la vista; perspectiva → encaje
+    const toCam = v => v.clone().applyMatrix4(cam.matrixWorldInverse);
+    let L = segs.map(([u, w]) => {
+      if (cam === ortho) { const A = toCam(u), B = toCam(w); return [A.x, A.y, B.x, B.y]; }
+      const A = u.clone().project(cam), B = w.clone().project(cam); return [A.x * W0 / H0, A.y, B.x * W0 / H0, B.y];
+    });
+    if (!L.length) { toast("No hay líneas visibles que exportar"); return; }
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const s of L) { x0 = Math.min(x0, s[0], s[2]); x1 = Math.max(x1, s[0], s[2]); y0 = Math.min(y0, s[1], s[3]); y1 = Math.max(y1, s[1], s[3]); }
+    const pagW = 420, pagH = 297, marg = 20;
+    let f, esTxt;
+    if (cam === ortho && escala > 0) { f = 1000 / escala; esTxt = "1:" + escala; }
+    else {
+      f = Math.min((pagW - 2 * marg - 20) / (x1 - x0), (pagH - 2 * marg - 20) / (y1 - y0));
+      if (cam === ortho) { const e = [20, 25, 50, 75, 100, 125, 150, 200, 250, 300, 400, 500, 750, 1000, 2000].find(e => 1000 / e <= f) || 5000; f = 1000 / e; esTxt = "1:" + e; }
+      else esTxt = "perspectiva";
+    }
+    let PW = pagW, PH = pagH;
+    const dw = (x1 - x0) * f, dh = (y1 - y0) * f;
+    if (dw > pagW - 2 * marg - 20 || dh > pagH - 2 * marg - 20) { PW = Math.ceil(dw + 2 * marg + 20); PH = Math.ceil(dh + 2 * marg + 20); }
+    const ox = (PW - dw) / 2 - x0 * f, oy = (PH + dh) / 2 + y0 * f;
+    const r2 = v => Math.round(v * 100) / 100;
+    let out = '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="' + PW + 'mm" height="' + PH + 'mm" viewBox="0 0 ' + PW + " " + PH + '">\n';
+    out += '<g fill="none" stroke="#000" stroke-width="0.05" stroke-linecap="round">\n';
+    // marcas: aspa arriba a la derecha (lo más exterior) y dos escuadras que cierran la caja del contenido
+    out += '<path d="M' + (PW - 10) + " 6L" + (PW - 6) + " 10M" + (PW - 6) + " 6L" + (PW - 10) + ' 10"/>\n';
+    out += '<path d="M' + (PW - 18) + " 14H" + (PW - 14) + "V18" + '"/>\n';
+    out += '<path d="M14 ' + (PH - 18) + "V" + (PH - 14) + "H18" + '"/>\n';
+    out += "</g>\n<g fill=\"none\" stroke=\"#000\" stroke-width=\"0.05\" stroke-linecap=\"round\">\n";
+    for (const s of L) out += '<line x1="' + r2(ox + s[0] * f) + '" y1="' + r2(oy - s[1] * f) + '" x2="' + r2(ox + s[2] * f) + '" y2="' + r2(oy - s[3] * f) + '"/>\n';
+    out += "</g>\n";
+    const titulo = (S.proyecto ? S.proyecto.id : "") + " · " + (D.titulo || "") + " · " + $("selCam").selectedOptions[0].textContent;
+    out += '<text x="18" y="' + (PH - 20) + '" font-family="Helvetica, Arial, sans-serif" font-size="3.5" font-weight="700">' + esc(titulo) + "</text>\n";
+    out += '<text x="18" y="' + (PH - 15.5) + '" font-family="Helvetica, Arial, sans-serif" font-size="2.5">' + esc(esTxt + " · " + D.fecha) + "</text>\n</svg>\n";
+    const nom = ((S.proyecto ? S.proyecto.id : "modelo") + "_" + D.modelo + "_" + $("selCam").value + (explota ? "_explotado" : "") + ".svg").replace(/\s+/g, "_");
+    guardarArchivo(nom, out);
+  }
+  function exportarPNG() {
+    const pr = renderer.getPixelRatio();
+    renderer.setPixelRatio(Math.min(4, 3000 / Math.max(canvas.clientWidth, 1)));
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+    render();
+    canvas.toBlob(b => {
+      renderer.setPixelRatio(pr); renderer.setSize(canvas.clientWidth, canvas.clientHeight, false); render();
+      if (b) guardarArchivo(((S.proyecto ? S.proyecto.id : "modelo") + "_" + D.modelo + "_" + estilo + ".png").replace(/\s+/g, "_"), b);
+    }, "image/png");
+  }
+  return {cargar, encuadra, resaltar, datos: () => D, visibles: () => elems.filter(g => g.visible).map(g => g.userData.e), aplicaEstilo, vista, setPersp, focal, alOjo, cortes, setExplota, exportarSVG, exportarPNG, redim, pedir,
+    tema() { for (const k in matCache) { matCache[k].dispose(); delete matCache[k]; } if (D) aplicaEstilo(estilo); }};
+})();
+
+/* ============================================================ 2D */
+const V2 = (() => {
+  const cv = $("c2d"), ctx = cv.getContext("2d");
+  let P = null, objs = [], idx = null, W = 0, H = 0, dpr = 1;
+  let cx = 0, cy = 0, k = 0.05;                 // centro de la vista (mm) y escala (px por mm)
+  let herr = "sel", selec = new Set(), vSel = null;   // vVértice seleccionado {o, k}
+  let ed = {}, nuevos = [], hist = [], futuro = [];
+  let tmp = null, cursor = null, snap = null, orto = true, iman = true, dedo = false, espacio = false;
+  const clave = () => "visor.cambios." + (S.proyecto ? S.proyecto.id : "") + "." + (P ? P.fecha : "");
+
+  /* ---- preparación del plano */
+  function preparar(datos) {
+    P = datos; objs = [];
+    for (const o of P.objetos) {
+      const d = {o, id: o.uuid || ("i" + o.i), t: o.t, base: null, cerr: !!o.cerr, edit: false};
+      if (o.t === 2 && o.p1 && o.p2) { d.base = [o.p1, o.p2]; d.edit = true; }
+      else if ((o.t === 5 || o.t === 21) && o.v) {
+        const curva = o.t === 21 && o.v.some(v => v[2]);
+        d.base = curva && o.vp ? o.vp : o.v.map(v => [v[0], v[1]]);
+        d.edit = !curva;
+      }
+      else if (o.t === 3 && o.v) d.base = o.v.map(v => [v[0], v[1]]), d.cerr = true;
+      else if ((o.t === 6 || o.t === 4) && o.vp) d.base = o.vp;
+      else if (o.t === 6 && o.p1 && o.p2) d.base = [o.p1, o.p2], d.cuerda = true;
+      else if (o.t === 10 && o.pos) d.texto = true;
+      else if ((o.t === 15 || o.t === 86) && o.bb) d.caja = true;
+      else continue;
+      if (!o.uuid) d.edit = false;
+      objs.push(d);
+    }
+    const cl = $("selClase"); cl.innerHTML = "";
+    const pref = ["l-0.05", "l-0.13", "l-0.18", "l-dotted", "l-dashed"];
+    const todas = [...new Set(pref.filter(c => P.clases[c]).concat(Object.keys(P.clases).filter(c => /^l-|^f-|^Dimension|^arv|mobil/i.test(c))))];
+    for (const c of (todas.length ? todas : pref)) { const op = document.createElement("option"); op.value = c; op.textContent = c; cl.appendChild(op); }
+    const tr = $("selTrama"); tr.innerHTML = "<option value=''>Sin trama</option>";
+    for (const t of P.tramas || []) { const op = document.createElement("option"); op.value = t; op.textContent = t; tr.appendChild(op); }
+    const g = ls(clave()); ed = (g && g.ed) || {}; nuevos = (g && g.nuevos) || []; hist = []; futuro = [];
+    indexar(); encuadrar(); resumen();
+    $("info2d").innerHTML = "<b>" + esc(P.doc || "") + "</b>capa " + esc((P.capas || []).map(c => c.n).join(", ")) + " · " + objs.length + " objetos<br>exportado " + esc(P.fecha || "") +
+      (P.con_uuid ? "" : "<br><span style='color:var(--warn)'>Este plano no lleva identificadores: se puede dibujar encima, pero para editar lo existente hay que exportarlo de nuevo desde Vectorworks con el visor.</span>");
+  }
+  const esc = t => String(t).replace(/[&<>]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;"})[c]);
+
+  /* ---- geometría actual de un objeto (base + edición) */
+  function geom(d) {
+    const e = ed[d.id];
+    if (e && e.v) return e.v;
+    if (!d.base) return null;
+    if (e && (e.dx || e.dy)) return d.base.map(p => [p[0] + e.dx, p[1] + e.dy]);
+    return d.base;
+  }
+  function puntoTexto(d) { const e = ed[d.id] || {}; return [d.o.pos[0] + (e.dx || 0), d.o.pos[1] + (e.dy || 0)]; }
+  function cajaObj(d) {
+    const e = ed[d.id] || {}, bb = d.o.bb; if (!bb) return null;
+    return [Math.min(bb[0][0], bb[1][0]) + (e.dx || 0), Math.min(bb[0][1], bb[1][1]) + (e.dy || 0), Math.max(bb[0][0], bb[1][0]) + (e.dx || 0), Math.max(bb[0][1], bb[1][1]) + (e.dy || 0)];
+  }
+  function todos() { return objs.concat(nuevos.map(n => n._d || (n._d = {o: n, id: n.id, t: n.tipo, nuevo: true, edit: n.tipo !== "texto", texto: n.tipo === "texto", cerr: !!n.cerr}))); }
+  function geomN(d) { return d.nuevo ? (d.o.tipo === "texto" ? null : d.o.v) : geom(d); }
+  function claseDe(d) { return d.nuevo ? d.o.clase : ((ed[d.id] || {}).clase || d.o.clase); }
+  function tramaDe(d) { if (d.nuevo) return d.o.trama; const e = ed[d.id]; return e && "trama" in e ? e.trama : d.o.trama; }
+
+  /* ---- índice espacial de segmentos para imán y selección */
+  function indexar() {
+    idx = new Map(); const C = 2000;
+    const add = (d, a, b) => {
+      const i0 = Math.floor(Math.min(a[0], b[0]) / C), i1 = Math.floor(Math.max(a[0], b[0]) / C), j0 = Math.floor(Math.min(a[1], b[1]) / C), j1 = Math.floor(Math.max(a[1], b[1]) / C);
+      if ((i1 - i0 + 1) * (j1 - j0 + 1) > 400) return;
+      for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) { const kk = i + "," + j; if (!idx.has(kk)) idx.set(kk, []); idx.get(kk).push([d, a, b]); }
+    };
+    for (const d of todos()) {
+      if ((ed[d.id] || {}).borrado) continue;
+      const g = geomN(d);
+      if (g) { for (let i = 0; i + 1 < g.length; i++) add(d, g[i], g[i + 1]); if (d.cerr && g.length > 2) add(d, g[g.length - 1], g[0]); }
+      else if (d.texto || d.caja) { const p = d.texto ? (d.nuevo ? d.o.pos : puntoTexto(d)) : null; if (p) add(d, p, p); else { const c = cajaObj(d); if (c) { add(d, [c[0], c[1]], [c[2], c[1]]); add(d, [c[2], c[1]], [c[2], c[3]]); add(d, [c[2], c[3]], [c[0], c[3]]); add(d, [c[0], c[3]], [c[0], c[1]]); } } }
+    }
+    idx.C = C;
+  }
+  function cerca(x, y, r) {
+    const C = idx.C, out = new Set();
+    for (let i = Math.floor((x - r) / C); i <= Math.floor((x + r) / C); i++) for (let j = Math.floor((y - r) / C); j <= Math.floor((y + r) / C); j++) { const l = idx.get(i + "," + j); if (l) for (const s of l) out.add(s); }
+    return [...out];
+  }
+  function distSeg(p, a, b) {
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy;
+    let t = L ? ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L : 0; t = Math.max(0, Math.min(1, t));
+    const q = [a[0] + t * dx, a[1] + t * dy]; return [Math.hypot(p[0] - q[0], p[1] - q[1]), q];
+  }
+  function interseca(a, b, c, d) {
+    const r = [b[0] - a[0], b[1] - a[1]], s = [d[0] - c[0], d[1] - c[1]], den = r[0] * s[1] - r[1] * s[0];
+    if (Math.abs(den) < 1e-9) return null;
+    const t = ((c[0] - a[0]) * s[1] - (c[1] - a[1]) * s[0]) / den, u = ((c[0] - a[0]) * r[1] - (c[1] - a[1]) * r[0]) / den;
+    return t >= 0 && t <= 1 && u >= 0 && u <= 1 ? [a[0] + t * r[0], a[1] + t * r[1]] : null;
+  }
+  function iman_(p, excluir) {
+    if (!iman) return null;
+    const r = 12 / k, segs = cerca(p[0], p[1], r).filter(s => !excluir || !excluir.has(s[0]));
+    let best = null;
+    const prueba = (q, tipo, pri) => { const dd = Math.hypot(q[0] - p[0], q[1] - p[1]); if (dd <= r && (!best || pri < best.pri || (pri === best.pri && dd < best.d))) best = {p: q, tipo, d: dd, pri}; };
+    for (const [, a, b] of segs) { prueba(a, "extremo", 0); prueba(b, "extremo", 0); prueba([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], "medio", 1); }
+    if (!best || best.pri > 0) {
+      const cand = segs.filter(s => distSeg(p, s[1], s[2])[0] < r).slice(0, 40);
+      for (let i = 0; i < cand.length; i++) for (let j = i + 1; j < cand.length; j++) { const q = interseca(cand[i][1], cand[i][2], cand[j][1], cand[j][2]); if (q) prueba(q, "cruce", 0.5); }
+    }
+    if (!best) for (const [, a, b] of segs) { const [dd, q] = distSeg(p, a, b); if (dd <= r) prueba(q, "sobre", 2); }
+    return best;
+  }
+  function ortoP(p0, p) {
+    if (!orto || !p0) return p;
+    const dx = p[0] - p0[0], dy = p[1] - p0[1], L = Math.hypot(dx, dy), a = Math.atan2(dy, dx);
+    const aa = Math.round(a / (Math.PI / 4)) * (Math.PI / 4);
+    return [p0[0] + L * Math.cos(aa), p0[1] + L * Math.sin(aa)];
+  }
+
+  /* ---- dibujo */
+  function encuadrar() {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const d of objs) { const g = geom(d); if (!g) continue; for (const p of g) { if (p[0] < x0) x0 = p[0]; if (p[0] > x1) x1 = p[0]; if (p[1] < y0) y0 = p[1]; if (p[1] > y1) y1 = p[1]; } }
+    if (!isFinite(x0)) return;
+    cx = (x0 + x1) / 2; cy = (y0 + y1) / 2; k = Math.min((W || 800) / (x1 - x0 || 1), (H || 600) / (y1 - y0 || 1)) * 0.9; pedir();
+  }
+  const aP = (x, y) => [(x - cx) * k + W / 2, H / 2 - (y - cy) * k];
+  const aM = (sx, sy) => [(sx - W / 2) / k + cx, (H / 2 - sy) / k + cy];
+  function grosor(c, lw) {
+    const m = /l-0[.,](\d+)/.exec(c || "");
+    const mm = m ? parseFloat("0." + m[1]) : (lw ? lw * 0.0254 : 0.05);
+    return Math.max(0.6, Math.min(3, mm * 14));
+  }
+  function trazo(c, ls) { if (/dot/i.test(c || "")) return [1, 2.5]; if (/dash/i.test(c || "") || (ls && ls < 0 && !/^l-0/.test(c || ""))) return [5, 3]; return []; }
+  let patron = null;
+  function patronTrama(col) {
+    const pc = document.createElement("canvas"); pc.width = pc.height = 8; const g = pc.getContext("2d");
+    g.strokeStyle = col; g.globalAlpha = 0.45; g.lineWidth = 0.6; g.beginPath(); g.moveTo(0, 8); g.lineTo(8, 0); g.stroke();
+    return ctx.createPattern(pc, "repeat");
+  }
+  let pend = false;
+  function pedir() { if (!pend) { pend = true; requestAnimationFrame(() => { pend = false; dibujar(); }); } }
+  function dibujar() {
+    if (!P) return;
+    const ink = css("--ink"), acc = css("--accent"), pap = css("--paper");
+    if (!patron) patron = patronTrama(ink);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = pap; ctx.fillRect(0, 0, W, H);
+    const [mx0, my1] = aM(0, 0), [mx1, my0] = aM(W, H);
+    for (const d of todos()) {
+      const e = ed[d.id] || {};
+      if (e.borrado) continue;
+      const cambiado = d.nuevo || Object.keys(e).length > 0, sel = selec.has(d);
+      const col = sel ? acc : (cambiado ? acc : ink);
+      ctx.strokeStyle = col; ctx.fillStyle = col;
+      const c = claseDe(d);
+      ctx.lineWidth = grosor(c, d.o.lw) * (sel ? 1.6 : 1); ctx.setLineDash(trazo(c, d.o.ls));
+      if (d.texto) {
+        const p = d.nuevo ? d.o.pos : puntoTexto(d); if (p[0] < mx0 - 5000 || p[0] > mx1 + 5000 || p[1] < my0 - 5000 || p[1] > my1 + 5000) continue;
+        const [sx, sy] = aP(p[0], p[1]); const pt = (d.o.tam || 8) * 0.3528 * 100 * k / (1);   // pt → mm a 1:100
+        if (pt < 3) continue;
+        ctx.save(); ctx.translate(sx, sy); ctx.rotate(-(d.o.rot || 0) * Math.PI / 180); ctx.font = (pt > 400 ? 400 : pt) + "px " + css("--f"); ctx.fillText(d.o.txt || "", 0, 0); ctx.restore();
+        continue;
+      }
+      if (d.caja) {
+        const b = cajaObj(d); if (!b) continue;
+        const [a1, b1] = aP(b[0], b[3]), [a2, b2] = aP(b[2], b[1]); ctx.setLineDash([2, 2]); ctx.lineWidth = 0.6; ctx.strokeRect(a1, b1, a2 - a1, b2 - b1); continue;
+      }
+      const g = geomN(d); if (!g || g.length < 2) continue;
+      let fuera = true; for (const p of g) if (p[0] >= mx0 && p[0] <= mx1 && p[1] >= my0 && p[1] <= my1) { fuera = false; break; }
+      if (fuera && g.length < 50) { let bx0 = Infinity, bx1 = -Infinity, by0 = Infinity, by1 = -Infinity; for (const p of g) { bx0 = Math.min(bx0, p[0]); bx1 = Math.max(bx1, p[0]); by0 = Math.min(by0, p[1]); by1 = Math.max(by1, p[1]); } if (bx1 < mx0 || bx0 > mx1 || by1 < my0 || by0 > my1) continue; }
+      ctx.beginPath();
+      g.forEach((p, i) => { const [sx, sy] = aP(p[0], p[1]); if (i) ctx.lineTo(sx, sy); else ctx.moveTo(sx, sy); });
+      if (d.cerr) ctx.closePath();
+      if (d.cerr && tramaDe(d)) { ctx.save(); ctx.fillStyle = cambiado || sel ? patronTrama(col) : patron; ctx.fill("evenodd"); ctx.restore(); }
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    // tiradores de vértices
+    for (const d of selec) if (d.edit) {
+      const g = geomN(d); if (!g) continue; ctx.fillStyle = pap; ctx.strokeStyle = acc; ctx.lineWidth = 1;
+      g.forEach((p, i) => { const [sx, sy] = aP(p[0], p[1]); const on = vSel && vSel.d === d && vSel.k === i; ctx.fillStyle = on ? acc : pap; ctx.fillRect(sx - 4, sy - 4, 8, 8); ctx.strokeRect(sx - 4, sy - 4, 8, 8); });
+      if (d.t !== 2 && !(d.nuevo && d.o.tipo === "linea")) { const n = g.length; for (let i = 0; i < n - (d.cerr ? 0 : 1); i++) { const a = g[i], b = g[(i + 1) % n]; const [sx, sy] = aP((a[0] + b[0]) / 2, (a[1] + b[1]) / 2); ctx.beginPath(); ctx.moveTo(sx - 3, sy); ctx.lineTo(sx + 3, sy); ctx.moveTo(sx, sy - 3); ctx.lineTo(sx, sy + 3); ctx.stroke(); } }
+    }
+    // dibujo en curso
+    if (tmp) {
+      ctx.strokeStyle = acc; ctx.lineWidth = grosor($("selClase").value); ctx.setLineDash(trazo($("selClase").value));
+      const pts = tmp.pts.concat(cursor ? [cursor] : []);
+      if (tmp.tipo === "rect" && pts.length === 2) { const [a, b] = pts; const q = [[a[0], a[1]], [b[0], a[1]], [b[0], b[1]], [a[0], b[1]]]; ctx.beginPath(); q.forEach((p, i) => { const s = aP(p[0], p[1]); i ? ctx.lineTo(s[0], s[1]) : ctx.moveTo(s[0], s[1]); }); ctx.closePath(); ctx.stroke(); }
+      else if (pts.length > 1) { ctx.beginPath(); pts.forEach((p, i) => { const s = aP(p[0], p[1]); i ? ctx.lineTo(s[0], s[1]) : ctx.moveTo(s[0], s[1]); }); ctx.stroke(); }
+      ctx.setLineDash([]);
+      if (pts.length > 1) { const a = pts[pts.length - 2], b = pts[pts.length - 1]; const L = Math.hypot(b[0] - a[0], b[1] - a[1]); const s = aP(b[0], b[1]); ctx.fillStyle = acc; ctx.font = "bold 11px " + css("--f"); ctx.fillText(Math.round(L) + " mm" + (tmp.tipo === "medir" ? " · " + fmt(Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI, 1) + "°" : ""), s[0] + 10, s[1] - 10); }
+    }
+    if (ventana) { ctx.strokeStyle = acc; ctx.setLineDash([3, 3]); ctx.lineWidth = 0.8; const [a, b] = [aP(...ventana[0]), aP(...ventana[1])]; ctx.strokeRect(a[0], a[1], b[0] - a[0], b[1] - a[1]); ctx.setLineDash([]); }
+    if (snap && cursor) { const [sx, sy] = aP(snap.p[0], snap.p[1]); ctx.strokeStyle = acc; ctx.lineWidth = 1; ctx.beginPath();
+      if (snap.tipo === "extremo") ctx.rect(sx - 5, sy - 5, 10, 10); else if (snap.tipo === "medio") { ctx.moveTo(sx - 6, sy + 5); ctx.lineTo(sx, sy - 6); ctx.lineTo(sx + 6, sy + 5); ctx.closePath(); } else if (snap.tipo === "cruce") { ctx.moveTo(sx - 5, sy - 5); ctx.lineTo(sx + 5, sy + 5); ctx.moveTo(sx + 5, sy - 5); ctx.lineTo(sx - 5, sy + 5); } else ctx.arc(sx, sy, 4, 0, 7);
+      ctx.stroke(); }
+    // escala gráfica
+    const mm = [100, 200, 500, 1000, 2000, 5000, 10000, 20000].find(v => v * k > 60) || 50000;
+    ctx.strokeStyle = ink; ctx.fillStyle = ink; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(34, H - 40); ctx.lineTo(34 + mm * k, H - 40); ctx.moveTo(34, H - 44); ctx.lineTo(34, H - 36); ctx.moveTo(34 + mm * k, H - 44); ctx.lineTo(34 + mm * k, H - 36); ctx.stroke();
+    ctx.font = "10px " + css("--f"); ctx.fillText(mm >= 1000 ? (mm / 1000) + " m" : mm + " mm", 34 + mm * k + 6, H - 37);
+  }
+  function redim() {
+    const r = cv.getBoundingClientRect(); dpr = Math.min(window.devicePixelRatio || 1, 2); W = r.width; H = r.height;
+    if (!W) return; cv.width = W * dpr; cv.height = H * dpr; pedir();
+  }
+  new ResizeObserver(redim).observe(cv);
+
+  /* ---- historia y cambios */
+  function guardaHist() { hist.push(JSON.stringify({ed, nuevos: nuevos.map(limpio)})); if (hist.length > 200) hist.shift(); futuro = []; }
+  const limpio = n => { const c = Object.assign({}, n); delete c._d; return c; };
+  function restaura(s) { const o = JSON.parse(s); ed = o.ed; nuevos = o.nuevos; selec.clear(); vSel = null; trasCambio(); }
+  function deshacer() { if (!hist.length) return; futuro.push(JSON.stringify({ed, nuevos: nuevos.map(limpio)})); restaura(hist.pop()); }
+  function rehacer() { if (!futuro.length) return; hist.push(JSON.stringify({ed, nuevos: nuevos.map(limpio)})); restaura(futuro.pop()); }
+  function trasCambio() { ls(clave(), {ed, nuevos: nuevos.map(limpio)}); indexar(); resumen(); infoSel(); pedir(); }
+  function resumen() {
+    const n = Object.keys(ed).length + nuevos.length; $("nCambios").textContent = n;
+    const b = Object.values(ed).filter(e => e.borrado).length;
+    $("resCambios").textContent = n ? nuevos.length + " nuevos · " + (Object.keys(ed).length - b) + " modificados · " + b + " borrados" : "Sin cambios.";
+  }
+  function edita(d, f) {
+    if (S.soloVer) return;
+    if (d.nuevo) { f(d.o, true); return; }
+    if (!d.edit && !d.texto && !d.caja && !d.base) return;
+    if (!d.o.uuid) { toast("Este objeto no se puede editar: exporta el plano de nuevo desde Vectorworks"); return; }
+    const e = ed[d.id] || (ed[d.id] = {});
+    f(e, false);
+    // si al final no cambia nada, fuera
+    if (e.v && JSON.stringify(e.v) === JSON.stringify(d.base)) delete e.v;
+    if (!e.dx && !e.dy) { delete e.dx; delete e.dy; }
+    if (e.clase === d.o.clase) delete e.clase;
+    if ("trama" in e && (e.trama || null) === (d.o.trama || null)) delete e.trama;
+    if (!Object.keys(e).length) delete ed[d.id];
+  }
+  function mover(dSet, dx, dy) {
+    for (const d of dSet) edita(d, (e, nuevo) => {
+      if (nuevo) { if (e.v) e.v = e.v.map(p => [p[0] + dx, p[1] + dy]); if (e.pos) e.pos = [e.pos[0] + dx, e.pos[1] + dy]; return; }
+      if (d.edit) e.v = (e.v || d.base).map(p => [p[0] + dx, p[1] + dy]);
+      else { e.dx = (e.dx || 0) + dx; e.dy = (e.dy || 0) + dy; }
+    });
+  }
+  function cambios() {
+    const out = [];
+    for (const d of objs) {
+      const e = ed[d.id]; if (!e) continue;
+      if (e.borrado) { out.push({op: "borrar", uuid: d.o.uuid, huella: d.o.h}); continue; }
+      const c = {op: "editar", uuid: d.o.uuid, huella: d.o.h};
+      if (e.v) c.v = e.v.map(p => [Math.round(p[0] * 100) / 100, Math.round(p[1] * 100) / 100]);
+      if (e.dx || e.dy) { c.dx = Math.round(e.dx * 100) / 100; c.dy = Math.round(e.dy * 100) / 100; }
+      if (e.clase) c.clase = e.clase;
+      if ("trama" in e) c.trama = e.trama || null;
+      out.push(c);
+    }
+    for (const n of nuevos) {
+      const c = {op: "nuevo", tipo: n.tipo, clase: n.clase};
+      if (n.v) c.v = n.v.map(p => [Math.round(p[0] * 100) / 100, Math.round(p[1] * 100) / 100]);
+      if (n.cerr) c.cerr = true; if (n.trama) c.trama = n.trama; if (n.tipo === "texto") { c.txt = n.txt; c.pos = n.pos; c.tam = n.tam; }
+      out.push(c);
+    }
+    return {formato: "arrova-cambios-2d", version: 1, proyecto: S.proyecto ? S.proyecto.id : null, doc: P.doc, capa: P.capa_dibujo || ((P.capas || [])[0] || {}).n,
+      base: P.fecha, creado: new Date().toISOString(), cambios: out};
+  }
+
+  /* ---- selección */
+  function tocar(p, sumar) {
+    const r = 10 / k;
+    let best = null;
+    for (const [d, a, b] of cerca(p[0], p[1], r)) { if ((ed[d.id] || {}).borrado) continue; const [dd] = distSeg(p, a, b); if (dd <= r && (!best || dd < best.dd)) best = {d, dd}; }
+    if (!sumar) selec.clear();
+    vSel = null;
+    if (best) { if (sumar && selec.has(best.d)) selec.delete(best.d); else selec.add(best.d); }
+    infoSel(); pedir();
+  }
+  function tiradorEn(sp) {
+    for (const d of selec) if (d.edit) { const g = geomN(d); if (!g) continue;
+      for (let i = 0; i < g.length; i++) { const s = aP(g[i][0], g[i][1]); if (Math.abs(s[0] - sp[0]) < 9 && Math.abs(s[1] - sp[1]) < 9) return {d, k: i}; }
+      if (d.t !== 2 && !(d.nuevo && d.o.tipo === "linea")) { const n = g.length; for (let i = 0; i < n - (d.cerr ? 0 : 1); i++) { const a = g[i], b = g[(i + 1) % n]; const s = aP((a[0] + b[0]) / 2, (a[1] + b[1]) / 2); if (Math.abs(s[0] - sp[0]) < 8 && Math.abs(s[1] - sp[1]) < 8) return {d, k: i, medio: true}; } } }
+    return null;
+  }
+  function infoSel() {
+    const n = selec.size; $("accSel").hidden = !n || !!S.soloVer; $("btnQuitaV").hidden = !vSel;
+    if (!n) { $("insp2d").innerHTML = '<span class="nota">Toca una línea para seleccionarla. Arrastra en vacío para seleccionar por ventana.</span>'; return; }
+    if (n > 1) { $("insp2d").innerHTML = "<b>" + n + " objetos</b>Arrastra cualquiera para moverlos juntos."; return; }
+    const d = [...selec][0], g = geomN(d), T = {2: "Línea", 3: "Rectángulo", 4: "Óvalo", 5: "Polígono", 6: "Arco", 10: "Texto", 15: "Símbolo", 21: "Polilínea", 86: "Objeto paramétrico"};
+    let h = "<b>" + (d.nuevo ? "Nuevo · " + d.o.tipo : (T[d.t] || "Objeto " + d.t)) + "</b>clase " + esc(claseDe(d) || "—");
+    if (tramaDe(d)) h += " · trama " + esc(tramaDe(d));
+    if (g && g.length >= 2) { let L = 0; for (let i = 0; i + 1 < g.length; i++) L += Math.hypot(g[i + 1][0] - g[i][0], g[i + 1][1] - g[i][1]); h += "<br>" + g.length + " vértices · longitud " + fmt(L / 1000, 3) + " m"; }
+    if (d.o.sim) h += "<br>símbolo " + esc(d.o.sim); if (d.o.po) h += "<br>" + esc(d.o.po);
+    if (!d.nuevo && !d.o.uuid) h += "<br><span style='color:var(--warn)'>Sin identificador: no se puede editar.</span>";
+    else if (!d.nuevo && !d.edit) h += "<br><span class=nota>Se puede mover, borrar o cambiar de clase; su forma no.</span>";
+    $("insp2d").innerHTML = h;
+  }
+
+  /* ---- gestos */
+  const ptrs = new Map(); let gesto = null, ventana = null;
+  const esPluma = e => e.pointerType === "pen" || e.pointerType === "mouse" || (e.pointerType === "touch" && dedo && ptrs.size <= 1);
+  cv.addEventListener("pointerdown", e => {
+    cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, {x: e.offsetX, y: e.offsetY, tipo: e.pointerType});
+    if (ptrs.size === 2) { gesto = {tipo: "pinza"}; cancelaPluma(); return; }
+    if (e.pointerType === "mouse" && (e.button === 1 || e.button === 2 || espacio)) { gesto = {tipo: "pan", x: e.offsetX, y: e.offsetY}; return; }
+    if (!esPluma(e)) { gesto = {tipo: "pan", x: e.offsetX, y: e.offsetY}; return; }
+    plumaAbajo(e);
+  });
+  cv.addEventListener("pointermove", e => {
+    const pr = ptrs.get(e.pointerId);
+    if (gesto && gesto.tipo === "pinza" && ptrs.size === 2 && pr) {
+      const [a, b] = [...ptrs.values()]; const d0 = Math.hypot(a.x - b.x, a.y - b.y), m0 = [(a.x + b.x) / 2, (a.y + b.y) / 2];
+      pr.x = e.offsetX; pr.y = e.offsetY;
+      const [a2, b2] = [...ptrs.values()]; const d1 = Math.hypot(a2.x - b2.x, a2.y - b2.y), m1 = [(a2.x + b2.x) / 2, (a2.y + b2.y) / 2];
+      const p = aM(m0[0], m0[1]); k *= d1 / (d0 || d1); const q = aM(m1[0], m1[1]); cx += p[0] - q[0]; cy += p[1] - q[1]; pedir(); return;
+    }
+    if (pr) { pr.x = e.offsetX; pr.y = e.offsetY; }
+    if (gesto && gesto.tipo === "pan") { cx -= (e.offsetX - gesto.x) / k; cy += (e.offsetY - gesto.y) / k; gesto.x = e.offsetX; gesto.y = e.offsetY; pedir(); return; }
+    if (e.pointerType === "touch" && !dedo) return;
+    plumaMueve(e);
+  });
+  const fin = e => { ptrs.delete(e.pointerId); if (gesto) { if (!ptrs.size) gesto = null; return; } plumaArriba(e); };
+  cv.addEventListener("pointerup", fin); cv.addEventListener("pointercancel", e => { ptrs.delete(e.pointerId); gesto = null; cancelaPluma(); });
+  cv.addEventListener("contextmenu", e => e.preventDefault());
+  cv.addEventListener("wheel", e => { e.preventDefault(); const p = aM(e.offsetX, e.offsetY); k *= Math.exp(-e.deltaY * 0.0015); const q = aM(e.offsetX, e.offsetY); cx += p[0] - q[0]; cy += p[1] - q[1]; pedir(); }, {passive: false});
+  addEventListener("keydown", e => {
+    if (S.modo !== "2d") return;
+    if (e.key === " " && e.target === document.body) { espacio = true; e.preventDefault(); }
+    if (e.target.tagName === "INPUT" && e.target.id !== "inLong") return;
+    if (e.key === "Escape") { cancelaPluma(); selec.clear(); vSel = null; infoSel(); pedir(); }
+    if ((e.key === "Backspace" || e.key === "Delete") && e.target.tagName !== "INPUT") borrarSel();
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z") { e.preventDefault(); e.shiftKey ? rehacer() : deshacer(); }
+    if (e.key === "Enter" && tmp && tmp.tipo === "poli" && e.target.id !== "inLong") terminaPoli();
+  });
+  addEventListener("keyup", e => { if (e.key === " ") espacio = false; });
+
+  let arrastre = null;
+  function puntoDe(e, desde) {
+    let p = aM(e.offsetX, e.offsetY);
+    if (tmp && tmp.tipo === "poli" && tmp.pts.length > 2) { const p0 = tmp.pts[0]; if (Math.hypot(p[0] - p0[0], p[1] - p0[1]) * k < 12) { snap = {p: p0, tipo: "extremo"}; return p0; } }
+    const ex = arrastre && arrastre.excluir;
+    snap = iman_(p, ex);
+    if (snap) p = snap.p; else if (desde) p = ortoP(desde, p);
+    return p;
+  }
+  function plumaAbajo(e) {
+    const sp = [e.offsetX, e.offsetY];
+    if (herr === "sel") {
+      const t = tiradorEn(sp);
+      if (t) {
+        guardaHist();
+        if (t.medio) { insertaVertice(t.d, t.k); t.k += 1; }
+        vSel = {d: t.d, k: t.k}; arrastre = {tipo: "vertice", d: t.d, k: t.k, excluir: new Set([t.d])}; infoSel(); pedir(); return;
+      }
+      const p = aM(sp[0], sp[1]);
+      const r = 10 / k; let hit = null;
+      for (const [d, a, b] of cerca(p[0], p[1], r)) { if ((ed[d.id] || {}).borrado) continue; if (distSeg(p, a, b)[0] <= r) { hit = d; break; } }
+      if (hit && selec.has(hit)) { const q = (iman_(p) || {p}).p; arrastre = {tipo: "mover", p0: q, excluir: new Set(selec), dx: 0, dy: 0}; return; }
+      if (hit) { tocar(p, e.shiftKey); const q = (iman_(p) || {p}).p; arrastre = {tipo: "mover", p0: q, excluir: new Set(selec), dx: 0, dy: 0, nuevoSel: true}; return; }
+      arrastre = {tipo: "ventana", p0: p}; return;
+    }
+    if (herr === "texto") {
+      pideTexto(puntoDe(e)); return;
+    }
+    const p = puntoDe(e, tmp && tmp.pts.length ? tmp.pts[tmp.pts.length - 1] : null);
+    if (!tmp) { tmp = {tipo: herr, pts: [p]}; cursor = p; $("btnFin").hidden = herr !== "poli"; pedir(); arrastre = {tipo: "dibujo", s0: sp, primero: true}; return; }
+    arrastre = {tipo: "dibujo", s0: sp};
+  }
+  function plumaMueve(e) {
+    if (herr !== "sel" && (tmp || !arrastre)) { const desde = tmp && tmp.pts.length ? tmp.pts[tmp.pts.length - 1] : null; cursor = puntoDe(e, tmp && tmp.tipo === "rect" ? null : desde); pedir(); return; }
+    if (!arrastre) { snap = null; return; }
+    if (arrastre.tipo === "vertice") {
+      const g = geomN(arrastre.d); const prev = g[arrastre.k - 1] || (arrastre.d.cerr ? g[g.length - 1] : null);
+      const p = puntoDe(e, prev);
+      setVertice(arrastre.d, arrastre.k, p); cursor = p; pedir(); return;
+    }
+    if (arrastre.tipo === "mover") {
+      const p = puntoDe(e, arrastre.p0); const dx = p[0] - arrastre.p0[0], dy = p[1] - arrastre.p0[1];
+      if (!arrastre.hecho && Math.hypot(dx, dy) * k < 4) return;
+      if (!arrastre.hecho) { guardaHist(); arrastre.hecho = true; }
+      mover(selec, dx - arrastre.dx, dy - arrastre.dy); arrastre.dx = dx; arrastre.dy = dy; cursor = p; pedir(); return;
+    }
+    if (arrastre.tipo === "ventana") { ventana = [arrastre.p0, aM(e.offsetX, e.offsetY)]; pedir(); }
+  }
+  function plumaArriba(e) {
+    const a = arrastre; arrastre = null;
+    if (!a) return;
+    if (a.tipo === "vertice" || a.tipo === "mover") { if (a.tipo === "mover" && !a.hecho) { if (!a.nuevoSel) tocar(aM(e.offsetX, e.offsetY), e.shiftKey); return; } snap = null; cursor = null; trasCambio(); return; }
+    if (a.tipo === "ventana") {
+      if (ventana) { const [p, q] = ventana; const x0 = Math.min(p[0], q[0]), x1 = Math.max(p[0], q[0]), y0 = Math.min(p[1], q[1]), y1 = Math.max(p[1], q[1]);
+        if (!e.shiftKey) selec.clear();
+        for (const d of todos()) { if ((ed[d.id] || {}).borrado) continue; const g = geomN(d) || (d.texto ? [d.nuevo ? d.o.pos : puntoTexto(d)] : null); if (g && g.every(p => p[0] >= x0 && p[0] <= x1 && p[1] >= y0 && p[1] <= y1)) selec.add(d); }
+      } else selec.clear();
+      ventana = null; vSel = null; infoSel(); pedir(); return;
+    }
+    if (a.tipo === "dibujo" && tmp) {
+      const p = puntoDe(e, tmp.pts.length && tmp.tipo !== "rect" ? tmp.pts[tmp.pts.length - 1] : null);
+      const arrastrado = Math.hypot(e.offsetX - a.s0[0], e.offsetY - a.s0[1]) > 8;
+      if (a.primero && !arrastrado) return;      // primer toque: espera el segundo punto
+      punto(p);
+    }
+  }
+  function punto(p) {
+    const ult = tmp.pts[tmp.pts.length - 1];
+    if (Math.hypot(p[0] - ult[0], p[1] - ult[1]) < 0.5) return;
+    if (tmp.tipo === "poli") {
+      const p0 = tmp.pts[0];
+      if (tmp.pts.length > 2 && Math.hypot(p[0] - p0[0], p[1] - p0[1]) * k < 10) { tmp.cerr = true; terminaPoli(); return; }
+      tmp.pts.push(p); pedir(); return;
+    }
+    tmp.pts.push(p);
+    if (tmp.tipo === "linea") crea({tipo: "linea", v: tmp.pts});
+    else if (tmp.tipo === "rect") { const [a, b] = tmp.pts; crea({tipo: "rect", cerr: true, v: [[a[0], a[1]], [b[0], a[1]], [b[0], b[1]], [a[0], b[1]]]}); }
+    else if (tmp.tipo === "medir") { const L = Math.hypot(p[0] - ult[0], p[1] - ult[1]); toast("Distancia " + fmt(L / 1000, 3) + " m", 4000); }
+    tmp = null; cursor = null; snap = null; pedir();
+  }
+  function terminaPoli() {
+    if (tmp && tmp.tipo === "poli" && tmp.pts.length >= 2) crea({tipo: tmp.cerr ? "poligono" : "polilinea", cerr: !!tmp.cerr, v: tmp.pts});
+    tmp = null; cursor = null; $("btnFin").hidden = true; pedir();
+  }
+  function crea(n) {
+    if (S.soloVer) return;
+    guardaHist();
+    n.id = "n" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    n.clase = $("selClase").value;
+    if (n.cerr && $("selTrama").value) n.trama = $("selTrama").value;
+    nuevos.push(n); trasCambio();
+  }
+  function cancelaPluma() { if (arrastre && arrastre.tipo === "mover" && arrastre.hecho) trasCambio(); tmp = null; arrastre = null; cursor = null; snap = null; ventana = null; $("btnFin").hidden = true; pedir(); }
+  function setVertice(d, i, p) { edita(d, (e, nuevo) => { const g = (nuevo ? e.v : (e.v || d.base)).map(q => q.slice()); g[i] = p; e.v = g; }); }
+  function insertaVertice(d, i) { edita(d, (e, nuevo) => { const g = (nuevo ? e.v : (e.v || d.base)).map(q => q.slice()); const a = g[i], b = g[(i + 1) % g.length]; g.splice(i + 1, 0, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]); e.v = g; }); }
+  function quitaVertice() {
+    if (!vSel) return; const d = vSel.d, g = geomN(d); if (g.length <= (d.cerr ? 3 : 2)) { toast("No se pueden quitar más vértices"); return; }
+    guardaHist(); edita(d, (e, nuevo) => { const v = (nuevo ? e.v : (e.v || d.base)).map(q => q.slice()); v.splice(vSel.k, 1); e.v = v; }); vSel = null; trasCambio();
+  }
+  function borrarSel() {
+    if (!selec.size) return; guardaHist();
+    for (const d of selec) { if (d.nuevo) nuevos = nuevos.filter(n => n !== d.o); else if (d.o.uuid) (ed[d.id] = ed[d.id] || {}).borrado = true; }
+    selec.clear(); vSel = null; trasCambio();
+  }
+  function aClase() { if (!selec.size) return; guardaHist(); const c = $("selClase").value; for (const d of selec) edita(d, (e) => { e.clase = c; }); trasCambio(); }
+  function aTrama() { if (!selec.size) return; guardaHist(); const t = $("selTrama").value || null; for (const d of selec) if (d.cerr) edita(d, (e) => { e.trama = t; }); trasCambio(); }
+  function restauraSel() { if (!selec.size) return; guardaHist(); for (const d of selec) if (!d.nuevo) delete ed[d.id]; trasCambio(); }
+  function pideTexto(p) {
+    const box = document.createElement("input"); box.placeholder = "Texto e Intro"; box.style.cssText = "position:absolute;z-index:5;border:0.5px solid var(--ink);background:var(--paper);padding:4px;font:12px var(--f)";
+    const s = aP(p[0], p[1]); box.style.left = s[0] + "px"; box.style.top = (s[1] - 14) + "px";
+    $("vista").appendChild(box); box.focus();
+    const ok = () => { const t = box.value.trim(); box.remove(); if (t) { guardaHist(); nuevos.push({id: "n" + Date.now().toString(36), tipo: "texto", txt: t, pos: p, tam: 6, clase: $("selClase").value}); trasCambio(); } };
+    box.addEventListener("keydown", e => { if (e.key === "Enter") ok(); if (e.key === "Escape") box.remove(); });
+    box.addEventListener("blur", ok, {once: true});
+  }
+  function longitud(L) {
+    if (!tmp || !tmp.pts.length || !(L > 0)) return false;
+    const a = tmp.pts[tmp.pts.length - 1], c = cursor || [a[0] + 1, a[1]];
+    let dx = c[0] - a[0], dy = c[1] - a[1], n = Math.hypot(dx, dy) || 1;
+    if (tmp.tipo === "rect") return false;
+    punto([a[0] + dx / n * L, a[1] + dy / n * L]); return true;
+  }
+  async function enviar() {
+    const C = cambios(); if (!C.cambios.length) { toast("No hay cambios que enviar"); return; }
+    const db = await cap("db");
+    if (!db) { toast("Aquí no se pueden dejar en la página: usa «Guardar archivo»"); return; }
+    try {
+      const id = "c" + new Date().toISOString().replace(/[-:T.Z]/g, "").slice(0, 14);
+      await db.collection("cambios").doc(id).set(Object.assign({estado: "pendiente"}, C));
+      toast("Enviado al Mac (" + C.cambios.length + " cambios). Claude los pasa a Vectorworks.");
+    } catch (e) { toast("No se pudo enviar (" + (e.code || e.message) + "). Usa «Guardar archivo»."); }
+  }
+  function archivo() {
+    const C = cambios(); if (!C.cambios.length) { toast("No hay cambios"); return; }
+    const f = "cambios_" + (C.proyecto || "plano") + "_" + C.creado.slice(0, 16).replace(/[-:T]/g, "") + ".json";
+    guardarArchivo(f, JSON.stringify(C, null, 1));
+  }
+  function vaciar() { guardaHist(); ed = {}; nuevos = []; selec.clear(); vSel = null; trasCambio(); toast("Cambios vaciados (Deshacer los recupera)"); }
+  return {preparar, redim, encuadrar, pedir, deshacer, rehacer, borrarSel, aClase, aTrama, restauraSel, quitaVertice, terminaPoli, enviar, archivo, vaciar, longitud,
+    setHerr(h) { if (tmp && tmp.tipo === "poli" && tmp.pts.length >= 2) terminaPoli(); herr = h; cancelaPluma(); }, setOrto(v) { orto = v; }, setIman(v) { iman = v; }, setDedo(v) { dedo = v; }, hay: () => !!P, tema() { patron = null; pedir(); }};
+})();
+
+/* ============================================================ fichas BIM y tablas */
+const escH = t => String(t == null ? "" : t).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"})[c]);
+const limpiaNota = t => String(t || "").replace(/Enrique \d{1,2}[-\/ ]\w+\.?:?\s*/g, "").replace(/\s*·\s*$/, "").trim();
+const NOMBRE_PLANTA = (D, p) => String(p).startsWith("fachada:") ? "Fachada" : ((D.plantas.find(x => x.id === p) || {}).nombre || p);
+function composicion(capas) {
+  if (!capas || !capas.length) return "";
+  const tot = capas.reduce((a, c) => a + (typeof c[1] === "number" ? c[1] : 0), 0);
+  return '<table class="comp">' + capas.map(c => "<tr><td>" + escH(c[0]) + "</td><td>" + (typeof c[1] === "number" ? c[1] + " mm" : escH(c[1])) + "</td></tr>").join("") +
+    (tot ? '<tr><td><b>Total</b></td><td><b>' + Math.round(tot) + " mm</b></td></tr>" : "") + "</table>";
+}
+function medTxt(m) {
+  if (!m) return "";
+  const r = [];
+  if (m.ud) r.push(m.ud + " ud"); if (m.ml) r.push(fmt(m.ml, 2) + " m"); if (m.h) r.push("h " + fmt(m.h, 2) + " m"); if (m.m2) r.push(fmt(m.m2, 2) + " m²");
+  return r.join(" · ");
+}
+function ficha(D, e) {
+  const T = (D.tipos || {})[e.t] || null, I = e.info || {};
+  let h = "<b>" + escH(e.n) + "</b>" + [e.ifc, NOMBRE_PLANTA(D, e.p)].filter(Boolean).map(escH).join(" · ");
+  if (e.t) h += "<br>Tipo: <b style='display:inline'>" + escH(T && T.nombre ? T.nombre : e.t) + "</b>";
+  const carp = e.g === "carpinterias" || e.ifc === "IfcWindow" || e.ifc === "IfcDoor";
+  // carpinterías: lo que importa son sus medidas exteriores (ancho × alto), no su volumen
+  if (carp && I.medidas) h += '<div class="medidas-carp">' + escH(I.medidas) + '<span> medidas exteriores · ancho × alto</span></div>';
+  const vol = e.partes.reduce((a, p) => a + (p.vol || 0), 0);
+  const mt = medTxt(e.med); if (!carp && (mt || vol)) h += "<br>" + [mt, vol ? fmt(vol, 3) + " m³" : ""].filter(Boolean).join(" · ");
+  if (carp && e.med && e.med.m2) h += "<br>" + fmt(e.med.m2, 2) + " m² de hueco";
+  const capas = I.capas && I.capas.length ? I.capas : (T && T.capas);
+  if (capas) h += composicion(capas);
+  else { const pm = {}; for (const p of e.partes) pm[p.m] = (pm[p.m] || 0) + (p.vol || 0);
+    h += '<table class="comp">' + Object.entries(pm).map(([k, v]) => "<tr><td>" + escH(((D.materiales || {})[k] || {}).nombre || k) + "</td><td>" + (v && !carp ? fmt(v, 3) + " m³" : "") + "</td></tr>").join("") + "</table>"; }
+  const ET = {espesor_mm: "Espesor (mm)", caras: "Caras", zocalo: "Zócalo", medidas: "Medidas", da_a: "Da a", hueco: "Hueco", cota_inferior: "Cota inferior (mm)",
+    cara_superior: "Cara superior (mm)", cara_inferior: "Cara inferior (mm)", cota: "Cota (mm)", pendiente: "Pendiente", superficie_en_planta_m2: "En planta (m²)",
+    altura_mm: "Altura (mm)", barrotes: "Barrotes", fondo_m: "Fondo (m)", codigo: "Código", recinto: "Recinto", cara: "Cara", orientacion: "Orientación", alturas: "Alturas",
+    superficie_fabrica_m2: "Fábrica (m²)", acabado_interior_m2: "Acabado interior (m²)", acabado_interior: "Acabado interior", alto_mm: "Alto (mm)",
+    superficie_cara_m2: "Cara del paño (m²)", mochetas_y_dinteles_m2: "Mochetas y dinteles (m²)", mochetas: "Huecos con mochetas"};
+  for (const k in ET) if (I[k] != null && I[k] !== "" && !(carp && k === "medidas")) h += "<br>" + ET[k] + ": " + escH(I[k]);
+  if (T) {
+    if (T.panos) h += "<br>Paños: " + escH(T.panos.join(" + "));
+    if (T.sistema) h += "<br>Sistema: " + escH(T.sistema);
+    if (T.medidas) h += "<br>Medidas: " + escH(T.medidas);
+    if (T.material) h += "<br>Material: " + escH(T.material);
+    if (T.balcon) h += "<br>Balcón: " + escH(limpiaNota(T.balcon));
+    if (T.nota) h += "<br><span class=nota>" + escH(limpiaNota(T.nota)) + "</span>";
+    if (T.fuente) h += '<br><span class="fuente">Fuente: ' + escH(limpiaNota(T.fuente)) + "</span>";
+  }
+  if (I.revoco_aparte) h += "<br><span class=nota>" + escH(I.revoco_aparte) + "</span>";
+  if (I.descripcion) h += "<br><span class=nota>" + escH(limpiaNota(I.descripcion)) + "</span>";
+  if (e.t) h += '<div class="fila" style="margin-top:8px"><button class="btn" data-tipo="' + escH(e.t) + '">Ver todos los de este tipo</button></div>';
+  return h;
+}
+
+const Datos = (() => {
+  let ultimo = null;
+  const GR = [
+    {g: "muros", t: "Muros y tabiques", cols: ["ud", "ml", "m2", "m3"], nota: "m² de fábrica: longitud × altura media. En los muros de segunda planta el acabado interior acaba 250 mm por debajo de la coronación; esa superficie va en la ficha de cada muro y en su descripción del IFC"},
+    {g: "revoco", t: "Revestimiento continuo de fachada", cols: ["ud", "m2", "m3"], porPano: true, nota: "Por paño, en toda su altura; descontados todos los huecos de ventanas y puertas y sumadas sus mochetas y dinteles"},
+    {g: "alfeizares", t: "Alféizares", cols: ["ud", "ml"], nota: "Medidos aparte, en metros lineales (ancho de cada ventana)"},
+    {g: "forjados", t: "Forjados y soleras", cols: ["ud", "m2", "m3"]},
+    {g: "cubiertas", t: "Cubiertas", cols: ["ud", "m2", "m3"], nota: "m² en verdadera magnitud en las inclinadas y en los aleros"},
+    {g: "carpinterias", t: "Carpinterías", cols: ["ud", "m2"], carp: true},
+    {g: "barandillas", t: "Barandillas y mini-balcones", cols: ["ud", "ml"]},
+    {g: "estructura", t: "Estructura", cols: ["ud", "m3"]},
+    {g: "techos", t: "Falsos techos y cámaras", cols: ["ud", "ml", "m2"], nota: "Falsos techos y cámaras en planta; las tabicas por su cara (largo × alto)"},
+    {g: "mobiliario", t: "Mobiliario fijo", cols: ["ud", "ml"]},
+  ];
+  const ET = {ud: "Ud", ml: "m", m2: "m²", m3: "m³"};
+  function agrupar(els, g, porPano) {
+    const R = {};
+    for (const e of els) {
+      if (e.g !== g) continue;
+      const k = porPano ? e.n : (e.t || e.n); const r = R[k] || (R[k] = {tipo: k, ud: 0, ml: 0, m2: 0, m3: 0, idx: [], medidas: new Set(), plantas: new Set()});
+      const m = e.med || {}; r.ud += m.ud || 1; r.ml += m.ml || 0; r.m2 += m.m2 || 0; r.m3 += e.partes.reduce((a, p) => a + (p.vol || 0), 0);
+      r.idx.push(e._i); if (e.info && e.info.medidas) r.medidas.add(e.info.medidas); r.plantas.add(e.p);
+    }
+    return Object.values(R).sort((a, b) => a.tipo.localeCompare(b.tipo, "es", {numeric: true}));
+  }
+  function construir() {
+    const D = V3.datos(); if (!D) return {html: "<p class=nota>Sin modelo cargado.</p>", csv: ""};
+    D.elementos.forEach((e, i) => e._i = i);
+    const vis = V3.visibles();
+    const els = vis.filter(e => e.g !== "entorno");
+    const csv = [["Sección", "Tipo", "Nombre", "Plantas", "Ud", "m", "m²", "m³", "Medidas"]];
+    const plantas = [...new Set(els.map(e => NOMBRE_PLANTA(D, e.p)))];
+    let h = "<h2>" + escH((D.info_proyecto && D.info_proyecto.proyecto) || (S.proyecto && S.proyecto.id) || "") + " · " + escH(D.titulo) + "</h2>";
+    h += '<div class="sub">Modelo del ' + escH(D.fecha) + " · medido lo visible: " + escH(plantas.join(", ") || "nada") + ". Toca una fila para verla en 3D.</div>";
+    let filas = [];
+    for (const G of GR) {
+      const rs = agrupar(els, G.g, G.porPano); if (!rs.length) continue;
+      h += "<h3>" + G.t + "</h3>" + (G.nota ? '<div class="sub">' + G.nota + "</div>" : "");
+      h += '<div class="tabla"><table><thead><tr><th>Tipo</th>' + (G.carp ? "<th>Nombre</th><th>Medidas</th>" : "<th>Plantas</th>") + G.cols.map(c => '<th class="n">' + ET[c] + "</th>").join("") + "</tr></thead><tbody>";
+      const tot = {ud: 0, ml: 0, m2: 0, m3: 0};
+      for (const r of rs) {
+        const T = (D.tipos || {})[r.tipo] || {};
+        const id = filas.push(r.idx) - 1;
+        const pl = [...new Set([...r.plantas].map(p => NOMBRE_PLANTA(D, p).replace("Planta ", "")))].join(", ");
+        h += '<tr class="fila-tipo" data-f="' + id + '"><td>' + escH(r.tipo) + "</td>" + (G.carp ? "<td>" + escH(T.nombre || "") + "</td><td>" + escH([...r.medidas].join("; ")) + "</td>" : "<td>" + escH(pl) + "</td>") +
+          G.cols.map(c => '<td class="n">' + (c === "ud" ? r.ud : fmt(r[c], 2)) + "</td>").join("") + "</tr>";
+        for (const c in tot) tot[c] += r[c];
+        csv.push([G.t, r.tipo, T.nombre || "", pl, r.ud, fmt(r.ml, 2), fmt(r.m2, 2), fmt(r.m3, 3), [...r.medidas].join("; ")]);
+      }
+      if (rs.length > 1) h += '<tr class="total"><td>Total</td><td' + (G.carp ? " colspan=2" : "") + "></td>" + G.cols.map(c => '<td class="n">' + (c === "ud" ? tot.ud : fmt(tot[c], 2)) + "</td>").join("") + "</tr>";
+      h += "</tbody></table></div>";
+    }
+    // recintos
+    const rec = vis.filter(e => e.g === "recintos");
+    if (rec.length) {
+      h += "<h3>Recintos</h3><div class='tabla'><table><thead><tr><th>Código</th><th>Recinto</th><th>Planta</th><th class=n>m²</th><th class=n>Altura libre</th></tr></thead><tbody>";
+      let tot = 0;
+      for (const e of rec) { const I = e.info || {}, m = e.med || {}; tot += m.m2 || 0; const id = filas.push([e._i]) - 1;
+        h += '<tr class="fila-tipo" data-f="' + id + '"><td>' + escH(I.codigo || "") + "</td><td>" + escH(I.recinto || e.n) + "</td><td>" + escH(NOMBRE_PLANTA(D, e.p)) + "</td><td class=n>" + fmt(m.m2 || 0, 2) + "</td><td class=n>" + (m.h ? fmt(m.h, 2) + " m" : "") + "</td></tr>";
+        csv.push(["Recintos", I.codigo || "", I.recinto || e.n, NOMBRE_PLANTA(D, e.p), 1, "", fmt(m.m2 || 0, 2), "", m.h ? "h " + fmt(m.h, 2) : ""]); }
+      h += '<tr class="total"><td>Total</td><td></td><td></td><td class=n>' + fmt(tot, 2) + "</td><td></td></tr></tbody></table></div>";
+    } else if (D.elementos.some(e => e.g === "recintos")) h += "<h3>Recintos</h3><div class=sub>Activa «Recintos» en Capas para medirlos.</div>";
+    // materiales
+    const m = {}; for (const e of els) if (e.g !== "recintos" && e.g !== "piel") for (const p of e.partes) m[p.m] = (m[p.m] || 0) + (p.vol || 0);
+    const mr = Object.entries(m).filter(([, v]) => v > 0.0005).sort((a, b) => b[1] - a[1]);
+    if (mr.length) {
+      h += "<h3>Materiales</h3><div class='tabla'><table><thead><tr><th>Material</th><th class=n>m³</th></tr></thead><tbody>" +
+        mr.map(([k, v]) => { csv.push(["Materiales", k, ((D.materiales || {})[k] || {}).nombre || k, "", "", "", "", fmt(v, 3), ""]); return "<tr><td>" + escH(((D.materiales || {})[k] || {}).nombre || k) + "</td><td class=n>" + fmt(v, 2) + "</td></tr>"; }).join("") + "</tbody></table></div>";
+    }
+    // tipos (composición y fuente)
+    const usados = new Set(els.map(e => e.t).filter(Boolean));
+    const tipos = Object.entries(D.tipos || {}).filter(([k]) => usados.has(k));
+    if (tipos.length) {
+      h += "<h3>Tipos: composición y fuente</h3>";
+      for (const [k, T] of tipos) {
+        h += '<div class="ficha-tipo"><b>' + escH(T.nombre || k) + "</b><div>" + composicion(T.capas) + (T.panos ? "Paños: " + escH(T.panos.join(" + ")) + "<br>" : "") +
+          (T.sistema ? "Sistema: " + escH(T.sistema) + "<br>" : "") + (T.medidas ? "Medidas: " + escH(T.medidas) + "<br>" : "") + (T.material ? "Material: " + escH(T.material) : "") + "</div><div>" +
+          (T.nota ? '<span class="nota">' + escH(limpiaNota(T.nota)) + "</span><br>" : "") + (T.fuente ? '<span class="fuente">Fuente: ' + escH(limpiaNota(T.fuente)) + "</span>" : "") + "</div></div>";
+      }
+    }
+    if ((D.dudas || []).length) h += "<h3>Dudas abiertas del modelo</h3><div class=sub>" + D.dudas.map(t => "<p>" + escH(t) + "</p>").join("") + "</div>";
+    return {html: h, csv: csv.map(r => r.map(c => /[;"\n]/.test(String(c)) ? '"' + String(c).replace(/"/g, '""') + '"' : c).join(";")).join("\r\n"), filas};
+  }
+  function refrescar() {
+    if (S.modo !== "datos") return;
+    ultimo = construir();
+    $("datos").innerHTML = ultimo.html + '<div class="fila" style="margin-top:24px"><button class="btn" id="btnCsv">Descargar tablas (CSV)</button></div>';
+    $("datos").querySelectorAll("tr[data-f]").forEach(tr => tr.onclick = () => { V3.resaltar(new Set(ultimo.filas[+tr.dataset.f])); modo("3d"); });
+    $("btnCsv").onclick = () => guardarArchivo(((S.proyecto ? S.proyecto.id : "modelo") + "_" + V3.datos().modelo + "_mediciones.csv").replace(/\s+/g, "_"), "\ufeff" + ultimo.csv);
+  }
+  return {refrescar};
+})();
+
+/* ============================================================ interfaz */
+async function abrir2d() {
+  if (!S.proyecto || !S.proyecto.plano) { $("vacio").hidden = false; $("vacio").querySelector("b").textContent = "Este proyecto no tiene plano 2D"; return; }
+  try {
+    const P = await obtener(S.proyecto.plano); S.proyecto.plano = P;
+    if (V2._p !== P) { V2.preparar(P); V2._p = P; }
+    $("vacio").hidden = true;
+  } catch (e) { toast(e.message); }
+}
+function modo(m) {
+  S.modo = m;
+  $("tab3d").setAttribute("aria-pressed", m === "3d"); $("tab2d").setAttribute("aria-pressed", m === "2d"); $("tabDatos").setAttribute("aria-pressed", m === "datos");
+  $("c3d").hidden = m !== "3d"; $("c2d").hidden = m !== "2d"; $("p3d").hidden = m === "2d"; $("p2d").hidden = m !== "2d"; $("tool2d").hidden = m !== "2d";
+  $("datos").hidden = m !== "datos";
+  $("selModelo").hidden = m === "2d";
+  $("rotulo").hidden = m !== "3d";
+  document.querySelectorAll(".aspa,.esq").forEach(x => x.hidden = m === "datos");
+  if (m === "datos") { Datos.refrescar(); return; }
+  if (m === "2d") { abrir2d(); requestAnimationFrame(() => V2.redim()); } else { requestAnimationFrame(() => V3.redim()); if (!S.modelo) $("vacio").hidden = false; }
+}
+$("tab3d").onclick = () => modo("3d"); $("tab2d").onclick = () => modo("2d"); $("tabDatos").onclick = () => modo("datos");
+$("btnVerTodo").onclick = () => V3.resaltar(null);
+$("selProyecto").onchange = e => elegirProyecto(e.target.value);
+$("selModelo").onchange = e => elegirModelo(e.target.value);
+$("btnAbrir").onclick = () => $("ficheros").click();
+$("ficheros").onchange = e => { leerArchivos(e.target.files); e.target.value = ""; };
+$("btnPanel").onclick = () => { $("panel").classList.toggle("cerrado"); requestAnimationFrame(() => { V3.redim(); V2.redim(); }); };
+const vistaEl = $("vista");
+vistaEl.addEventListener("dragover", e => { e.preventDefault(); vistaEl.classList.add("drop"); });
+vistaEl.addEventListener("dragleave", () => vistaEl.classList.remove("drop"));
+vistaEl.addEventListener("drop", e => { e.preventDefault(); vistaEl.classList.remove("drop"); leerArchivos(e.dataTransfer.files); });
+document.querySelectorAll("[data-estilo]").forEach(b => b.onclick = () => { document.querySelectorAll("[data-estilo]").forEach(x => x.classList.toggle("on", x === b)); V3.aplicaEstilo(b.dataset.estilo); ls("visor.estilo", b.dataset.estilo); });
+$("selCam").onchange = e => { V3.vista(e.target.value); rotulo(); };
+$("btnPersp").onclick = () => { const on = $("btnPersp").getAttribute("aria-pressed") !== "true"; $("btnPersp").setAttribute("aria-pressed", on); $("perspOpts").hidden = !on; V3.setPersp(on); };
+$("rFocal").oninput = e => { $("oFocal").textContent = e.target.value + " mm"; V3.focal(+e.target.value); };
+$("rOjo").oninput = e => { $("oOjo").textContent = fmt(e.target.value / 1000, 2) + " m"; };
+$("btnOjo").onclick = () => V3.alOjo(+$("rOjo").value);
+$("rExplota").oninput = e => { $("oExplota").textContent = fmt(e.target.value / 1000, 1) + " m"; V3.setExplota(+e.target.value); rotulo(); };
+$("rExplota").onchange = () => V3.encuadra();
+$("btnEncuadra3").onclick = () => V3.encuadra();
+["rZ", "rX", "rY"].forEach(i => $(i).oninput = () => { $("c" + i[1]).checked = true; V3.cortes(); });
+["cZ", "cX", "cY", "cInv"].forEach(i => $(i).onchange = () => V3.cortes());
+$("btnSvg").onclick = () => V3.exportarSVG(+$("selEsc").value);
+$("btnPng").onclick = () => V3.exportarPNG();
+function rotulo() {
+  const D = S.modelo; if (!D) { $("rotulo").textContent = ""; return; }
+  $("rotulo").innerHTML = (S.proyecto ? S.proyecto.id : "") + " · " + D.titulo + "<span>" + $("selCam").selectedOptions[0].textContent + (+$("rExplota").value ? " · explotada" : "") + "</span>";
+}
+// 2D
+document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => { document.querySelectorAll("[data-h]").forEach(x => x.classList.toggle("on", x === b)); V2.setHerr(b.dataset.h); });
+const tog = (id, fn) => $(id).onclick = () => { const v = $(id).getAttribute("aria-pressed") !== "true"; $(id).setAttribute("aria-pressed", v); fn(v); };
+tog("btnOrto", v => V2.setOrto(v)); tog("btnIman", v => V2.setIman(v)); tog("btnDedo", v => V2.setDedo(v));
+$("btnFin").onclick = () => V2.terminaPoli();
+$("btnDeshacer").onclick = () => V2.deshacer(); $("btnRehacer").onclick = () => V2.rehacer();
+$("btnBorrar").onclick = () => V2.borrarSel(); $("btnAClase").onclick = () => V2.aClase(); $("btnATrama").onclick = () => V2.aTrama();
+$("btnQuitaV").onclick = () => V2.quitaVertice(); $("btnRestaura").onclick = () => V2.restauraSel();
+$("btnEnviar").onclick = () => V2.enviar(); $("btnArchivo").onclick = () => V2.archivo(); $("btnVaciar").onclick = () => V2.vaciar();
+$("btnEncuadre").onclick = () => V2.encuadrar();
+$("inLong").addEventListener("keydown", e => { if (e.key === "Enter") { const L = parseFloat(e.target.value.replace(",", ".")); if (V2.longitud(L)) e.target.value = ""; else toast("Empieza una línea y apunta la dirección; luego escribe la longitud"); } });
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { V3.tema(); V2.tema(); });
+new MutationObserver(() => { V3.tema(); V2.tema(); }).observe(document.documentElement, {attributes: true, attributeFilter: ["data-theme"]});
+
+(async function inicio() {
+  const est = ls("visor.estilo"); if (est) { const b = document.querySelector('[data-estilo="' + est + '"]'); if (b) b.click(); }
+  await cargarPublicado();
+  if (Object.keys(S.proyectos).length) rellenarProyectos(); else $("vacio").hidden = false;
+  rotulo();
+  if (location.hash === "#2d") modo("2d"); else if (location.hash === "#datos") modo("datos");
+  // quien solo puede ver la página (p. ej. el aparejador) no tiene herramientas de dibujo ni envío
+  // fuera de claude.ai (copia pública en una web cualquiera) el visor es solo de consulta: no hay envío al Mac
+  const u = await cap("user");
+  if (!window.claude || (u && u.canEdit && !u.canEdit())) {
+    document.querySelectorAll('[data-h="linea"],[data-h="poli"],[data-h="rect"],[data-h="texto"],#selClase,#selTrama,#inLong,#btnOrto,#btnDedo,#btnDeshacer,#btnRehacer,#accSel,#btnEnviar,#btnArchivo,#btnVaciar').forEach(x => x.hidden = true);
+    S.soloVer = true;
+  }
+})();
+</script>
