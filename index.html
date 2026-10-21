@@ -2284,6 +2284,7 @@ const Notas = (() => {
     if (local) return (cfg = {local: true});
     try { const r = await fetch("notas.json", {cache: "no-store"}); cfg = r.ok ? await r.json() : null; } catch (e) { cfg = null; }
     if (cfg && !(cfg.url && cfg.clave)) cfg = null;
+    if (cfg) await compruebaAdmin();
     return cfg;
   }
   function cab(extra) {
@@ -2302,7 +2303,16 @@ const Notas = (() => {
   if (!llave) { const a = new Uint8Array(24); crypto.getRandomValues(a); llave = [...a].map(x => x.toString(16).padStart(2, "0")).join(""); ls("visor.llave", llave); }
   let huella = null;
   const huellaP = (async () => { try { const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(llave)); huella = [...new Uint8Array(h)].map(x => x.toString(16).padStart(2, "0")).join(""); } catch (e) { huella = null; } })();
-  const mia = n => huella && n.llave_hash === huella;
+  const mia = n => esAdmin || (huella && n.llave_hash === huella);
+  // clave de administrador: llega una vez en el enlace (?admin=…), se guarda en este navegador y se quita de la dirección
+  const mA = location.search.match(/[?&]admin=([0-9a-f]{16,64})/);
+  if (mA) { ls("visor.admin", mA[1]); try { history.replaceState(null, "", location.pathname + location.search.replace(/[?&]admin=[0-9a-f]+/, "").replace(/^&/, "?") + location.hash); } catch (e) { /* vista previa */ } }
+  let esAdmin = false;
+  async function compruebaAdmin() {
+    const k = ls("visor.admin"); if (!k || cfg.local) return;
+    try { esAdmin = !!await api("POST", "rpc/es_admin", {p_llave: k}); } catch (e) { esAdmin = false; }
+    if (esAdmin && mA) toast("Modo administrador en este navegador: puedes borrar cualquier comentario", 4500);
+  }
   async function todas(forzar) {
     if (!await config()) return null;
     if (cache && !forzar && Date.now() - ultimaCarga < 15000) return cache;
@@ -2329,7 +2339,7 @@ const Notas = (() => {
   }
   async function borrar(n) {
     if (cfg.local) { const L = (ls(LKEY) || []).filter(y => y.id !== n.id); ls(LKEY, L); }
-    else if (!await api("POST", "rpc/borrar_nota", {p_id: n.id, p_llave: llave})) throw new Error("No se ha podido borrar (solo se borra desde el navegador con el que se escribió)");
+    else if (!await api("POST", "rpc/borrar_nota", {p_id: n.id, p_llave: esAdmin ? ls("visor.admin") : llave})) throw new Error("No se ha podido borrar (solo se borra desde el navegador con el que se escribió)");
     cache = cache.filter(y => y.id !== n.id && y.respuesta_a !== n.id);
   }
   async function resolver(n, si) {
@@ -2371,7 +2381,7 @@ const Notas = (() => {
   function compositor(id, texto) {
     const a = autor();
     return '<div class="comp" id="' + id + '">' + (pend ? '<p class="nota"><b>Marca en la página ' + pend.pagina + "</b>: escribe el comentario.</p>" : "") +
-      (a ? '<p class="nota">Comentas como <b>' + escH(a) + '</b> <button class="lnk" data-quien>cambiar</button></p>' : '<input class="filtro" data-nombre placeholder="Tu nombre (se ve con cada comentario)">') +
+      (a ? '<p class="nota">Comentas como <b>' + escH(a) + "</b>" + (esAdmin ? " (administrador)" : "") + ' <button class="lnk" data-quien>cambiar</button></p>' : '<input class="filtro" data-nombre placeholder="Tu nombre (se ve con cada comentario)">') +
       '<textarea class="filtro" rows="3" placeholder="' + escH(texto) + '"></textarea><div class="fila"><button class="btn" data-guardar>Publicar</button>' +
       (pend ? '<button class="btn" data-cancelar>Quitar la marca</button>' : "") + "</div></div>";
   }
