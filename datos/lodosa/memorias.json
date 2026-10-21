@@ -1,0 +1,51 @@
+{
+ "formato": "arrova-memorias",
+ "proyecto": "lodosa",
+ "pdfs": [
+  {
+   "archivo": "memorias/00_Datos_Certificado_Energetico.pdf",
+   "titulo": "Datos para el certificado energético",
+   "nota": "10 páginas · versión del 16-oct"
+  },
+  {
+   "archivo": "memorias/02_Memoria_Habitabilidad.pdf",
+   "titulo": "Memoria de habitabilidad",
+   "nota": "7 páginas · versión del 16-oct"
+  },
+  {
+   "archivo": "memorias/03_Memoria_Descriptiva_y_Constructiva.pdf",
+   "titulo": "Memoria descriptiva y constructiva",
+   "nota": "18 páginas · versión del 16-oct"
+  },
+  {
+   "archivo": "memorias/04_1_Memoria_Cumplimiento_CTE.pdf",
+   "titulo": "Memoria de cumplimiento del CTE",
+   "nota": "40 páginas · versión del 16-oct"
+  },
+  {
+   "archivo": "memorias/04_2_Anejo_Justificacion_DB-HE.pdf",
+   "titulo": "Anejo · justificación DB-HE",
+   "nota": "14 páginas · versión del 16-oct"
+  },
+  {
+   "archivo": "memorias/06_Estudio_Seguridad_y_Salud.pdf",
+   "titulo": "Estudio de seguridad y salud",
+   "nota": "21 páginas · versión del 16-oct"
+  },
+  {
+   "archivo": "memorias/08_Plan_Control_Calidad.pdf",
+   "titulo": "Plan de control de calidad",
+   "nota": "14 páginas · versión del 16-oct"
+  },
+  {
+   "archivo": "memorias/09_Pliego_de_Condiciones.pdf",
+   "titulo": "Pliego de condiciones",
+   "nota": "41 páginas · versión del 16-oct"
+  },
+  {
+   "archivo": "memorias/10_Manual_Uso_y_Mantenimiento.pdf",
+   "titulo": "Manual de uso y mantenimiento",
+   "nota": "28 páginas · versión del 16-oct"
+  }
+ ]
+}
