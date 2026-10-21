@@ -39,7 +39,7 @@ header{display:grid;grid-template-columns:minmax(0,1fr) var(--panel);grid-templa
   padding-left:max(16px,env(safe-area-inset-left,0px));border-bottom:0.5px solid var(--rule);min-width:0}
 header .marca{grid-column:1/-1;font-weight:700;letter-spacing:.02em;white-space:nowrap;font-size:var(--s-l);padding-top:10px}
 header .barra{display:flex;align-items:center;gap:12px;min-width:0;padding-right:16px}
-header .acciones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding-inline:16px max(16px,env(safe-area-inset-right,0px))}
+header .acciones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding-inline:0 max(16px,env(safe-area-inset-right,0px))}   /* empieza justo en la línea del panel: marca la franja de arriba abajo */
 header .marca span{font-weight:400}
 .tabs{display:flex;gap:0;flex:0 0 auto}
 .tabs button{border:0.5px solid var(--ink);background:transparent;padding:5px 12px;font-weight:700;cursor:pointer}
