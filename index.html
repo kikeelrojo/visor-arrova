@@ -151,7 +151,7 @@ details.hechas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-w
 .notas-datos{max-width:760px}
 .ldocs button .cnt{float:right;font-style:normal;font-weight:700;font-size:var(--s-xs);color:var(--warn);border:0.5px solid var(--warn);min-width:16px;text-align:center;padding:0 3px;margin-left:6px}
 h3 .adm{color:#7b1d2c}
-header .acciones .btn{line-height:16px;height:28px;padding:5px 4px;font-weight:400;text-align:center;overflow:hidden;text-overflow:ellipsis}
+.acciones .btn{line-height:16px;height:28px;padding:5px 4px;font-weight:400;text-align:center;overflow:hidden;text-overflow:ellipsis}
 a.btn.rojo{color:var(--warn);border-color:var(--warn)}
 #notasHerr .btn.on{background:var(--ink);color:var(--paper)}
 .ppto input{width:84px;border:0.5px solid var(--ink);background:var(--paper);padding:2px 4px;text-align:right;font-variant-numeric:tabular-nums}
@@ -189,14 +189,11 @@ a.btn.rojo{color:var(--warn);border-color:var(--warn)}
   .panel.cerrado{display:none}
   .panel-toggle{display:inline-block}
   .estado,header .sp{display:none}
-  header{grid-template-columns:minmax(0,1fr) auto}
-  header .barra{gap:8px;overflow-x:auto;padding-right:8px}
-  header .acciones{display:flex;padding-left:0}
-}
-@media (max-width:600px){                       /* móvil: las acciones suben a la fila del título y las pestañas tienen toda la barra */
-  header .marca{grid-column:1;grid-row:1}
-  header .acciones{grid-column:2;grid-row:1;padding-top:8px}
-  header .barra{grid-column:1/-1;grid-row:2}
+  header{grid-template-columns:minmax(0,1fr)}
+  header .barra{gap:8px;overflow-x:auto;padding-right:max(16px,env(safe-area-inset-right,0px))}
+  /* en vertical el panel va debajo del dibujo: las acciones pasan a su cabeza, antes de «Vista» */
+  .acciones.en-panel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:4px 0 14px;margin-bottom:2px;
+    background-image:radial-gradient(circle,var(--ink) 0.55px,transparent 0.75px);background-size:4px 3px;background-repeat:repeat-x;background-position:0 100%}
   header select{max-width:110px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -2560,6 +2557,10 @@ const Notas = (() => {
     if (n0 !== n1 && !document.querySelector(".comp textarea:focus")) pinta();
   }, 20000);
   config();                                 // al abrir: «Modo admin» arriba si este navegador tiene la clave
+  // en vertical (panel debajo del dibujo) Editor / Abrir / Modo admin van a la cabeza del panel; si no, en la cabecera
+  const mqV = matchMedia("(max-width:820px)"), acc = document.querySelector(".acciones");
+  const colocaAcc = () => { if (mqV.matches) { $("panel").prepend(acc); acc.classList.add("en-panel"); } else { document.querySelector("header").appendChild(acc); acc.classList.remove("en-panel"); } };
+  (mqV.addEventListener ? mqV.addEventListener("change", colocaAcc) : mqV.addListener(colocaAcc)); colocaAcc();
   // una app guardada (pantalla de inicio, Dock) no comparte lo guardado con Safari: se guarda desde la dirección con la clave
   $("marcaAdmin").onclick = () => {
     const k = ls("visor.admin"); if (!k) return;
