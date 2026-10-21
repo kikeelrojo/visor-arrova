@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <rect width="512" height="512" fill="#fff"/>
   <g fill="none" stroke="#000" stroke-width="2.6" stroke-linecap="square">
-    <path d="M412 68L444 100M444 68L412 100"/>
-    <path d="M358 124H390V156"/>
-    <path d="M86 356V390H118"/>
+    <path d="M427.55859375 131.5L457.55859375 161.5M457.55859375 131.5L427.55859375 161.5"/>
+    <path d="M381.6 177.5H411.6V207.5"/>
+    <path d="M100.4 304.5V334.5H130.4"/>
   </g>
   <g font-family="Helvetica, 'Liberation Sans', Arial, sans-serif" fill="#000">
-    <text id="a" x="256.0" y="277" text-anchor="middle" font-size="80" font-weight="700" letter-spacing="1">arrova</text>
-    <text id="v" x="132.7" y="321" font-size="40" font-weight="400" letter-spacing="1" stroke="#fff" stroke-width="1">visor</text>
+    <text x="132.4" y="255.5" font-size="80" font-weight="700">arrova</text>
+    <text x="134.4" y="299.5" font-size="40" font-weight="400" stroke="#fff" stroke-width="1">visor</text>
   </g>
 </svg>
