@@ -1,6 +1,6 @@
 ~V|ARROVA|FIEBDC-3/2016|Claude|\|ANSI||||||
 ~K|\2\2\3\2\2\2\2\EUR\|0|
-~C|LODOSA##||VIVIENDA UNIFAMILIAR EN LODOSA · C. ANCHA 34|383983.55|21102026|0|
+~C|LODOSA##||VIVIENDA UNIFAMILIAR EN LODOSA · C. ANCHA 34|383365.56|21102026|0|
 ~D|LODOSA##|D#\1\1\ON#\1\1\|
 ~C|D#||DERRIBO|21339.28|21102026|0|
 ~D|D#|D01#\1\1\D02#\1\1\D03#\1\1\D04#\1\1\|
@@ -81,7 +81,7 @@
 ~C|D04.05|ud|HIGIENE, BOTIQUÍN Y FORMACIÓN|178.00|21102026|0|
 ~T|D04.05|Instalaciones de higiene (aseo químico o local habilitado), botiquín y formación e información de los trabajadores. Según el Estudio Básico de Seguridad y Salud del Proyecto de Derribo (anexo 4).|
 ~M|D04#\D04.05||1|\Partida alzada\1\\\\|
-~C|ON#||OBRA NUEVA|362644.27|21102026|0|
+~C|ON#||OBRA NUEVA|362026.28|21102026|0|
 ~D|ON#|01#\1\1\02#\1\1\03#\1\1\04#\1\1\05#\1\1\06#\1\1\07#\1\1\08#\1\1\09#\1\1\10#\1\1\11#\1\1\12#\1\1\13#\1\1\14#\1\1\15#\1\1\16#\1\1\18#\1\1\19#\1\1\20#\1\1\|
 ~C|01#||CONSIDERACIONES PREVIAS|1530.90|21102026|0|
 ~D|01#|01.01\1\1\01.02\1\1\01.03\1\1\01.04\1\1\01.05\1\1\01.06\1\1\|
@@ -202,8 +202,8 @@
 ~C|05.02.11|m2|FORJADO UNIDIRECCIONAL DE VIGUETAS Y BOVEDILLAS DE EPS 15+5 (TERRAZA DE PLANTA SEGUNDA)|68.00|21102026|0|
 ~T|05.02.11|Forjado unidireccional de viguetas pretensadas de hormigón y bovedillas de poliestireno expandido, canto 15+5 cm, con capa de compresión de HA-25 y mallazo, negativos y zunchos de borde, apeado y desapeado, en la terraza de planta segunda (luz <= 2,8 m), para dejar espesor al mortero de pendientes (Enrique, 14-oct); según el proyecto de estructuras.|
 ~M|05.02#\05.02.11||11.06|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\11.06\\\|
-~C|06#||ALBAÑILERÍA|56216.97|21102026|0|
-~D|06#|06.01\1\81.61\06.02\1\83.8\06.03\1\374.64\06.04\1\366.74\06.05\1\99.47\06.06\1\111.98\06.07\1\17.1\06.08\1\43.78\06.09\1\25\06.10\1\10\06.11\1\1\06.12\1\1\06.13\1\1\|
+~C|06#||ALBAÑILERÍA|56031.31|21102026|0|
+~D|06#|06.01\1\81.61\06.02\1\83.8\06.03\1\374.64\06.04\1\328.06\06.05\1\99.47\06.06\1\111.98\06.07\1\17.1\06.08\1\43.78\06.09\1\25\06.10\1\10\06.11\1\1\06.12\1\1\06.13\1\1\|
 ~C|06.01|m2|FÁBRICA DE HORMIGÓN CELULAR YTONG 30 CM, D350 (FACHADAS)|82.00|21102026|0|
 ~T|06.01|Fábrica de bloques de hormigón celular Ytong de 30 cm (densidad 350 kg/m³, machihembrados) tomados con adhesivo de capa fina, incluso piezas especiales, cortes, armadura de tendel donde lo indique el proyecto, replanteo, nivelación y aplomado.|
 ~M|06#\06.01||81.61|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\81.61\\\|
@@ -215,7 +215,7 @@
 ~M|06#\06.03||374.64|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\374.64\\\|
 ~C|06.04|m2|JUNTA DE POLIESTIRENO EXPANDIDO 10 MM CONTRA MEDIANERA|4.80|21102026|0|
 ~T|06.04|Junta de 10 mm de poliestireno expandido entre la fábrica nueva y la medianera existente, en toda su superficie.|
-~M|06#\06.04||366.74|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\366.74\\\|
+~M|06#\06.04||328.06|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\328.06\\\|
 ~C|06.05|m2|TRASDOSADO DE HORMIGÓN CELULAR YTONG 7 CM CON CÁMARA|34.00|21102026|0|
 ~T|06.05|Trasdosado de piezas de hormigón celular Ytong de 7 cm separado del muro por una cámara de espesor variable (regulariza la planta), tomado con adhesivo, con anclajes al muro.|
 ~M|06#\06.05||99.47|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\99.47\\\|
@@ -350,11 +350,11 @@
 ~C|10.09|m2|MORTERO DE PROTECCIÓN DE 4 CM SOBRE LA LÁMINA (PATIO, PORCHE, TERRAZA Y CUBIERTA PLANA)|15.00|21102026|0|
 ~T|10.09|Mortero de protección de 4 cm armado con malla, sobre la lámina impermeable de los forjados exteriores (patio y porche, terraza de planta segunda y cubierta plana), como base del microcemento exterior, con juntas de dilatación y junta perimetral.|
 ~M|10#\10.09||70.01|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\70.01\\\|
-~C|11#||REVESTIMIENTOS|28920.71|21102026|0|
-~D|11#|11.01\1\322.29\11.02\1\950.13\11.03\1\88.02\11.04\1\8.4\|
+~C|11#||REVESTIMIENTOS|28576.34|21102026|0|
+~D|11#|11.01\1\310.64\11.02\1\950.13\11.03\1\88.02\11.04\1\8.4\|
 ~C|11.01|m²|REVOCO DE CAL / MONOCAPA EN FACHADAS Y PATIOS|29.56|21102026|0|
 ~T|11.01|Revestimiento exterior de mortero de cal (o monocapa, a elegir por la dirección facultativa), en espesores de 10–15 mm, con malla de fibra de vidrio en encuentros y frentes de forjado y juntas de trabajo, acabado según muestra.|
-~M|11#\11.01||322.29|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\322.29\\\|
+~M|11#\11.01||310.64|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\310.64\\\|
 ~C|11.02|m2|GUARNECIDO Y ENLUCIDO DE YESO EN PAREDES Y TECHOS|14.00|21102026|0|
 ~T|11.02|Guarnecido maestreado y enlucido de yeso de 15 mm en paredes y techos interiores, con guardavivos y malla en encuentros de materiales.|
 ~M|11#\11.02||950.13|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\950.13\\\|
@@ -448,14 +448,14 @@
 ~C|14.06|ud|CELOSÍA DE TRAMEX GALVANIZADO DEL FALDÓN VENTILADO · 2,77 × 1,80, FIJO + PUERTA DE 0,80|1450.00|21102026|0|
 ~T|14.06|Celosía de rejilla electrosoldada (tramex) de acero galvanizado en caliente, malla 33 × 100 mm con pletina portante de 30 × 3 mm, en un paño fijo de ~ 1,85 m y una puerta abatible de 0,80 m del mismo material, con bastidor de pletina, bisagras soldadas y cerradura de llave; marco perimetral de angular L 40.40.4 galvanizado anclado al piñón, al muro y a la cubierta plana (sobre la protección de la lámina, sin perforarla) con tacos químicos y sellado. 2,77 × 1,80 m. Cierra el frente del faldón ventilado de C. del Peso, donde van la unidad exterior de la aerotermia y un almacenaje. Según la ficha de carpintería LO-G.|
 ~M|14#\14.06||0|\Opción 3 de cubiertas (IFC, 21-oct): no hay faldón ventilado ni celosía\0\\\\|
-~C|15#||PINTURA|9049.30|21102026|0|
-~D|15#|15.01\1\1038.62\15.02\1\322.29\|
+~C|15#||PINTURA|8961.34|21102026|0|
+~D|15#|15.01\1\1038.62\15.02\1\310.64\|
 ~C|15.01|m2|PINTURA PLÁSTICA LISA EN PAREDES Y TECHOS|6.37|21102026|0|
 ~T|15.01|M2 de emplastecido, lijado de plastes, y dos manos de pintura plástica lisa blanca o pigmentada sobre paredes. Tipo acrílica lavable, acabado mate-seda. La pintura debe ser de calidad extra, superior, y debe aguantar sin alteraciones lavados con agua y lejía (desinfección y esterilización de zonas); La d.F. Exigirá prueba con resultado satisfactorio antes de la aplicación general a todas las zonas. Se incluye en el precio el pintado/lacado por separado de aparatos de todo tipo que tengan un color distinto al del paramento a cubrir, tal como difusores, rejillas, detectores, mecanismos, altavoces, cámaras, sondas, reguladores, etc. Color a definir por la df” Volumen 1 Planta baja|
 ~M|15#\15.01||1038.62|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\1038.62\\\|
 ~C|15.02|m²|PINTURA AL SILICATO EN EXTERIORES (SI EL REVOCO NO VA COLOREADO)|7.55|21102026|0|
 ~T|15.02|M². Pintura al silicato en exteriores, con dos manos, i/limpieza de superficies y acabado. Igual a medicion de revestimiento monocapa                                                                                        130,42 =11/D13GD054.CanPres|
-~M|15#\15.02||322.29|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\322.29\\\|
+~M|15#\15.02||310.64|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\310.64\\\|
 ~C|16#||INSTALACIONES|44091.19|21102026|0|
 ~D|16#|16.01#\1\1\16.02#\1\1\16.03#\1\1\16.04#\1\1\16.05#\1\1\16.06#\1\1\|
 ~C|16.01#||FONTANERÍA|8549.61|21102026|0|
