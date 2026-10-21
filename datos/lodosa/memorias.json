@@ -3,6 +3,12 @@
  "proyecto": "lodosa",
  "pdfs": [
   {
+   "archivo": "memorias/00_Hoja_Control_Pendientes.pdf",
+   "titulo": "Hoja de control · pendientes y discrepancias",
+   "nota": "8 páginas · versión del 16-oct",
+   "marcado": true
+  },
+  {
    "archivo": "memorias/00_Datos_Certificado_Energetico.pdf",
    "titulo": "Datos para el certificado energético",
    "nota": "10 páginas · versión del 16-oct"

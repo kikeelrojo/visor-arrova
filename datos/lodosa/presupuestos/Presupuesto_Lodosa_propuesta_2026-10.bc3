@@ -1,0 +1,927 @@
+~V|ARROVA|FIEBDC-3/2016|Claude|\|ANSI||||||
+~K|\2\2\3\2\2\2\2\EUR\|0|
+~C|LODOSA##||VIVIENDA UNIFAMILIAR EN LODOSA · C. ANCHA 34|361845.25|16102026|0|
+~D|LODOSA##|01#\1\1\02#\1\1\03#\1\1\04#\1\1\05#\1\1\06#\1\1\07#\1\1\08#\1\1\09#\1\1\10#\1\1\11#\1\1\12#\1\1\13#\1\1\14#\1\1\15#\1\1\16#\1\1\18#\1\1\19#\1\1\20#\1\1\|
+~C|01#||CONSIDERACIONES PREVIAS|1530.90|16102026|0|
+~D|01#|01.01\1\1\01.02\1\1\01.03\1\1\01.04\1\1\01.05\1\1\01.06\1\1\|
+~C|01.01|ud|INFORM Y LOCALIZ INST AGUA|138.13|16102026|0|
+~T|01.01|Información y localización de todos los elementos, valvulería, redes, arquetas, etc., De la instalación de agua potable, de acuerdo con scpsa, incluso su marcado y señalización fehaciente cuantas veces sea preciso, así como la confección (si fuese preciso o si así lo indicase la d.F.) De los oportunos planos de estado actual tanto con los datos obtenidos como con los que se obtengan al descubrir la instalación. Según notas previas.|
+~M|01#\01.01||1|\General\1\\\\|
+~C|01.02|ud|INF+LOC REDES ELÉCTR, AT MT BT|136.54|16102026|0|
+~T|01.02|Información y localización de todos los elementos, arquetas, canalizaciones y redes de alta tensión, media tensión y eventualmente baja tensión, etc., De la instalación eléctrica, de acuerdo con iberdrola, incluso su marcado y señalización fehaciente cuantas veces sea preciso, así como la confección (si fuese preciso o si así lo indicase la d.F.) De los oportunos planos de estado actual tanto con los datos obtenidos como con los que se obtengan al descubrir la instalación. Según notas previas.|
+~M|01#\01.02||1|\General\1\\\\|
+~C|01.03|ud|INF+LOC RED ALUMBRADO PÚBL SUBT|136.54|16102026|0|
+~T|01.03|Información y localización de todos los elementos, arquetas, canalizaciones y redes subterráneas, etc., De la instalación eléctrica de alumbrado público, de acuerdo con los servicios municipales y con la empresa encargada del mantenimiento de esta instalación en la zona, incluso su marcado y señalización fehaciente cuantas veces sea preciso, así como la confección (si fuese preciso o si así lo indicase la d.F.) De los oportunos planos de estado actual tanto con los datos obtenidos como con los que se obtengan al descubrir la instalación. Según notas previas.|
+~M|01#\01.03||1|\General\1\\\\|
+~C|01.04|ud|INFORM Y LOCALIZ RED TELEFÓNICA|136.54|16102026|0|
+~T|01.04|Información y localización de todos los elementos, arquetas, canalizaciones y redes no ópticas, etc., De la instalación telefónica, de acuerdo con la ctne, incluso su marcado y señalización fehaciente cuantas veces sea preciso, así como la confección (si fuese preciso o si así lo indicase la d.F.) De los oportunos planos de estado actual tanto con los datos obtenidos como con los que se obtengan al descubrir la instalación. Según notas previas.|
+~M|01#\01.04||1|\General\1\\\\|
+~C|01.05|ud|CARTEL INFORM GENERAL EJEC OBRAS|391.44|16102026|0|
+~T|01.05|Suministro y colocación de cartel informativo general de la obra, de dimensiones totales 200x140 cm, de construcción y diseño según orden foral 108/19 de junio de 1989, adaptado a los criterios marcados por el gobierno de navarra. Completo y colocado según especificaciones de la misma orden, y su eventual desmonte y colocación en un segundo lugar (generalmente en la fachada); Completo y colocado, según notas previas. A instancias de la d.F. Podrán incorporarse en el mismo imágenes o diseños referidos a la obra en construcción El precio abarca el conjunto de todas las puestas que sea preciso realizar a lo largo de la obra y en los lugares que indique la propiedad a través de la dirección de la obra, así como todos los elementos de fijación y anclaje en cada una de las ocasiones. Por tanto esta partida se medirá por una única unidad.|
+~M|01#\01.05||1|\General\1\\\\|
+~C|01.06|ud|CJTO DESVÍO AGUAS PLUVIALES SUP.|591.71|16102026|0|
+~T|01.06|Partida habilitada para realizar el conjunto de todos los desvíos necesarios y de la recogida de aguas pluviales superficiales que discurran por el terreno con inmediata anteriororidad al comienzo de la obra. Incluye la protección del sistema alternativo para evitar su deterioro o mal funcionamiento durante la obra, así como su reparación cuantas veces sea preciso a juicio de la d.F.. Si llegara a realizarse según las indicaciones y a satisfacción de la d.F., Se medirá y abonará como una única unidad con independencia de los trabajos que conlleve.|
+~M|01#\01.06||1|\General\1\\\\|
+~C|02#||TRABAJOS PREVIOS Y DEMOLICIÓN|0.00|16102026|0|
+~D|02#|02.01\1\1\|
+~C|02.01|ud|DERRIBO SEGÚN PROYECTO DE DERRIBO (DOCUMENTO 11)|0.00|16102026|0|
+~T|02.01|Partida informativa: la demolición del edificio existente, la protección y el apeo de las medianeras, la gestión de sus residuos y su seguridad y salud se valoran en el Proyecto de Derribo (documento 11), con presupuesto propio (PEM 21.339,28 €). No suma en este presupuesto.|
+~M|02#\02.01||1|\Ver documento 11\1\\\\|
+~C|03#||MOVIMIENTO DE TIERRAS|5025.93|16102026|0|
+~D|03#|03.01\1\66.6\03.02\1\50.6\03.03\1\146.5\03.04\1\22.2\03.05\1\111\|
+~C|03.01|m3|EXCAVACIÓN A CIELO ABIERTO PARA FORJADO SANITARIO|16.50|16102026|0|
+~T|03.01|Excavación a cielo abierto en terreno compacto, con medios mecánicos de pequeño tamaño (solar entre medianeras), hasta la cota de apoyo del encachado del forjado sanitario, con refino de fondos y carga sobre camión. Junto a las medianeras se excavará por bataches según indique la dirección facultativa.|
+~M|03#\03.01||66.6|\Planta baja, interior de muros\1\111\\0.6\|
+~C|03.02|m3|EXCAVACIÓN EN ZANJAS PARA ZAPATAS CORRIDAS|24.00|16102026|0|
+~T|03.02|Excavación en zanjas para zapatas corridas bajo los muros de carga, con medios mecánicos y manuales junto a las medianeras, refino y limpieza de fondos y carga sobre camión.|
+~M|03#\03.02||50.6|\Zapatas bajo muros de planta baja\1\69.7\1.21\0.6\|
+~C|03.03|m3|TRANSPORTE DE TIERRAS A VERTEDERO O PLANTA|10.50|16102026|0|
+~T|03.03|Carga y transporte de tierras procedentes de la excavación a vertedero autorizado o planta de reciclaje, con canon de vertido, considerando un esponjamiento del 25 %.|
+~M|03#\03.03||146.5|\Excavación forjado sanitario\1.25\111\\0.6\\Zanjas\1.25\69.7\1.21\0.6\|
+~C|03.04|m3|ENCACHADO DE GRAVA 40/80 MM BAJO FORJADO SANITARIO|34.00|16102026|0|
+~T|03.04|Encachado de grava caliza 40/80 mm de 20 cm de espesor, extendida y compactada con bandeja vibrante, como base del forjado sanitario.|
+~M|03#\03.04||22.2|\Planta baja\1\111\\0.2\|
+~C|03.05|m2|LÁMINA DE POLIETILENO 0,2 mm BAJO FORJADO SANITARIO|3.78|16102026|0|
+~T|03.05|M². Lámina de polietileno de 0,2 mm de espesor, i/p.P. De perdidas por recortes y solapes.|
+~M|03#\03.05||111|\Planta baja\1\111\\\|
+~C|04#||DRENAJES Y SANEAMIENTO|6481.94|16102026|0|
+~D|04#|04.01\1\42\04.02\1\6\04.03\1\2\04.04\1\21\04.05\1\18\04.06\1\1\04.07\1\12\|
+~C|04.01|m|COLECTOR ENTERRADO PVC SN4 Ø110–125 MM|38.00|16102026|0|
+~T|04.01|Colector enterrado bajo el forjado sanitario de PVC compacto SN4 de 110–125 mm, con pendiente >= 2 %, sobre cama de arena de 10 cm, relleno lateral y superior, juntas elásticas y piezas especiales. Sistema separativo (fecales y pluviales).|
+~M|04#\04.01||42|\Fecales\1\24\\\\Pluviales\1\18\\\|
+~C|04.02|ud|ARQUETA REGISTRABLE 51×51 CM|185.00|16102026|0|
+~T|04.02|Arqueta registrable de 51×51 cm de fábrica o prefabricada de hormigón, con solera de hormigón, enfoscado interior bruñido y tapa hermética; incluida la arqueta sifónica previa a la acometida.|
+~M|04#\04.02||6|\Fecales\3\\\\\Pluviales\2\\\\\Garaje (esquina SE, junto a acometidas)\1\\\\|
+~C|04.03|ud|ACOMETIDA A LA RED MUNICIPAL|680.00|16102026|0|
+~T|04.03|Acometida a la red general de saneamiento de C. del Peso, con rotura y reposición del pavimento, conexión al pozo o colector municipal y pruebas; según condiciones del Ayuntamiento.|
+~M|04#\04.03||2|\Fecales\1\\\\\Pluviales\1\\\\|
+~C|04.04|m|BAJANTE INSONORIZADA PP/PVC Ø110 MM|32.00|16102026|0|
+~T|04.04|Bajante de aguas residuales de polipropileno insonorizado de 110 mm, con abrazaderas isofónicas, piezas especiales y ventilación primaria por prolongación sobre cubierta.|
+~M|04#\04.04||21|\Bajantes residuales\2\10.5\\\|
+~C|04.05|ud|RED INTERIOR DE DESAGÜES POR APARATO|68.00|16102026|0|
+~T|04.05|Red interior de desagües de PVC serie B (Ø32–50 mm a aparatos; manguetón de inodoro Ø110), con botes o sifones individuales, hasta la bajante o colector, probada.|
+~M|04#\04.05||18|\Lavabos\5\\\\\Inodoros\4\\\\\Duchas\2\\\\\Fregadero cocina y txoko\2\\\\\Lavavajillas, lavadora, lavadero\3\\\\\Sumideros interiores\2\\\\|
+~C|04.06|ud|ARQUETA DE VENTILACIÓN DE LA CÁMARA DEL FORJADO SANITARIO|207.94|16102026|0|
+~T|04.06|Arqueta para la salida al exterior de la ventilación del vacío sanitario, de 60x60x60-200 cm , con paredes de ha25 de 15 cm de espesor y mallazo me10.10.8.8, Incluso tapa de de rejilla de acero galvanizado tipo tramex de 30.30.30.3 Mm o tipo cofunco en fundición, a decidir por la d.F. Previa presentación de muestras, así como conexión con el vacío sanitario con tubos de pvc pluviales de ø 200 mm asegurando el perfecto funcionamiento, colocando las piezas especiales de igual material y ø precisas. El fondo de la arqueta estará conectado con el drenaje del edificio para evitar la acumulación de aguas de lluvia. La conexión se realizará con un tubo de ø 125 mm como mínimo.|
+~M|04#\04.06||1|\Admisión por el hueco del ascensor\1\\\\|
+~C|04.07|m|CONDUCTO DE VENTILACIÓN DE LA CÁMARA A CUBIERTA Ø160 MM|26.00|16102026|0|
+~T|04.07|Conducto de PVC Ø160 mm desde la cámara del forjado sanitario hasta cubierta, con remate y sombrerete, para la ventilación permanente de la cámara (protección frente al radón y la humedad).|
+~M|04#\04.07||12|\Conducto a cubierta\1\12\\\|
+~C|05#||CIMENTACIÓN Y ESTRUCTURA|73285.49|16102026|0|
+~D|05#|05.01#\1\1\05.02#\1\1\|
+~C|05.01#||CIMENTACIÓN Y FORJADO SANITARIO|21706.49|16102026|0|
+~D|05.01#|05.01.01\1\8.43\05.01.02\1\42.17\05.01.03\1\13.34\05.01.04\1\111\05.01.05\1\109.44\|
+~C|05.02#||ESTRUCTURA|51579.00|16102026|0|
+~D|05.02#|05.02.01\1\261.19\05.02.02\1\0\05.02.03\1\1.03\05.02.04\1\217.99\05.02.05\1\30\05.02.06\1\4.4\05.02.07\1\83.29\05.02.08\1\36\05.02.09\1\25\05.02.10\1\1.87\05.02.11\1\11.06\|
+~C|05.01.01|m3|HORMIGÓN DE LIMPIEZA HM-20 BAJO ZAPATAS|98.00|16102026|0|
+~T|05.01.01|Hormigón de limpieza HM-20/P/20/I de 10 cm de espesor en el fondo de zanjas, vertido y nivelado.|
+~M|05.01#\05.01.01||8.43|\Zapatas\1\69.7\1.21\0.1\|
+~C|05.01.02|m3|ZAPATA CORRIDA DE HORMIGÓN ARMADO HA-25|185.00|16102026|0|
+~T|05.01.02|Zapata corrida de hormigón armado HA-25/B/20/IIa con acero B 500 S (cuantía estimada 40 kg/m³), vertido, vibrado y curado; según el proyecto de estructuras.|
+~M|05.01#\05.01.02||42.17|\Bajo muros de planta baja\1\69.7\1.21\0.5\|
+~C|05.01.03|m3|ZÓCALO DE HORMIGÓN ARMADO HA-25 DE 0,90 M|365.90|16102026|0|
+~T|05.01.03|Muro de zócalo de hormigón armado HA-25 de 0,90 m de altura en el arranque de todos los muros de planta baja (en los tramos con trasdosado ocupa todo el espesor), encofrado a dos caras, armado y vibrado, con barrera impermeable en su coronación; según el proyecto de estructuras.|
+~M|05.01#\05.01.03||13.34|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\13.34\\\|
+~C|05.01.04|m2|SOLERA DE HORMIGÓN HM-20 DE 11,5 CM BAJO CUPOLEX|14.50|16102026|0|
+~T|05.01.04|Solera de hormigón HM-20 de 11,5 cm de espesor sobre el encachado y la lámina de polietileno, como base de apoyo de las piezas Cupolex.|
+~M|05.01#\05.01.04||111|\Planta baja\1\111\\\|
+~C|05.01.05|m2|FORJADO SANITARIO CUPOLEX CON CAPA DE COMPRESIÓN|60.20|16102026|0|
+~T|05.01.05|Forjado sanitario ventilado con encofrado perdido de piezas Cupolex de polipropileno reciclado (altura según proyecto de estructuras) sobre la solera, con capa de compresión de hormigón HA-25 y mallazo, pasatubos para la ventilación de la cámara, vertido, vibrado y curado.|
+~M|05.01#\05.01.05||109.44|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\109.44\\\|
+~C|05.02.01|m2|FORJADO UNIDIRECCIONAL DE VIGUETAS Y BOVEDILLAS DE EPS 20+5|74.00|16102026|0|
+~T|05.02.01|Forjado unidireccional de viguetas pretensadas de hormigón y bovedillas de poliestireno expandido, canto 20+5 cm, con capa de compresión de HA-25 y mallazo, negativos y zunchos de borde, apeado y desapeado; según el proyecto de estructuras.|
+~M|05.02#\05.02.01||261.19|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\261.19\\\|
+~C|05.02.02|m2|LOSA MACIZA HA-25 DE 30 CM CON VIGA PLANA (TECHO DEL GARAJE)|138.00|16102026|0|
+~T|05.02.02|Losa maciza de hormigón armado HA-25 de 30 cm de canto con viga plana embebida enrasada en el intradós, encofrado, armado (cuantía estimada 110 kg/m³), vertido y curado; resistencia al fuego REI 90.|
+~M|05.02#\05.02.02||0|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\0\\\|
+~C|05.02.03|m3|MACHONES DE HORMIGÓN ARMADO EN GARAJE|560.00|16102026|0|
+~T|05.02.03|Machones de hormigón armado HA-25 de 15 × 60–80 cm ocultos tras el trasdosado de Ytong, encofrado y armado.|
+~M|05.02#\05.02.03||1.03|\Garaje\4\0.15\0.7\2.45\|
+~C|05.02.04|m|ZUNCHO DE CORONACIÓN Y DINTEL EN PIEZA U DE YTONG|46.00|16102026|0|
+~T|05.02.04|Zuncho de coronación de muros y dinteles de hormigón armado HA-25 hormigonado dentro de piezas en U de hormigón celular Ytong (encofrado perdido), con armado longitudinal y estribos.|
+~M|05.02#\05.02.04||217.99|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\217.99\\\|
+~C|05.02.05|m|VIGA DE BORDE DE HORMIGÓN ARMADO EN TERRAZAS Y PORCHE|98.00|16102026|0|
+~T|05.02.05|Viga de borde de hormigón armado HA-25 en terrazas, porche y patio, con anclajes para la pletina base de las barandillas, encofrado y armado.|
+~M|05.02#\05.02.05||30|\Terrazas, porche y patio\1\30\\\|
+~C|05.02.06|m3|PETO DE HORMIGÓN ARMADO EN CUBIERTA|430.00|16102026|0|
+~T|05.02.06|Peto de hormigón armado HA-25 de 20 cm en el borde de la cubierta plana y terrazas, encofrado a dos caras.|
+~M|05.02#\05.02.06||4.4|\Petos\1\20\0.2\1.1\|
+~C|05.02.07|m2|LOSA ARMADA DE HORMIGÓN CELULAR YTONG PARA CUBIERTA, 25 CM|108.00|16102026|0|
+~T|05.02.07|Losa armada de hormigón celular Ytong de 25 cm para cubierta inclinada, suministrada y colocada con grúa sobre muros y zunchos, con armadura de atado y relleno de juntas.|
+~M|05.02#\05.02.07||83.29|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\83.29\\\|
+~C|05.02.08|ud|PELDAÑO DE CHAPA DE ACERO PLEGADA EMPOTRADO EN MURO|145.00|16102026|0|
+~T|05.02.08|Peldaño de chapa de acero plegada empotrado en el muro (escalera volada), con anclaje químico o placa embebida, imprimación y lacado.|
+~M|05.02#\05.02.08||36|\Planta baja a primera\19\\\\\Planta primera a segunda\17\\\\|
+~C|05.02.09|m2|PROTECCIÓN AL FUEGO DEL INTRADÓS (SI LO REQUIERE EL PROYECTO DE ESTRUCTURAS)|32.00|16102026|0|
+~T|05.02.09|Revestimiento de protección al fuego del intradós de forjados (placa de yeso tipo F o mortero proyectado) hasta alcanzar la resistencia exigida, solo donde lo requiera el proyecto de estructuras.|
+~M|05.02#\05.02.09||25|\Previsión\1\25\\\|
+~C|05.02.10|m3|PILAR DE HORMIGÓN ARMADO JUNTO A LA ESCALERA|560.00|16102026|0|
+~T|05.02.10|Pilar de hormigón armado HA-25 de 27 × 81 cm junto a la escalera, en planta baja, primera y segunda, encofrado, armado, vertido y curado.|
+~M|05.02#\05.02.10||1.87|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\1.87\\\|
+~C|05.02.11|m2|FORJADO UNIDIRECCIONAL DE VIGUETAS Y BOVEDILLAS DE EPS 15+5 (TERRAZA DE PLANTA SEGUNDA)|68.00|16102026|0|
+~T|05.02.11|Forjado unidireccional de viguetas pretensadas de hormigón y bovedillas de poliestireno expandido, canto 15+5 cm, con capa de compresión de HA-25 y mallazo, negativos y zunchos de borde, apeado y desapeado, en la terraza de planta segunda (luz <= 2,8 m), para dejar espesor al mortero de pendientes (Enrique, 14-oct); según el proyecto de estructuras.|
+~M|05.02#\05.02.11||11.06|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\11.06\\\|
+~C|06#||ALBAÑILERÍA|56445.34|16102026|0|
+~D|06#|06.01\1\81.8\06.02\1\93.83\06.03\1\366.79\06.04\1\360.25\06.05\1\97.96\06.06\1\110.38\06.07\1\17.1\06.08\1\50.34\06.09\1\25\06.10\1\10\06.11\1\1\06.12\1\1\06.13\1\1\|
+~C|06.01|m2|FÁBRICA DE HORMIGÓN CELULAR YTONG 30 CM, D350 (FACHADAS)|82.00|16102026|0|
+~T|06.01|Fábrica de bloques de hormigón celular Ytong de 30 cm (densidad 350 kg/m³, machihembrados) tomados con adhesivo de capa fina, incluso piezas especiales, cortes, armadura de tendel donde lo indique el proyecto, replanteo, nivelación y aplomado.|
+~M|06#\06.01||81.8|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\81.8\\\|
+~C|06.02|m2|FÁBRICA DE HORMIGÓN CELULAR YTONG 20 CM, D350 (MUROS A PATIO)|58.00|16102026|0|
+~T|06.02|Fábrica de bloques de hormigón celular Ytong de 20 cm de densidad 350 kg/m³ (exigida por la transmitancia) en muros exteriores a patio y sin edificio colindante, tomados con adhesivo de capa fina.|
+~M|06#\06.02||93.83|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\93.83\\\|
+~C|06.03|m2|FÁBRICA DE HORMIGÓN CELULAR YTONG 20 CM (MEDIANERAS Y MUROS DE CARGA)|54.00|16102026|0|
+~T|06.03|Fábrica de bloques de hormigón celular Ytong de 20 cm en medianeras y muros interiores de carga, tomados con adhesivo de capa fina, separada de las medianeras existentes por la junta de poliestireno.|
+~M|06#\06.03||366.79|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\366.79\\\|
+~C|06.04|m2|JUNTA DE POLIESTIRENO EXPANDIDO 10 MM CONTRA MEDIANERA|4.80|16102026|0|
+~T|06.04|Junta de 10 mm de poliestireno expandido entre la fábrica nueva y la medianera existente, en toda su superficie.|
+~M|06#\06.04||360.25|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\360.25\\\|
+~C|06.05|m2|TRASDOSADO DE HORMIGÓN CELULAR YTONG 7 CM CON CÁMARA|34.00|16102026|0|
+~T|06.05|Trasdosado de piezas de hormigón celular Ytong de 7 cm separado del muro por una cámara de espesor variable (regulariza la planta), tomado con adhesivo, con anclajes al muro.|
+~M|06#\06.05||97.96|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\97.96\\\|
+~C|06.06|m2|TABIQUE DE HORMIGÓN CELULAR YTONG 7 CM|33.00|16102026|0|
+~T|06.06|Tabique de piezas de hormigón celular Ytong de 7 cm tomadas con adhesivo de capa fina, con anclajes a muros y banda elástica en el encuentro con el forjado.|
+~M|06#\06.06||110.38|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\110.38\\\|
+~C|06.07|m|CAJÓN DE PERSIANA Y DINTEL CON PIEZAS EN U DE YTONG|52.00|16102026|0|
+~T|06.07|Dintel y cajón de persiana formados con piezas en U de hormigón celular Ytong envolviendo el zuncho, con el hueco libre necesario para el paquete de lamas, aislamiento y remates.|
+~M|06#\06.07||17.1|\V1\4\1.35\\\\V2 y V3\3\1.35\\\\P1\1\2.05\\\\PG\1\5.6\\\|
+~C|06.08|m|FRENTE DE FORJADO CON PLAQUETA YTONG Y XPS 4 CM|29.00|16102026|0|
+~T|06.08|Revestimiento del frente de forjado y zuncho con plaqueta de hormigón celular Ytong y 4 cm de XPS, con malla de fibra de vidrio en el revoco.|
+~M|06#\06.08||50.34|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\50.34\\\|
+~C|06.09|ud|RECIBIDO MARCOS EXTERIORES|27.01|16102026|0|
+~T|06.09|Colocación y recibido de carpinterías, metálicas o de madera, según notas previas.|
+~M|06#\06.09||25|\Ventanas y puertas exteriores\25\\\\|
+~C|06.10|ud|RECIBIDO MARCOS INTERIORES|21.55|16102026|0|
+~T|06.10|Colocación y recibido de marcos interiores, metálicos o de madera, según notas previas.|
+~M|06#\06.10||10|\Puertas interiores\10\\\\|
+~C|06.11|ud|AYUDAS ALBAÑ. A FONTANERÍA|3936.24|16102026|0|
+~T|06.11|Ayudas de albañilería a la instalación completa de fontanería, según notas previas.|
+~M|06#\06.11||1|\General\1\\\\|
+~C|06.12|ud|AYUDAS ALBAÑ. A ELECTRICIDAD|3690.22|16102026|0|
+~T|06.12|Ayudas de albañilería a la instalación completa de electricidad, según notas previas.|
+~M|06#\06.12||1|\General\1\\\\|
+~C|06.13|ud|AYUDAS ALBAÑ. CALEFACCIÓN, VENTILACIÓN Y ACS|4920.29|16102026|0|
+~T|06.13|Ayudas de albañilería a la instalación completa de calefacción, ventilación y agua caliente sanitaria, según notas previas.|
+~M|06#\06.13||1|\General\1\\\\|
+~C|07#||CUBIERTA|14838.55|16102026|0|
+~D|07#|07.01\1\83.29\07.02\1\90.86\07.03\1\90.86\07.04\1\90.86\07.05\1\83.29\07.06\1\24\07.07\1\27\07.08\1\56.54\07.09\1\29.32\07.10\1\4\07.11\1\2\07.12\1\70.02\07.13\1\58.97\|
+~C|07.01|m2|AISLAMIENTO XPS 10 CM SOBRE LOSA DE CUBIERTA|17.50|16102026|0|
+~T|07.01|Aislamiento de poliestireno extruido de 10 cm (lambda  0,034) sobre la losa de Ytong, con juntas a tope y continuidad en la coronación del zuncho.|
+~M|07#\07.01||83.29|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\83.29\\\|
+~C|07.02|m2|TABLERO OSB/3 HIDRÓFUGO 20 MM|19.50|16102026|0|
+~T|07.02|Tablero OSB/3 hidrófugo de 20 mm fijado mecánicamente a la losa a través del aislamiento.|
+~M|07#\07.02||90.86|\Cubierta inclinada: estimación de la propuesta (70 m²) + 20,86 m² de más en los faldones de la opción 2 (BIM, 16-oct)\1\90.86\\\|
+~C|07.03|m2|LÁMINA IMPERMEABLE TRANSPIRABLE BAJO TEJA|3.90|16102026|0|
+~T|07.03|Suministro y colocación de lámina flexible metalizada tipo tyvek enercor de dupontcompuesta de polietileno de alta densidad termoligado metalizado con capa superficial en polipropileno, en impermeabilizado de cubierta, colocado sobre rastreles de teja y con solapes de 10 cm., Medida la superficie, s/teja. VOLUMEN 1|
+~M|07#\07.03||90.86|\Cubierta inclinada: estimación de la propuesta (70 m²) + 20,86 m² de más en los faldones de la opción 2 (BIM, 16-oct)\1\90.86\\\|
+~C|07.04|m2|RASTRELES Y CONTRARRASTRELES DE MADERA TRATADA|9.50|16102026|0|
+~T|07.04|Rastreles y contrarrastreles de madera tratada en autoclave formando cámara ventilada bajo teja, con rejilla antipájaros en la salida.|
+~M|07#\07.04||90.86|\Cubierta inclinada: estimación de la propuesta (70 m²) + 20,86 m² de más en los faldones de la opción 2 (BIM, 16-oct)\1\90.86\\\|
+~C|07.05|m²|COBERTURA DE TEJA CERÁMICA MIXTA|36.12|16102026|0|
+~T|07.05|Cobertura de teja cerámica mixta sobre rastreles, fijada según el fabricante, con piezas especiales de alero, cumbrera y limatesa, totalmente terminada.|
+~M|07#\07.05||83.29|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\83.29\\\|
+~C|07.06|m|CANALÓN DE CHAPA DE ZINC|48.79|16102026|0|
+~T|07.06|Ml.Suministro, puesta en obra y montaje de canalón doble de chapa galvanizada de 1,5 mm de espesor y desarrollo aprox. 1.100 Mm, segun detalles, incluyendo; Beloque de chapa galvanizada de 1,5 mm de 20 cm de desarrollo en encuentro con pared, cortes, juntas de dilatación cada 8 mts, con cubrejuntas, embocaduras, para bajantes, tapas laterales, ingletes, pérdidas, pasivizados, tornillería galvanizada, formación de pendientes, posibles ganchos de sujección. Completo. Según cotas, secciones, despieces y disposiciones de proyecto. (Se medirá longitud ejecutada).|
+~M|07#\07.06||24|\Canalones\1\24\\\|
+~C|07.07|m|BAJANTE PLUVIAL VISTA DE ZINC Ø100|44.00|16102026|0|
+~T|07.07|Bajante de pluviales vista de chapa de zinc de 100 mm con abrazaderas y conexión a la red enterrada.|
+~M|07#\07.07||27|\Fachada C. Ancha\1\9.5\\\\Fachada C. del Peso\1\9.5\\\\Patios\1\8\\\|
+~C|07.08|m|REMATES, BABEROS Y VIERTEAGUAS DE ZINC|40.00|16102026|0|
+~T|07.08|Remates de alero, coronación, babero sobre la última hilada de teja y encuentros con petos, de chapa de zinc plegada.|
+~M|07#\07.08||56.54|\Remates: estimación de la propuesta (45 m) + 11,54 m de bordes libres nuevos de los faldones de la opción 2 (BIM, 16-oct)\1\56.54\\\|
+~C|07.09|m2|AISLAMIENTO XPS 14 CM EN CUBIERTA PLANA|24.50|16102026|0|
+~T|07.09|Aislamiento de poliestireno extruido de 14 cm sobre el forjado de la cubierta plana, bajo la lámina antiimpacto y el mortero de pendientes. No hay cubierta invertida: patio, porche, terraza y cubierta plana son forjado de viguetas + XPS + lámina antiimpacto + mortero de pendientes + lámina de betún modificado + mortero de protección + microcemento exterior (Enrique, 14-oct).|
+~M|07#\07.09||29.32|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\29.32\\\|
+~C|07.10|ud|SUMIDERO SIFÓNICO Ø90 CON REBOSADERO|135.00|16102026|0|
+~T|07.10|Sumidero sifónico de 90 mm con rebosadero, babero de conexión con la impermeabilización y rejilla.|
+~M|07#\07.10||4|\Cubiertas planas y terrazas\4\\\\|
+~C|07.11|ud|PUNTO DE ANCLAJE PARA LIMPIEZA Y MANTENIMIENTO|185.00|16102026|0|
+~T|07.11|Punto de anclaje homologado (UNE-EN 795) junto al lucernario para la limpieza y el mantenimiento de la cubierta.|
+~M|07#\07.11||2|\Junto al lucernario\2\\\\|
+~C|07.12|m2|FORMACIÓN DE PENDIENTES CON MORTERO (1–2 %) EN PATIO, PORCHE, TERRAZA Y CUBIERTA PLANA|13.00|16102026|0|
+~T|07.12|Formación de pendientes del 1–2 % hacia los sumideros con mortero de cemento sobre la lámina antiimpacto y el aislamiento, espesor mínimo 2 cm junto a los sumideros (medio ~ 5 cm), maestreado y fratasado como soporte de la lámina impermeable.|
+~M|07#\07.12||70.02|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\70.02\\\|
+~C|07.13|m2|BARRERA DE VAPOR BAJO EL AISLAMIENTO EN CUBIERTA PLANA, PATIO Y PORCHE|3.80|16102026|0|
+~T|07.13|Barrera de vapor de film de polietileno de baja densidad de 0,2 mm sobre el forjado, bajo el XPS, con solapes de 10 cm sellados con cinta y entrega en los perímetros hasta la cara superior del aislamiento, en la cubierta plana y en el patio y el porche de planta primera (Enrique, 14-oct).|
+~M|07#\07.13||58.97|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\58.97\\\|
+~C|08#||AISLAMIENTOS, IMPERMEABILIZACIÓN Y SELLADOS|7517.79|16102026|0|
+~D|08#|08.01\1\59.92\08.02\1\191.09\08.03\1\220.42\08.04\1\69.7\08.05\1\20\08.06\1\138.14\08.07\1\6\08.08\1\70.02\|
+~C|08.01|m2|AISLAMIENTO XPS 10 CM SOBRE FORJADO SANITARIO|16.50|16102026|0|
+~T|08.01|Aislamiento de poliestireno extruido de 10 cm (lambda  0,034), con juntas a tope, sobre el forjado sanitario de las zonas calefactadas, incluso franja de 3,5 cm bajo umbrales.|
+~M|08#\08.01||59.92|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\59.92\\\|
+~C|08.02|m2|XPS 4 CM SOBRE FORJADOS (PASO DE INSTALACIONES)|7.47|16102026|0|
+~T|08.02|Placas de poliestireno extruido de 4 cm de espesor y 38 kg/m3 de densidad, tipo floormate 500-a de styrofoam o similar, colocado bien con junta a media madera o contrapeado para evitar los puntos débiles que representen las uniones entre placas, incluso aportación de arena, corte y colocación. El material estará debidamente almacenado y acopiado o debidamente protegido. Se aportará la documentación técnica y de control del producto para ser aprobado por la d.F. Se medirá lo realmente ejecutado. VOLUMEN 1|
+~M|08#\08.02||191.09|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\191.09\\\|
+~C|08.03|m2|LÁMINA ANTIIMPACTO 5 MM Y BANDA PERIMETRAL|4.60|16102026|0|
+~T|08.03|Lámina antiimpacto de polietileno reticulado de 5 mm bajo el mortero del suelo radiante y banda perimetral de 10 mm en todos los encuentros con muros, tabiques y umbrales.|
+~M|08#\08.03||220.42|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\220.42\\\|
+~C|08.04|m|BARRERA IMPERMEABLE EN EL ARRANQUE DE MUROS|9.50|16102026|0|
+~T|08.04|Barrera contra la humedad por capilaridad en la coronación del zócalo: lámina impermeable y mortero hidrófugo.|
+~M|08#\08.04||69.7|\Muros de planta baja\1\69.7\\\|
+~C|08.05|m|IMPERMEABILIZACION ASFALTICA ALFEIZAR|37.69|16102026|0|
+~T|08.05|M. Impermeabilización de zonas de alfeizar de huecos mediante previa imprimación del soporte con una dotación de 300 g/m² de la emulsión asfaltica emufal i y la aplicación de la lámina impermeabilizante autoadhesiva y autoprotegida, compuesta por un mástico elastomérico (sbs) con armadura de fieltro de fibra de vidrio y acabado mineral en la cara superior y un film siliconado extraíble en la inferior tipo texself fv 4 kg min. Impermeabilización de alfeizares, vierteaguas, encuentros de pilares, encuentros con formados, canales y otros elementos constructivos, a base de tela asfáltica soldada, de 4 kg/m2 y 130 cm. De desarrollo, incluso p.P. De solapes e imprimación previa asfáltica y sellado mediante masilla de poliuretano compacta. Medida la longitud ejecutada. VOLUMEN 1 Fachada norte|
+~M|08#\08.05||20|\Alféizares\1\20\\\|
+~C|08.06|m|SELLADO HERMÉTICO DE CARPINTERÍAS|6.80|16102026|0|
+~T|08.06|Sellado del perímetro de las carpinterías con cinta expansiva y láminas de estanqueidad interior/exterior para la hermeticidad (n50).|
+~M|08#\08.06||138.14|\Perímetro de huecos: 145 m de la propuesta - 13,40 m del lucernario + 6,54 m del ventanal de la escalera (opción 2)\1\138.14\\\|
+~C|08.07|m2|IMPERMEABILIZACIÓN Y DRENAJE DE JARDINERA|32.00|16102026|0|
+~T|08.07|Lámina antirraíz, capa drenante y geotextil en la jardinera integrada en la viga de borde.|
+~M|08#\08.07||6|\Jardinera\1\6\\\|
+~C|08.08|m2|IMPERMEABILIZACIÓN CON LÁMINA DE BETÚN MODIFICADO EN PATIO, PORCHE, TERRAZA Y CUBIERTA PLANA|22.00|16102026|0|
+~T|08.08|Impermeabilización con lámina de betún modificado LBM-40/FP adherida sobre el mortero de pendientes de los forjados exteriores (patio y porche, terraza de planta segunda y cubierta plana), con imprimación, media caña y remonte >= 20 cm en petos y paramentos, refuerzos en sumideros y encuentros; bajo el mortero de protección y el microcemento exterior (Enrique, 14-oct: lámina y microcemento; no se confía la estanqueidad solo al microcemento).|
+~M|08#\08.08||70.02|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\70.02\\\|
+~C|09#||FALSOS TECHOS|3904.12|16102026|0|
+~D|09#|09.01\1\96.96\09.02\1\11\09.03\1\22.3\|
+~C|09.01|m2|FALSO TECHO DE PLACA DE YESO LAMINADO 15 MM|27.00|16102026|0|
+~T|09.01|Falso techo de placa de yeso laminado de 15 mm (hidrófuga en baños y aseos) sobre perfilería de acero galvanizado y varilla roscada, con juntas tratadas, listo para pintar.|
+~M|09#\09.01||96.96|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\96.96\\\|
+~C|09.02|ud|REGISTRO CON TAPA MAGNÉTICA ENRASADA|48.00|16102026|0|
+~T|09.02|Registro de instalaciones con tapa magnética enrasada, pintada como el paramento.|
+~M|09#\09.02||11|\Registros\11\\\\|
+~C|09.03|m2|TABICA DE PLACA DE YESO LAMINADO EN LOS BORDES DEL FALSO TECHO|34.00|16102026|0|
+~T|09.03|Tabica (cierre vertical) de placa de yeso laminado de 15 mm sobre perfilería de acero galvanizado, desde el borde del falso techo hasta la cara inferior del forjado, donde el falso techo termina en mitad de un espacio, con cantonera en la arista, juntas tratadas y lista para pintar (Enrique, 14-oct).|
+~M|09#\09.03||22.3|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\22.3\\\|
+~C|10#||PAVIMENTOS|21765.41|16102026|0|
+~D|10#|10.01\1\210.32\10.02\1\87\10.03\1\192.65\10.04\1\70.02\10.05\1\17.67\10.06\1\49.52\10.07\1\5.4\10.08\1\1\10.09\1\70.02\|
+~C|10.01|m2|MORTERO AUTONIVELANTE DE 4 CM CON SUELO RADIANTE|15.00|16102026|0|
+~T|10.01|Mortero autonivelante de 4 cm sobre el suelo radiante compacto, con aditivo para calefacción, juntas de dilatación y protocolo de primer encendido.|
+~M|10#\10.01||210.32|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\210.32\\\|
+~C|10.02|m2|RECRECIDO DE HORMIGÓN LIGERO 9 CM (SUELO DE PLANTA PRIMERA)|14.00|16102026|0|
+~T|10.02|Recrecido de hormigón ligero de 9 cm sobre el forjado de planta primera para el paso de instalaciones.|
+~M|10#\10.02||87|\Planta primera\1\87\\\|
+~C|10.03|m2|PAVIMENTO CONTINUO DE MICROCEMENTO PULIDO INTERIOR|48.00|16102026|0|
+~T|10.03|Pavimento continuo de microcemento pulido sobre el mortero, con imprimación, malla, capas de base y acabado y sellado de poliuretano mate.|
+~M|10#\10.03||192.65|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\192.65\\\|
+~C|10.04|m2|PAVIMENTO CONTINUO DE MICROCEMENTO EXTERIOR|56.00|16102026|0|
+~T|10.04|Pavimento continuo de microcemento para exterior, antideslizante clase 3, sobre el mortero autonivelante del patio, el porche, la terraza y la cubierta plana, con sellado alifático.|
+~M|10#\10.04||70.02|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\70.02\\\|
+~C|10.05|m2|PAVIMENTO DE GRES PORCELÁNICO EN BAÑOS Y ASEOS|54.00|16102026|0|
+~T|10.05|Pavimento de gres porcelánico tomado con adhesivo C2 y rejuntado, en baños y aseos.|
+~M|10#\10.05||17.67|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\17.67\\\|
+~C|10.06|m2|PAVIMENTO CONTINUO DE CUARZO EN GARAJE|15.61|16102026|0|
+~T|10.06|M². Pavimento continuo cuarzo gris para, sobre solera de hormigón ha-250 bombeado y vertido con grúa o dumper de 7 cm de espesor, con acabado monolítico incorporando 3 kg de cuarzo y 1,5 kg de cemento portland cem i/45 r, i/replanteo de solera, encofrado y desencofrado, colocación del hormigón dejando juntas de construcción en v, regleado y nivelado de solera, fratasado mecánico, incorporación capa de rodadura, enlisado y pulimentado, curado del hormigón, aserrado de juntas de retracción de 3 mm de espesor y profundidad 1/3 de la solera en cuadrículas no mayor de 5x5 m respetando igualmente juntas de dilatación, y sellado de juntas de retracción después de 28 días con masilla de poliuretano de elasticidad permanente, tipo sikaflex-a1 incluso transporte del hormigón a pie de tajo (grúa, dumper, etc...). Igual a medicon de suelo radiante tipo Minitec                                                                                     125,62 =DIF-RAD/10.11.CanPres|
+~M|10#\10.06||49.52|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\49.52\\\|
+~C|10.07|m|CANALETA CON REJILLA EN EL ACCESO DEL GARAJE|92.00|16102026|0|
+~T|10.07|Canaleta de recogida con rejilla de fundición o acero por el interior de la puerta del garaje, conectada a la red de pluviales.|
+~M|10#\10.07||5.4|\PG\1\5.4\\\|
+~C|10.08|ud|UMBRAL DE PIEDRA Y ZAGUÁN DE P1|950.00|16102026|0|
+~T|10.08|Losa del zaguán con pendiente, acanaladuras rellenas de grava, umbral de piedra con goterón y umbral de aluminio con RPT <= 2 cm.|
+~M|10#\10.08||1|\P1\1\\\\|
+~C|10.09|m2|MORTERO DE PROTECCIÓN DE 4 CM SOBRE LA LÁMINA (PATIO, PORCHE, TERRAZA Y CUBIERTA PLANA)|15.00|16102026|0|
+~T|10.09|Mortero de protección de 4 cm armado con malla, sobre la lámina impermeable de los forjados exteriores (patio y porche, terraza de planta segunda y cubierta plana), como base del microcemento exterior, con juntas de dilatación y junta perimetral.|
+~M|10#\10.09||70.02|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\70.02\\\|
+~C|11#||REVESTIMIENTOS|26727.09|16102026|0|
+~D|11#|11.01\1\254.34\11.02\1\939.2\11.03\1\87.52\11.04\1\8.4\|
+~C|11.01|m²|REVOCO DE CAL / MONOCAPA EN FACHADAS Y PATIOS|29.56|16102026|0|
+~T|11.01|Revestimiento exterior de mortero de cal (o monocapa, a elegir por la dirección facultativa), en espesores de 10–15 mm, con malla de fibra de vidrio en encuentros y frentes de forjado y juntas de trabajo, acabado según muestra.|
+~M|11#\11.01||254.34|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\254.34\\\|
+~C|11.02|m2|GUARNECIDO Y ENLUCIDO DE YESO EN PAREDES Y TECHOS|14.00|16102026|0|
+~T|11.02|Guarnecido maestreado y enlucido de yeso de 15 mm en paredes y techos interiores, con guardavivos y malla en encuentros de materiales.|
+~M|11#\11.02||939.2|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\939.2\\\|
+~C|11.03|m2|ALICATADO CERÁMICO 10 MM EN BAÑOS Y ASEOS|64.00|16102026|0|
+~T|11.03|Alicatado de baldosa cerámica de 10 mm recibida con mortero cola de 5 mm sobre el tabique de Ytong, en baños, aseos y zona de ducha, con piezas de remate.|
+~M|11#\11.03||87.52|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\87.52\\\|
+~C|11.04|m2|IMPERMEABILIZACIÓN BAJO ALICATADO EN DUCHAS|54.61|16102026|0|
+~T|11.04|Lamina de impermeabilizacion en paredes ducha y bañera. Volumen 1 Planta primera|
+~M|11#\11.04||8.4|\Duchas\2\4.2\\\|
+~C|12#||CARPINTERÍA INTERIOR|10570.72|16102026|0|
+~D|12#|12.01\1\8\12.02\1\1\12.03\1\1\12.04\1\8\|
+~C|12.01|ud|PUERTA DE PASO P2 ENRASADA 0,85 × 2,05|899.66|16102026|0|
+~T|12.01|Puerta de paso de una hoja abatible de 0,85 × 2,05 m (paso libre 0,82 m), enrasada con la pared y con su mismo acabado, bisagras ocultas y manilla Ocariz, según la ficha LO-G2.|
+~M|12#\12.01||8|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\8\\\|
+~C|12.02|ud|PUERTA CORREDERA P3 OCULTA EN TABIQUE (VESTIDOR)|1650.00|16102026|0|
+~T|12.02|Puerta corredera de 1,22 m oculta en el tabique, con armazón para tabique de Ytong, guía de 60 mm y fijo superior de dos paños hasta 2,70 m, según la ficha LO-G2.|
+~M|12#\12.02||1|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\1\\\|
+~C|12.03|ud|PUERTA P4 EI2 45-C5 GARAJE–ALMACÉN|1250.00|16102026|0|
+~T|12.03|Puerta de paso cortafuegos EI2 45-C5 de 0,90 m (paso >= 0,80 m) con cierre automático y fijo ciego, acabado de alerce y herrajes ocultos (o corredera cortafuegos certificada si se opta por la P3b).|
+~M|12#\12.03||1|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\1\\\|
+~C|12.04|ud|SUMINISTRO PREMARCO MADERA|59.18|16102026|0|
+~T|12.04|Suministro de premarcos de madera para puertas interiores. Igual a medición P01                                                                    5,00 =12/12.05.CanPres Igual a medcion P02                                                                     2,00 =12/12.22.CanPres|
+~M|12#\12.04||8|\Puertas de paso\8\\\\|
+~C|13#||CARPINTERÍA EXTERIOR|50806.39|16102026|0|
+~D|13#|13.01\1\4\13.02\1\3\13.03\1\1\13.04\1\2\13.05\1\1\13.06\1\2\13.07\1\1\13.08\1\1\13.09\1\1\13.10\1\1\13.11\1\1\13.12\1\1\13.13\1\1\13.14\1\1\13.15\1\1\13.16\1\21\|
+~C|13.01|ud|CARPINTERÍA V1 · 1,15 × 2,28, FACHADA C. ANCHA|1809.53|16102026|0|
+~T|13.01|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 690 €/m² (2.62 m²).|
+~M|13#\13.01||4|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\4\\\|
+~C|13.02|ud|CARPINTERÍA V2 / V3 · FACHADA C. DEL PESO|2097.60|16102026|0|
+~T|13.02|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 690 €/m² (3.04 m²).|
+~M|13#\13.02||3|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\3\\\|
+~C|13.03|ud|CARPINTERÍA V4 · PLANTA BAJA, C. ANCHA|631.56|16102026|0|
+~T|13.03|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 779 €/m² (0.81 m²).|
+~M|13#\13.03||1|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\1\\\|
+~C|13.04|ud|CARPINTERÍA V5 · FIJO EN ESQUINA AL PATIO PEQUEÑO (PLANTAS 1ª Y 2ª)|3281.60|16102026|0|
+~T|13.04|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 560 €/m² (5.86 m²).|
+~M|13#\13.04||2|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\2\\\|
+~C|13.05|ud|CARPINTERÍA V5b · FIJO EN ESQUINA AL PATIO PEQUEÑO (PLANTA BAJA)|3528.00|16102026|0|
+~T|13.05|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 560 €/m² (6.30 m²).|
+~M|13#\13.05||1|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\1\\\|
+~C|13.06|ud|CARPINTERÍA V6 · ASEO AL PATIO PEQUEÑO (PLANTAS 1ª Y 2ª)|483.41|16102026|0|
+~T|13.06|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 779 €/m² (0.62 m²).|
+~M|13#\13.06||2|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\2\\\|
+~C|13.07|ud|CARPINTERÍA V6b · ASEO AL PATIO PEQUEÑO (PLANTA BAJA)|545.79|16102026|0|
+~T|13.07|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 779 €/m² (0.70 m²).|
+~M|13#\13.07||1|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\1\\\|
+~C|13.08|ud|CARPINTERÍA V7 · COCINA A PATIO|1787.10|16102026|0|
+~T|13.08|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 690 €/m² (2.59 m²).|
+~M|13#\13.08||1|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\1\\\|
+~C|13.09|ud|CARPINTERÍA V8 · COCINA, BAJO EL FORJADO|4092.00|16102026|0|
+~T|13.09|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 620 €/m² (6.60 m²).|
+~M|13#\13.09||1|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\1\\\|
+~C|13.10|ud|CARPINTERÍA V9 · LAVANDERÍA, CON PANEL OPACO|2660.00|16102026|0|
+~T|13.10|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 650 €/m² (3.60 m²) + panel opaco.|
+~M|13#\13.10||1|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\1\\\|
+~C|13.11|ud|CARPINTERÍA V11 · BAÑO PRINCIPAL A PATIO|1428.30|16102026|0|
+~T|13.11|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 690 €/m² (2.07 m²).|
+~M|13#\13.11||1|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\1\\\|
+~C|13.12|ud|V10 · PUERTA OPACA DE ALERCE (DORMITORIO PRINCIPAL A PATIO)|2300.00|16102026|0|
+~T|13.12|Puerta exterior opaca de alerce macizo (o acero galvanizado de doble chapa aislado, con RPT), con herrajes de seguridad y montaje, según la ficha LO-G1.|
+~M|13#\13.12||1|\V10\1\\\\|
+~C|13.13|ud|P1 · PORTAL DE ALERCE OPACO 1,82 × 2,45|3500.00|16102026|0|
+~T|13.13|Portal de alerce opaco de 1,82 m (hoja 0,90 + fijo + montante 0,41) con galce, buzón, timbre y contadores integrados, cerradura de seguridad y montaje, según la ficha LO-G2.|
+~M|13#\13.13||1|\P1\1\\\\|
+~C|13.14|ud|PG · PUERTA BASCULANTE DE GARAJE 5,40 × 2,45 MOTORIZADA|6900.00|16102026|0|
+~T|13.14|Puerta basculante no desbordante de una pieza de 5,40 × 2,45 m revestida en 4 paños verticales, con contrapesos en cajones laterales, carriles colgados, motor lateral, rejillas de ventilación >= 480 cm² y montaje, según la ficha LO-G2.|
+~M|13#\13.14||1|\PG\1\\\\|
+~C|13.15|ud|CARPINTERÍA DEL VENTANAL DE LA ESCALERA · 2,65 × 0,62, FIJO + PRACTICABLE DE 0,60|1125.93|16102026|0|
+~T|13.15|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Ventanal horizontal de la escalera bajo el faldón (opción 2 de cubiertas), a haces de la cara exterior del frente este, de +9,88 a +10,50: fijo de ~ 1,93 m, montante de 70 mm y hoja practicable de 0,60 m. Precio unitario = superficie × 690 €/m² (1.63 m²).|
+~M|13#\13.15||1|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\\\\|
+~C|13.16|m|VIERTEAGUAS DE ZINC / ALUMINIO|59.37|16102026|0|
+~T|13.16|Ml. Vierteaguas de chapa de aluminio anodizado o lacado en su color de 2 mm de espesor, mismas especificaciones que la carpintería exteriory/o panel composite de 4 mm idem fachada y 60 cm. De desarrollo, según detalle, colocado sobre tablero de dm hidrófugo de 19 mm incluido en el precio, i/patillas de sujeción soldadas, sellado de juntas con silicona incolora y limpieza, medido en su longitud. VOLUMEN 1 Fachada norte|
+~M|13#\13.16||21|\Ventanas de fachada\1\12\\\\Ventanas a patio\1\9\\\|
+~C|14#||PROTECCIONES SOLARES, METALISTERÍA Y VIDRIERÍA|21934.50|16102026|0|
+~D|14#|14.01\1\19.61\14.02\1\3\14.03\1\27.08\14.04\1\7\14.05\1\12\|
+~C|14.01|m2|PERSIANA EXTERIOR WAREMA RAFFSTORE E 80 MOTORIZADA|430.00|16102026|0|
+~T|14.01|Persiana veneciana exterior WAREMA Raffstore E 80 A6 Z de lama de aluminio anodizado, con guías empotradas, motor y conexión al accionador, alojada en el cajón.|
+~M|14#\14.01||19.61|\V1\1\10.49\\\\V2 y V3\1\9.12\\\|
+~C|14.02|ud|ESTOR EXTERIOR BANDALUX SCREEN MOTORIZADO|780.00|16102026|0|
+~T|14.02|Estor enrollable exterior Bandalux de tejido técnico screen (cara exterior clara, te <= 0,20), con cajón, guías de cable laterales, motor y conexión al accionador.|
+~M|14#\14.02||3|\V7\1\\\\\V11\1\\\\\Ventanal de la escalera (opción 2)\1\\\\|
+~C|14.03|m|BARANDILLA DE ACERO LACADO DE BARROTES REDONDOS|215.00|16102026|0|
+~T|14.03|Barandilla de acero lacado de barrotes redondos macizos Ø15 mm con luz libre <= 100 mm, pasamanos de chapa angular L 40.40.5 y pletina base de 120×10 mm anclada a la viga de borde o al forjado con varillas M12 cada 60 cm; altura 1,10 m en todas, medida desde el pavimento terminado y sin peto ni remate bajo la barandilla (DB-SUA 1).|
+~M|14#\14.03||27.08|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\27.08\\\|
+~C|14.04|ud|MINI-BALCÓN DE CHAPA DE ACERO EN VENTANA DE FACHADA|480.00|16102026|0|
+~T|14.04|Mini-balcón abierto de chapa de acero plegada lacada (vuelo 0,30 m) con barandilla de barrotes redondos macizos Ø15 mm (luz libre <= 100 mm) y pasamanos de chapa angular L 40.40.5, altura 1,10 m (DB-SUA 1), anclado al zuncho.|
+~M|14#\14.04||7|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\7\\\|
+~C|14.05|m|BARANDILLA Y PASAMANOS DE LA ESCALERA|165.00|16102026|0|
+~T|14.05|Barandilla y pasamanos de acero lacado de la escalera interior.|
+~M|14#\14.05||12|\Escalera\1\12\\\|
+~C|15#||PINTURA|8520.61|16102026|0|
+~D|15#|15.01\1\1036.16\15.02\1\254.34\|
+~C|15.01|m2|PINTURA PLÁSTICA LISA EN PAREDES Y TECHOS|6.37|16102026|0|
+~T|15.01|M2 de emplastecido, lijado de plastes, y dos manos de pintura plástica lisa blanca o pigmentada sobre paredes. Tipo acrílica lavable, acabado mate-seda. La pintura debe ser de calidad extra, superior, y debe aguantar sin alteraciones lavados con agua y lejía (desinfección y esterilización de zonas); La d.F. Exigirá prueba con resultado satisfactorio antes de la aplicación general a todas las zonas. Se incluye en el precio el pintado/lacado por separado de aparatos de todo tipo que tengan un color distinto al del paramento a cubrir, tal como difusores, rejillas, detectores, mecanismos, altavoces, cámaras, sondas, reguladores, etc. Color a definir por la df” Volumen 1 Planta baja|
+~M|15#\15.01||1036.16|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\1036.16\\\|
+~C|15.02|m²|PINTURA AL SILICATO EN EXTERIORES (SI EL REVOCO NO VA COLOREADO)|7.55|16102026|0|
+~T|15.02|M². Pintura al silicato en exteriores, con dos manos, i/limpieza de superficies y acabado. Igual a medicion de revestimiento monocapa                                                                                        130,42 =11/D13GD054.CanPres|
+~M|15#\15.02||254.34|\Medición del modelo BIM de Vectorworks, opción 2 de cubiertas (16-oct-2026)\1\254.34\\\|
+~C|16#||INSTALACIONES|44120.33|16102026|0|
+~D|16#|16.01#\1\1\16.02#\1\1\16.03#\1\1\16.04#\1\1\16.05#\1\1\16.06#\1\1\|
+~C|16.01#||FONTANERÍA|8549.61|16102026|0|
+~D|16.01#|16.01.01\1\1\16.01.02\1\1\16.01.03\1\10\16.01.04\1\1\16.01.05\1\110\16.01.06\1\160\16.01.07\1\50\16.01.08\1\25\16.01.09\1\16\16.01.10\1\2\16.01.11\1\1\16.01.12\1\2\16.01.13\1\2\16.01.14\1\3\16.01.15\1\1\16.01.16\1\4\16.01.17\1\5\16.01.18\1\2\16.01.19\1\3\|
+~C|16.02#||CONTRA INCENDIOS|149.49|16102026|0|
+~D|16.02#|16.02.01\1\1\16.02.02\1\1\16.02.03\1\2\|
+~C|16.03#||CALEFACCIÓN Y A.C.S.|18015.07|16102026|0|
+~D|16.03#|16.03.01\1\1\16.03.02\1\1\16.03.03\1\1\16.03.04\1\1\16.03.05\1\1\16.03.06\1\1\16.03.07\1\1\16.03.08\1\1\16.03.09\1\1\16.03.10\1\1\16.03.11\1\1\16.03.12\1\1\16.03.13\1\23\16.03.14\1\1\16.03.15\1\1\16.03.16\1\1\16.03.20\1\188.3\16.03.21\1\3\16.03.22\1\6\16.03.23\1\1\|
+~C|16.04#||VENTILACIÓN|2249.50|16102026|0|
+~D|16.04#|16.04.01\1\6\16.04.02\1\2\16.04.03\1\9\16.04.04\1\20\16.04.05\1\12\16.04.06\1\3\|
+~C|16.05#||ELECTRICIDAD E ILUMINACIÓN|12478.35|16102026|0|
+~D|16.05#|16.05.01\1\10\16.05.02\1\15\16.05.03\1\4\16.05.04\1\1\16.05.05\1\1\16.05.06\1\1\16.05.07\1\6\16.05.08\1\1.5\16.05.09\1\160\16.05.10\1\480\16.05.11\1\70\16.05.12\1\30\16.05.13\1\15\16.05.14\1\600\16.05.15\1\1100\16.05.16\1\200\16.05.17\1\30\16.05.18\1\32\16.05.19\1\2\16.05.20\1\72\16.05.21\1\2\16.05.22\1\2\16.05.23\1\10\16.05.24\1\3\16.05.25\1\15\16.05.26\1\10\16.05.27\1\4\16.05.28\1\3\16.05.29\1\4\16.05.30\1\7\16.05.31\1\2\16.05.32\1\15\16.05.33\1\10\16.05.34\1\2\16.05.35\1\72\16.05.36\1\10\16.05.37\1\1\16.05.38\1\1\|
+~C|16.06#||TELECOMUNICACIONES|2678.31|16102026|0|
+~D|16.06#|16.06.01\1\1\16.06.02\1\1\16.06.03\1\1\16.06.04\1\100\16.06.05\1\1\16.06.06\1\3\16.06.07\1\1\16.06.08\1\35\16.06.09\1\1\16.06.10\1\7\|
+~C|16.01.01|UD|ACOMETIDA SOTERRADA A.F.S.|974.39|16102026|0|
+~T|16.01.01|Acometida enterrada para abastecimiento de agua potable de hasta 3,00m de longitud, que une la red general de distribución de agua potable de la empresa suministradora con la instalación general del edificio, continua en todo su recorrido sin uniones o empalmes intermedios no registrables, formada por tubo de polietileno pe 100, de 40 mm de diámetro exterior, pn=10 atm y 2,4 mm de espesor, colocada sobre lecho de arena de 15 cm de espesor, en el fondo de la zanja previamente excavada, debidamente compactada y nivelada con pisón vibrante de guiado manual, relleno lateral compactando hasta los riñones y posterior relleno con la misma arena hasta 10 cm por encima de la generatriz superior de la tubería; Collarín de toma en carga colocado sobre la red general de distribución que sirve de enlace entre la acometida y la red; Llave de corte de esfera de 1 1/4" de diámetro con mando de cuadradillo colocada mediante unión roscada, situada junto a la edificación, fuera de los límites de la propiedad, alojada en arqueta prefabricada de polipropileno de 30x30x30 cm, colocada sobre solera de hormigón en masa hm-20/p/20/i de 15 cm de espesor. Incluso hormigón en masa hm-20/p/20/i para la posterior reposición del firme existente, accesorios y piezas especiales. Incluye: Replanteo del recorrido de la acometida, coordinado con el resto de instalaciones o elementos que puedan tener interferencias. Rotura del pavimento con compresor. Eliminación de las tierras sueltas del fondo de la excavación. Vertido y compactación del hormigón en formación de solera. Colocación de la arqueta prefabricada. Vertido de la arena en el fondo de la zanja. Colocación de la tubería. Montaje de la llave de corte. Colocación de la tapa. Ejecución del relleno envolvente. Empalme de la acometida con la red general del municipio. Reposición del firme. Realización de pruebas de servicio. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente ejecutadas según especificaciones de proyecto. Criterio de valoración económica: El precio no incluye la excavación ni el relleno principal.|
+~M|16.01#\16.01.01||1|\C. Ancha\1\\\\|
+~C|16.01.02|UD|CUADRO CONTADOR A.F.S. C/VALVULERÍA|1303.21|16102026|0|
+~T|16.01.02|Suministro e instalación de cuadro de abastecimiento de agua, con preinstalación de contador general (el contador lo instalará la mancomunidad de la zona) de agua de diámetro 1" dn 25 mm, colocado en hornacina, conectado al ramal de acometida y al tubo de alimentación, formada por llave de corte general de compuerta de latón fundido; Grifo de comprobación; Filtro retenedor de residuos; Válvula de retención de latón y llave de salida de compuerta de latón fundido. Incluso marco y tapa de fundición dúctil para registro y demás material auxiliar. Totalmente montada, conexionada y probada. Incluye: Replanteo. Colocación y fijación de accesorios y piezas especiales. Conexionado. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente ejecutadas según especificaciones de proyecto. Criterio de valoración económica: El precio no incluye el contador.|
+~M|16.01#\16.01.02||1|\General\1\\\\|
+~C|16.01.03|ML|ALIMENTACIÓN A.F.S. PE100 D40MM|59.77|16102026|0|
+~T|16.01.03|Alimentación de agua potable, enterrada, formada por tubo de polietileno pe 100, de color negro con bandas de color azul, de 40 mm de diámetro exterior y 3,7 mm de espesor, sdr11, pn=16 atm, colocado sobre lecho de arena de 10 cm de espesor, en el fondo de la zanja previamente excavada, debidamente compactada y nivelada con pisón vibrante de guiado manual, relleno lateral compactando hasta los riñones y posterior relleno con la misma arena hasta 10 cm por encima de la generatriz superior de la tubería. Incluso accesorios y piezas especiales, y demás material auxiliar. Incluir la excavación y el posterior relleno principal de las zanjas. Totalmente montada, conexionada y probada. Incluye: Replanteo y trazado. Eliminación de las tierras sueltas del fondo de la excavación. Vertido de la arena en el fondo de la zanja. Colocación de la tubería. Ejecución del relleno envolvente. Realización de pruebas de servicio. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente ejecutadas según especificaciones de proyecto. RED INT. ALIMENTACIÓN AFS DESDE CUADRO CONTADOR EN FACHADA VIVIENDA HASTA CUARTO INSTALACIONES Y|
+~M|16.01#\16.01.03||10|\Acometida a cuadro\1\10\\\|
+~C|16.01.04|UD|ARQUETA DE PASO DIM.: 68X48CM REG. PPR|116.60|16102026|0|
+~T|16.01.04|Arqueta de paso prefabricada de polipropileno, de sección rectangular de 48x48 cm en la base y 30 cm de altura, con tapa de 50x34 cm sobre solera de hormigón en masa hm-20/b/20/i de 15 cm de espesor. Incluso conexiones de conducciones y remates. Totalmente montada, incluyendo la excavación y el relleno del trasdós. Incluye: Replanteo de la arqueta. Eliminación de las tierras sueltas del fondo de la excavación. Vertido y compactación del hormigón en formación de solera. Colocación de la arqueta prefabricada. Formación de agujeros para el paso de los tubos. Colocación de la tapa y los accesorios. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente ejecutadas según especificaciones de proyecto.|
+~M|16.01#\16.01.04||1|\General\1\\\\|
+~C|16.01.05|ML|TUBERÍA POLIET. RETICULADO (PEX-a) D16MM|3.17|16102026|0|
+~T|16.01.05|Tubería para instalación interior, colocada superficialmente y fijada al paramento, formada por tubo de polietileno reticulado (pe-xa), serie 5, modelo aqua pipe "uponor iberia", de 16 mm de diámetro exterior, pn=6 atm y 1,8 mm de espesor, sistema de unión quick and easy, suministrado en rollos. Incluso material auxiliar para montaje y sujeción a la obra, accesorios y piezas especiales. Totalmente montada, conexionada y probada. Incluye: Replanteo y trazado. Colocación y fijación de tubo y accesorios. Realización de pruebas de servicio. Criterio de medición de proyecto: Longitud medida según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá la longitud realmente ejecutada según especificaciones de proyecto.|
+~M|16.01#\16.01.05||110|\Derivaciones a aparatos\1\110\\\|
+~C|16.01.06|ML|TUBERÍA POLIET. RETICULADO (PEX-a) D20MM|3.74|16102026|0|
+~T|16.01.06|Tubería para instalación interior, colocada superficialmente y fijada al paramento, formada por tubo de polietileno reticulado (pe-xa), serie 5, modelo aqua pipe "uponor iberia", de 20 mm de diámetro exterior, pn=6 atm y 1,9 mm de espesor, sistema de unión quick and easy, suministrado en rollos. Incluso material auxiliar para montaje y sujeción a la obra, accesorios y piezas especiales. Totalmente montada, conexionada y probada. Incluye: Replanteo y trazado. Colocación y fijación de tubo y accesorios. Realización de pruebas de servicio. Criterio de medición de proyecto: Longitud medida según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá la longitud realmente ejecutada según especificaciones de proyecto.|
+~M|16.01#\16.01.06||160|\Distribución interior\1\160\\\|
+~C|16.01.07|ML|TUBERÍA POLIET. RETICULADO (PEX-a) D25MM|4.10|16102026|0|
+~T|16.01.07|Tubería para instalación interior, colocada superficialmente y fijada al paramento, formada por tubo de polietileno reticulado (pe-xa), serie 5, modelo aqua pipe "uponor iberia", de 25 mm de diámetro exterior, pn=6 atm y 2,3 mm de espesor, sistema de unión quick and easy, suministrado en rollos. Incluso material auxiliar para montaje y sujeción a la obra, accesorios y piezas especiales. Totalmente montada, conexionada y probada. Incluye: Replanteo y trazado. Colocación y fijación de tubo y accesorios. Realización de pruebas de servicio. Criterio de medición de proyecto: Longitud medida según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá la longitud realmente ejecutada según especificaciones de proyecto.|
+~M|16.01#\16.01.07||50|\Montantes y distribución\1\50\\\|
+~C|16.01.08|ML|TUBERÍA POLIET. RETICULADO (PEX-a) D32MM|4.83|16102026|0|
+~T|16.01.08|Tubería para instalación interior, colocada superficialmente y fijada al paramento, formada por tubo de polietileno reticulado (pe-xa), serie 5, modelo aqua pipe "uponor iberia", de 32 mm de diámetro exterior, pn=6 atm y 2,9 mm de espesor, sistema de unión quick and easy, suministrado en rollos. Incluso material auxiliar para montaje y sujeción a la obra, accesorios y piezas especiales. Totalmente montada, conexionada y probada. Incluye: Replanteo y trazado. Colocación y fijación de tubo y accesorios. Realización de pruebas de servicio. Criterio de medición de proyecto: Longitud medida según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá la longitud realmente ejecutada según especificaciones de proyecto.|
+~M|16.01#\16.01.08||25|\Distribución principal\1\25\\\|
+~C|16.01.09|UD|LLAVE DE PASO EMPOTRADA CON MANDO Y PLAFÓN|14.16|16102026|0|
+~T|16.01.09|Suministro e instalación de mando con palanca y plafón marca tuller para instalación en llaves de empotrar, fabricada en latón según une-en 12165/12164. Incluso accesorio, pequeño material, mano de obra de instalación y pruebas. Incluye válvula de esfera, de latón, de 20 mm de diámetro, con maneta recta de acero inoxidable. Totalmente montada, conexionada y probada. Incluye: Replanteo. Conexión de la válvula a los tubos. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente ejecutadas según especificaciones de proyecto. LLAVES DE CORTE DE LOCAL HÚMEDO .- PLANTA BAJA|
+~M|16.01#\16.01.09||16|\Llaves de fría y caliente por estancia con grifería\16\\\\|
+~C|16.01.10|UD|INST. COCINA F.C. (FREGAD+LAVAVAJ)|183.66|16102026|0|
+~T|16.01.10|Instalación completa de fontanería (abastecimiento y saneamiento) para lavabo/fregadero y lavavajillas, ubicados en cocina doméstica, compuesta por lo siguiente: -Abastecimiento. Ejecución de red de distribución a punto de consumo de acs y agua fría, en pe reticulado (para temperatura continua de funcionamiento de 95ºc y puntual de 110ºc) protegido con coquilla de estructura celular estanca armaflex, ejecutada sobre tubo de pvc corrugado cuando discurra por tabiquería (en color rojo -acs- y azul -fría), o vista con identificación de acs o agua fría cuando discurra por falso techo. Derivación ø20 (acs y fría) desde tubería acero inoxidable aisi 304 (con retorno), hasta grifería (en partida aparte). -Saneamiento. Ejecución de red hasta conexión con bajante, colector o arqueta (incluyendo piecería especifica para ello), con tubería polokal ng (conductos insonorizados con 3 capas de polipropileno mineralizado), trazado y diámetros según planos, incluso p.P. De talados en forjados, piezas de sujeción, abrazaderas, codos, tes, y demás piecerío. Salida ø50 desde lavabo (sanitarios en partida aparte), teniendo en cuenta la posibilidad de que el sifón sea decorativo. Instalación completamente terminada, incluso pruebas de estanqueidad y funcionamiento de redes, con los diámetros necesarios, incluso con p.P. De conexión a la red general, terminada, y sin aparatos sanitarios. S/cte-hs-4/5 y las disposiciones relativas a la prevención de la legionelosis. Incluido: Conexión de la red existente a la ubicación de los nuevos puntos de demanda.|
+~M|16.01#\16.01.10||2|\Cocina\1\\\\\Txoko\1\\\\|
+~C|16.01.11|UD|INST. ZONA HÚMEDA F.C. (FREGAD+LAVADORA)|183.66|16102026|0|
+~T|16.01.11|Instalación completa de fontanería (abastecimiento y saneamiento) para fregadera+lavadora, formda por lo siguiente: -Abastecimiento. Ejecución de red de distribución a punto de consumo de acs y agua fría, en pe reticulado (para temperatura continua de funcionamiento de 95ºc y puntual de 110ºc) protegido con coquilla de estructura celular estanca armaflex, ejecutada sobre tubo de pvc corrugado cuando discurra por tabiquería (en color rojo -acs- y azul -fría), o vista con identificación de acs o agua fría cuando discurra por falso techo. Derivación ø20 (acs y fría) desde tubería acero inoxidable aisi 304 (con retorno), hasta grifería (en partida aparte). -Saneamiento. Ejecución de red hasta conexión con bajante, colector o arqueta (incluyendo piecería especifica para ello), con tubería polokal ng (conductos insonorizados con 3 capas de polipropileno mineralizado), trazado y diámetros según planos, incluso p.P. De talados en forjados, piezas de sujeción, abrazaderas, codos, tes, y demás piecerío. Salida ø50 desde lavabo (en partida aparte), teniendo en cuenta la posibilidad de que el sifón sea decorativo. Instalación completamente terminada, incluso pruebas de estanqueidad y funcionamiento de redes, con los diámetros necesarios, incluso con p.P. De conexión a la red general, terminada, y sin aparatos sanitarios. S/cte-hs-4/5 y las disposiciones relativas a la prevención de la legionelosis. Incluido: Conexión de la red existente a la ubicación de los nuevos puntos de demanda.|
+~M|16.01#\16.01.11||1|\Lavandería\1\\\\|
+~C|16.01.12|UD|INST. ZONA HÚMEDA BAÑO F.C. (DUCHA+INOD+LAVABO)|268.14|16102026|0|
+~T|16.01.12|Instalación completa de fontanería (abastecimiento y saneamiento) para lavabo, ducha y/o bañera, inodoro, ubicados en baño, compuesta por lo siguiente: -Abastecimiento. Ejecución de red de distribución a punto de consumo de acs y agua fría, en pe reticulado (para temperatura continua de funcionamiento de 95ºc y puntual de 110ºc) protegido con coquilla de estructura celular estanca armaflex, ejecutada sobre tubo de pvc corrugado cuando discurra por tabiquería (en color rojo -acs- y azul -fría), o vista con identificación de acs o agua fría cuando discurra por falso techo. Derivación ø20 (acs y fría) desde tubería acero inoxidable aisi 304 (con retorno), hasta grifería (en partida aparte). -Saneamiento. Ejecución de red hasta conexión con bajante, colector o arqueta (incluyendo piecería especifica para ello), con tubería polokal ng (conductos insonorizados con 3 capas de polipropileno mineralizado), trazado y diámetros según planos, incluso p.P. De talados en forjados, piezas de sujeción, abrazaderas, codos, tes, y demás piecerío. Salida ø50 desde lavabo (sanitarios en partida aparte), teniendo en cuenta la posibilidad de que el sifón sea decorativo. Instalación completamente terminada, incluso pruebas de estanqueidad y funcionamiento de redes, con los diámetros necesarios, incluso con p.P. De conexión a la red general, terminada, y sin aparatos sanitarios. S/cte-hs-4/5 y las disposiciones relativas a la prevención de la legionelosis. Incluido: Conexión de la red existente a la ubicación de los nuevos puntos de demanda. PLANTA PRIMERA|
+~M|16.01#\16.01.12||2|\Baño principal\1\\\\\Aseo de planta segunda\1\\\\|
+~C|16.01.13|UD|INST. ZONA HÚMEDA BAÑO F.C. (DUCHA+INOD+LAVABO)|227.73|16102026|0|
+~T|16.01.13|Instalación completa de fontanería (abastecimiento y saneamiento) para lavabo, ducha y/o bañera e inodoro, ubicados en baño, compuesta por lo siguiente: -Abastecimiento. Ejecución de red de distribución a punto de consumo de acs y agua fría, en pe reticulado (para temperatura continua de funcionamiento de 95ºc y puntual de 110ºc) protegido con coquilla de estructura celular estanca armaflex, ejecutada sobre tubo de pvc corrugado cuando discurra por tabiquería (en color rojo -acs- y azul -fría), o vista con identificación de acs o agua fría cuando discurra por falso techo. Derivación ø20 (acs y fría) desde tubería acero inoxidable aisi 304 (con retorno), hasta grifería (en partida aparte). -Saneamiento. Ejecución de red hasta conexión con bajante, colector o arqueta (incluyendo piecería especifica para ello), con tubería polokal ng (conductos insonorizados con 3 capas de polipropileno mineralizado), trazado y diámetros según planos, incluso p.P. De talados en forjados, piezas de sujeción, abrazaderas, codos, tes, y demás piecerío. Salida ø50 desde lavabo (sanitarios en partida aparte), teniendo en cuenta la posibilidad de que el sifón sea decorativo. Instalación completamente terminada, incluso pruebas de estanqueidad y funcionamiento de redes, con los diámetros necesarios, incluso con p.P. De conexión a la red general, terminada, y sin aparatos sanitarios. S/cte-hs-4/5 y las disposiciones relativas a la prevención de la legionelosis. Incluido: Conexión de la red existente a la ubicación de los nuevos puntos de demanda. PLANTA BAJA|
+~M|16.01#\16.01.13||2|\Aseos de plantas baja y primera\2\\\\|
+~C|16.01.14|UD|INST. GRIFO PATIO/ZONA VERDE|70.82|16102026|0|
+~T|16.01.14|Instalación completa de fontanería (abastecimiento) para circuito de grifo de riego o lavabo exterior, compuesta por lo siguiente: -Abastecimiento. Ejecución de red de distribución a punto de consumo agua fría, en pe reticulado (para temperatura continua de funcionamiento de 95ºc y puntual de 110ºc) protegido con coquilla de estructura celular estanca armaflex, ejecutada sobre tubo de pvc corrugado cuando discurra por tabiquería (en color rojo -acs- y azul -fría), o vista con identificación de acs o agua fría cuando discurra por falso techo. Derivación ø20 (fría) desde tubería acero inoxidable aisi 304 (con retorno), hasta grifería (en partida aparte). Instalación completamente terminada, incluso pruebas de estanqueidad y funcionamiento de redes, con los diámetros necesarios, incluso con p.P. De conexión a la red general, terminada, y sin aparatos sanitarios. S/cte-hs-4/5 y las disposiciones relativas a la prevención de la legionelosis. GRIFO GENÉRICO|
+~M|16.01#\16.01.14||3|\Porche, patio y terraza\3\\\\|
+~C|16.01.15|UD|VÁLVULA REDUCTORA PRESIÓN DN40-1 1/2"|40.97|16102026|0|
+~T|16.01.15|Suministro e instalación de válvula reductora de presión, de diámetro dn32-1 1/4", conexión con bridas, equipada con cuerpo de fundición, filtro de malla de acero inoxidable, presión máxima de entrada de 25 bar y presión de salida regulable entre 1 y 6 bar, con orificio roscado para conexión de manómetro y termómetro, juego de contrabridas, tornillería de acero inoxidable, con llave de corte antes y después de acero inoxidable dn40, elementos de montaje y demás accesorios necesarios para su correcto funcionamiento. Totalmente montada, conexionada, regulada y probada. Incluido manómetro y termómetro. Incluye: Replanteo. Conexionado. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente ejecutadas según especificaciones de proyecto.|
+~M|16.01#\16.01.15||1|\General\1\\\\|
+~C|16.01.16|UD|INODORO ROCA DAMA COMPACTO|121.22|16102026|0|
+~T|16.01.16|Suministro e instalación de taza compacta de inodoro de tanque bajo, para adosar a la pared, de porcelana sanitaria, modelo roca dama compacto, con cisterna de inodoro, de doble descarga, de 360x140x355 mm, asiento y tapa de inodoro, de caída amortiguada. Incluso llave de regulación, enlace de alimentación flexible, conexión a la red de agua fría y a la red de evacuación existente, fijación del aparato y sellado con silicona. Totalmente instalado, conexionado, probado y en funcionamiento. Incluye: Replanteo y trazado en el paramento soporte de la situación del aparato. Colocación de los elementos de fijación suministrados por el fabricante. Nivelación, aplomado y colocación del aparato. Conexión a la red de evacuación. Conexión a la red de agua fría. Montaje de accesorios y complementos. Sellado de juntas. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente colocadas según especificaciones de proyecto. PLANTA BAJA|
+~M|16.01#\16.01.16||4|\Baños y aseos\4\\\\|
+~C|16.01.17|UD|LAVABO ROCA PORC. BAJO ENCIMERA C/GRIFERÍA|144.47|16102026|0|
+~T|16.01.17|Lavabo de porcelana vitrificada blanco roca, para colocar empotrado bajo encimera, con grifo iconico a-lp22-20 niquel, con aireador y enlaces de alimentación flexibles, en cromado, incluso válvula de desagüe, sifón de botella de acero inoxidable, llaves de escuadra cromadas, y latiguillos flexibles, completamente instalado y funcionando. Incluso p.P. De medios auxiliares, costes indirectos y limpieza final. Según especificaciones del fabricante, proyecto, cte y normativa aplicable. Incluye: Replanteo y trazado en el paramento soporte de la situación del aparato. Colocación de los elementos de fijación suministrados por el fabricante. Nivelación, aplomado y colocación del aparato. Conexión a la red de evacuación. Conexión a la red de agua fría y caliente. Montaje de accesorios y complementos. Sellado de juntas. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente colocadas según especificaciones de proyecto. PLANTA BAJA|
+~M|16.01#\16.01.17||5|\Baños y aseos\5\\\\|
+~C|16.01.18|UD|PLATO DUCHA KRION LINE 150X80CM C/GRIFERÍA|212.46|16102026|0|
+~T|16.01.18|Suministro e instalación de plato de ducha drion line, dimensiones 150x80cm, blanco, con grifería iconico di 1-20 / dr200-20/d-st-20, con fondo antideslizante, y sifón. Incluso conexión a las redes de agua fría y caliente y a la red de evacuación existente, fijación del aparato y sellado con silicona. Totalmente instalado, conexionado, probado y en funcionamiento. Incluye: Replanteo y trazado en el paramento soporte de la situación del aparato. Colocación de los elementos de fijación suministrados por el fabricante. Nivelación, aplomado y colocación del aparato. Conexión a la red de evacuación. Montaje de la grifería. Conexión a las redes de agua fría y caliente. Montaje de accesorios y complementos. Sellado de juntas. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente colocadas según especificaciones de proyecto.|
+~M|16.01#\16.01.18||2|\Baño y aseo de planta segunda\2\\\\|
+~C|16.01.19|ud|FREGADERO Y LAVADERO CON GRIFERÍA|210.00|16102026|0|
+~T|16.01.19|Fregadero de acero inoxidable (cocina y txoko) y lavadero (lavandería) con grifería monomando, válvulas y sifón, instalados.|
+~M|16.01#\16.01.19||3|\Cocina, txoko y lavandería\3\\\\|
+~C|16.02.01|UD|EXTINTOR POLVO 6KG EF.27A-183B|54.93|16102026|0|
+~T|16.02.01|Suministro y montaje de extintor manual móvil, con capacidad de 6 kg. De carga de polvo seco abc, con eficacia 27a 183b y homologados y certificados por la empresa fabricante y la instaladora. Incluido, material, porte, montaje de extintor y de rótulo de señalización normalizado.|
+~M|16.02#\16.02.01||1|\Vivienda\1\\\\|
+~C|16.02.02|UD|EXTINTOR CO2 5 KG C/LANZA EF.89B|74.06|16102026|0|
+~T|16.02.02|Extintor manual móvil cargado con 5 kg de nieve carbónica (co2) con lanza, homologado para una eficacia 89b contra fuegos eléctricos, equipado con boquilla y soporte a la pared, totalmente instalado, incluso, rótulo de señalización normalizado.|
+~M|16.02#\16.02.02||1|\Garaje (cuadro y motor)\1\\\\|
+~C|16.02.03|UD|PLACA DE SEÑALIZACION PARA EXTINTOR|10.25|16102026|0|
+~T|16.02.03|Suministro e instalación de : Placa de señalización fotoluminiscente, para extintor, de dimensiones 230 x 340 mm referencia cir 124, según normas une 23033-1 y une 23035-4. Mano de obra y medios auxiliares.|
+~M|16.02#\16.02.03||2|\Extintores\2\\\\|
+~C|16.03.01|ud|BOMBA DE CALOR AIRE-AGUA 8 KW CON DEPÓSITO DE ACS 230 L|9200.00|16102026|0|
+~T|16.03.01|Bomba de calor aire-agua de baja temperatura tipo Daikin Altherma 3 de 8 kW (SCOP 4,61 a 35 °C, A+++), unidad exterior en cubierta sobre bancada antivibratoria y unidad interior con depósito de ACS de 230 L y resistencia de apoyo integrada en el almacenaje de planta baja, con puesta en marcha.|
+~M|16.03#\16.03.01||1|\Almacenaje de planta baja / cubierta\1\\\\|
+~C|16.03.02|UD|JUEGO CONEXIÓN HIDRÁULICO SALIDA SUPERIOR|128.56|16102026|0|
+~T|16.03.02|Suministro y montaje de set conexión circuito de calefacción/refrigeración para instalación sobre pared hacia arriba. Todos los conductos de calefacción, refrigeración, llenado agua, acs, etc. Salen por la parte superior del equipo.|
+~M|16.03#\16.03.02||1|\Según instalación\1\\\\|
+~C|16.03.03|UD|CABLE INTERCONEXIÓN BUS 30M|33.06|16102026|0|
+~T|16.03.03|Suministro e instalación de cable de interconexión mod-bus entre equipos interior y exterior de aerotermia, de hasta 30m de longitud.|
+~M|16.03#\16.03.03||1|\Según instalación\1\\\\|
+~C|16.03.04|UD|JUEGO DE MONTAJE Y FIJACIONES|80.80|16102026|0|
+~T|16.03.04|Suministro y montaje de juego de montaje y fijaciones de equipos interior y exterior de aerotermia.|
+~M|16.03#\16.03.04||1|\Según instalación\1\\\\|
+~C|16.03.05|UD|ROLLO 25M TUBERIA DOBLE AISLADA B&F 7/8-5/8 C/TUERCA|239.51|16102026|0|
+~T|16.03.05|Suministro e instalación de tubería frigorífica doble preaislada de cobre de 0,8mm de espesor y diámetros 3/8" y 5/8". Longitud de 25m. Incluso accesorio, pequeño material, mano de obra de instalación y pruebas.|
+~M|16.03#\16.03.05||1|\Según instalación\1\\\\|
+~C|16.03.06|UD|VISOR REFRIGERANTE|33.06|16102026|0|
+~T|16.03.06|Suministro e instalación de visor de refrigerante.|
+~M|16.03#\16.03.06||1|\Según instalación\1\\\\|
+~C|16.03.07|UD|ALIMENTACIÓN AGUA FRÍA PARA CALEFACCIÓN|257.12|16102026|0|
+~T|16.03.07|Suministro y montaje de sistema de llenado del circuito, así como de medición de consumo de agua de la instalación de calefacción, formado con tubería de cobre rígido, de diámetro 22mm y 1mm de espesor, válvula de cierre tipo esfera, filtro, manómetro a la entrada, estabilizador de presión, válvula antiretorno, contador de agua de abastecimiento preparado para telegestión y un desconectador automático, manómetro en la salida y válvula de cierre tipo esfera. El desconectador automático será capaz de evitar el reflujo del agua en caso de caída de presión de la red pública. El llenado será manual y también se instalará un presostato que actúe de alarma y pare los equipos. Los elementos mínimos serán los siguientes: .- 2 Válvulas de cierre de diámetro 3/4" .- 1 Filtro agua en y de diámetro 3/4" .- 1 Válvula de retención 3/4" (no necesaria si se monta desconector) .- 1 Contador agua impulsos c/telegestión dn13-1/2" .- 1 Válvula reductora de presión (seguridad equipos) 3/4" sin manómetro (concretar si es necesaria en función de la presión de acometida) .- 1 Desconector hidráulico ca295-3/4"a conexión roscada .- 1 Manómetro glicerina 6 bar radial 3/4" .- 1 Partida de tubo une-en 10255 negro o cobre de diámetro dn20-3/4" .- Aislamiento de todos los conductos y elementos con coquilla de fibra de vidrio de 30 mm de espesor y acabado en chapa de aluminio. Incluye: Replanteo del recorrido de las tuberías, todos los elementos descritos, accesorios y piezas especiales. Colocación y fijación de tuberías, accesorios y piezas especiales. Colocación del aislamiento. Realización de pruebas de servicio. Criterio de medición de proyecto: Longitud medida según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá la longitud realmente ejecutada según especificaciones de proyecto.|
+~M|16.03#\16.03.07||1|\Según instalación\1\\\\|
+~C|16.03.08|UD|VACIADOS DE LA INSTALACIÓN CALEFACCIÓN|165.30|16102026|0|
+~T|16.03.08|Suministro e instalación de vaciados conducidos a desagüe, con llave de corte independiente por elemento, de todos los elementos que lo requieran, según esquema de principio, incluyendo los embudos de descarga de las válvulas de seguridad, formado con tubería de cobre rígido, de diámetro 32mm y 1mm de espesor. Mano de obra y medios auxiliares. Nota: Se incluye los vaciados de los equipos interior y exterior, vaso de inercia y armarios de colectores, a concretar con dirección facultativa.|
+~M|16.03#\16.03.08||1|\Según instalación\1\\\\|
+~C|16.03.09|UD|VASO EXPANSION CALEF WAFT 10BAR 24L 3/4 CMR|190.27|16102026|0|
+~T|16.03.09|Suministro e instalación de vaso de expansión waft membrana recambiable, para instalación de calefacción. Capacidad: 24 Litros. Presión de precarga: 2 Bar. Diámetro: 280Mm, altura: 473Mm. Conexión: 3/4". Presión máxima: 10Bar. Peso 5kg. Incluso accesorio, pequeño material, mano de obra de instalación y pruebas.|
+~M|16.03#\16.03.09||1|\Según instalación\1\\\\|
+~C|16.03.10|UD|VASO EXPANSION ACS WAFT 10BAR 19L 1 AMR|238.88|16102026|0|
+~T|16.03.10|Suministro e instalación de vaso de expansión waft membrana recambiable, para instalación de acs. Capacidad: 19 Litros. Presión de precarga: 2 Bar. Diámetro: 280Mm, altura: 425Mm. Conexión: 1". Presión máxima: 10Bar. Peso 5kg. Incluso accesorio, pequeño material, mano de obra de instalación y pruebas.|
+~M|16.03#\16.03.10||1|\Según instalación\1\\\\|
+~C|16.03.11|UD|VALVULA SEGURIDAD 3/4" 3 KGS|130.14|16102026|0|
+~T|16.03.11|Suministro e instalación de válvula de seguridad 3/4" de 3kgs. Incluso accesorio, pequeño material, mano de obra de instalación y pruebas.|
+~M|16.03#\16.03.11||1|\Según instalación\1\\\\|
+~C|16.03.12|UD|VALVULA SEGURIDAD 3/4" 7 KGS|140.49|16102026|0|
+~T|16.03.12|Suministro e instalación de válvula de seguridad 3/4" de 7kgs. Incluso accesorio, pequeño material, mano de obra de instalación y pruebas.|
+~M|16.03#\16.03.12||1|\Según instalación\1\\\\|
+~C|16.03.13|ML|RETICULADO POLYTHERM 32x2,9MM EVOHFLEX PRO BARRERA ANTIOXIGENO|5.51|16102026|0|
+~T|16.03.13|Suministro e instalación de conducto de polietileno reticulado polytherm, con barrera antioxigeno, pro antidifusión, pert ii, suministrada en rollo de 32mm de diámetro exterior, para suelo radiante, diámetro 32x2,9mm de espesor exterior según une en iso 15875. Protección contra oxigeno según une 1264-4. Temperatura máxima de trabajo 95ºc a 9,1 bares de presión. Espesor de 2,9 mm.. Incluso accesorio, pequeño material, mano de obra de instalación y pruebas. Se incluye aislamiento mediante coquilla de caucho elastomérico o similar, en los tramos que se considere necesario en el replanteo de obra, en función de los recorridos de la red. TRAMO ENTRE GRUPOS BOMBEO Y COLECTORES DEL CIRCUITO CORRESPONDIENTE|
+~M|16.03#\16.03.13||23|\Según instalación\23\\\\|
+~C|16.03.14|UD|FILTRO AGUA EN Y DOBLE MALLA 1 1/2" 0-100ºC 16BAR|142.75|16102026|0|
+~T|16.03.14|Suministro e instalación de filtro de malla en y para circuitos de agua de 1 1/2" con doble malla de 0,25mm. Presión máxima de trabajo 16bar y temperatura máxima 100ºc. Incluso accesorio, pequeño material, mano de obra de instalación y pruebas.|
+~M|16.03#\16.03.14||1|\Según instalación\1\\\\|
+~C|16.03.15|UD|SEPARADOR MICROBURBUJAS 1 1/2"|135.90|16102026|0|
+~T|16.03.15|Suministro e instalación de separador de microburbujas exvoid de 1 1/2". Incluido material, mano de obra, pequeño material, medios auxiliares, pruebas, completamente funcional.|
+~M|16.03#\16.03.15||1|\Según instalación\1\\\\|
+~C|16.03.16|UD|SEPARADOR LODOS EXDIRT 1 1/2"|135.90|16102026|0|
+~T|16.03.16|Suministro e instalación de separador de lodos exdirt de 1 1/2". Incluido material, mano de obra, pequeño material, medios auxiliares, pruebas, completamente funcional.|
+~M|16.03#\16.03.16||1|\Según instalación\1\\\\|
+~C|16.03.20|m2|SUELO RADIANTE COMPACTO (TUBO PE-Xa 16×1,8, PASO 10–15 CM)|24.21|16102026|0|
+~T|16.03.20|Suelo radiante compacto con tubo PE-Xa 16 × 1,8 mm con barrera antioxígeno, paso 15 cm (10 cm en baños y aseos), un circuito por estancia, sobre placa de tetones, incluso pruebas de presión; según los planos LO-H9 y LO-H10.|
+~M|16.03#\16.03.20||188.3|\Superficie con suelo radiante\1\176\\\\Porche (circuito previsto)\1\12.3\\\|
+~C|16.03.21|ud|COLECTOR DE SUELO RADIANTE CON CAUDALÍMETROS Y CABEZALES|520.00|16102026|0|
+~T|16.03.21|Colector de suelo radiante con caudalímetros, cabezales electrotérmicos, purgadores, llaves y armario, para los circuitos de cada planta.|
+~M|16.03#\16.03.21||3|\Plantas baja, primera y segunda\3\\\\|
+~C|16.03.22|UD|AD324 TERMOSTATO AMBIENTE WIFI SMART TC° CON CABLE|80.80|16102026|0|
+~T|16.03.22|.- PLANTA BAJA|
+~M|16.03#\16.03.22||6|\Un termostato por bloque y planta\6\\\\|
+~C|16.03.23|UD|SONDA SYMARO QAC22 TEMP. EXTERIOR -35-70ºC|33.06|16102026|0|
+~T|16.03.23|Suministro e instalación de sonda, siemens, symaro pasiva de temperatura para exterior. Rango de utilización -35 a 70ºc, con ni 1000 ohmios a 0ºc como elemento sensor. Constante de tiempo de 14 minutos. Conexión a dos hilos. Grado de protección ip54. Incluso accesorio, pequeño material, mano de obra de instalación y pruebas.|
+~M|16.03#\16.03.23||1|\General\1\\\\|
+~C|16.04.01|ud|BOCA DE EXTRACCIÓN AUTORREGULABLE EN LOCALES HÚMEDOS|48.00|16102026|0|
+~T|16.04.01|Boca de extracción autorregulable (caudal según DB-HS 3) en baños, aseos, cocina y lavandería, con conexión al conducto.|
+~M|16.04#\16.04.01||6|\Baño, aseos, cocina y lavandería\6\\\\|
+~C|16.04.02|ud|EXTRACTOR DE BAJO CONSUMO PARA LA VENTILACIÓN HÍBRIDA|480.00|16102026|0|
+~T|16.04.02|Ventilador de extracción de bajo consumo (EC) en conducto, con regulación, para la ventilación híbrida de simple flujo.|
+~M|16.04#\16.04.02||2|\Conductos a cubierta\2\\\\|
+~C|16.04.03|ud|AIREADOR DE ADMISIÓN EN CARPINTERÍA (MICROVENTILACIÓN)|42.00|16102026|0|
+~T|16.04.03|Aireador de admisión integrado en la carpintería o microventilación de los locales secos, con caudal según el DB-HS 3.|
+~M|16.04#\16.04.03||9|\Dormitorios, salón, biblioteca, txoko\9\\\\|
+~C|16.04.04|ML|MONTANTE INT. INSON. DBLUE JIMTEN PPR D110MM|13.22|16102026|0|
+~T|16.04.04|Suministro y montaje de bajante interior insonorizada de la red de evacuación de aguas residuales, formada por tubo de polipropileno con carga mineral, insonorizado, dblue "jimten", de 125 mm de diámetro y 5,5 mm de espesor. Incluso p/p de material auxiliar para montaje y sujeción a la obra, accesorios y piezas especiales colocados mediante unión a presión con junta elástica. Totalmente montada, conexionada y probada por la empresa instaladora mediante las correspondientes pruebas de servicio (incluidas en este precio). Incluye: Replanteo y trazado de la bajante. Presentación en seco de tubos, accesorios y piezas especiales. Colocación y fijación de tubos, accesorios y piezas especiales. Limpieza de la zona a unir, colocación de la junta elástica y conexión de las piezas. Realización de pruebas de servicio. Se incluye trabajos de formación de paso a cubierta y posterior remate compatible con cubierta de tejas existente, sellado tipo wakaflex o similar, completamente terminado y estanco. Criterio de medición de proyecto: Longitud medida según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá la longitud realmente ejecutada según especificaciones de proyecto.|
+~M|16.04#\16.04.04||20|\Montantes de extracción a cubierta\1\20\\\|
+~C|16.04.05|ML|CONDUCTO AC GALV. D135MM|16.15|16102026|0|
+~T|16.04.05|Suministro y colocación de conducto circular para instalación de ventilación formado por tubo de chapa de acero galvanizado de pared simple helicoidal, de 135 mm de diámetro y 0,5 mm de espesor, colocado en posición vertical. Incluso p/p de recorte de materiales, uniones, refuerzos, embocaduras, tapas de registro, elementos de fijación, conexiones, accesorios y piezas especiales, sin incluir compuertas de regulación o cortafuego, ni rejillas y difusores. Totalmente montado, conexionado y probado por la empresa instaladora mediante las correspondientes pruebas de servicio (incluidas en este precio). Incluye: Replanteo y trazado del conducto. Presentación de tubos, accesorios y piezas especiales. Colocación y fijación de tubos, accesorios y piezas especiales. Realización de pruebas de servicio. Criterio de medición de proyecto: Longitud proyectada, según documentación gráfica de proyecto, medida entre los ejes de los elementos o de los puntos a conectar, sin descontar las piezas especiales. Criterio de medición de obra: Se medirá la longitud realmente ejecutada según especificaciones de proyecto. EXTRACCIÓN CAMPANA COCINA A CUBIERTA|
+~M|16.04#\16.04.05||12|\Campana de cocina a cubierta\1\12\\\|
+~C|16.04.06|UD|ASPIRADOR GIRATORIO C/SOMBRERO DINÁMICO|55.10|16102026|0|
+~T|16.04.06|Suministro y montaje en el extremo exterior del conducto de extracción (boca de expulsión) de aspirador giratorio con sombrero dinámico, de aluminio (dureza h-24), para conducto de salida de 250 mm de diámetro exterior, para ventilación de cocinas. Incluso p/p de elementos de anclaje y sujeción. Totalmente montado. Incluye: Replanteo. Fijación y colocación mediante elementos de anclaje. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente ejecutadas según especificaciones de proyecto. TERMINACIÓN EN CUBIERTA DE SALIDA EXTRACCIÓN CAMPANA EXTRACCIÓN CAMPANA COCINA A CUBIERTA|
+~M|16.04#\16.04.06||3|\Salidas a cubierta\3\\\\|
+~C|16.05.01|ML|ZANJAS RED TIERRAS EXTERIOR|15.90|16102026|0|
+~T|16.05.01|Apertura de zanja en jardin y posterior relleno, para formacion de red de tierras edificio, de dimensiones 30x60cm. Comprende p.P. Maquinaria, mano de obra necesaria. ZANJA RED TIERRAS                                     10                                                    10,0000|
+~M|16.05#\16.05.01||10|\Según instalación\10\\\\|
+~C|16.05.02|ML|CABLE DESNUDO CU 1X35MM2 ANILLO DE TIERRAS ESTRUCTURA|8.14|16102026|0|
+~T|16.05.02|Cable desnudo cu 1x35mm2, según itc-bt-18 del reglamento electrotécnico para baja tensión real decreto 842/2002, totalmente instalado, conexionado y comprobado compuesto de: - 1 M. Cable desnudo cu 1x35mm2 - P.P. Soldadura aluminotérmica - P.P. Pequeño material y accesorios de montaje - P.P. Mano de obra de instalación NUEVA INSTALACIÓN TOMA-TIERRA MEDIANTE RED DE COBRE DESNUDO 35MM2 Y LO LLEVO HASTA ARQUETA|
+~M|16.05#\16.05.02||15|\Según instalación\15\\\\|
+~C|16.05.03|UD|PICA TOMA TIERRA DE ACERO COBRIZADO 2M 3/4" DIAMETRO|19.93|16102026|0|
+~T|16.05.03|Pica toma tierra de acero cobrizado 2m 3/4" diametro, según itc-bt-18 del reglamento electrotécnico para baja tensión real decreto 842/2002, totalmente instalada, conexionada y comprobada compuesta de: - 1 U. Pica toma tierra de acero cobrizado 2m 3/4" diametro - P.P. Soldadura aluminotérmica - P.P. Pequeño material y accesorios de montaje - P.P. Mano de obra de instalación|
+~M|16.05#\16.05.03||4|\Según instalación\4\\\\|
+~C|16.05.04|UD|CAJA DE SECCIONAMIENTO TIERRA HASTA CABLE CU 1X50MM2|26.43|16102026|0|
+~T|16.05.04|Caja de seccionamiento tierra hasta cable cu 1x50mm2, según itc-bt-18 del reglamento electrotécnico para baja tensión real decreto 842/2002, totalmente instalada, conexionada y comprobada compuesta de: - 1 U. Caja de seccionamiento tierra hasta cable cu 1x50mm2 - P.P. Pequeño material y accesorios de montaje - P.P. Mano de obra de instalación|
+~M|16.05#\16.05.04||1|\Según instalación\1\\\\|
+~C|16.05.05|UD|EJECUCIÓN NICHO DE OBRA PARA ALOJAR CPM ACOMETIDA|222.21|16102026|0|
+~T|16.05.05|Ejecución de nicho de obra en fachada exterior existente para alojar cgp de acometida eléctrica, caja de fusibles y los elementos necesarios, incluido corte, picado y recibido interior de mortero, puerta y cerradura reglamentarias, según condicionado de la compañía distribuidora.|
+~M|16.05#\16.05.05||1|\Según instalación\1\\\\|
+~C|16.05.06|UD|EQUIPO DE MEDIDA CPM2E4 45 KW TRIF.|117.05|16102026|0|
+~T|16.05.06|Suministro e instalación de caja para un contador monofasico ref: Cpm1-e2 m, para suministros individuales de potencia inferior a 15kw. Para contadores monofásicos electrónicos multifunción, con una base portafusibles buc y un dispositivo de neutro seccionable mediante tornillería, preparados para conexión mediante terminal de pala. El ángulo de apertura de la puerta respecto a la base es superior a 90º, los fusibles a utilizar para esta caja serian: Nh-00 ó nh-000 de 63, 80 ó 100amp. Incluido material auxiliar, cableado y conexionado, completamente colocado. Caracteristicas tecnicas: Envolvente fabricada en poliéster prensado en caliente, reforzado con fibra de vidrio, color gris ral 7035. Dim.: 432X330x210mm, protección contra polvo y agua ip43 y contra impactos ik09, doble aislamiento, auto extinguible a 960º., Clase térmica del poliéster e (150º), resistente a las principales agresiones químicas, ambientales y a la acción de los uv, cierre mediante tres puntos con llave triangular y sistema de bloqueo por candado, doble fondo con troqueles realizados, pantalla transparente y aislante con elementos para su precintado, base de neutro seccionable, base fusible seccionable en carga de tamaño 00, hasta 160a, mirilla para la visualización de su interior, placa de señalización de riesgo eléctrico, cableado. Incluye: Replanteo de la situación de los conductos y anclajes de la caja. Fijación. Colocación de tubos y piezas especiales. Conexionado. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente ejecutadas según especificaciones de proyecto.|
+~M|16.05#\16.05.06||1|\Según instalación\1\\\\|
+~C|16.05.07|ML|ZANJA ELECTRIFICACIÓN ACOMETIDA 3XPVC63|16.96|16102026|0|
+~T|16.05.07|Excavación de zanja para línea de acometidas y/o derivaciones eléctricas, consistente en el replanteo, excavación, colocación de 3 tubos de pvc de 63mm de diámetro, relleno y cierre de zanja, preparación y restitución de pavimento existente en el interior de parcela. Incluido material, maquinaria, mano de obra, completamente terminado.|
+~M|16.05#\16.05.07||6|\Según instalación\6\\\\|
+~C|16.05.08|ud|CUADRO GENERAL Y SUBCUADRO DE VIVIENDA (ELECTRIFICACIÓN ELEVADA)|1250.00|16102026|0|
+~T|16.05.08|Cuadro general de mando y protección (armario de instalaciones de planta primera) y subcuadro de planta segunda, para electrificación elevada (ITC-BT-25) con los circuitos C1–C13, protecciones magnetotérmicas y diferenciales, montado.|
+~M|16.05#\16.05.08||1.5|\Cuadro general\1\\\\\Subcuadro planta segunda (prorrata)\0.5\\\\|
+~C|16.05.09|ML|TUBO REFORZADO IP-54 16MM|0.51|16102026|0|
+~T|16.05.09|Tubo corrugado marca aiscan mod chf o equivalente, diámetro nominal 16 mm, libre halógenos, ip-54, grado de proteccion 7 según norma une20 324, resistencia al impacto >2j a -5ºc y a la compresión >320 n, incluso p.P.De fijaciones y accesorios de unión y derivación, totalmente instalado.|
+~M|16.05#\16.05.09||160|\Según instalación\160\\\\|
+~C|16.05.10|ud|Ml    TUBO REFORZADO IP-54 20MM|0.57|16102026|0|
+~T|16.05.10|Tubo corrugado marca aiscan mod chf o equivalente, diámetro nominal 20 mm, libre halógenos, ip-54, grado de proteccion 7 según norma une20 324, resistencia al impacto >2j a -5ºc y a la compresión >320 n, incluso p.P.De fijaciones y accesorios de unión y derivación, totalmente instalado.|
+~M|16.05#\16.05.10||480|\Según instalación\480\\\\|
+~C|16.05.11|ML|TUBO REFORZADO IP-54 25MM|0.64|16102026|0|
+~T|16.05.11|Tubo corrugado marca aiscan mod chf o equivalente, diámetro nominal 25 mm, libre halógenos, ip-54, grado de proteccion 7 según norma une20 324, resistencia al impacto >2j a -5ºc y a la compresión >320 n, incluso p.P.De fijaciones y accesorios de unión y derivación, totalmente instalado.|
+~M|16.05#\16.05.11||70|\Según instalación\70\\\\|
+~C|16.05.12|ML|TUBO REFORZADO IP-54 32MM|0.70|16102026|0|
+~T|16.05.12|Tubo corrugado marca aiscan mod chf o equivalente, diámetro nominal 32 mm, libre halógenos, ip-54, grado de proteccion 7 según norma une20 324, resistencia al impacto >2j a -5ºc y a la compresión >320 n, incluso p.P.De fijaciones y accesorios de unión y derivación, totalmente instalado.|
+~M|16.05#\16.05.12||30|\Según instalación\30\\\\|
+~C|16.05.13|ML|LINEA RZ1-K 3G16MM2 MULTIPOLAR|24.42|16102026|0|
+~T|16.05.13|Línea cable libre de halogenos multiconductor, rz1-k 0.6/1 Kv 3x16 mm2. - 3 Mts.Cable rz1-k 0.6/1 Kv 1x16 mm2. - P.P. Pequeño material y accesorios de montaje. - P.P. Mano de obra de instalación.|
+~M|16.05#\16.05.13||15|\Según instalación\15\\\\|
+~C|16.05.14|ML|LÍNEA H07Z1-K 1,5MM2 UNIPOLAR|0.95|16102026|0|
+~T|16.05.14|Suministro e instalación de línea cable h07z1-k, 450/750v, cobre, unipolar, 1.5Mm2. - 1 Mts.Cable rz1-k 1x1.5Mm2. - Incluido tubo de pvc correspondiente - P.P. Pequeño material y accesorios de montaje. - P.P. Mano de obra de instalación.|
+~M|16.05#\16.05.14||600|\Según instalación\600\\\\|
+~C|16.05.15|ML|LÍNEA H07Z1-K 2,5MM2 UNIPOLAR|1.06|16102026|0|
+~T|16.05.15|Suministro e instalación de línea cable h07z1-k, 450/750v, cobre, unipolar, 2.5Mm2. - 1 Mts.Cable rz1-k 2.5Mm2. - Incluido tubo de pvc correspondiente - P.P. Pequeño material y accesorios de montaje. - P.P. Mano de obra de instalación.|
+~M|16.05#\16.05.15||1100|\Según instalación\1100\\\\|
+~C|16.05.16|ML|LÍNEA H07Z1-K 6MM2 UNIPOLAR|2.12|16102026|0|
+~T|16.05.16|Suministro e instalación de línea cable h07z1-k, 450/750v, cobre, unipolar, 6mm2. - 1 Mts.Cable rz1-k 1x6mm2. - Incluido tubo de pvc correspondiente - P.P. Pequeño material y accesorios de montaje. - P.P. Mano de obra de instalación.|
+~M|16.05#\16.05.16||200|\Según instalación\200\\\\|
+~C|16.05.17|ML|LINEA RZ1-K 3G6MM2 MULTIPOLAR|7.08|16102026|0|
+~T|16.05.17||
+~M|16.05#\16.05.17||30|\Según instalación\30\\\\|
+~C|16.05.18|UD|PUNTO DE LUZ BAJO TUBO FLEXIBLE PVC FLEXIBLE LIBRE DE HAL|9.54|16102026|0|
+~T|16.05.18|Punto de luz simple desde caja de registro de cable unipolar tipo cu h07z1-k 3x1,5mm2 bajo tubo pvc flexible libre de halógenos, según reglamento electrotécnico para baja tensión real decreto 842/2002, totalmente instalado, conexionado y comprobado compuesto de: - 15 M. Cable unipolar tipo cu h07z1-k(as) 1x1,5mm2 - 5 M. Tubo pvc flexible libre de halógenos m20 - 1Ud. Caja estanca 100x100x55 7conos pg16 - P.P. Regletas de conexión, pequeño material y accesorios de montaje - P.P. Mano de obra de instalación .- PLANTA BAJA|
+~M|16.05#\16.05.18||32|\Puntos de luz y apliques (LO-H7, LO-H8)\32\\\\|
+~C|16.05.19|UD|PUNTO DE EMERGENCIA BAJO TUBO FLEXIBLE PVC FLEXIBLE LIBRE DE|9.54|16102026|0|
+~T|16.05.19|Punto de luz simple desde caja de registro de cable unipolar tipo cu h07z1-k 3x1,5mm2 bajo tubo pvc flexible libre de halógenos, según reglamento electrotécnico para baja tensión real decreto 842/2002, totalmente instalado, conexionado y comprobado compuesto de: - 15 M. Cable unipolar tipo cu h07z1-k(as) 1x1,5mm2 - 5 M. Tubo pvc flexible libre de halógenos m20 -1Ud caja estanca 100x100x55 7conos pg16 - P.P. Regletas de conexión, pequeño material y accesorios de montaje - P.P. Mano de obra de instalación EMERGENCIA AERLUX SERIE 10 300LM|
+~M|16.05#\16.05.19||2|\Emergencias\2\\\\|
+~C|16.05.20|UD|PUNTO DE TOMA DE CORRIENTE 16A TUBO FLEXIBLE LIBRE HALOGENOS|10.07|16102026|0|
+~T|16.05.20|Punto de toma de corriente bajo tubo pvc flexible libre de halógenos, según reglamento electrotécnico para baja tensión real decreto 842/2002, totalmente instalado, conexionado y comprobado compuesto de: - 24 M. Cable unipolar tipo cu h07z1-k(as) 1x2,5mm2 - 8 M. Tubo pvc flexible libre de halógenos m20 - 1Ud. Caja estanca 100x100x55 7conos pg16 - P.P. Regletas de conexión, pequeño material y accesorios de montaje - P.P. Mano de obra de instalación ENCHUFES 16A .- PLANTA BAJA|
+~M|16.05#\16.05.20||72|\Tomas 16 A\72\\\\|
+~C|16.05.21|UD|PUNTO DE TOMA DE CORRIENTE 16A ESTANCA TUBO FLEX. LIBRE HALOG.|10.60|16102026|0|
+~T|16.05.21|Punto de toma de corriente estanco bajo tubo pvc flexible libre de halógenos, según reglamento electrotécnico para baja tensión real decreto 842/2002, totalmente instalado, conexionado y comprobado compuesto de: - 24 M. Cable unipolar tipo cu h07z1-k(as) 1x2,5mm2 - 8 M. Tubo pvc flexible libre de halógenos m20 - 1Ud. Caja estanca 100x100x55 7conos pg16 - P.P. Regletas de conexión, pequeño material y accesorios de montaje - P.P. Mano de obra de instalación|
+~M|16.05#\16.05.21||2|\Tomas exteriores estancas\2\\\\|
+~C|16.05.22|UD|PUNTO DE TOMA DE CORRIENTE 25A TUBO FLEXIBLE LIBRE HALOGENOS|15.86|16102026|0|
+~T|16.05.22|Punto de toma de corriente bajo tubo pvc flexible libre de halógenos, según reglamento electrotécnico para baja tensión real decreto 842/2002, totalmente instalado, conexionado y comprobado compuesto de: - 24 M. Cable unipolar tipo cu h07z1-k(as) 1x6mm2 - 8 M. Tubo pvc flexible libre de halógenos m25 - 1Ud. Caja estanca 100x100x55 7conos pg16 - P.P. Regletas de conexión, pequeño material y accesorios de montaje - P.P. Mano de obra de instalación ENCHUFES 25A|
+~M|16.05#\16.05.22||2|\Horno y placa\2\\\\|
+~C|16.05.23|UD|PUNTO DE ALIMENTACION A PERSIANA|10.07|16102026|0|
+~T|16.05.23|Punto de toma de corriente 16a totalmente instalado compuesto de: - 15 Ml cable unipolar tipo cu 07z1-k de sección 2,5mm2. - 5 Ml tubo pvc flexible corrugado m20. - P.P. Pequeño material y accesorios de montaje. - P.P. Mano de obra de instalación.|
+~M|16.05#\16.05.23||10|\Persianas (7) y estores (3)\10\\\\|
+~C|16.05.24|UD|PUNTO VENTILACIÓN-EXTRACCIÓN|9.54|16102026|0|
+~T|16.05.24|Punto de ventilacion, empotrado con cable de cobre 07z1-k de 2,5 mm2, 4 mm2 o 6 mm2, segun corresponda al equipo, cero halógenos marca general cable o equivalente bajo tubo corrugado 25 mm de diámetro cero halógenos marca aiscan o equivalente, con parte proporcional de cajas de empotrar de paso y derivación, fijaciones, accesorios de unión y derivación, bornas, totalmente conexionado e instalado.|
+~M|16.05#\16.05.24||3|\Extractores y campana\3\\\\|
+~C|16.05.25|UD|PUNTO INTERRUPTOR EMPOTRADO|13.78|16102026|0|
+~T|16.05.25|Punto de interruptor empotrado con cable de cobre 07z1-k de 1,5 mm2 cero halógenos marca general cable o equivalente bajo tubo corrugado 20 mm de diámetro cero halógenos marca aiscan o equivalente, con parte proporcional de cajas de empotrar de paso y derivación, fijaciones, accesorios de unión y derivación, bornas, totalmente conexionado e instalado. .- PLANTA BAJA|
+~M|16.05#\16.05.25||15|\Interruptores\15\\\\|
+~C|16.05.26|UD|PUNTO CONMUTADOR EMPOTRADO|9.69|16102026|0|
+~T|16.05.26|Punto de conmutador con cable unipolar no propagador del incendio y emisión de humos y opacidad reducida, según norma une21123 p4-5 y une 21.1002·, H07z1-k de 1,5 mm2, tubo corrugado protegido doble capa, de d=16 mm de diámetro y cajas de empotrar de paso y derivación, totalmente conexionado e instalado. .- PLANTA BAJA|
+~M|16.05#\16.05.26||10|\Conmutados\10\\\\|
+~C|16.05.27|UD|PUNTO EQUIPOTENCIAL BAÑOS ASEOS|6.26|16102026|0|
+~T|16.05.27|Alimentación a cuartos de baño y aseo para la toma equipotencial, con parte proporcional de cable de cobre v-750 de 4 mm2 , tubo corrugado de 20 mm de diámetro y cajas de empotrar de paso y derivación, totalmente conexionado e instalado. Instalación equipotencial de cuarto húmedo completa. CUARTOS HÚMEDOS|
+~M|16.05#\16.05.27||4|\Baños y aseos\4\\\\|
+~C|16.05.28|UD|CELER PANTALLA MONOBLOCK IP65 LED 50W 4000K C2|72.34|16102026|0|
+~T|16.05.28|Pantalla led estanca marca celer. Modelo monoblock c2. Potencia 50w. Temperatura color 4.000 ºk. Emite 6.000 Lúmenes. Protección ip65, ik08. Longitud: 157Cm. Cuerpo y difusor de policarbonato y cierres de acero inoxidable.|
+~M|16.05#\16.05.28||3|\Garaje y almacenaje\3\\\\|
+~C|16.05.29|UD|DOWNLIGHT ALUMBR. EXT. IP65 ARKOSLIGHT SWAP|95.40|16102026|0|
+~T|16.05.29|Suministro e instalación de luminaria downlight, arkoslight swap xl, asymmetric, para alumbrado exterior, estanco.|
+~M|16.05#\16.05.29||4|\Exteriores\4\\\\|
+~C|16.05.30|UD|APLIQUE RZB HOME 501 40CM 24W LED|28.49|16102026|0|
+~T|16.05.30|Suministro e instalación de aplique rzb home 501 40cm 24w led|
+~M|16.05#\16.05.30||7|\Apliques\7\\\\|
+~C|16.05.31|UD|EMERGENCIA AERLUX SERIE 10 300LM|45.56|16102026|0|
+~T|16.05.31|Luminaria de emergencia led marca aerlux, modelo serie 10. Emite 300 lúmenes. 1H de autonomía, con bateria de ni-cd estanda de alta temperatura. Ip44, ik04. Grado de aislamiento: Clase ii. Led indicador de presencia de red y carga de batería. Dimensiones: 255X89x37mm. Incluido marco y dispositivo para empotrar en pared o techo s10, blanco 10-dp, completamente instalada y probada.|
+~M|16.05#\16.05.31||2|\Emergencias\2\\\\|
+~C|16.05.32|UD|INTERRUPTOR JUNG LS990 BL|12.37|16102026|0|
+~T|16.05.32|Interruptor unipolar jung ls990 bl color blanco totalmente instalado compuesto de: - 1Ud. Interruptor unipolar serie jung ls990 bl color blanco completo. - P.P. Pequeño material y accesorios de montaje. - P.P. Mano de obra de instalación. .- PLANTA BAJA|
+~M|16.05#\16.05.32||15|\Interruptores\15\\\\|
+~C|16.05.33|UD|CONMUTADOR JUNG LS990 BL|15.49|16102026|0|
+~T|16.05.33|Conmutador serie jung ls990 bl color blanco totalmente instalado compuesto de: - 1Ud. Conmutador serie jung ls990 bl color blanco completo. - P.P. Pequeño material y accesorios de montaje. - P.P. Mano de obra de instalación. .- PLANTA BAJA|
+~M|16.05#\16.05.33||10|\Conmutadores\10\\\\|
+~C|16.05.34|UD|ENCHUFE 25A LEGRAND|17.07|16102026|0|
+~T|16.05.34|Toma corriente 25a mod. Legrand totalmente instalada compuesta de: - 1Ud. Toma corriente 25a mod. Legrand completa. - P.P. Pequeño material y accesorios de montaje. - P.P. Mano de obra de instalación. ENCHUFES 25A|
+~M|16.05#\16.05.34||2|\Horno y placa\2\\\\|
+~C|16.05.35|UD|ENCHUFE JUNG LS990 BL|12.37|16102026|0|
+~T|16.05.35|Toma corriente 16a serie jung ls990 bl color blanco totalmente instalada compuesta de: - 1Ud. Toma corriente 16a serie jung ls990 bl color blanco completa. - P.P. Pequeño material y accesorios de montaje. - P.P. Mano de obra de instalación. ENCHUFES 16A .- PLANTA BAJA|
+~M|16.05#\16.05.35||72|\Tomas 16 A\72\\\\|
+~C|16.05.36|UD|PULSADOR DOBLE PERSIANA JUNG LS990 BL|19.07|16102026|0|
+~T|16.05.36|Pulsador jung ls990 bl color blanco formado por: - 1 Pulsador completo jung ls990 bl. - 1 Caja 64x64.|
+~M|16.05#\16.05.36||10|\Accionadores de persiana / estor\10\\\\|
+~C|16.05.37|ud|PREINSTALACIÓN DE RECARGA DE VEHÍCULO ELÉCTRICO (DB-HE 6)|210.00|16102026|0|
+~T|16.05.37|Conducción de cables para la futura recarga del vehículo eléctrico (ITC-BT-52): tubo vacío Ø32 mm desde el cuadro general por el montante hasta una caja de registro en el muro del garaje, con guía; según el plano LO-H7.|
+~M|16.05#\16.05.37||1|\Garaje\1\\\\|
+~C|16.05.38|ud|LUMINARIAS INTERIORES (PARTIDA ALZADA A JUSTIFICAR)|2500.00|16102026|0|
+~T|16.05.38|Suministro e instalación de luminarias interiores según la elección de la propiedad (partida alzada a justificar).|
+~M|16.05#\16.05.38||1|\Vivienda\1\\\\|
+~C|16.06.01|UD|CAPTACIÓN DE SEÑALES RTV|371.00|16102026|0|
+~T|16.06.01|Conjunto de captación de señales de tv terrenal dab y fm formado por antenas para dab, uhf y fm, mástil de tubo de acero galvanizado, torreta autoestable, incluso anclajes, cable coaxial, conductor de tierra y material de sujección, completamente instalado.|
+~M|16.06#\16.06.01||1|\Según instalación\1\\\\|
+~C|16.06.02|UD|AMPLIFICADOR TV|270.30|16102026|0|
+~T|16.06.02|Equipo distribución de tv para 1/2 usuarios, hasta 6 tomas de usuario. Amplificador y alimentador para tv digital y terrestre. Instalado en armario ict. Medida la unidad terminada.|
+~M|16.06#\16.06.02||1|\Según instalación\1\\\\|
+~C|16.06.03|UD|PUNTO DE ACCESO DE USUARIO RTV Y RED DE DISPERSIÓN|381.60|16102026|0|
+~T|16.06.03|Distribución de señal de rtv para toda la vivienda, incluso cable coaxial, canalizaciones, conectores, distribuidores, derivadores, cajas y punto de acceso de usuario (pau) para los servicios de radio y televisión tanto terrenal como de satélite, incluido cable duplicado y repartidores para toda la vivienda, desde entrada a la vivienda hasta tomas finales, material de fijación instalado y debidamente conexionado. Alojado en rtr de vivienda. Probado y funcionando según reglamento de telecomunicaciones.|
+~M|16.06#\16.06.03||1|\Según instalación\1\\\\|
+~C|16.06.04|ML|CABLE UTP CATEGORIA 6A|2.12|16102026|0|
+~T|16.06.04|Cable utp cat 6 lsfh libre de halógenos.|
+~M|16.06#\16.06.04||100|\Según instalación\100\\\\|
+~C|16.06.05|UD|INTERCONEXIÓN CON OPERADOR|127.20|16102026|0|
+~T|16.06.05|P.A. Interconexión con operador teleco|
+~M|16.06#\16.06.05||1|\Según instalación\1\\\\|
+~C|16.06.06|UD|REG. PASO TIPO C, T D= 20 mm.|16.15|16102026|0|
+~T|16.06.06|Registro de paso solera o similar, tipo c, de 150x160x120 mm, diámetro máximo de tubo de 20 mm y 4 entradas en cada lateral, formado por una caja aislada para empotrar, según norma une en 50298 con rigidez dieléctrica mínima de 15kv/mm, incluído accesoríos y fijaciones. Medida la unidad instalada. PEQUEÑOS CAJAS DE REGISTROS DE PASO PARA CONEXIÓN|
+~M|16.06#\16.06.06||3|\Según instalación\3\\\\|
+~C|16.06.07|UD|VIDEOPORTERO|614.80|16102026|0|
+~T|16.06.07|Instalación de kit de portero electrónico para vivienda unifamiliar compuesto de: Placa exterior de calle con pulsador de llamada, alimentador, abrepuertas y teléfono. Incluso cableado y cajas. Totalmente montado, conexionado y puesto en marcha por la empresa instaladora para la comprobación de su correcto funcionamiento. Nota: Dispondrá de 2 pantallas interiores, ubicadas en planta primera y planta baja. Incluye: Instalación de tubos, cajas de derivación y conductores de señal y eléctricos. Colocación de teléfonos y repetidores de llamada interiores. Colocación de la placa exterior. Colocación del abrepuertas. Colocación del alimentador. Puesta en marcha. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente ejecutadas según especificaciones de proyecto.|
+~M|16.06#\16.06.07||1|\Según instalación\1\\\\|
+~C|16.06.08|ML|CANALIZACION TELEFONÍA EXTERIOR|11.66|16102026|0|
+~T|16.06.08|Canalización de telefonía externa, bajo tubo enterrado con 3 conductos de pvc de 63 mm. De diámetro, de acuerdo a la serie de normas une 50086 (> 450 n, 15 joules), distanciadores cada 70 cm, cuerda guía para cables, conexión de tendido exitente y paso de conducción aérea a enterrada . Instalación hasta registro principal. Según las indicaciones de la compañía suministradora.|
+~M|16.06#\16.06.08||35|\Según instalación\35\\\\|
+~C|16.06.09|UD|CAJA Y DISTRIBUCIÓN DE TELEFONÍA EN R.S.|148.40|16102026|0|
+~T|16.06.09|Armario metálico para registro de instalaciones de ict, dimensiones 450x450x150 mm (alto x ancho x profundo), para instalación interior, grado de protección ip33 ik3, para instalación empotrada, colocado, incluso ayudas de albañilería. Se incluye su equipamiento con cableado, pau de telefonía, repartidores y cableado completo para toda la vivienda hasta tomas finales, derivadores de red de rtv y de red de cables coaxiales de tba, así como las regletas y cajas de segregación de cables de pares y de fibra óptica y el paso de cables de pares trenzados y de fibra óptica. Terminado completo.|
+~M|16.06#\16.06.09||1|\Según instalación\1\\\\|
+~C|16.06.10|UD|TOMA DE TELEVISION JUNG LS990 BL|13.78|16102026|0|
+~T|16.06.10|Suministro e instalación de base de acceso terminal (base de toma blindada rtv+sat), banda 5-2.150Mhz, para conexión final o en estrella,; Toma doble dos módulos con embellecedor y tapa ciega para televisión y telecomunicaciones por cable, tipo jung ls990 bl.|
+~M|16.06#\16.06.10||7|\Tomas de TV / datos (LO-H7, LO-H8)\7\\\\|
+~C|18#||CONTROL DE CALIDAD|1524.50|16102026|0|
+~D|18#|18.01#\1\1\18.02#\1\1\|
+~C|18.01#||ESTRUCTURAS HORMIGON|500.00|16102026|0|
+~D|18.01#|18.01.01\1\1\18.01.02\1\4\|
+~C|18.02#||ESTUDIO GEOTECNICO|1024.50|16102026|0|
+~D|18.02#|18.02.01\1\1\|
+~C|18.01.01|UD|ENSAYO MUESTRA ACERO|140.00|16102026|0|
+~T|18.01.01|Ensayo a realizar en laboratorio acreditado en el área técnica correspondiente, sobre una muestra de dos barras de acero corrugado de un mismo lote, tomada en obra, para la determinación de las siguientes características: Sección media equivalente según une-en iso 15630-1, características geométricas del corrugado según une-en 10080, doblado/desdoblado según une-en iso 15630-1. Incluso desplazamiento a obra, toma de muestra e informe de resultados. Incluye: Desplazamiento a obra. Toma de muestras. Realización de ensayos. Redacción de informe de los resultados de los ensayos realizados. Criterio de medición de proyecto: Ensayo a realizar, según documentación del plan de control de calidad.|
+~M|18.01#\18.01.01||1|\Según el documento del proyecto\1\\\\|
+~C|18.01.02|UD|ENSAYO MUESTRA HORMIGON|90.00|16102026|0|
+~T|18.01.02|Ensayo a realizar en laboratorio acreditado en el área técnica correspondiente, sobre una muestra de hormigón fresco, tomada en obra según une-en 12350-1, para la determinación de las siguientes características: Consistencia del hormigón fresco mediante el método de asentamiento del cono de abrams según une-en 12350-2 y resistencia característica a compresión del hormigón endurecido mediante control estadístico con fabricación y curado de seis probetas cilíndricas de 15x30 cm del mismo lote según une-en 12390-2, refrentado y rotura a compresión de las mismas según une-en 12390-3. Incluso desplazamiento a obra, toma de muestra e informe de resultados. Incluye: Desplazamiento a obra. Toma de muestras. Realización de ensayos. Redacción de informe de los resultados de los ensayos realizados. Criterio de medición de proyecto: Ensayo a realizar, según documentación del plan de control de calidad.|
+~M|18.01#\18.01.02||4|\Según el documento del proyecto\4\\\\|
+~C|18.02.01|UD|ESTUDIO GEOTECNICO|1024.50|16102026|0|
+~T|18.02.01|Estudio geotécnico del terreno en gravas compuesto por los siguientes trabajos de campo y ensayos de laboratorio. Trabajos de campo: Un sondeo a rotación con extracción de testigo continuo hasta una profundidad de 10 m tomando 1 muestra inalterada mediante tomamuestras de pared gruesa y 1 muestra alterada mediante tomamuestras normalizado del ensayo de penetración estándar (spt), una penetración dinámica mediante penetrómetro dinámico superpesado (dpsh) hasta 15 m de profundidad. Ensayos de laboratorio: Apertura y descripción de las muestras tomadas, descripción del testigo continuo obtenido, efectuándose los siguientes ensayos de laboratorio: 2 De análisis granulométrico según une 103101; 2 De límites de atterberg según une 103103 y une 103104; 2 De humedad natural según une 103300; Densidad aparente según une 103301; Resistencia a compresión según une 103400; Proctor normal según une 103500; C.B.R. Según une 103502; 2 De contenido en sulfatos según une 103201. Todo ello recogido en el correspondiente informe geotécnico con especificación de cada uno de los resultados obtenidos, conclusiones y validez del estudio sobre parámetros para el diseño de la cimentación. Incluye: Desplazamiento a obra. Toma de muestras. Realización de ensayos. Redacción del informe geotécnico, con especificación de cada uno de los resultados obtenidos, conclusiones y validez del estudio sobre parámetros para el diseño de la cimentación. Criterio de medición de proyecto: Ensayo a realizar, según documentación del plan de control de calidad.|
+~M|18.02#\18.02.01||1|\Según el documento del proyecto\1\\\\|
+~C|19#||GESTIÓN DE RESIDUOS|2750.04|16102026|0|
+~D|19#|19.01\1\4\19.02\1\8\19.03\1\1\19.04\1\1\19.05\1\1\19.06\1\1\19.07\1\1\19.08\1\1\|
+~C|19.01|Ud|Transporte de residuos inertes de hormigones, morteros y prefabricados producidos|152.78|16102026|0|
+~T|19.01|en obras de construcción y/o demolición, con c Transporte de residuos inertes de hormigones, morteros y prefabricados producidos en obras de construcción y/o demolición, con contenedor de 7 m³, a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos, considerando ida, descarga y vuelta. Incluso servicio de entrega, alquiler y recogida en obra del contenedor, y coste del vertido. Incluye: Carga a camión del contenedor. Transporte de residuos de construcción a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente transportadas según especificaciones de proyecto.|
+~M|19#\19.01||4|\Según el documento del proyecto\4\\\\|
+~C|19.02|Ud|Transporte de residuos inertes de ladrillos, tejas y materiales cerámicos, producidos|152.78|16102026|0|
+~T|19.02|en obras de construcción y/o demolición, c Transporte de residuos inertes de ladrillos, tejas y materiales cerámicos, producidos en obras de construcción y/o demolición, con contenedor de 7 m³, a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos, considerando ida, descarga y vuelta. Incluso servicio de entrega, alquiler y recogida en obra del contenedor, y coste del vertido. Incluye: Carga a camión del contenedor. Transporte de residuos de construcción a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente transportadas según especificaciones de proyecto.|
+~M|19#\19.02||8|\Según el documento del proyecto\8\\\\|
+~C|19.03|Ud|Transporte de residuos inertes de madera producidos en obras de construcción y/o|152.78|16102026|0|
+~T|19.03|demolición, con contenedor de 7 m³, a vertedero Transporte de residuos inertes de madera producidos en obras de construcción y/o demolición, con contenedor de 7 m³, a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos, considerando ida, descarga y vuelta. Incluso servicio de entrega, alquiler y recogida en obra del contenedor, y coste del vertido. Incluye: Carga a camión del contenedor. Transporte de residuos de construcción a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente transportadas según especificaciones de proyecto.|
+~M|19#\19.03||1|\Según el documento del proyecto\1\\\\|
+~C|19.04|Ud|Transporte de residuos inertes plásticos producidos en obras de construcción y/o|152.78|16102026|0|
+~T|19.04|demolición, con contenedor de 7 m³, a vertedero Transporte de residuos inertes plásticos producidos en obras de construcción y/o demolición, con contenedor de 7 m³, a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos, considerando ida, descarga y vuelta. Incluso servicio de entrega, alquiler y recogida en obra del contenedor, y coste del vertido. Incluye: Carga a camión del contenedor. Transporte de residuos de construcción a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente transportadas según especificaciones de proyecto.|
+~M|19#\19.04||1|\Según el documento del proyecto\1\\\\|
+~C|19.05|Ud|Transporte de residuos inertes de papel y cartón, producidos en obras de|152.78|16102026|0|
+~T|19.05|construcción y/o demolición, con contenedor de 7 m³, a Transporte de residuos inertes de papel y cartón, producidos en obras de construcción y/o demolición, con contenedor de 7 m³, a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos, considerando ida, descarga y vuelta. Incluso servicio de entrega, alquiler y recogida en obra del contenedor, y coste del vertido. Incluye: Carga a camión del contenedor. Transporte de residuos de construcción a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente transportadas según especificaciones de proyecto.|
+~M|19#\19.05||1|\Según el documento del proyecto\1\\\\|
+~C|19.06|Ud|Transporte de residuos inertes metálicos producidos en obras de construcción y/o|152.78|16102026|0|
+~T|19.06|demolición, con contenedor de 7 m³, a vertedero Transporte de residuos inertes metálicos producidos en obras de construcción y/o demolición, con contenedor de 7 m³, a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos, considerando ida, descarga y vuelta. Incluso servicio de entrega, alquiler y recogida en obra del contenedor, y coste del vertido. Incluye: Carga a camión del contenedor. Transporte de residuos de construcción a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente transportadas según especificaciones de proyecto.|
+~M|19#\19.06||1|\Según el documento del proyecto\1\\\\|
+~C|19.07|Ud|Transporte de mezcla sin clasificar de residuos inertes producidos en obras de|152.78|16102026|0|
+~T|19.07|construcción y/o demolición, con contenedor de 7 Transporte de mezcla sin clasificar de residuos inertes producidos en obras de construcción y/o demolición, con contenedor de 7 m³, a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos, considerando ida, descarga y vuelta. Incluso servicio de entrega, alquiler y recogida en obra del contenedor, y coste del vertido. Incluye: Carga a camión del contenedor. Transporte de residuos de construcción a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto. Criterio de medición de obra: Se medirá el número de unidades realmente transportadas según especificaciones de proyecto.|
+~M|19#\19.07||1|\Según el documento del proyecto\1\\\\|
+~C|19.08|Ud|TRANSP. RESIDUOS SIN CLASIFICAR|152.78|16102026|0|
+~T|19.08|Transporte de mezcla sin clasificar de residuos inertes producidos en obras de construcción y/o demolición, con contenedor de 5 m³, a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos, considerando ida, descarga y vuelta. Incluso servicio de entrega, alquiler y recogida en obra del contenedor, y coste del vertido. Incluye: Carga a camión del contenedor. Transporte de residuos de construcción a vertedero específico, instalación de tratamiento de residuos de construcción y demolición externa a la obra o centro de valorización o eliminación de residuos. Criterio de medición de proyecto: Número de unidades previstas, según documentación gráfica de proyecto.|
+~M|19#\19.08||1|\Según el documento del proyecto\1\\\\|
+~C|20#||SEGURIDAD Y SALUD|4095.60|16102026|0|
+~D|20#|20.01#\1\1\20.02#\1\1\20.03#\1\1\20.04#\1\1\20.05#\1\1\|
+~C|20.01#||SISTEMAS PROTECCION COLECTIVA|3346.11|16102026|0|
+~D|20.01#|20.01.01\1\156\20.01.02\1\25\20.01.03\1\10\20.01.04\1\10\20.01.05\1\10\20.01.06\1\5\20.01.07\1\25\20.01.08\1\100\20.01.09\1\10\20.01.10\1\1\20.01.11\1\1\20.01.12\1\1\20.01.13\1\1\20.01.14\1\1\20.01.15\1\5\20.01.16\1\5\|
+~C|20.02#||FORMACION|113.70|16102026|0|
+~D|20.02#|20.02.01\1\5\20.02.02\1\5\|
+~C|20.03#||EQUIPOS PROTECCION INDIVIDUAL|333.50|16102026|0|
+~D|20.03#|20.03.01\1\9\20.03.02\1\2\20.03.03\1\2\20.03.04\1\1\20.03.05\1\23.18\20.03.06\1\1\20.03.07\1\1\20.03.08\1\1\20.03.09\1\1\20.03.10\1\1\20.03.11\1\8\20.03.12\1\5\20.03.13\1\3\20.03.14\1\1\20.03.15\1\13\20.03.16\1\6\20.03.17\1\1\20.03.18\1\1\20.03.19\1\4\20.03.20\1\1\20.03.21\1\1\20.03.22\1\3\20.03.23\1\3\20.03.24\1\2\20.03.25\1\1\20.03.26\1\3\20.03.27\1\2\20.03.28\1\1\20.03.29\1\1\20.03.30\1\3\20.03.31\1\3\20.03.32\1\6\20.03.33\1\3\20.03.34\1\1\20.03.35\1\1\20.03.36\1\1\20.03.37\1\2\20.03.38\1\5\20.03.39\1\5\20.03.40\1\1\20.03.41\1\1\20.03.42\1\6\20.03.43\1\1\|
+~C|20.04#||MEDICINA PREVENTIVA Y PRIMEROS AUXILIOS|122.30|16102026|0|
+~D|20.04#|20.04.01\1\1\20.04.02\1\3\|
+~C|20.05#||SEÑALIZACION PROVISIONAL DE OBRAS|179.99|16102026|0|
+~D|20.05#|20.05.01\1\20\20.05.02\1\12\20.05.03\1\1\|
+~C|20.01.01|M2|ANDAMIAJE TUBULAR EUROPEO PERIMETRAL VIVIENDA|15.41|16102026|0|
+~T|20.01.01|Montaje de andamiaje tubular europeo homologado y certificado en todo el perímetro de vivienda y en toda la altura, de 6.50 M, durante la duración de todos los trabajos de limpieza, preparación y colocación de aplacado cerámico o monocapa industrial. Incluido desmontaje, materiales, portes, completamente terminado. Incluidas escaleras interiores, barandillas, rodapiés, etc.|
+~M|20.01#\20.01.01||156|\Según el documento del proyecto\156\\\\|
+~C|20.01.02|ML|Barandilla de protección de perímetro de forjados|11.84|16102026|0|
+~T|20.01.02|Suministro, montaje y desmontaje de barandilla de protección de perímetro de forjados, compuesta por guardacuerpos de seguridad telescópicos colocados cada 2,5 m (amortizables en 8 usos), fijados por apriete al forjado, pasamanos y travesaño intermedio formado por barandilla de tubo de acero de 25 mm de diámetro y 2,5 m de longitud (amortizable en 10 usos) y rodapié metálico de 3 m de longitud (amortizable en 10 usos). Según r.D. 486/97. Incluye: Colocación, instalación y comprobación. Desmontaje posterior. Criterio de medición de proyecto: Longitud medida según estudio o estudio básico de seguridad y salud.|
+~M|20.01#\20.01.02||25|\Según el documento del proyecto\25\\\\|
+~C|20.01.03|ML|Barandilla de protección de escaleras o rampas|8.68|16102026|0|
+~T|20.01.03|Suministro, montaje y desmontaje de barandilla de protección de escaleras o rampas, "redes jorpe", compuesta por guardacuerpos de seguridad telescópicos colocados cada 2,5 m (amortizables en 8 usos), fijados por apriete al forjado, pasamanos y travesaño intermedio formado por barandilla de tubo de acero de 25 mm de diámetro y 2,5 m de longitud (amortizable en 10 usos) y rodapié metálico de 3 m de longitud (amortizable en 10 usos). Según r.D. 486/97. Incluye: Colocación, instalación y comprobación. Desmontaje posterior. Criterio de medición de proyecto: Longitud medida según estudio o estudio básico de seguridad y salud.|
+~M|20.01#\20.01.03||10|\Según el documento del proyecto\10\\\\|
+~C|20.01.04|ML|Barandilla de protección de huecos verticales de fachada|6.31|16102026|0|
+~T|20.01.04|Suministro, montaje y desmontaje de barandilla de protección de huecos verticales de fachada, puertas de ascensor, etc., Compuesta por pasamanos y travesaño intermedio formado por tubo metálico de 50 mm de diámetro (amortizable en 10 usos) y rodapié de tabloncillo de madera de pino de 15x5,2 cm (amortizable en 3 usos). Incluye: Colocación, instalación y comprobación. Desmontaje posterior. Criterio de medición de proyecto: Longitud medida según estudio o estudio básico de seguridad y salud.|
+~M|20.01#\20.01.04||10|\Según el documento del proyecto\10\\\\|
+~C|20.01.05|UD|Tapa de madera|11.84|16102026|0|
+~T|20.01.05|Protección de hueco horizontal de una arqueta de 50x50 cm de sección, durante su proceso de construcción hasta que se coloque su tapa definitiva, realizada mediante tabloncillos de madera de pino de 15x5,2 cm, colocados uno junto a otro hasta cubrir la totalidad del hueco, reforzados en su parte inferior por tres tabloncillos clavados en sentido contrario, con rebaje en su refuerzo para alojarla en el hueco de la planta de la arqueta de modo que impida su movimiento horizontal, preparada para soportar una carga puntual de 3 kn. Amortizable en 4 usos. Incluso p/p de mantenimiento en condiciones seguras durante todo el periodo de tiempo que se requiera y desmontaje. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.01#\20.01.05||10|\Según el documento del proyecto\10\\\\|
+~C|20.01.06|ML|Sistema provisional de protección de borde de forjado|1.37|16102026|0|
+~T|20.01.06|Sistema provisional de protección de borde de forjado, clase a, de 1 m de altura, que proporciona resistencia sólo para cargas estáticas y para superficies de trabajo con un ángulo de inclinación máximo de 10°, formado por: Barandilla principal de tabla de madera de pino de 12x2,7 cm, amortizable en 4 usos; Barandilla intermedia de tabla de madera de pino de 12x2,7 cm, dispuesta de manera que una esfera de 470 mm no pase a través de cualquier apertura, amortizable en 4 usos; Rodapié metálico de 3 m de longitud, que tenga el borde superior al menos 15 cm por encima de la superficie de trabajo, amortizable en 10 usos y guardacuerpos fijos de seguridad fabricados en acero de primera calidad pintado al horno en epoxi-poliéster, de 40 mm de diámetro y 1200 mm de longitud, separados entre sí una distancia máxima de 2,5 m y fijados al forjado con base plástica embebida en el hormigón, amortizables en 8 usos. Incluso p/p de mantenimiento en condiciones seguras durante todo el periodo de tiempo que se requiera y desmontaje. Criterio de medición de proyecto: Longitud medida según estudio o estudio básico de seguridad y salud.|
+~M|20.01#\20.01.06||5|\Según el documento del proyecto\5\\\\|
+~C|20.01.07|M2|Red de protección de poliamida|2.54|16102026|0|
+~T|20.01.07|Red de protección de poliamida de alta tenacidad, color blanco, de 80x80 mm de paso, con cuerda de red de calibre 4 mm y cuerda perimetral de poliamida de 12 mm de calibre anudada a la red, para cubrir huecos horizontales de superficie comprendida entre 2,3 y 15 m² en forjados, anclada al forjado cada 50 cm con elementos metálicos. Incluso p/p de mantenimiento en condiciones seguras durante todo el periodo de tiempo que se requiera y desmontaje. Criterio de medición de proyecto: Superficie del hueco horizontal, medida según estudio o estudio básico de seguridad y salud.|
+~M|20.01#\20.01.07||25|\Según el documento del proyecto\25\\\\|
+~C|20.01.08|UD|Tapón protector tipo seta|0.03|16102026|0|
+~T|20.01.08|Protección de extremo de armadura de 12 a 32 mm de diámetro, mediante colocación de tapón protector tipo seta, de color rojo, amortizable en 3 usos. Incluso p/p de mantenimiento en condiciones seguras durante todo el periodo de tiempo que se requiera. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.01#\20.01.08||100|\Según el documento del proyecto\100\\\\|
+~C|20.01.09|UD|Protección de hueco de ventana|3.75|16102026|0|
+~T|20.01.09|Protección de hueco de ventana de entre 95 y 165 cm de anchura en cerramiento exterior, mediante dos tubos metálicos extensibles, con tornillo cilíndrico con hexágono interior para llave allen, para fijación de los tubos, amortizables en 20 usos, colocados una vez construida la hoja exterior del cerramiento y anclados a los orificios previamente realizados en los laterales del hueco de la ventana. Incluso p/p de montaje, mantenimiento en condiciones seguras durante todo el periodo de tiempo que se requiera y desmontaje. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.01#\20.01.09||10|\Según el documento del proyecto\10\\\\|
+~C|20.01.10|UD|Foco portátil de 500 W de potencia|3.36|16102026|0|
+~T|20.01.10|Suministro y colocación de foco portátil de 500 w de potencia, para interior, con rejilla de protección, soporte de tubo de acero y cable de 1,5 m, amortizable en 3 usos. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.01#\20.01.10||1|\Según el documento del proyecto\1\\\\|
+~C|20.01.11|UD|Cuadro eléctrico provisional de obra|125.15|16102026|0|
+~T|20.01.11|Suministro e instalación de cuadro eléctrico provisional de obra para una potencia máxima de 5 kw, compuesto por armario de distribución con dispositivo de emergencia, tomas y los interruptores automáticos magnetotérmicos y diferenciales necesarios, amortizable en 4 usos. Incluso elementos de fijación, regletas de conexión y cuantos accesorios sean necesarios para su correcta instalación. Totalmente montado, conexionado y probado. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.01#\20.01.11||1|\Según el documento del proyecto\1\\\\|
+~C|20.01.12|UD|Toma de tierra|67.62|16102026|0|
+~T|20.01.12|Suministro e instalación de toma de tierra independiente para instalación provisional de obra, compuesta por pica de acero cobreado de 2 m de longitud, hincada en el terreno, conectada a puente para comprobación, dentro de una arqueta de registro de polipropileno de 30x30 cm. Incluso replanteo, excavación para la arqueta de registro, hincado del electrodo en el terreno, colocación de la arqueta de registro, conexión del electrodo con la línea de enlace mediante grapa abarcón, relleno con tierras de la propia excavación y aditivos para disminuir la resistividad del terreno y conexionado a la red de tierra mediante puente de comprobación. Totalmente montada, conexionada y probada por la empresa instaladora mediante las correspondientes pruebas de servicio (incluidas en este precio). Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.01#\20.01.12||1|\Según el documento del proyecto\1\\\\|
+~C|20.01.13|UD|Extintor portátil de polvo químico ABC|6.90|16102026|0|
+~T|20.01.13|Suministro y colocación de extintor portátil de polvo químico abc polivalente antibrasa, con presión incorporada, de eficacia 21a-113b-c, con 6 kg de agente extintor, con manómetro y manguera con boquilla difusora, amortizable en 3 usos. Incluso p/p de soporte y accesorios de montaje, mantenimiento en condiciones seguras durante todo el periodo de tiempo que se requiera y desmontaje. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.01#\20.01.13||1|\Según el documento del proyecto\1\\\\|
+~C|20.01.14|UD|Extintor portátil de nieve carbónica CO2|12.57|16102026|0|
+~T|20.01.14|Suministro y colocación de extintor portátil de nieve carbónica co2, de eficacia 34b, con 2 kg de agente extintor, con vaso difusor, amortizable en 3 usos. Incluso p/p de soporte y accesorios de montaje, mantenimiento en condiciones seguras durante todo el periodo de tiempo que se requiera y desmontaje. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.01#\20.01.14||1|\Según el documento del proyecto\1\\\\|
+~C|20.01.15|ML|Bajante para vertido de escombros|5.08|16102026|0|
+~T|20.01.15|Suministro, montaje y desmontaje de bajante para vertido de escombros, compuesta por 3 tubos y 1 embocadura de polietileno, de 49 cm de diámetro superior y 40 cm de diámetro inferior, con soportes y cadenas metálicas, por cada planta de hasta 3 m de altura libre, amortizable en 5 usos. Incluso p/p de puntales de acodalamiento, elementos de sujeción y accesorios y mantenimiento en condiciones seguras durante todo el periodo de tiempo que se requiera. Criterio de medición de proyecto: Longitud medida según estudio o estudio básico de seguridad y salud.|
+~M|20.01#\20.01.15||5|\Según el documento del proyecto\5\\\\|
+~C|20.01.16|UD|Toldo plastificado para pie de bajante de escombros|5.20|16102026|0|
+~T|20.01.16|Suministro, montaje y desmontaje de toldo plastificado para pie de bajante de escombros, para cubrición de contenedor, amortizable en 5 usos, que impide tanto la emisión del polvo generado por la salida de escombros como el depósito en el contenedor de otros residuos ajenos a la obra. Incluso p/p de elementos de sujeción y mantenimiento en condiciones seguras durante todo el periodo de tiempo que se requiera. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.01#\20.01.16||5|\Según el documento del proyecto\5\\\\|
+~C|20.02.01|UD|Reunión del Comité de Seguridad y Salud en el Trabajo.|11.37|16102026|0|
+~T|20.02.01|Reunión del comité de seguridad y salud en el trabajo, considerando una reunión de dos horas. El comité estará compuesto por un técnico cualificado en materia de seguridad y salud con categoría de encargado de obra, dos trabajadores con categoría de oficial de 2ª, un ayudante y un vigilante de seguridad y salud con categoría de oficial de 1ª. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.02#\20.02.01||5|\Según el documento del proyecto\5\\\\|
+~C|20.02.02|UD|Hora de charla para formación de Seguridad y Salud en el Trabajo.|11.37|16102026|0|
+~T|20.02.02|Hora de charla para formación de seguridad y salud en el trabajo, realizada por técnico cualificado perteneciente a una empresa asesora en seguridad y prevención de riesgos. Incluso p/p de pérdida de horas de trabajo por parte de los trabajadores asistentes a la charla, considerando una media de seis personas. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.02#\20.02.02||5|\Según el documento del proyecto\5\\\\|
+~C|20.03.01|Ud|Casco de seguridad.|0.62|16102026|0|
+~T|20.03.01|Suministro de casco de seguridad para la construcción, con arnés de sujeción, según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.01||9|\Según el documento del proyecto\9\\\\|
+~C|20.03.02|Ud|Casco de seguridad dieléctrico.|0.77|16102026|0|
+~T|20.03.02|Suministro de casco de seguridad dieléctrico con pantalla para protección de descargas eléctricas (amortizable en 5 usos), según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.02||2|\Según el documento del proyecto\2\\\\|
+~C|20.03.03|Ud|Cinturón de seguridad de suspensión con un punto de amarre.|2.96|16102026|0|
+~T|20.03.03|Suministro de cinturón de seguridad de suspensión con un punto de amarre (amortizable en 4 usos), según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.03||2|\Según el documento del proyecto\2\\\\|
+~C|20.03.04|Ud|Equipo de arnés simple de seguridad anticaídas.|3.62|16102026|0|
+~T|20.03.04|Suministro de equipo de arnés simple de seguridad anticaídas cr61 "redes jorpe", con un elemento de amarre incorporado consistente en una cinta tubular elástica de 1,5 m con amortiguador de impacto en el extremo, en bolsa de transporte (amortizable en 4 usos), según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.04||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.05|m|Cuerda guía anticaídas de poliamida de 16 mm de diámetro.|1.29|16102026|0|
+~T|20.03.05|Suministro, montaje y desmontaje de cuerda guía anticaídas de poliamida de alta tenacidad de 16 mm de diámetro, con guardacabos en los extremos, según r.D. 773/97. Homologada y marcada con certificado ce. Criterio de medición de proyecto: Longitud medida según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.05||23.18|\Según el documento del proyecto\23.18\\\\|
+~C|20.03.06|Ud|Gafas de protección contra impactos.|0.77|16102026|0|
+~T|20.03.06|Suministro de gafas de protección contra impactos (amortizables en 3 usos), según r.D. 773/97. Homologadas y marcadas con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.06||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.07|Ud|Gafas de protección antipolvo.|0.29|16102026|0|
+~T|20.03.07|Suministro de gafas de protección antipolvo (amortizables en 3 usos), según r.D. 773/97. Homologadas y marcadas con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.07||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.08|Ud|Gafas de protección para ayudante de soldadura.|1.25|16102026|0|
+~T|20.03.08|Suministro de gafas de protección para ayudante de soldadura (amortizables en 3 usos), según r.D. 773/97. Homologadas y marcadas con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.08||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.09|Ud|Pantalla de protección contra partículas, con fijación en la cabeza.|0.53|16102026|0|
+~T|20.03.09|Suministro de pantalla de protección contra partículas con visor de policarbonato claro rígido, con fijación en la cabeza (amortizable en 5 usos), según r.D. 773/97. Homologada y marcada con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.09||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.10|Ud|Pantalla de protección de soldador, con fijación en la cabeza.|0.66|16102026|0|
+~T|20.03.10|Suministro de pantalla de protección de soldador en material termoformado, con fijación en la cabeza (amortizable en 5 usos), según r.D. 773/97. Homologada y marcada con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.10||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.11|Ud|Par de guantes de goma-látex anticorte.|0.71|16102026|0|
+~T|20.03.11|Suministro de par de guantes de goma-látex anticorte, según r.D. 773/97. Homologados y marcados con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.11||8|\Según el documento del proyecto\8\\\\|
+~C|20.03.12|Ud|Par de guantes de neopreno.|0.51|16102026|0|
+~T|20.03.12|Suministro de par de guantes de neopreno, según r.D. 773/97. Homologados y marcados con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.12||5|\Según el documento del proyecto\5\\\\|
+~C|20.03.13|Ud|Par de guantes de nitrilo amarillo de alta resistencia.|0.68|16102026|0|
+~T|20.03.13|Suministro de par de guantes de nitrilo amarillo de alta resistencia, según r.D. 773/97. Homologados y marcados con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.13||3|\Según el documento del proyecto\3\\\\|
+~C|20.03.14|Ud|Par de guantes resistentes al fuego, de fibra Nomex con acabado reflectante|15.01|16102026|0|
+~T|20.03.14|aluminizado. Suministro de par de guantes resistentes al fuego, de fibra nomex con acabado reflectante aluminizado, según r.D. 773/97. Homologados y marcados con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.14||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.15|Ud|Par de guantes de uso general de lona y serraje.|0.57|16102026|0|
+~T|20.03.15|Suministro de par de guantes de uso general de lona y serraje, según r.D. 773/97. Homologados y marcados con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.15||13|\Según el documento del proyecto\13\\\\|
+~C|20.03.16|Ud|Par de guantes de uso general de piel de vacuno.|1.08|16102026|0|
+~T|20.03.16|Suministro de par de guantes de uso general de piel de vacuno, según r.D. 773/97. Homologados y marcados con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.16||6|\Según el documento del proyecto\6\\\\|
+~C|20.03.17|Ud|Par de guantes de serraje forrado ignífugo para soldador.|1.78|16102026|0|
+~T|20.03.17|Suministro de par de guantes de serraje forrado ignífugo para soldador, según r.D. 773/97. Homologados y marcados con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.17||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.18|Ud|Par de manguitos al hombro de serraje grado A para soldador.|2.10|16102026|0|
+~T|20.03.18|Suministro de par de manguitos al hombro de serraje grado a para soldador, según r.D. 773/97. Homologados y marcados con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.18||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.19|Ud|Par de guantes para electricista, aislantes hasta 5.000 V.|9.67|16102026|0|
+~T|20.03.19|Suministro de par de guantes dieléctricos para electricista, aislantes hasta 5.000 V, según r.D. 773/97. Homologados y marcados con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.19||4|\Según el documento del proyecto\4\\\\|
+~C|20.03.20|Ud|Par de manoplas resistentes al fuego de fibra de Nomex aluminizado.|11.18|16102026|0|
+~T|20.03.20|Suministro de par de manoplas resistentes al fuego de fibra de nomex aluminizado, según r.D. 773/97. Homologadas y marcadas con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.20||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.21|Ud|Protector de manos para puntero.|0.58|16102026|0|
+~T|20.03.21|Suministro de protector de manos para puntero, según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.21||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.22|Ud|Casco protector auditivo.|1.87|16102026|0|
+~T|20.03.22|Suministro de protector auditivo con arnés a cabeza anatómico y ajuste con almohadillado central (amortizable en 3 usos), según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.22||3|\Según el documento del proyecto\3\\\\|
+~C|20.03.23|Ud|Juego de tapones antirruido de silicona.|0.29|16102026|0|
+~T|20.03.23|Suministro de juego de tapones antirruido de silicona, según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.23||3|\Según el documento del proyecto\3\\\\|
+~C|20.03.24|Ud|Par de botas de agua sin cremallera.|5.83|16102026|0|
+~T|20.03.24|Suministro de par de botas de agua sin cremallera, según r.D. 773/97. Homologadas y marcadas con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.24||2|\Según el documento del proyecto\2\\\\|
+~C|20.03.25|Ud|Par de botas de agua con cremallera y forradas.|7.81|16102026|0|
+~T|20.03.25|Suministro de par de botas de agua con cremallera y forradas, según r.D. 773/97. Homologadas y marcadas con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.25||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.26|Ud|Par de botas de seguridad con puntera metálica.|9.03|16102026|0|
+~T|20.03.26|Suministro de par de botas de seguridad con puntera metálica y plantillas de acero flexibles, según r.D. 773/97. Homologadas y marcadas con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.26||3|\Según el documento del proyecto\3\\\\|
+~C|20.03.27|Ud|Par de botas aislantes.|7.65|16102026|0|
+~T|20.03.27|Suministro de par de botas aislantes para electricista, hasta 5.000 V, según r.D. 773/97. Homologadas y marcadas con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.27||2|\Según el documento del proyecto\2\\\\|
+~C|20.03.28|Ud|Par de polainas para soldador.|1.30|16102026|0|
+~T|20.03.28|Suministro de par de polainas para soldador, según r.D. 773/97. Homologadas y marcadas con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.28||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.29|Ud|Par de polainas para extinción de incendios.|12.72|16102026|0|
+~T|20.03.29|Suministro de par de polainas para extinción de incendios, según r.D. 773/97. Homologadas y marcadas con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.29||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.30|Ud|Par de plantillas resistentes a la perforación.|1.40|16102026|0|
+~T|20.03.30|Suministro de par de plantillas resistentes a la perforación, según r.D. 773/97. Homologadas y marcadas con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.30||3|\Según el documento del proyecto\3\\\\|
+~C|20.03.31|Ud|Mono de trabajo.|3.47|16102026|0|
+~T|20.03.31|Suministro de mono de trabajo de una pieza de poliéster-algodón, según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.31||3|\Según el documento del proyecto\3\\\\|
+~C|20.03.32|Ud|Traje impermeable de trabajo, de PVC.|2.10|16102026|0|
+~T|20.03.32|Suministro de traje impermeable de trabajo, de pvc, según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.32||6|\Según el documento del proyecto\6\\\\|
+~C|20.03.33|Ud|Traje impermeable de trabajo, verde tipo ingeniero.|4.21|16102026|0|
+~T|20.03.33|Suministro de traje impermeable de trabajo, verde tipo ingeniero, según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.33||3|\Según el documento del proyecto\3\\\\|
+~C|20.03.34|Ud|Mandil para soldador.|3.26|16102026|0|
+~T|20.03.34|Suministro de mandil protector para soldador, de serraje, con cierre lateral y hebilla, según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.34||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.35|Ud|Chaqueta para soldador.|10.06|16102026|0|
+~T|20.03.35|Suministro de chaqueta protectora para soldador, de serraje, con cierre de velcro o botones de presión, según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.35||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.36|Ud|Bolsa portaelectrodos para soldador.|0.49|16102026|0|
+~T|20.03.36|Suministro de bolsa portaelectrodos para soldador, según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.36||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.37|Ud|Bolsa portaherramientas.|4.62|16102026|0|
+~T|20.03.37|Suministro de cinturón con bolsa de varios compartimentos para herramientas, según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.37||2|\Según el documento del proyecto\2\\\\|
+~C|20.03.38|Ud|Peto reflectante.|4.14|16102026|0|
+~T|20.03.38|Suministro de peto reflectante de color butano o amarillo, según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.38||5|\Según el documento del proyecto\5\\\\|
+~C|20.03.39|Ud|Faja de protección lumbar.|3.58|16102026|0|
+~T|20.03.39|Suministro de faja de protección lumbar con amplio soporte abdominal y sujeción regulable mediante velcro, según r.D. 773/97. Homologada y marcada con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.39||5|\Según el documento del proyecto\5\\\\|
+~C|20.03.40|Ud|Semi-mascarilla antipolvo, de un filtro.|1.72|16102026|0|
+~T|20.03.40|Suministro de semi-mascarilla antipolvo, de un filtro (amortizable en 3 usos), según r.D. 773/97. Homologada y marcada con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.40||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.41|Ud|Semi-mascarilla antipolvo, de dos filtros.|3.04|16102026|0|
+~T|20.03.41|Suministro de semi-mascarilla antipolvo, de dos filtros (amortizable en 3 usos), según r.D. 773/97. Homologada y marcada con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.41||1|\Según el documento del proyecto\1\\\\|
+~C|20.03.42|Ud|Filtro para semi-mascarilla antipolvo.|0.18|16102026|0|
+~T|20.03.42|Suministro de filtro para semi-mascarilla antipolvo, según r.D. 773/97. Homologado y marcado con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.42||6|\Según el documento del proyecto\6\\\\|
+~C|20.03.43|Ud|Mascarilla desechable antipolvo FFP1.|0.26|16102026|0|
+~T|20.03.43|Suministro de mascarilla autofiltrante desechable, contra partículas de polvo, ffp1, según r.D. 773/97. Homologada y marcada con certificado ce. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.03#\20.03.43||1|\Según el documento del proyecto\1\\\\|
+~C|20.04.01|Ud|Botiquín de urgencia en caseta de obra.|27.62|16102026|0|
+~T|20.04.01|Suministro y colocación de botiquín de urgencia para caseta de obra, provisto de desinfectantes y antisépticos autorizados, gasas estériles, algodón hidrófilo, venda, esparadrapo, apósitos adhesivos, un par de tijeras, pinzas y guantes desechables, instalado en el vestuario. Incluye: Replanteo y trazado en el paramento. Colocación y fijación mediante tornillos. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.04#\20.04.01||1|\Según el documento del proyecto\1\\\\|
+~C|20.04.02|Ud|Reconocimiento médico anual al trabajador.|31.56|16102026|0|
+~T|20.04.02|Reconocimiento médico obligatorio anual al trabajador. Incluso p/p de pérdida de horas de trabajo por parte del trabajador de la empresa, debido al desplazamiento desde el centro de trabajo al centro médico (mutua de accidentes) para realizar el pertinente reconocimiento médico. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.04#\20.04.02||3|\Según el documento del proyecto\3\\\\|
+~C|20.05.01|m|Cinta bicolor para balizamiento.|0.95|16102026|0|
+~T|20.05.01|Suministro, colocación y desmontaje de cinta bicolor amarilla/negra de material plástico para balizamiento, de 8 cm. Según r.D. 485/97. Incluye: Colocación y comprobación. Desmontaje posterior. Criterio de medición de proyecto: Longitud medida según estudio o estudio básico de seguridad y salud.|
+~M|20.05#\20.05.01||20|\Según el documento del proyecto\20\\\\|
+~C|20.05.02|m|Vallado del solar con valla trasladable de tubos y enrejados metálicos.|11.84|16102026|0|
+~T|20.05.02|Suministro, montaje y desmontaje de valla trasladable realizada con bastidores prefabricados de 3,50x2,00 m de altura. Formados por mallazo de 200x100 mm de dimensiones de malla, con alambres horizontales de 5 mm de diámetro y verticales de 4 mm, plegados longitudinalmente para mejorar su rigidez, soldados a tubos de 40 mm de diámetro y 1,50 mm de espesor. Todo ello galvanizado en caliente, sobre bases de hormigón prefabricado provistas de cuatro agujeros para diferentes posicionamientos del bastidor, separadas cada 3,50 m (amortizable en 5 usos). Incluso p/p de puerta de acceso. Incluye: Replanteo de los apoyos. Montaje y posterior desmontaje de acceso, valla y accesorios. Criterio de medición de proyecto: Longitud medida según estudio o estudio básico de seguridad y salud.|
+~M|20.05#\20.05.02||12|\Según el documento del proyecto\12\\\\|
+~C|20.05.03|Ud|Placa de señalización de riesgos.|18.91|16102026|0|
+~T|20.05.03|Suministro, colocación y desmontaje de placa de señalización o información de riesgos, de pvc serigrafiado de 500x300 mm, fijada mecánicamente (amortizable en 3 usos). Según r.D. 485/97. Incluye: Replanteo de las placas. Fijación mecánica al soporte. Desmontaje posterior. Criterio de medición de proyecto: Número de unidades previstas, según estudio o estudio básico de seguridad y salud.|
+~M|20.05#\20.05.03||1|\Según el documento del proyecto\1\\\\|

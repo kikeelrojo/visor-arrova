@@ -115,6 +115,10 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 .ldocs button{text-align:left;border:0;background:none;padding:5px 0;cursor:pointer;font-size:var(--s-s);background-image:radial-gradient(circle,var(--ink) 0.5px,transparent 0.7px);background-size:4px 2px;background-repeat:repeat-x;background-position:0 100%}
 .ldocs button.on{font-weight:700}
 .ldocs button span{display:block;font-size:var(--s-xs);font-weight:400}
+.ppto-doc{padding:8px 0;background-image:radial-gradient(circle,var(--ink) 0.5px,transparent 0.7px);background-size:4px 2px;background-repeat:repeat-x;background-position:0 100%}
+.ppto-doc b{display:block;font-size:var(--s-m)}.ppto-doc span{display:block;font-size:var(--s-xs);margin:2px 0 6px}
+.ldocs button.marcado{font-weight:700;border-left:2px solid var(--warn);padding-left:6px}
+.ldocs button.marcado span{color:var(--warn)}
 .ppto input{width:84px;border:0.5px solid var(--ink);background:var(--paper);padding:2px 4px;text-align:right;font-variant-numeric:tabular-nums}
 .vacio{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px}
 .vacio div{max-width:380px;line-height:1.5}
@@ -2057,6 +2061,7 @@ const Datos = (() => {
     const plantas = [...new Set(els.map(e => NOMBRE_PLANTA(D, e.p)))];
     let h = "<h2>" + escH((D.info_proyecto && D.info_proyecto.proyecto) || (S.proyecto && S.proyecto.id) || "") + " · " + escH(D.titulo) + "</h2>";
     h += '<div class="sub">Modelo del ' + escH(D.fecha) + " · medido lo visible: " + escH(plantas.join(", ") || "nada") + ". Toca una fila para verla en 3D.</div>";
+    h += '<div id="presupuestosProy"></div>';
     let filas = [], capitulos = [];
     for (const G of GR) {
       const rs = agrupar(els, G.g, G.porPano); if (!rs.length) continue;
@@ -2114,7 +2119,7 @@ const Datos = (() => {
           (T.nota ? '<span class="nota">' + escH(limpiaNota(T.nota)) + "</span><br>" : "") + (T.fuente ? '<span class="fuente">Fuente: ' + escH(limpiaNota(T.fuente)) + "</span>" : "") + "</div></div>";
       }
     }
-    if ((D.dudas || []).length) h += "<h3>Dudas abiertas del modelo</h3><div class=sub>" + D.dudas.map(t => "<p>" + escH(t) + "</p>").join("") + "</div>";
+    h += '<div id="comentariosDatos"></div>';
     return {html: h, csv: csv.map(r => r.map(c => /[;"\n]/.test(String(c)) ? '"' + String(c).replace(/"/g, '""') + '"' : c).join(";")).join("\r\n"), filas};
   }
   function refrescar() {
@@ -2124,8 +2129,17 @@ const Datos = (() => {
     $("datos").querySelectorAll("tr[data-f]").forEach(tr => tr.onclick = e => { if (e.target.tagName === "INPUT") return; V3.resaltar(new Set(ultimo.filas[+tr.dataset.f])); modo("3d"); });
     $("datos").querySelectorAll(".ppto input").forEach(inp => { inp.onclick = e => e.stopPropagation(); inp.onchange = () => { ponPrecio(inp.dataset.k, inp.value); totales(); }; });
     $("btnPrecios").onclick = () => guardarArchivo("precios_" + (S.proyecto ? S.proyecto.id : "proyecto") + ".json", JSON.stringify({formato: "arrova-precios", proyecto: S.proyecto && S.proyecto.id, precios: precios()}, null, 1));
-    totales();
+    totales(); presupuestosProy();
     $("btnCsv").onclick = () => (ultimo = construir()) && guardarArchivo(((S.proyecto ? S.proyecto.id : "modelo") + "_" + V3.datos().modelo + "_mediciones.csv").replace(/\s+/g, "_"), "\ufeff" + ultimo.csv);
+  }
+  async function presupuestosProy() {
+    // el presupuesto que ya está hecho (Excel y Presto), para descargar
+    const P = S.proyecto, el = $("presupuestosProy"); if (!P || !el) return;
+    if (P.presup === undefined) { P.presup = null; try { const f = (P.indice || {}).presupuestos; if (f) { const r = await fetch("datos/" + P.id + "/" + f, {cache: "no-store"}); if (r.ok) P.presup = (await r.json()).docs || []; } } catch (e) { /* sin presupuestos */ } }
+    if (!P.presup || !P.presup.length) { el.innerHTML = ""; return; }
+    el.innerHTML = "<h3>Presupuesto del proyecto</h3>" + P.presup.map(d => '<div class="ppto-doc"><b>' + escH(d.titulo) + "</b><span>" + escH(d.nota || "") + '</span><div class="fila">' +
+      d.archivos.map(a => '<a class="btn" href="datos/' + P.id + "/" + a.archivo + '" download>' + escH(a.fmt) + "</a>").join("") + "</div></div>").join("") +
+      '<div class="sub">Las tablas de abajo son las mediciones del modelo que se está viendo; el presupuesto descargable lleva las suyas (las de su fecha).</div>';
   }
   // precios: los publicados con el proyecto (precios.json) y lo que se cambie aquí (en este navegador)
   const claveP = () => "visor.precios." + (S.proyecto ? S.proyecto.id : "");
@@ -2176,6 +2190,7 @@ const Docs = (() => {
     }
     L.forEach((d, i) => {
       const b = document.createElement("button"); b.innerHTML = escH(d.titulo || d.archivo) + (d.nota ? "<span>" + escH(d.nota) + "</span>" : "");
+      if (d.marcado) b.classList.add("marcado");
       b.onclick = () => ver(d, b); el.appendChild(b);
     });
     const pre = ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + "." + t);
