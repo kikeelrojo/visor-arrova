@@ -578,7 +578,7 @@ const V3 = (() => {
   let ctrl = new THREE.OrbitControls(cam, canvas);
   ctrl.enableDamping = false; ctrl.screenSpacePanning = true;
   ctrl.addEventListener("change", pedir);
-  let root = null, D = null, elems = [], meshes = [], aristas = [], instLineas = [], conGlobal = {}, nivelDe = () => 0, resalta = null, realce = [];
+  let root = null, D = null, elems = [], meshes = [], aristas = [], instLineas = [], instIconos = [], conGlobal = {}, nivelDe = () => 0, resalta = null, realce = [];
   let estilo = "linea", explota = 0, explotaAnim = 0, caja = new THREE.Box3(), sel = null;
   const grupoVis = {}, plantaVis = {};
   const matCache = {};
@@ -617,6 +617,7 @@ const V3 = (() => {
   const lineaTenue = () => matCache.__lt || (matCache.__lt = new THREE.LineBasicMaterial({color: colores().ink, transparent: true, opacity: 0.12}));
   const selMat = () => matCache.__sel || (matCache.__sel = new THREE.LineBasicMaterial({color: colores().accent}));
   const instMat = c => matCache["__i" + c] || (matCache["__i" + c] = new THREE.LineBasicMaterial({color: rgb(c, 0x000000), depthTest: false, transparent: true}));
+  const instRel = c => matCache["__r" + c] || (matCache["__r" + c] = new THREE.MeshBasicMaterial({color: rgb(c, 0xffffff), depthTest: false, transparent: true, side: THREE.DoubleSide}));
   const instSel = () => matCache.__is || (matCache.__is = new THREE.LineBasicMaterial({color: colores().accent, depthTest: false, transparent: true}));
 
   function cargar(datos) {
@@ -624,7 +625,7 @@ const V3 = (() => {
     for (const k in matCache) { matCache[k].dispose(); delete matCache[k]; }
     if (root) { scene.remove(root); root.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
     root = new THREE.Group(); scene.add(root);
-    elems = []; meshes = []; aristas = []; instLineas = []; sel = null; resalta = null; quitaRealce();
+    elems = []; meshes = []; aristas = []; instLineas = []; instIconos = []; sel = null; resalta = null; quitaRealce();
     const orden = D.plantas.map(p => p.id).filter(p => p !== "entorno");
     nivelDe = p => Math.max(0, orden.indexOf(p));
     const fundidas = Array.isArray(D.aristas) && D.aristas.length > 0;
@@ -651,6 +652,21 @@ const V3 = (() => {
         const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(v, 3));
         const ln = new THREE.Line(geo, instMat(e.c)); ln.renderOrder = 6; ln.userData = {g, inst: true};
         g.add(ln); instLineas.push(ln);
+      }
+      // el icono de la lámina (Enrique 22-oct): el mismo símbolo que en los planos 2D, con sus colores y rellenos, siempre de frente
+      if (e.ico) {
+        const ig = new THREE.Group(); ig.position.set(e.ico.o[0] / 1000, e.ico.o[1] / 1000, e.ico.o[2] / 1000); ig.userData = {ico: true, g};
+        for (const q of e.ico.l) {
+          const n = q.p.length / 2, pts = [];
+          for (let k = 0; k < n; k++) pts.push(new THREE.Vector3(q.p[2 * k] / 1000, q.p[2 * k + 1] / 1000, 0));
+          if (q.f && q.z && n >= 3) {
+            const m = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape(pts.map(p => new THREE.Vector2(p.x, p.y)))), instRel(q.f));
+            m.renderOrder = 6; m.userData = {g, inst: true, relleno: true}; ig.add(m);
+          }
+          const ln = new (q.z ? THREE.LineLoop : THREE.Line)(new THREE.BufferGeometry().setFromPoints(pts), instMat(q.c));
+          ln.renderOrder = 7; ln.userData = {g, inst: true}; ig.add(ln); instLineas.push(ln);
+        }
+        g.add(ig); instIconos.push(ig);
       }
       root.add(g); elems.push(g);
     });
@@ -861,6 +877,8 @@ const V3 = (() => {
       const l = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 25), resalta ? realceMat() : selMat()); l.userData.realce = true; l.renderOrder = 10; g.add(l); realce.push(l);
     } else if (m.isLine && m.userData.inst) {
       const l = new THREE.Line(m.geometry.clone(), instSel()); l.userData.realce = true; l.renderOrder = 11; g.add(l); realce.push(l);
+    } else if (m.userData.ico) {
+      for (const q of m.children) if (q.isLine) { const l = new (q.isLineLoop ? THREE.LineLoop : THREE.Line)(q.geometry.clone(), instSel()); l.userData.realce = true; l.renderOrder = 11; m.add(l); realce.push(l); }
     }
   }
   function resaltar(indices) {
@@ -901,7 +919,10 @@ const V3 = (() => {
   });
   let pend = false;
   function pedir() { if (!pend) { pend = true; requestAnimationFrame(() => { pend = false; render(); }); } }
-  function render() { renderer.render(scene, cam); }
+  // los iconos de las instalaciones miran siempre a la cámara (en planta quedan como en los planos 2D)
+  const _qi = new THREE.Quaternion();
+  function orientaIconos() { for (const ig of instIconos) { ig.parent.getWorldQuaternion(_qi); ig.quaternion.copy(_qi.invert().multiply(cam.quaternion)); } }
+  function render() { orientaIconos(); renderer.render(scene, cam); }
   function redim() {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     if (!w || !h) return;
