@@ -375,6 +375,11 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
           </div>
         </div>
         <div class="sec ed-only">
+          <h3>Referencias del imán</h3>
+          <div class="lista" id="listaRefs"></div>
+          <p class="nota">Con «Imán» activo, el lápiz se engancha a las que estén marcadas. Tangente y perpendicular se toman desde el punto anterior de la línea.</p>
+        </div>
+        <div class="sec ed-only">
           <h3>Atributos</h3>
           <div class="nota" id="atQue"></div>
           <div class="attr">
@@ -1134,7 +1139,7 @@ const V2 = (() => {
     const tr = $("selTrama"); tr.innerHTML = "<option value=''>Sin trama</option>";
     for (const t of P.tramas || []) { const op = document.createElement("option"); op.value = t; op.textContent = t; tr.appendChild(op); }
     const gc = ls(clave()); ed = (gc && gc.ed) || {}; nuevos = (gc && gc.nuevos) || []; copias = (gc && gc.copias) || []; hist = []; futuro = [];
-    indexar(); encuadrar(); resumen(); pintaCapas(); pintaClases(); opcionesAtributos(); pintaAtributos();
+    indexar(); encuadrar(); resumen(); pintaCapas(); pintaClases(); opcionesAtributos(); pintaAtributos(); pintaRefs();
     $("info2d").innerHTML = "<b>" + esc(P.doc || "") + "</b>" + (P.capas || []).length + " capas · " + objs.length + " objetos · exportado " + esc(P.fecha || "") +
       (P.con_uuid ? "" : "<br><span style='color:var(--warn)'>Este plano no lleva identificadores: se puede dibujar encima, pero para editar lo existente hay que exportarlo de nuevo desde Vectorworks con el visor.</span>");
   }
@@ -1328,6 +1333,10 @@ const V2 = (() => {
       if (d.texto) { const p = puntoTexto(d); add(d, p, p); continue; }
       const g = d.caja ? cajaPoli(d) : forma(d), cerr = d.caja || d.cerr;
       if (g) { for (let i = 0; i + 1 < g.length; i++) add(d, g[i], g[i + 1]); if (cerr && g.length > 2) add(d, g[g.length - 1], g[0]); }
+      // el centro de círculos y arcos también cuenta como sitio del objeto, para engancharse a él aunque el lápiz esté lejos del trazo
+      if ((d.nuevo && (d.o.tipo === "circulo" || d.o.tipo === "arco")) || (!d.nuevo && (d.t === 4 || d.t === 6))) {
+        try { for (const pr of primsDe(d)) if (pr.A) add(d, pr.A.c, pr.A.c); } catch (e) { /* sin centro */ }
+      }
     }
     idx.C = C;
   }
@@ -1347,17 +1356,54 @@ const V2 = (() => {
     const t = ((c[0] - a[0]) * s[1] - (c[1] - a[1]) * s[0]) / den, u = ((c[0] - a[0]) * r[1] - (c[1] - a[1]) * r[0]) / den;
     return t >= 0 && t <= 1 && u >= 0 && u <= 1 ? [a[0] + t * r[0], a[1] + t * r[1]] : null;
   }
-  function iman_(p, excluir) {
-    if (!iman) return null;
-    const r = 12 / k, segs = cerca(p[0], p[1], r).filter(s => !excluir || !excluir.has(s[0]));
-    let best = null;
-    const prueba = (q, tipo, pri) => { const dd = Math.hypot(q[0] - p[0], q[1] - p[1]); if (dd <= r && (!best || pri < best.pri || (pri === best.pri && dd < best.d))) best = {p: q, tipo, d: dd, pri}; };
-    for (const [, a, b] of segs) { prueba(a, "extremo", 0); prueba(b, "extremo", 0); prueba([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], "medio", 1); }
-    if (!best || best.pri > 0) {
-      const cand = segs.filter(s => distSeg(p, s[1], s[2])[0] < r).slice(0, 40);
-      for (let i = 0; i < cand.length; i++) for (let j = i + 1; j < cand.length; j++) { const q = interseca(cand[i][1], cand[i][2], cand[j][1], cand[j][2]); if (q) prueba(q, "cruce", 0.5); }
+  // referencias del imán (como las de Vectorworks), cada una se puede activar o no; se guardan en este navegador
+  const REFS = [["extremo", "Extremo"], ["medio", "Punto medio"], ["cruce", "Intersección"], ["centro", "Centro y cuadrantes"], ["tangente", "Tangente"], ["perp", "Perpendicular"], ["sobre", "Sobre el objeto"]];
+  const refs = Object.assign({extremo: true, medio: true, cruce: true, centro: true, tangente: true, perp: true, sobre: true}, ls("visor.refs") || {});
+  function pintaRefs() {
+    const el = $("listaRefs"); if (!el) return; el.innerHTML = "";
+    for (const [k_, t] of REFS) {
+      const l = document.createElement("label"); l.className = "chk"; const i = document.createElement("input"); i.type = "checkbox"; i.checked = !!refs[k_];
+      i.onchange = () => { refs[k_] = i.checked; ls("visor.refs", refs); }; l.appendChild(i); l.appendChild(document.createTextNode(t)); el.appendChild(l);
     }
-    if (!best) for (const [, a, b] of segs) { const [dd, q] = distSeg(p, a, b); if (dd <= r) prueba(q, "sobre", 2); }
+  }
+  const enArco = (A, ang) => { if (Math.abs(A.da) >= 2 * Math.PI - 1e-6) return true; const u = ((ang - (A.da < 0 ? A.a0 + A.da : A.a0)) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI); return u <= Math.abs(A.da) + 1e-9; };
+  function iman_(p, excluir, desde) {
+    if (!iman) return null;
+    const r = 12 / k, segs = cerca(p[0], p[1], r).filter(s => (!excluir || !excluir.has(s[0])) && distSeg(p, s[1], s[2])[0] <= r);
+    let best = null;
+    const prueba = (q, tipo, pri) => { if (!refs[tipo === "cuadrante" ? "centro" : tipo]) return; const dd = Math.hypot(q[0] - p[0], q[1] - p[1]); if (dd <= r && (!best || pri < best.pri || (pri === best.pri && dd < best.d))) best = {p: q, tipo, d: dd, pri}; };
+    // las primitivas exactas de cada objeto cercano: así un círculo da su centro y no un punto medio en cada trocito
+    const dmin = new Map(); for (const s_ of segs) { const dd = distSeg(p, s_[1], s_[2])[0]; if (!dmin.has(s_[0]) || dd < dmin.get(s_[0])) dmin.set(s_[0], dd); }
+    const objsC = [...dmin.keys()].sort((a, b) => dmin.get(a) - dmin.get(b)).slice(0, 30);   // los más cercanos al lápiz
+    for (const d of objsC) {
+      if (d.texto) { prueba(puntoTexto(d), "extremo", 0); continue; }
+      let ps; try { ps = primsDe(d); } catch (e) { ps = []; }
+      for (const pr of ps) {
+        const lin = pr.L ? [pr.L] : pr.P ? pr.P.slice(1).map((q, i) => [pr.P[i], q]) : [];
+        lin.forEach(([a, b], i) => {
+          if (pr.L || i === 0) prueba(a, "extremo", 0); if (pr.L || i === lin.length - 1) prueba(b, "extremo", 0);
+          if (pr.L) prueba([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], "medio", 1);
+          if (desde) { const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy; if (L2) { const t = ((desde[0] - a[0]) * dx + (desde[1] - a[1]) * dy) / L2; if (t > 0 && t < 1) prueba([a[0] + t * dx, a[1] + t * dy], "perp", 0.9); } }
+          const [dd, q] = distSeg(p, a, b); if (dd <= r) prueba(q, "sobre", 2);
+        });
+        if (pr.A) {
+          const A = pr.A, c = A.c, completo = Math.abs(A.da) >= 2 * Math.PI - 1e-6;
+          if (!completo) { prueba(extremoP(pr, false), "extremo", 0); prueba(extremoP(pr, true), "extremo", 0); const am = A.a0 + A.da / 2; prueba([c[0] + A.r * Math.cos(am), c[1] + A.r * Math.sin(am)], "medio", 1); }
+          prueba(c, "centro", 0.2);
+          for (let q_ = 0; q_ < 4; q_++) { const a = q_ * Math.PI / 2; if (enArco(A, a)) prueba([c[0] + A.r * Math.cos(a), c[1] + A.r * Math.sin(a)], "cuadrante", 0.3); }
+          if (desde) {
+            const vx = desde[0] - c[0], vy = desde[1] - c[1], D = Math.hypot(vx, vy);
+            if (D > A.r + 1e-6) { const th = Math.atan2(vy, vx), al = Math.acos(A.r / D); for (const s_ of [1, -1]) { const a = th + s_ * al; if (enArco(A, a)) prueba([c[0] + A.r * Math.cos(a), c[1] + A.r * Math.sin(a)], "tangente", 0.8); } }
+            if (D > 1e-6) for (const s_ of [1, -1]) { const a = Math.atan2(vy * s_, vx * s_); if (enArco(A, a)) prueba([c[0] + A.r * Math.cos(a), c[1] + A.r * Math.sin(a)], "perp", 0.9); }
+          }
+          const ap = Math.atan2(p[1] - c[1], p[0] - c[0]); if (enArco(A, ap)) prueba([c[0] + A.r * Math.cos(ap), c[1] + A.r * Math.sin(ap)], "sobre", 2);
+        }
+      }
+    }
+    if (refs.cruce && (!best || best.pri > 0.5)) {
+      const cand = segs.filter(s => s[1] !== s[2]).slice(0, 40);
+      for (let i = 0; i < cand.length; i++) for (let j = i + 1; j < cand.length; j++) { if (cand[i][0] === cand[j][0]) continue; /* solo entre objetos distintos: un círculo en trocitos no se corta consigo mismo */ const q = interseca(cand[i][1], cand[i][2], cand[j][1], cand[j][2]); if (q) prueba(q, "cruce", 0.5); }
+    }
     return best;
   }
   // guías de ángulo, como en Vectorworks: cerca de 0/30/45/60/90… el punto se engancha a esa dirección y sale una guía de puntos
@@ -1493,8 +1539,15 @@ const V2 = (() => {
     if (tmp) dibujaTmp(acc);
     if (ventana) { ctx.strokeStyle = acc; ctx.setLineDash([3, 3]); ctx.lineWidth = 0.8; const [a, b] = [aP(...ventana[0]), aP(...ventana[1])]; ctx.strokeRect(a[0], a[1], b[0] - a[0], b[1] - a[1]); ctx.setLineDash([]); }
     if (snap && cursor) { const [sx, sy] = aP(snap.p[0], snap.p[1]); ctx.strokeStyle = acc; ctx.lineWidth = 1; ctx.beginPath();
-      if (snap.tipo === "extremo") ctx.rect(sx - 5, sy - 5, 10, 10); else if (snap.tipo === "medio") { ctx.moveTo(sx - 6, sy + 5); ctx.lineTo(sx, sy - 6); ctx.lineTo(sx + 6, sy + 5); ctx.closePath(); } else if (snap.tipo === "cruce") { ctx.moveTo(sx - 5, sy - 5); ctx.lineTo(sx + 5, sy + 5); ctx.moveTo(sx + 5, sy - 5); ctx.lineTo(sx - 5, sy + 5); } else ctx.arc(sx, sy, 4, 0, 7);
-      ctx.stroke(); }
+      if (snap.tipo === "extremo") ctx.rect(sx - 5, sy - 5, 10, 10); else if (snap.tipo === "medio") { ctx.moveTo(sx - 6, sy + 5); ctx.lineTo(sx, sy - 6); ctx.lineTo(sx + 6, sy + 5); ctx.closePath(); } else if (snap.tipo === "cruce") { ctx.moveTo(sx - 5, sy - 5); ctx.lineTo(sx + 5, sy + 5); ctx.moveTo(sx + 5, sy - 5); ctx.lineTo(sx - 5, sy + 5); }
+      else if (snap.tipo === "centro") { ctx.arc(sx, sy, 5, 0, 7); ctx.moveTo(sx - 3, sy); ctx.lineTo(sx + 3, sy); ctx.moveTo(sx, sy - 3); ctx.lineTo(sx, sy + 3); }
+      else if (snap.tipo === "cuadrante") { ctx.moveTo(sx, sy - 6); ctx.lineTo(sx + 6, sy); ctx.lineTo(sx, sy + 6); ctx.lineTo(sx - 6, sy); ctx.closePath(); }
+      else if (snap.tipo === "tangente") { ctx.arc(sx, sy + 4, 4, 0, 7); ctx.moveTo(sx - 7, sy); ctx.lineTo(sx + 7, sy); }
+      else if (snap.tipo === "perp") { ctx.moveTo(sx - 6, sy + 5); ctx.lineTo(sx + 6, sy + 5); ctx.moveTo(sx, sy + 5); ctx.lineTo(sx, sy - 6); }
+      else ctx.arc(sx, sy, 4, 0, 7);
+      ctx.stroke();
+      const NOM = {extremo: "extremo", medio: "punto medio", cruce: "intersección", centro: "centro", cuadrante: "cuadrante", tangente: "tangente", perp: "perpendicular", sobre: "sobre"};
+      ctx.fillStyle = acc; ctx.font = "10px " + css("--f"); ctx.fillText(NOM[snap.tipo] || "", sx + 9, sy + 14); }
     // escala gráfica
     const mm = [100, 200, 500, 1000, 2000, 5000, 10000, 20000].find(v => v * k > 60) || 50000;
     ctx.strokeStyle = ink; ctx.fillStyle = ink; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(34, H - 40); ctx.lineTo(34 + mm * k, H - 40); ctx.moveTo(34, H - 44); ctx.lineTo(34, H - 36); ctx.moveTo(34 + mm * k, H - 44); ctx.lineTo(34 + mm * k, H - 36); ctx.stroke();
@@ -1843,7 +1896,7 @@ const V2 = (() => {
     let p = aM(e.offsetX, e.offsetY);
     if (tmp && (tmp.tipo === "poli" || tmp.tipo === "poligono") && tmp.pts.length > 2) { const p0 = tmp.pts[0]; if (Math.hypot(p[0] - p0[0], p[1] - p0[1]) * k < 12) { snap = {p: p0, tipo: "extremo"}; return p0; } }
     const ex = arrastre && arrastre.excluir;
-    snap = iman_(p, ex); guia = null;
+    snap = iman_(p, ex, desde); guia = null;
     if (desde && angFijo != null) { p = enRayo(desde, snap ? snap.p : p, angFijo); guia = {o: desde, a: angFijo, fijo: true}; }   // ángulo escrito: la línea va por ahí
     else if (snap) p = snap.p;
     else if (desde && orto) p = ortoP(desde, p);
@@ -2839,7 +2892,7 @@ function rotulo() {
 // 2D
 document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => { document.querySelectorAll("[data-h]").forEach(x => x.classList.toggle("on", x === b)); V2.setHerr(b.dataset.h); $("grpVert").hidden = !["poli", "poligono"].includes(b.dataset.h); });
 const tog = (id, fn) => $(id).onclick = () => { const v = $(id).getAttribute("aria-pressed") !== "true"; $(id).setAttribute("aria-pressed", v); fn(v); };
-tog("btnOrto", v => V2.setOrto(v)); tog("btnIman", v => V2.setIman(v)); tog("btnDedo", v => V2.setDedo(!v));   // «Lápiz» activo = solo dibuja el Pencil (lo contrario del antiguo «Dedo») tog("btnDup", v => V2.setDup(v)); tog("btnMas", v => V2.setMas(v));
+tog("btnOrto", v => V2.setOrto(v)); tog("btnIman", v => V2.setIman(v)); tog("btnDedo", v => V2.setDedo(!v)); tog("btnDup", v => V2.setDup(v)); tog("btnMas", v => V2.setMas(v));   // «Lápiz» activo = solo dibuja el Pencil (lo contrario del antiguo «Dedo»)
 $("btnBorrarP").onclick = () => V2.borrarSel();
 $("btnDividir").onclick = () => V2.dividir();
 $("btnSumar").onclick = () => V2.booleana("sumar"); $("btnRestar").onclick = () => V2.booleana("restar"); $("btnInter").onclick = () => V2.booleana("intersectar");
