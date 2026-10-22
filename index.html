@@ -292,6 +292,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
           <button class="btn" data-h="rect" title="Dos esquinas"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 5.5h13v9h-13z"/></svg><span>Rectángulo</span></button>
           <button class="btn" data-h="circulo" title="Centro y radio"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3.5a6.5 6.5 0 1 0 0.01 0zM10 10h.01"/></svg><span>Círculo</span></button>
           <button class="btn" data-h="arco" title="Centro, inicio y final (sentido antihorario)"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 14a7 7 0 0 1 12-5M10 15h.01"/></svg><span>Arco</span></button>
+          <button class="btn" data-h="mano" title="A mano alzada, como en un cuaderno: va a la clase «Boceto» (para calcar). Con «Enderezar», cada trazo se convierte en línea, arco, círculo, rectángulo o polilínea limpios"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 14c2-5 4-7 5-4s1 5 3 2 3-7 6-6"/></svg><span>A mano</span></button>
           <button class="btn" data-h="texto" title="Texto"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5h10M10 5v11"/></svg><span>Texto</span></button>
           <button class="btn" data-h="mover" title="Dos puntos: de dónde a dónde (con «Duplicar», copia)"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2v16M2 10h16M10 2l-2 2.5M10 2l2 2.5M10 18l-2-2.5M10 18l2-2.5M2 10l2.5-2M2 10l2.5 2M18 10l-2.5-2M18 10l-2.5 2"/></svg><span>Mover</span></button>
           <button class="btn" data-h="girar" title="Centro, punto de referencia y destino, o escribe el ángulo"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 8A6 6 0 1 0 16 12M15.5 3.5v4.5h-4.5"/></svg><span>Girar</span></button>
@@ -313,6 +314,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
         <button class="btn" id="btnOrto" aria-pressed="false" title="Forzar ángulos de 0°, 45° y 90° (sin él, el lápiz se engancha a 30°, 45°, 60° y 90° con una guía de puntos)">Orto</button>
         <button class="btn" id="btnIman" aria-pressed="true">Imán</button>
         <button class="btn" id="btnDedo" aria-pressed="true" title="Activo: dibuja solo el Apple Pencil y el dedo mueve el plano. Desactivado: también dibuja el dedo (dos dedos mueven)">Lápiz</button>
+        <button class="btn" id="btnEnderezar" aria-pressed="false" hidden title="Activo: cada trazo a mano se convierte en línea, arco, círculo, rectángulo o polilínea, en la clase activa y enganchado a los puntos y ángulos. Inactivo: queda como boceto suavizado en la clase «Boceto»">Enderezar</button>
         <button class="btn" id="btnMas" aria-pressed="false" title="Cada toque añade (o quita) de la selección, como con mayúsculas">+ Selección</button>
         <button class="btn" id="btnDup" aria-pressed="false" title="Mover, girar y simetría dejan el original y hacen una copia">Duplicar</button>
         <span class="grupo" id="grpVert" hidden role="group" aria-label="Tipo de vértice">
@@ -459,7 +461,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
         </div>
         <div class="sec ed-only">
           <h3>Gestos</h3>
-          <p class="nota">Lápiz: dibuja y selecciona. Un dedo: mueve el plano; dos dedos: zoom. Con «Lápiz» desactivado, también dibuja el dedo y dos dedos mueven. Ratón: rueda para zoom, botón central o espacio para mover. Al dibujar, el trazo se engancha a 30°, 45°, 60° y 90° con una guía de puntos. Medidas exactas: con el primer punto puesto, escribe la longitud en mm e Intro (en el portátil también Tab o Mayúsculas); la longitud queda fija y pasas al ángulo: escríbelo e Intro, o marca la dirección con el lápiz. También al revés (primero el ángulo) o todo junto («3500 30»). En el iPad sin teclado: toca la casilla de longitud, escribe, «siguiente», el ángulo y «OK». Al girar, el ángulo en grados.</p>
+          <p class="nota">Lápiz: dibuja y selecciona. Un dedo: mueve el plano; dos dedos: zoom. Con «Lápiz» desactivado, también dibuja el dedo y dos dedos mueven. Ratón: rueda para zoom, botón central o espacio para mover. Al dibujar, el trazo se engancha a 30°, 45°, 60° y 90° con una guía de puntos. Medidas exactas: con el primer punto puesto, escribe la longitud en mm e Intro (en el portátil también Tab o Mayúsculas); la longitud queda fija y pasas al ángulo: escríbelo e Intro, o marca la dirección con el lápiz. También al revés (primero el ángulo) o todo junto («3500 30»). En el iPad sin teclado: toca la casilla de longitud, escribe, «siguiente», el ángulo y «OK». Al girar, el ángulo en grados. «A mano»: dibuja libre, como en un cuaderno; cada trazo queda como boceto suavizado en la clase «Boceto» (para calcar, y luego ocultarla). Con «Enderezar», cada trazo se convierte en línea, arco, círculo, rectángulo o polilínea limpios, en la clase activa y enganchado a puntos y ángulos.</p>
         </div>
       </div>
       <div id="pDocs" hidden>
@@ -1340,7 +1342,8 @@ const V2 = (() => {
   const cv = $("c2d"), ctx = cv.getContext("2d");
   let P = null, objs = [], porId = new Map(), idx = null, W = 0, H = 0, dpr = 1;
   let cx = 0, cy = 0, k = 0.05;                 // centro de la vista (mm) y escala (px por mm)
-  let herr = "sel", selec = new Set(), vSel = null;   // vSel: vértice seleccionado {d, k}
+  let herr = "sel", selec = new Set(), vSel = null;
+  let mano = null, enderezar = false;                  // trazo a mano en curso (puntos del modelo) y si se endereza al soltar   // vSel: vértice seleccionado {d, k}
   let ed = {}, nuevos = [], copias = [], hist = [], futuro = [];
   let tmp = null, cursor = null, snap = null, orto = false, guia = null, angFijo = null, lenFija = null, iman = true, dedo = false, espacio = false, duplicar = false;
   let editable = false, capaVis = {}, claseVis = {}, capaAct = null, escCapa = {};
@@ -1813,6 +1816,7 @@ const V2 = (() => {
     }
     // dibujo en curso
     if (tmp) dibujaTmp(acc);
+    if (mano && mano.pts.length > 1) { ctx.save(); ctx.strokeStyle = acc; ctx.lineWidth = 1.3; ctx.setLineDash([]); ctx.lineCap = ctx.lineJoin = "round"; camino(mano.pts, false); ctx.stroke(); ctx.restore(); }
     if (ventana) { ctx.strokeStyle = acc; ctx.setLineDash([3, 3]); ctx.lineWidth = 0.8; const [a, b] = [aP(...ventana[0]), aP(...ventana[1])]; ctx.strokeRect(a[0], a[1], b[0] - a[0], b[1] - a[1]); ctx.setLineDash([]); }
     if (snap && cursor) { const [sx, sy] = aP(snap.p[0], snap.p[1]); ctx.strokeStyle = acc; ctx.lineWidth = 1; ctx.beginPath();
       if (snap.tipo === "extremo") ctx.rect(sx - 5, sy - 5, 10, 10); else if (snap.tipo === "medio") { ctx.moveTo(sx - 6, sy + 5); ctx.lineTo(sx, sy - 6); ctx.lineTo(sx + 6, sy + 5); ctx.closePath(); } else if (snap.tipo === "cruce") { ctx.moveTo(sx - 5, sy - 5); ctx.lineTo(sx + 5, sy + 5); ctx.moveTo(sx + 5, sy - 5); ctx.lineTo(sx - 5, sy + 5); }
@@ -2311,6 +2315,7 @@ const V2 = (() => {
       if (hit) { tocar(p, e.shiftKey || masSel); const q = (iman_(p) || {p}).p; arrastre = {tipo: "mover", p0: q, excluir: new Set(selec), dx: 0, dy: 0, nuevoSel: true}; return; }
       arrastre = {tipo: "ventana", p0: p}; return;
     }
+    if (herr === "mano") { const p0 = aM(sp[0], sp[1]); mano = {pts: [enderezar ? ((iman_(p0) || {p: p0}).p) : p0]}; snap = null; arrastre = {tipo: "mano"}; pedir(); return; }
     if (herr === "texto") { pideTexto(puntoDe(e)); return; }
     if (herr === "desplazar") { if (!selec.size) toast("Selecciona primero lo que quieras desplazar"); else desplazarEn(aM(sp[0], sp[1])); return; }
     if (TRANSF.includes(herr) && !selec.size) { toast("Selecciona primero lo que quieras " + (herr === "mover" ? "mover o copiar" : herr === "girar" ? "girar" : "reflejar")); return; }
@@ -2320,6 +2325,14 @@ const V2 = (() => {
   }
   function plumaMueve(e) {
     if (!editable) return;
+    if (arrastre && arrastre.tipo === "mano" && mano) {
+      const b = cv.getBoundingClientRect(), evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+      for (const ev of (evs.length ? evs : [e])) {
+        const q = aM(ev.clientX - b.left, ev.clientY - b.top), u = mano.pts[mano.pts.length - 1];
+        if (Math.hypot(q[0] - u[0], q[1] - u[1]) * k > 1.5) mano.pts.push(q);
+      }
+      pedir(); return;
+    }
     if (herr !== "sel" && (tmp || !arrastre)) { cursor = puntoDe(e, desdeDe()); pedir(); return; }
     if (!arrastre) { snap = null; return; }
     if (arrastre.tipo === "vertice") {
@@ -2338,6 +2351,7 @@ const V2 = (() => {
   function plumaArriba(e) {
     const a = arrastre; arrastre = null;
     if (!a || !editable) return;
+    if (a.tipo === "mano") { terminaMano(); return; }
     if (a.tipo === "vertice" || a.tipo === "mover") { if (a.tipo === "mover" && !a.hecho) { if (!a.nuevoSel) tocar(aM(e.offsetX, e.offsetY), e.shiftKey || masSel); return; } snap = null; cursor = null; trasCambio(); return; }
     if (a.tipo === "ventana") {
       if (ventana) { const [p, q] = ventana; const x0 = Math.min(p[0], q[0]), x1 = Math.max(p[0], q[0]), y0 = Math.min(p[1], q[1]), y1 = Math.max(p[1], q[1]);
@@ -2400,15 +2414,93 @@ const V2 = (() => {
     nuevos.push(n); trasCambio();
     alSeleccion([n]);
   }
+  /* ---- a mano: boceto (polilínea suavizada, clase «Boceto») o enderezado (línea, arco, círculo, rectángulo, polilínea) */
+  function rdp(P, tol) {
+    if (P.length < 3) return P.slice();
+    const keep = new Uint8Array(P.length); keep[0] = keep[P.length - 1] = 1;
+    const pila = [[0, P.length - 1]];
+    while (pila.length) {
+      const [i, j] = pila.pop(); let dm = 0, im = -1;
+      for (let t = i + 1; t < j; t++) { const d = distSeg(P[t], P[i], P[j])[0]; if (d > dm) { dm = d; im = t; } }
+      if (dm > tol) { keep[im] = 1; pila.push([i, im], [im, j]); }
+    }
+    return P.filter((_, i) => keep[i]);
+  }
+  const largo = P => P.reduce((L, q, i) => i ? L + Math.hypot(q[0] - P[i - 1][0], q[1] - P[i - 1][1]) : 0, 0);
+  const giro = (a, b, c) => { const u = Math.atan2(b[1] - a[1], b[0] - a[0]), w = Math.atan2(c[1] - b[1], c[0] - b[0]); let d = Math.abs(w - u) * 180 / Math.PI; return d > 180 ? 360 - d : d; };
+  function circulo3(a, b, c) {
+    const d = 2 * (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1])); if (Math.abs(d) < 1e-9) return null;
+    const A = a[0] * a[0] + a[1] * a[1], B = b[0] * b[0] + b[1] * b[1], C = c[0] * c[0] + c[1] * c[1];
+    const o = [(A * (b[1] - c[1]) + B * (c[1] - a[1]) + C * (a[1] - b[1])) / d, (A * (c[0] - b[0]) + B * (a[0] - c[0]) + C * (b[0] - a[0])) / d];
+    return {o, r: Math.hypot(a[0] - o[0], a[1] - o[1])};
+  }
+  const pegar = p => enderezar && iman ? ((iman_(p) || {p}).p) : p;
+  function reconoce(P) {
+    const L = largo(P), a = P[0], b = P[P.length - 1], cuerda = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const tol = Math.max(7 / k, 0.035 * L), cerrado = cuerda < Math.max(18 / k, 0.15 * L);
+    if (!cerrado) {
+      if (P.every(q => distSeg(q, a, b)[0] <= Math.max(6 / k, 0.04 * cuerda))) {             // recta
+        const a2 = pegar(a); let b2 = pegar(b);
+        if (b2 === b) { const g = orto ? {p: ortoP(a2, b)} : guiaAng(a2, b); if (g) b2 = g.p; }
+        return {tipo: "linea", v: [a2, b2]};
+      }
+      let mi = 0, acc = 0; for (let i = 1; i < P.length; i++) { acc += Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]); if (acc >= L / 2) { mi = i; break; } }
+      const c = circulo3(a, P[mi], b);
+      if (c && c.r < 20 * L && P.every(q => Math.abs(Math.hypot(q[0] - c.o[0], q[1] - c.o[1]) - c.r) <= tol) && rdp(P, tol).length > 3) {   // arco
+        const ccw = (P[mi][0] - a[0]) * (b[1] - P[mi][1]) - (P[mi][1] - a[1]) * (b[0] - P[mi][0]) > 0;
+        const an = q => Math.atan2(q[1] - c.o[1], q[0] - c.o[0]) * 180 / Math.PI;
+        const ini = ccw ? an(a) : an(b); let bar = ((ccw ? an(b) - an(a) : an(a) - an(b)) % 360 + 360) % 360 || 360;
+        return {tipo: "arco", centro: c.o, r: c.r, ini, barrido: bar, v: poliArco(c.o, c.r, ini, bar)};
+      }
+      const Q = rdp(P, tol).map((q, i, A_) => (i === 0 || i === A_.length - 1) ? pegar(q) : q);
+      return {tipo: Q.length === 2 ? "linea" : "polilinea", v: Q};
+    }
+    // cerrado: círculo, rectángulo o polígono
+    const n = P.length; let cx_ = 0, cy_ = 0; for (const q of P) { cx_ += q[0] / n; cy_ += q[1] / n; }
+    const rs = P.map(q => Math.hypot(q[0] - cx_, q[1] - cy_)), rm = rs.reduce((x, y) => x + y, 0) / n;
+    if (rs.every(r => Math.abs(r - rm) <= Math.max(6 / k, 0.13 * rm))) { const o = pegar([cx_, cy_]); return {tipo: "circulo", cerr: true, centro: o, r: rm, v: poliArco(o, rm, 0, 360)}; }
+    let Q = rdp(P.concat([P[0]]), Math.max(8 / k, 0.06 * L)); Q = Q.slice(0, -1);
+    for (let i = 0; Q.length > 3 && i < Q.length; ) { if (giro(Q[(i - 1 + Q.length) % Q.length], Q[i], Q[(i + 1) % Q.length]) < 25) Q.splice(i, 1); else i++; }   // vértices casi rectos fuera
+    if (Q.length === 4 && Q.every((q, i) => Math.abs(giro(Q[(i + 3) % 4], q, Q[(i + 1) % 4]) - 90) < 22)) {
+      const xs = Q.map(q => q[0]), ys = Q.map(q => q[1]), ang = Math.atan2(Q[1][1] - Q[0][1], Q[1][0] - Q[0][0]) * 180 / Math.PI, m = ((ang % 90) + 90) % 90;
+      if (m < 10 || m > 80) {                                       // rectángulo a escuadra
+        const p0 = pegar([Math.min(...xs), Math.min(...ys)]), p1 = pegar([Math.max(...xs), Math.max(...ys)]);
+        return {tipo: "rect", cerr: true, v: [[p0[0], p0[1]], [p1[0], p0[1]], [p1[0], p1[1]], [p0[0], p1[1]]]};
+      }
+      const u = [Q[1][0] - Q[0][0], Q[1][1] - Q[0][1]], lu = Math.hypot(...u), e1 = [u[0] / lu, u[1] / lu], e2 = [-e1[1], e1[0]];   // girado: rectángulo exacto
+      const w2 = (Q[3][0] - Q[0][0]) * e2[0] + (Q[3][1] - Q[0][1]) * e2[1], o = Q[0];
+      return {tipo: "poligono", cerr: true, v: [o, [o[0] + e1[0] * lu, o[1] + e1[1] * lu], [o[0] + e1[0] * lu + e2[0] * w2, o[1] + e1[1] * lu + e2[1] * w2], [o[0] + e2[0] * w2, o[1] + e2[1] * w2]]};
+    }
+    return {tipo: "poligono", cerr: true, v: Q.map(pegar)};
+  }
+  function terminaMano() {
+    const P = mano ? mano.pts : []; mano = null; snap = null;
+    if (P.length < 2 || largo(P) * k < 4) { pedir(); return; }
+    let n;
+    if (enderezar) n = reconoce(P);
+    else {
+      const Q = rdp(P, 1.1 / k), a = Q[0], b = Q[Q.length - 1], cerr = Q.length > 3 && Math.hypot(b[0] - a[0], b[1] - a[1]) * k < 14;
+      const V = cerr ? Q.slice(0, -1) : Q;
+      const vt = V.map((q, i) => { if (!cerr && (i === 0 || i === V.length - 1)) return 0; const pa = V[(i - 1 + V.length) % V.length], pb = V[(i + 1) % V.length]; return giro(pa, q, pb) < 55 ? 2 : 0; });   // curvo salvo los quiebros
+      n = {tipo: V.length === 2 ? "linea" : cerr ? "poligono" : "polilinea", v: V};
+      if (cerr) n.cerr = true;
+      if (V.length > 2 && vt.some(t => t)) { n.vt = vt; n.vr = vt.map(() => 0); }
+    }
+    if (!editable) return;
+    guardaHist();
+    n.id = nid(); n.clase = enderezar ? $("selClase").value : "Boceto"; n.capa = capaAct;
+    attrInicial(n);
+    nuevos.push(n); trasCambio(); pedir();                 // se sigue dibujando: no se vuelve a la selección
+  }
   function alSeleccion(lista) {
     // como en Vectorworks al acabar un objeto: la herramienta de selección, con lo recién dibujado elegido (su info a la vista)
     if (herr === "sel") { seleccionaNuevos(lista); return; }
     herr = "sel"; tmp = null; cursor = null; snap = null; guia = null;
     document.querySelectorAll("[data-h]").forEach(x => x.classList.toggle("on", x.dataset.h === "sel"));
-    $("grpVert").hidden = true;
+    $("grpVert").hidden = true; $("btnEnderezar").hidden = true;
     seleccionaNuevos(lista);
   }
-  function cancelaPluma() { soltarFijos(); if (arrastre && arrastre.tipo === "mover" && arrastre.hecho) trasCambio(); tmp = null; arrastre = null; cursor = null; snap = null; ventana = null; $("btnFin").hidden = true; pedir(); }
+  function cancelaPluma() { mano = null; soltarFijos(); if (arrastre && arrastre.tipo === "mover" && arrastre.hecho) trasCambio(); tmp = null; arrastre = null; cursor = null; snap = null; ventana = null; $("btnFin").hidden = true; pedir(); }
   function setVertice(d, i, p) { edita(d, (e, nuevo) => { const g = (nuevo ? e.v : (e.v || d.base)).map(q => q.slice()); g[i] = p; e.v = g; }); }
   function tiposDe(d, e, nuevo) {
     if (nuevo) return e.vt ? [e.vt, e.vr || (e.vr = e.vt.map(() => 0))] : null;
@@ -2662,7 +2754,7 @@ const V2 = (() => {
   function setEditable(v) { editable = !!v; if (!editable) { cancelaPluma(); herr = "sel"; } vSel = null; infoSel(); pintaCapas(); pintaClases(); pedir(); }
   return {preparar, redim, encuadrar, pedir, deshacer, rehacer, borrarSel, aClase, aTrama, restauraSel, quitaVertice, terminaPoli, enviar, archivo, vaciar, longitud, setEditable, pintaClases, todasVis,
     aplicaAtributo, booleana, dividir, cambios: () => cambios(), setModoV(v) { modoV = v; pedir(); }, setMas(v) { masSel = v; }, tipoVertice,
-    setHerr(h) { if (tmp && (tmp.tipo === "poli" || tmp.tipo === "poligono") && tmp.pts.length >= 2) terminaPoli(); herr = h; cancelaPluma(); }, setOrto(v) { orto = v; }, fijaAng, fijaLong, conLongFija, dibujando: () => !!(tmp && tmp.pts.length), lineal: () => !!(tmp && LINEALES.includes(tmp.tipo)), setIman(v) { iman = v; }, setDedo(v) { dedo = v; }, setDup(v) { duplicar = v; },
+    setHerr(h) { if (tmp && (tmp.tipo === "poli" || tmp.tipo === "poligono") && tmp.pts.length >= 2) terminaPoli(); herr = h; cancelaPluma(); }, setOrto(v) { orto = v; }, fijaAng, fijaLong, conLongFija, dibujando: () => !!(tmp && tmp.pts.length), lineal: () => !!(tmp && LINEALES.includes(tmp.tipo)), setIman(v) { iman = v; }, setEnderezar(v) { enderezar = v; }, setDedo(v) { dedo = v; }, setDup(v) { duplicar = v; },
     hay: () => !!P, tema() { patrones.clear(); pedir(); }};
 })();
 
@@ -3444,8 +3536,10 @@ function rotulo() {
   $("rotulo").innerHTML = (S.proyecto ? S.proyecto.id : "") + " · " + D.titulo + "<span>" + $("selCam").selectedOptions[0].textContent + (+$("rExplota").value ? " · explotada" : "") + "</span>";
 }
 // 2D
-document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => { document.querySelectorAll("[data-h]").forEach(x => x.classList.toggle("on", x === b)); V2.setHerr(b.dataset.h); $("grpVert").hidden = !["poli", "poligono"].includes(b.dataset.h); });
+document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => { document.querySelectorAll("[data-h]").forEach(x => x.classList.toggle("on", x === b)); V2.setHerr(b.dataset.h); $("grpVert").hidden = !["poli", "poligono"].includes(b.dataset.h); $("btnEnderezar").hidden = b.dataset.h !== "mano"; });
 const tog = (id, fn) => $(id).onclick = () => { const v = $(id).getAttribute("aria-pressed") !== "true"; $(id).setAttribute("aria-pressed", v); fn(v); };
+tog("btnEnderezar", v => { V2.setEnderezar(v); ls("visor.ed.enderezar", v); });
+if (ls("visor.ed.enderezar")) { $("btnEnderezar").setAttribute("aria-pressed", "true"); V2.setEnderezar(true); }
 tog("btnOrto", v => V2.setOrto(v)); tog("btnIman", v => V2.setIman(v)); tog("btnDedo", v => V2.setDedo(!v)); tog("btnDup", v => V2.setDup(v)); tog("btnMas", v => V2.setMas(v));   // «Lápiz» activo = solo dibuja el Pencil (lo contrario del antiguo «Dedo»)
 $("btnBorrarP").onclick = () => V2.borrarSel();
 $("btnDividir").onclick = () => V2.dividir();
