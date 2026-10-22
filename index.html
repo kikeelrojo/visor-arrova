@@ -3314,7 +3314,7 @@ const Notas = (() => {
     if (e === "ok") return '<span class="nota">Visto bueno de ' + escH(n.resuelto_por) + (n.resuelto_en ? " · " + fecha(n.resuelto_en) : "") + (n.corregido_por ? " · corrigió " + escH(n.corregido_por) : "") + "</span> " + L("reabrir", "Reabrir");
     const r = '<button class="lnk" data-resp>Responder</button> ';
     if (e === "pendiente") return r + L("encargo", "Me encargo", "Para que se sepa que lo estás corrigiendo") + L("corregido", "Corregido") + claude;
-    if (e === "curso") return r + L("corregido", "Corregido") + L("soltar", "Dejarlo", "Ya no lo corriges tú: vuelve a pendiente") + claude;
+    if (e === "curso") return r + L("corregido", "Corregido") + L("soltar", "Ya no me encargo", "Si al final no lo vas a corregir tú: vuelve a «Pendiente» para que lo coja otro") + claude;
     return r + L("ok", "Visto bueno", "Está bien: se agrupa en «Resueltos»") + L("mal", "No está bien", "Vuelve a pendiente; di qué falta en la respuesta") + claude;
   }
   function htmlLista(lst, conCompositor) {
