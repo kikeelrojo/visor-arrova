@@ -661,6 +661,32 @@ const V3 = (() => {
   const instMat = c => matCache["__i" + c] || (matCache["__i" + c] = new THREE.LineBasicMaterial({color: tinta(c), depthTest: false, transparent: true}));
   const instRel = c => matCache["__r" + c] || (matCache["__r" + c] = new THREE.MeshBasicMaterial({color: (c && c[0] + c[1] + c[2] < 90) ? colores().ink : (c && c[0] + c[1] + c[2] > 750 ? colores().paper : rgb(c, 0xffffff)), depthTest: false, transparent: true, side: THREE.DoubleSide}));
   const instSolido = c => matCache["__s" + c] || (matCache["__s" + c] = new THREE.MeshLambertMaterial({color: rgb(c, 0x888888), side: THREE.DoubleSide}));
+  // dibujo a línea: cara del papel (algo atrás, para que se vean sus aristas) y silueta por «casco invertido» de ancho fijo en píxeles
+  const HULL_U = {res: {value: new THREE.Vector2(1, 1)}, ancho: {value: 1.3}};
+  const instPapel = () => matCache.__ip || (matCache.__ip = new THREE.MeshBasicMaterial({color: colores().paper, side: THREE.FrontSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 2}));
+  const hullMat = color => new THREE.ShaderMaterial({
+    uniforms: {color: {value: color}, res: HULL_U.res, ancho: HULL_U.ancho}, side: THREE.BackSide, clipping: true,
+    vertexShader: "#include <common>\n#include <clipping_planes_pars_vertex>\nuniform vec2 res; uniform float ancho;\nvoid main() {\n" +
+      " vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n vec4 p = projectionMatrix * mvPosition;\n" +
+      " vec2 d = (projectionMatrix * vec4(normalMatrix * normal, 0.0)).xy * res;\n float l = length(d);\n" +
+      " if (l > 1e-6) p.xy += d / l * ancho * 2.0 / res * p.w;\n gl_Position = p;\n#include <clipping_planes_vertex>\n}",
+    fragmentShader: "uniform vec3 color;\n#include <clipping_planes_pars_fragment>\nvoid main() {\n#include <clipping_planes_fragment>\n gl_FragColor = vec4(color, 1.0);\n}"});
+  // a línea, la maquinaria (gris) se dibuja con la tinta: blanco y negro, sin grises
+  const tintaLinea = c => (c && Math.max(c[0], c[1], c[2]) - Math.min(c[0], c[1], c[2]) < 24) ? colores().ink : tinta(c);
+  const instHull = c => matCache["__h" + c] || (matCache["__h" + c] = hullMat(tintaLinea(c)));
+  const instHullSel = () => matCache.__hs || (matCache.__hs = hullMat(colores().accent));
+  const instEdge = c => matCache["__e" + c] || (matCache["__e" + c] = new THREE.LineBasicMaterial({color: tintaLinea(c)}));
+  const instEdgeSel = () => matCache.__es || (matCache.__es = new THREE.LineBasicMaterial({color: colores().accent}));
+  const instMatEstilo = c => estilo === "linea" ? instPapel() : instSolido(c);
+  function estiloInst() {
+    const lin = estilo === "linea";
+    for (const m of instMallas) {
+      const sel = instSelec.includes(m), u = m.userData;
+      m.material = lin ? instPapel() : (sel ? instSolidoSel() : instSolido(u.col));
+      u.hull.visible = lin; u.hull.material = sel ? instHullSel() : instHull(u.col);
+      if (u.ed) { u.ed.visible = lin; u.ed.material = sel ? instEdgeSel() : instEdge(u.col); }
+    }
+  }
   const instSolidoSel = () => matCache.__ss || (matCache.__ss = new THREE.MeshLambertMaterial({color: colores().accent, emissive: colores().accent, emissiveIntensity: 0.35, side: THREE.DoubleSide}));
   const instSel = () => matCache.__is || (matCache.__is = new THREE.LineBasicMaterial({color: colores().accent, depthTest: false, transparent: true}));
 
@@ -698,9 +724,14 @@ const V3 = (() => {
         g.add(ln); instLineas.push(ln);
       }
       // tubos, conductos y aparatos con sus medidas (Enrique 22-oct, MEP «de verdad»): una malla por color, en la capa 1
-      if (e.s && e.s.length) for (const [col, geo] of solidosGeo(e)) {
-        const m = new THREE.Mesh(geo, instSolido(col)); m.layers.set(1); m.userData = {g, instS: true, col};
-        g.add(m); instMallas.push(m);
+      // a «Línea», dibujo: cara del color del papel, contorno (silueta) del color de su red y, en cajas y cilindros, sus aristas
+      if (e.s && e.s.length) for (const [col, geo, kd] of solidosGeo(e)) {
+        const m = new THREE.Mesh(geo, instMatEstilo(col)); m.layers.set(1);
+        const hull = new THREE.Mesh(geo, instHull(col)); hull.layers.set(1); hull.userData = {g, instHull: true};
+        const ed = kd === "o" ? new THREE.LineSegments(new THREE.EdgesGeometry(geo, 25), instEdge(col)) : null;
+        if (ed) { ed.layers.set(1); ed.userData = {g, instEdge: true}; }
+        m.userData = {g, instS: true, col, hull, ed};
+        g.add(m); g.add(hull); if (ed) g.add(ed); instMallas.push(m);
       }
       // el icono de la lámina (Enrique 22-oct): el mismo símbolo que en los planos 2D, con sus colores y rellenos, siempre de frente
       if (e.ico) {
@@ -779,6 +810,7 @@ const V3 = (() => {
     estilo = e;
     for (const m of meshes) m.material = resalta && !resalta.has(m.userData.g.userData.i) ? fantasma() : material(m.userData.parte.m);
     for (const a of aristas) a.material = resalta ? lineaTenue() : lineaMat();
+    estiloInst();
     visibilidad();
     const C = colores();
     renderer.setClearColor(estilo === "mapa" ? 0xffffff : C.paper, 1);
@@ -923,11 +955,13 @@ const V3 = (() => {
     if (ent.length) h += "<tr><td colspan=2>&nbsp;</td></tr>" + ent.map(([k, v]) => "<tr><td>" + k + "</td><td>" + v + "</td></tr>").join("");
     $("med").innerHTML = h || "<tr><td class=nota>Nada visible</td></tr>";
   }
-  function quitaRealce() { for (const r of realce) { r.parent && r.parent.remove(r); r.geometry.dispose(); } realce = []; for (const m of instSelec) m.material = instSolido(m.userData.col); instSelec = []; }
+  function quitaRealce() { for (const r of realce) { r.parent && r.parent.remove(r); r.geometry.dispose(); } realce = []; const ss_ = instSelec; instSelec = []; if (ss_.length) estiloInst(); }
   function realzar(gs) {
     quitaRealce();
     for (const g of gs) for (const m of [...g.children]) if (m.userData.instS) {
-      m.material = instSolidoSel(); instSelec.push(m);
+      instSelec.push(m); estiloInst();
+    } else if (m.userData.instHull || m.userData.instEdge) {
+      continue;
     } else if (m.isMesh) {
       const l = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 25), resalta ? realceMat() : selMat()); l.userData.realce = true; l.renderOrder = 10; g.add(l); realce.push(l);
     } else if (m.isLine && m.userData.inst) {
@@ -987,8 +1021,10 @@ const V3 = (() => {
   // los iconos de las instalaciones miran siempre a la cámara (en planta quedan como en los planos 2D)
   const _qi = new THREE.Quaternion();
   function orientaIconos() { for (const ig of instIconos) { ig.parent.getWorldQuaternion(_qi); ig.quaternion.copy(_qi.invert().multiply(cam.quaternion)); } }
+  const _rv = new THREE.Vector2();
   function render() {
     orientaIconos();
+    renderer.getDrawingBufferSize(_rv); HULL_U.res.value.copy(_rv); HULL_U.ancho.value = 0.65 * renderer.getPixelRatio();
     const hay = instMallas.length && grupoVis.instalaciones !== false;
     if (hay && instAtraves) {
       // primero la obra; luego, borrada la profundidad, las instalaciones (se ven a través de muros, suelos y techos)
@@ -1003,7 +1039,7 @@ const V3 = (() => {
   // ------------------------------------------------------------------ instalaciones: mallas de tubos y aparatos
   function solidosGeo(e) {
     const V = THREE.Vector3, grupos = new Map();
-    const G = c => { const k = String(c); if (!grupos.has(k)) grupos.set(k, {c, p: [], n: [], i: []}); return grupos.get(k); };
+    const G = (c, kd) => { const k = String(c) + "|" + kd; if (!grupos.has(k)) grupos.set(k, {c, kd, p: [], n: [], i: []}); return grupos.get(k); };
     const base = (A, d) => { const a = Math.abs(d.z) < 0.9 ? new V(0, 0, 1) : new V(1, 0, 0); const u = new V().crossVectors(d, a).normalize(); return [u, new V().crossVectors(d, u)]; };
     function cil(A, B, r, o, n, tapas) {
       const d = new V().subVectors(B, A), L = d.length(); if (L < 1e-6) return; d.divideScalar(L);
@@ -1015,7 +1051,7 @@ const V3 = (() => {
         const c0 = o.p.length / 3; o.p.push(P.x, P.y, P.z); o.n.push(d.x * sg, d.y * sg, d.z * sg);
         for (let k = 0; k <= n; k++) { const t = 2 * Math.PI * k / n, c = Math.cos(t), s = Math.sin(t);
           o.p.push(P.x + (u.x * c + w.x * s) * r, P.y + (u.y * c + w.y * s) * r, P.z + (u.z * c + w.z * s) * r); o.n.push(d.x * sg, d.y * sg, d.z * sg); }
-        for (let k = 0; k < n; k++) o.i.push(c0, c0 + 1 + k, c0 + 2 + k);
+        for (let k = 0; k < n; k++) { if (sg > 0) o.i.push(c0, c0 + 1 + k, c0 + 2 + k); else o.i.push(c0, c0 + 2 + k, c0 + 1 + k); }
       }
     }
     function bola(P, r, o, n) {
@@ -1032,12 +1068,12 @@ const V3 = (() => {
           for (let q = 0; q < 3; q++) o.p.push((q === 0 ? c.x : q === 1 ? c.y : c.z) + N[q] * hn * sg + A[q] * ha * sa + B[q] * hb * sb);
           o.n.push(N[0] * sg, N[1] * sg, N[2] * sg);
         }
-        o.i.push(b0, b0 + 1, b0 + 2, b0, b0 + 2, b0 + 3);
+        if (sg > 0) o.i.push(b0, b0 + 1, b0 + 2, b0, b0 + 2, b0 + 3); else o.i.push(b0, b0 + 2, b0 + 1, b0, b0 + 3, b0 + 2);
       }
     }
     const lados = r => r < 20 ? 6 : r < 50 ? 10 : 16;
     for (const s of e.s) {
-      const o = G(s.col || e.c);
+      const o = G(s.col || e.c, s.k === "t" ? "t" : "o");
       if (s.k === "t") {
         const r = s.r / 1000, n = lados(s.r), P = [];
         for (let k = 0; k + 2 < s.p.length; k += 3) P.push(new V(s.p[k] / 1000, s.p[k + 1] / 1000, s.p[k + 2] / 1000));
@@ -1056,7 +1092,7 @@ const V3 = (() => {
       geo.setAttribute("position", new THREE.Float32BufferAttribute(o.p, 3)); geo.setAttribute("normal", new THREE.Float32BufferAttribute(o.n, 3));
       geo.setIndex(o.p.length / 3 > 65535 ? new THREE.Uint32BufferAttribute(o.i, 1) : new THREE.Uint16BufferAttribute(o.i, 1));
       geo.computeBoundingSphere(); geo.computeBoundingBox();
-      out.push([o.c, geo]);
+      out.push([o.c, geo, o.kd]);
     }
     return out;
   }
