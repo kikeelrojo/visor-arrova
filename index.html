@@ -88,6 +88,17 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 .tool2d .btn.on,.tool2d .btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .tool2d .grupo{display:flex}
 .tool2d .grupo .btn+.btn{border-left:0}
+.oip-t{font-weight:700;font-size:var(--s-m);margin:2px 0 8px}
+.oip2{display:grid;grid-template-columns:auto minmax(0,1fr);gap:5px 8px;align-items:center;font-size:var(--s-s)}
+.oip2 label{white-space:nowrap}
+.oip2 select{width:100%;min-width:0}
+.oip2 input{width:100%;max-width:120px;border:0.5px solid var(--ink);background:var(--paper);padding:3px 5px;text-align:right;font-variant-numeric:tabular-nums}
+.oip2 .u{font-size:var(--s-xs)}
+.oip2 span{font-variant-numeric:tabular-nums}
+.oip-ref{grid-column:1/-1;padding:2px 0}
+.rej{display:grid;grid-template-columns:repeat(3,14px);gap:6px}
+.rej button{width:12px;height:12px;border-radius:50%;border:0.5px solid var(--ink);background:transparent;padding:0;cursor:pointer}
+.rej button.on{background:var(--ink)}
 .oip{display:grid;gap:4px;margin-top:6px}.oip label{display:grid;grid-template-columns:64px 90px auto;align-items:center;gap:6px;font-size:var(--s-s)}
 .oip input{width:90px;border:0.5px solid var(--ink);background:var(--paper);padding:3px 5px;text-align:right;font-variant-numeric:tabular-nums}
 .tool2d #inAng{width:72px}
@@ -367,11 +378,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
           <h3>Info del objeto</h3>
           <div class="insp" id="insp2d"><span class="nota">Toca un objeto para ver qué es.</span></div>
           <div class="fila" id="accSel" hidden>
-            <button class="btn" id="btnBorrar">Borrar</button>
-            <button class="btn" id="btnAClase" title="Pone la clase activa">Poner clase activa</button>
-            <button class="btn" id="btnATrama" title="Pone la trama elegida arriba (polígonos cerrados)">Poner trama</button>
             <button class="btn" id="btnQuitaV" hidden>Quitar vértice</button>
-            <button class="btn" id="btnRestaura">Deshacer cambios del objeto</button>
           </div>
         </div>
         <div class="sec ed-only">
@@ -1189,7 +1196,7 @@ const V2 = (() => {
     return q;
   }
   function claseDe(d) { return d.nuevo ? d.o.clase : (d.copia ? (d.copia.clase || claseDe(d.orig)) : ((ed[d.id] || {}).clase || d.o.clase)); }
-  function capaDe(d) { return d.nuevo ? (d.o.capa || capaAct) : d.o.capa; }
+  function capaDe(d) { return d.nuevo ? (d.o.capa || capaAct) : (d.copia ? (d.copia.capa || capaDe(d.orig)) : ((ed[d.id] || {}).capa || d.o.capa)); }
   function tramaDe(d) { if (d.nuevo) return d.o.trama; if (d.copia) return tramaDe(d.orig); const e = ed[d.id]; return e && "trama" in e ? e.trama : d.o.trama; }
   const borrado = d => !d.nuevo && !d.copia && ((ed[d.id] || {}).borrado || (ed[d.id] || {}).consumido);
   const visible = d => (capaVis[capaDe(d)] !== false || capaDe(d) === capaAct) && claseVis[claseDe(d)] !== false;   // la capa activa siempre se ve
@@ -1638,6 +1645,7 @@ const V2 = (() => {
     if (!e.dx && !e.dy) { delete e.dx; delete e.dy; }
     if (e.pasos && !e.pasos.length) delete e.pasos;
     if (e.clase === d.o.clase) delete e.clase;
+    if (e.capa === d.o.capa) delete e.capa;
     if ("trama" in e && (e.trama || null) === (d.o.trama || null)) delete e.trama;
     if (!Object.keys(e).length) delete ed[d.id];
   }
@@ -1675,7 +1683,7 @@ const V2 = (() => {
       if (!d.o.uuid) continue;
       if (dup) { const c = {id: nid(), de: d.id, pasos: [JSON.parse(JSON.stringify(paso))]}; copias.push(c); nuevaSel.push(["c", c]); continue; }
       edita(d, e => {
-        if (d.edit) e.v = (e.v || d.base).map(p => mAp(m, p));
+        if (d.edit || e.v) e.v = (e.v || d.base).map(p => mAp(m, p));   /* con vértices propios (también un rectángulo con medidas cambiadas), se transforman ellos */
         else if (paso.mover && !e.pasos) { e.dx = (e.dx || 0) + paso.mover[0]; e.dy = (e.dy || 0) + paso.mover[1]; }
         else { if (!e.pasos) { e.pasos = []; if (e.dx || e.dy) { e.pasos.push({mover: [e.dx || 0, e.dy || 0]}); delete e.dx; delete e.dy; } } addPaso(e.pasos, paso); }
       });
@@ -1706,12 +1714,13 @@ const V2 = (() => {
       if (e.dx || e.dy) { c.dx = r2(e.dx); c.dy = r2(e.dy); }
       if (e.pasos) c.pasos = pasosR(e.pasos);
       if (e.clase) c.clase = e.clase;
+      if (e.capa && e.capa !== d.o.capa) c.capa = e.capa;
       if ("trama" in e) c.trama = e.trama || null;
       if (Object.keys(c).length > 3) out.push(c);       // los «consumidos» por una suma o resta sin más cambios no se mandan aquí
     }
     for (const cp of copias) {
       const o = porId.get(cp.de); if (!o || !o.o.uuid) continue;
-      const c = {op: "copiar", uuid: o.o.uuid, huella: o.o.h, pasos: pasosR(cp.pasos)}; if (cp.clase) c.clase = cp.clase; if (cp.attr) c.attr = attrR(cp.attr); out.push(c);
+      const c = {op: "copiar", uuid: o.o.uuid, huella: o.o.h, pasos: pasosR(cp.pasos)}; if (cp.clase) c.clase = cp.clase; if (cp.capa) c.capa = cp.capa; if (cp.attr) c.attr = attrR(cp.attr); out.push(c);
     }
     for (const n of nuevos) {
       const c = {op: "nuevo", tipo: n.tipo, clase: n.clase, capa: n.capa || capaAct};
@@ -1768,42 +1777,133 @@ const V2 = (() => {
   // ángulo de una línea, como en Vectorworks: grados antihorarios desde la horizontal, entre -180 y 180
   function angLinea(g) { const a = Math.atan2(g[1][1] - g[0][1], g[1][0] - g[0][0]) * 180 / Math.PI; return Math.abs(a) < 0.005 ? 0 : a; }
   function lineaEditable(d) { if (!editable || d.caja || d.cerr || d.texto) return null; if (!d.nuevo && !d.edit) return null; const g = geomN(d); return g && g.length === 2 ? g : null; }
+  /* ---- info del objeto, como la paleta de Vectorworks: clase, capa, trama, medidas, punto de referencia y posición */
+  let refPt = ls("visor.refpt") || [0, 1];        // punto de referencia: [0..1 a lo ancho, 0..1 a lo alto]; por defecto arriba a la izquierda
+  const numIn = x => { const t = String(x).trim().replace(/\s/g, ""); return parseFloat(/,/.test(t) ? t.replace(/\./g, "").replace(",", ".") : t); };
+  const vIn = (x, dec = 1) => String(Math.round(x * 10 ** dec) / 10 ** dec).replace(".", ",");
+  function marcoRect(g) {
+    // rectángulo (girado o no): esquina, ejes U (ancho) y V (alto), medidas y giro
+    if (!g || g.length < 4) return null;
+    const q = g.length === 5 && Math.hypot(g[4][0] - g[0][0], g[4][1] - g[0][1]) < 0.01 ? g.slice(0, 4) : g;
+    if (q.length !== 4) return null;
+    const e1 = [q[1][0] - q[0][0], q[1][1] - q[0][1]], e2 = [q[3][0] - q[0][0], q[3][1] - q[0][1]];
+    const l1 = Math.hypot(...e1), l2 = Math.hypot(...e2); if (!l1 || !l2) return null;
+    if (Math.abs(e1[0] * e2[0] + e1[1] * e2[1]) / (l1 * l2) > 1e-3) return null;
+    if (Math.hypot(q[2][0] - (q[0][0] + e1[0] + e2[0]), q[2][1] - (q[0][1] + e1[1] + e2[1])) > 0.5) return null;
+    let a = Math.atan2(e1[1], e1[0]); a = ((a + Math.PI / 4) % (Math.PI / 2) + Math.PI / 2) % (Math.PI / 2) - Math.PI / 4;   // el lado más horizontal es el ancho
+    const U = [Math.cos(a), Math.sin(a)], V = [-Math.sin(a), Math.cos(a)];
+    let u0 = Infinity, u1 = -Infinity, v0 = Infinity, v1 = -Infinity;
+    for (const p of q) { const u = p[0] * U[0] + p[1] * U[1], v = p[0] * V[0] + p[1] * V[1]; u0 = Math.min(u0, u); u1 = Math.max(u1, u); v0 = Math.min(v0, v); v1 = Math.max(v1, v); }
+    return {U, V, a: a * 180 / Math.PI, w: u1 - u0, h: v1 - v0, c: [u0 * U[0] + v0 * V[0], u0 * U[1] + v0 * V[1]]};
+  }
+  const puntoRef = R_ => [R_.c[0] + refPt[0] * R_.w * R_.U[0] + refPt[1] * R_.h * R_.V[0], R_.c[1] + refPt[0] * R_.w * R_.U[1] + refPt[1] * R_.h * R_.V[1]];
+  function cajaDe(lista) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const d of lista) for (const p of puntosDe(d) || []) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); }
+    return isFinite(x0) ? {U: [1, 0], V: [0, 1], a: 0, w: x1 - x0, h: y1 - y0, c: [x0, y0]} : null;
+  }
+  function circuloDe(d) {
+    try { const ps = primsDe(d); if (ps.length === 1 && ps[0].A && Math.abs(ps[0].A.da) >= 2 * Math.PI - 1e-6) return ps[0].A; } catch (e) { /* no */ }
+    return null;
+  }
+  function setClase(c) { guardaHist(); for (const d of selec) { if (d.copia) d.copia.clase = c; else edita(d, e => { e.clase = c; }); } trasCambio(); }
+  function setCapa(c) { guardaHist(); for (const d of selec) { if (d.copia) d.copia.capa = c; else if (d.nuevo) d.o.capa = c; else edita(d, e => { e.capa = c; }); } trasCambio(); }
+  function setTramaSel(t) { guardaHist(); for (const d of selec) if (d.cerr && !d.copia) edita(d, e => { e.trama = t || null; }); trasCambio(); }
   function infoSel() {
-    const n = selec.size; $("accSel").hidden = !n || !editable; $("btnQuitaV").hidden = !vSel; if (editable) pintaAtributos();
+    const n = selec.size; $("accSel").hidden = !(editable && vSel); $("btnQuitaV").hidden = !vSel; if (editable) pintaAtributos();
     $("grpVert").hidden = !(editable && (vSel || herr === "poli" || herr === "poligono"));
-    if (!n) { $("insp2d").innerHTML = '<span class="nota">' + (editable ? "Toca un objeto para seleccionarlo; arrastra en vacío para seleccionar por ventana." : "Toca un objeto para ver qué es.") + "</span>"; return; }
-    if (n > 1) {
-      let A = 0; for (const d of selec) { const m = medidas(d).find(t => t.startsWith("área")); if (m) A += parseFloat(m.replace("área ", "").replace(/\./g, "").replace(",", ".")); }
-      $("insp2d").innerHTML = "<b>" + n + " objetos</b>" + (A ? "suma de áreas " + fmt(A, 3) + " m²<br>" : "") + (editable ? "Arrastra cualquiera para moverlos juntos." : ""); return;
+    const el = $("insp2d");
+    if (!n) { el.innerHTML = '<span class="nota">' + (editable ? "Toca un objeto para seleccionarlo; arrastra en vacío para seleccionar por ventana." : "Toca un objeto para ver qué es.") + "</span>"; return; }
+    const lista = [...selec], d = lista[0], o = d.o, uno = n === 1;
+    const puede = editable && lista.every(x => x.nuevo || x.copia || x.o.uuid);
+    // filas: [etiqueta, html del valor]
+    const filas = [];
+    const sel_ = (k, opciones, actual) => puede ? '<select data-k="' + k + '">' + opciones.map(([v, t]) => '<option value="' + escH(v) + '"' + (v === actual ? " selected" : "") + ">" + escH(t) + "</option>").join("") + "</select>" : escH((opciones.find(x => x[0] === actual) || [, actual || "—"])[1]);
+    const inp = (k, v, u, edit) => (puede && edit ? '<input data-k="' + k + '" inputmode="decimal" value="' + v + '">' : "<span>" + v + "</span>") + (u ? ' <span class="u">' + u + "</span>" : "");
+    const varias = vals => vals.every(v => v === vals[0]) ? vals[0] : "";
+    // clase, capa y trama
+    const clases = Object.keys(P.clases || {}).sort((a, b) => a.localeCompare(b, "es")), cl = varias(lista.map(claseDe));
+    if (cl && !clases.includes(cl)) clases.unshift(cl);
+    filas.push(["Clase", sel_("clase", (cl ? [] : [["", "(varias)"]]).concat(clases.map(c => [c, c])), cl)]);
+    const capas = (P.capas || []).map(c => c.n), cp = varias(lista.map(capaDe));
+    if (cp && !capas.includes(cp)) capas.unshift(cp);
+    filas.push(["Capa", sel_("capa", (cp ? [] : [["", "(varias)"]]).concat(capas.map(c => [c, c])), cp)]);
+    if (lista.some(x => x.cerr) && !lista.some(x => x.copia)) {
+      const tr = [["", "Sin trama"]].concat([...$("selTrama").options].filter(x => x.value).map(x => [x.value, x.textContent]));
+      filas.push(["Trama", sel_("trama", tr, varias(lista.map(x => tramaDe(x) || "")))]);
     }
-    const d = [...selec][0], o = d.o;
-    let h = "<b>" + (d.nuevo ? "Nuevo · " + (TIPOS_N[o.tipo] || o.tipo) : (d.copia ? "Copia · " : "") + (TIPOS[d.t] || "Objeto " + d.t)) + "</b>";
-    h += "capa " + esc(capaDe(d) || "—") + "<br>clase " + esc(claseDe(d) || "—");
-    const mm = mmDe(claseDe(d), d.nuevo ? null : o.lw); h += " · " + fmt(mm, 2) + " mm";
-    if (tramaDe(d)) h += "<br>trama " + esc(tramaDe(d));
-    const ms = medidas(d); if (ms.length) h += "<br>" + ms.join("<br>");
-    if (o.sim) h += "<br>símbolo " + esc(o.sim); if (o.po) h += "<br>" + esc(o.po); if (d.texto) h += "<br>«" + esc(o.txt || "") + "»";
-    const pts = puntosDe(d);
-    if (pts && pts.length && P.origen) { let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity; for (const p of pts) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); }
-      h += "<br>centro x " + fmt(((x0 + x1) / 2 - P.origen[0]) / 1000, 3) + " · y " + fmt(((y0 + y1) / 2 - P.origen[1]) / 1000, 3) + " m"; }
-    const gl = lineaEditable(d);
-    if (gl) h += '<div class="oip"><label>Longitud <input id="oipL" inputmode="decimal" value="' + Math.round(Math.hypot(gl[1][0] - gl[0][0], gl[1][1] - gl[0][1]) * 10) / 10 + '"> mm</label>' +
-      '<label>Ángulo <input id="oipA" inputmode="decimal" value="' + fmt(angLinea(gl), 1) + '"> °</label><span class="nota">Se mantiene el punto de inicio; Intro para aplicar.</span></div>';
-    if (!d.nuevo && !d.copia && !o.uuid) h += "<br><span style='color:var(--warn)'>Sin identificador: no se puede editar.</span>";
-    else if (editable && !d.nuevo && !d.copia && !d.edit) h += "<br><span class=nota>Se puede mover, girar, hacer simetría, copiar, borrar o cambiar de clase; sus vértices no.</span>";
-    $("insp2d").innerHTML = h;
-    if (gl) {
-      // cambiar lo que mide o el ángulo desde la info del objeto (como la paleta de Vectorworks): el inicio queda fijo
-      const num = x => parseFloat(String(x).replace(/\./g, (m, i, t) => /,/.test(t) ? "" : m).replace(",", "."));
-      const aplica = () => {
-        const L = num($("oipL").value), A = num($("oipA").value), g = geomN(d);
-        if (!(L > 0) || !(A === A) || !g) { infoSel(); return; }
-        const L0 = Math.hypot(g[1][0] - g[0][0], g[1][1] - g[0][1]), A0 = angLinea(g);
-        if (Math.abs(L - L0) < 0.05 && Math.abs(A - A0) < 0.005) return;
-        guardaHist(); setVertice(d, 1, [g[0][0] + L * Math.cos(A * Math.PI / 180), g[0][1] + L * Math.sin(A * Math.PI / 180)]); trasCambio();
-      };
-      for (const id of ["oipL", "oipA"]) { const f = $(id); f.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); aplica(); } if (e.key === "Escape") infoSel(); }); f.addEventListener("change", aplica); }
+    // geometría según el tipo
+    const g = uno ? (d.caja ? cajaPoli(d) : geomN(d) || forma(d)) : null;
+    const C = uno ? circuloDe(d) : null;
+    const esLinea = uno && g && g.length === 2 && !d.cerr && !d.caja && !d.texto;
+    const R_ = uno && !C && !esLinea ? (d.t === 3 || (d.nuevo && o.tipo === "rect") || d.cerr ? marcoRect(g) : null) : null;
+    const editaVert = uno && (d.nuevo || d.edit || d.t === 3) && !d.copia;
+    let ref = null, marco = null;
+    if (esLinea) {
+      filas.push(["Longitud", inp("L", vIn(Math.hypot(g[1][0] - g[0][0], g[1][1] - g[0][1])), "mm", editaVert)]);
+      filas.push(["Ángulo", inp("A", vIn(angLinea(g), 2), "°", editaVert)]);
+      ref = g[0];
+      filas.push(["Inicio X", inp("X", vIn(ref[0]), "mm", true)]); filas.push(["Inicio Y", inp("Y", vIn(ref[1]), "mm", true)]);
+      filas.push(["Final", "<span>" + vIn(g[1][0]) + " · " + vIn(g[1][1]) + "</span>"]);
+    } else if (C) {
+      filas.push(["Radio", inp("r", vIn(C.r), "mm", d.nuevo && o.tipo === "circulo")]); filas.push(["Diámetro", "<span>" + vIn(2 * C.r) + "</span> <span class=u>mm</span>"]);
+      ref = C.c; filas.push(["Centro X", inp("X", vIn(ref[0]), "mm", true)]); filas.push(["Centro Y", inp("Y", vIn(ref[1]), "mm", true)]);
+      filas.push(["Área", "<span>" + fmt(Math.PI * C.r * C.r / 1e6, 3) + "</span> <span class=u>m²</span>"]);
+    } else {
+      marco = R_ || cajaDe(lista);
+      if (marco) {
+        filas.push(["Ancho", inp("W", vIn(marco.w), "mm", !!R_ && editaVert)]); filas.push(["Alto", inp("H", vIn(marco.h), "mm", !!R_ && editaVert)]);
+        ref = puntoRef(marco);
+        filas.push(["", rejilla()]);
+        filas.push(["X", inp("X", vIn(ref[0]), "mm", true)]); filas.push(["Y", inp("Y", vIn(ref[1]), "mm", true)]);
+        if (R_) filas.push(["Giro", inp("rot", vIn(R_.a, 2), "°", true)]);
+      }
+      if (uno) for (const t of medidas(d)) { const [k_, ...v] = t.split(" "); if (/^(área|perímetro|longitud|vértices)$/.test(k_)) filas.push([k_[0].toUpperCase() + k_.slice(1), "<span>" + escH(v.join(" ")) + "</span>"]); else if (/vértices$/.test(t)) filas.push(["Vértices", "<span>" + escH(t.split(" ")[0]) + "</span>"]); }
+      else { let A = 0; for (const x of lista) { const m = medidas(x).find(t => t.startsWith("área")); if (m) A += parseFloat(m.replace("área ", "").replace(/\./g, "").replace(",", ".")); } if (A) filas.push(["Suma de áreas", "<span>" + fmt(A, 3) + "</span> <span class=u>m²</span>"]); }
     }
+    if (uno) { filas.push(["Grosor", "<span>" + fmt(mmDe(claseDe(d), d.nuevo ? null : o.lw), 2) + "</span> <span class=u>mm</span>"]);
+      if (o.sim) filas.push(["Símbolo", "<span>" + escH(o.sim) + "</span>"]); if (o.po) filas.push(["Objeto", "<span>" + escH(o.po) + "</span>"]); if (d.texto) filas.push(["Texto", "<span>«" + escH(o.txt || "") + "»</span>"]); }
+    const tit = uno ? (d.nuevo ? (TIPOS_N[o.tipo] || o.tipo) + " · nuevo" : (d.copia ? "Copia · " : "") + (TIPOS[d.t] || "Objeto " + d.t)) : n + " objetos";
+    let h = '<div class="oip-t">' + escH(tit) + '</div><div class="oip2">' + filas.map(([k_, v]) => k_ ? "<label>" + escH(k_) + "</label><div>" + v + "</div>" : '<div class="oip-ref">' + v + "</div>").join("") + "</div>";
+    if (uno && !d.nuevo && !d.copia && !o.uuid) h += "<span class=nota style='color:var(--warn)'>Sin identificador: no se puede editar.</span>";
+    el.innerHTML = h;
+    if (!puede) return;
+    // aplicar lo que se cambie
+    const val = k_ => { const f = el.querySelector('[data-k="' + k_ + '"]'); return f ? numIn(f.value) : NaN; };
+    const mover = (dx, dy) => { if (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01) return; transformar({mover: [dx, dy]}, false); };
+    const aplica = k_ => {
+      if (k_ === "clase") return setClase(el.querySelector('[data-k="clase"]').value);
+      if (k_ === "capa") return setCapa(el.querySelector('[data-k="capa"]').value);
+      if (k_ === "trama") return setTramaSel(el.querySelector('[data-k="trama"]').value);
+      const v = val(k_); if (!(v === v)) { infoSel(); return; }
+      if (k_ === "X" && ref) return mover(v - ref[0], 0);
+      if (k_ === "Y" && ref) return mover(0, v - ref[1]);
+      if (esLinea && (k_ === "L" || k_ === "A")) {
+        const L = k_ === "L" ? v : Math.hypot(g[1][0] - g[0][0], g[1][1] - g[0][1]), A = (k_ === "A" ? v : angLinea(g)) * Math.PI / 180;
+        if (!(L > 0)) { infoSel(); return; }
+        guardaHist(); setVertice(d, 1, [g[0][0] + L * Math.cos(A), g[0][1] + L * Math.sin(A)]); trasCambio(); return;
+      }
+      if (C && k_ === "r" && v > 0) { guardaHist(); edita(d, e => { e.r = v; e.v = poliArco(e.centro, v, 0, 360); }); trasCambio(); return; }
+      if (R_ && (k_ === "W" || k_ === "H")) {
+        const W = k_ === "W" ? v : R_.w, H = k_ === "H" ? v : R_.h; if (!(W > 0 && H > 0)) { infoSel(); return; }
+        const rp = puntoRef(R_), c0 = [rp[0] - refPt[0] * W * R_.U[0] - refPt[1] * H * R_.V[0], rp[1] - refPt[0] * W * R_.U[1] - refPt[1] * H * R_.V[1]];
+        const vs_ = [c0, [c0[0] + W * R_.U[0], c0[1] + W * R_.U[1]], [c0[0] + W * R_.U[0] + H * R_.V[0], c0[1] + W * R_.U[1] + H * R_.V[1]], [c0[0] + H * R_.V[0], c0[1] + H * R_.V[1]]];
+        guardaHist(); edita(d, e => { e.v = vs_; delete e.pasos; delete e.dx; delete e.dy; }); trasCambio(); return;
+      }
+      if (R_ && k_ === "rot" && ref) { const dA = v - R_.a; if (Math.abs(dA) > 1e-4) transformar({girar: [ref[0], ref[1], dA]}, false); return; }
+    };
+    el.querySelectorAll("select[data-k]").forEach(f => f.onchange = () => aplica(f.dataset.k));
+    el.querySelectorAll("input[data-k]").forEach(f => {
+      f.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); f.dataset.hecho = 1; aplica(f.dataset.k); } if (e.key === "Escape") infoSel(); });
+      f.addEventListener("change", () => { if (!f.dataset.hecho) aplica(f.dataset.k); });
+    });
+    el.querySelectorAll(".rej button").forEach(b => b.onclick = () => { refPt = [+b.dataset.x, +b.dataset.y]; ls("visor.refpt", refPt); infoSel(); });
+  }
+  function rejilla() {
+    // los nueve puntos de referencia (como en Vectorworks): de cuál se dan X e Y y cuál queda fijo al cambiar ancho, alto o giro
+    let h = '<div class="rej" role="group" aria-label="Punto de referencia">';
+    for (const y of [1, 0.5, 0]) for (const x of [0, 0.5, 1]) h += '<button data-x="' + x + '" data-y="' + y + '"' + (refPt[0] === x && refPt[1] === y ? ' class="on"' : "") + ' aria-label="Referencia"></button>';
+    return h + "</div>";
   }
 
   /* ---- paletas de capas y clases */
@@ -2910,8 +3010,7 @@ document.querySelectorAll("[data-vis]").forEach(b => b.onclick = () => V2.todasV
 $("btnZm").onclick = () => Docs.zoom(1 / 1.25); $("btnZp").onclick = () => Docs.zoom(1.25); $("btnZ0").onclick = () => Docs.zoom(0);
 $("btnFin").onclick = () => V2.terminaPoli();
 $("btnDeshacer").onclick = () => V2.deshacer(); $("btnRehacer").onclick = () => V2.rehacer();
-$("btnBorrar").onclick = () => V2.borrarSel(); $("btnAClase").onclick = () => V2.aClase(); $("btnATrama").onclick = () => V2.aTrama();
-$("btnQuitaV").onclick = () => V2.quitaVertice(); $("btnRestaura").onclick = () => V2.restauraSel();
+$("btnQuitaV").onclick = () => V2.quitaVertice();
 $("btnEnviar").onclick = () => V2.enviar(); $("btnArchivo").onclick = () => V2.archivo(); $("btnVaciar").onclick = () => V2.vaciar();
 $("btnEncuadre").onclick = () => V2.encuadrar();
 // longitud y ángulo en dos pasos, como en Vectorworks: «3500» e Intro (o Tab / Mayúsculas) fija la longitud y pasa al ángulo;
