@@ -88,6 +88,8 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 .tool2d .btn.on,.tool2d .btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .tool2d .grupo{display:flex}
 .tool2d .grupo .btn+.btn{border-left:0}
+.oip{display:grid;gap:4px;margin-top:6px}.oip label{display:grid;grid-template-columns:64px 90px auto;align-items:center;gap:6px;font-size:var(--s-s)}
+.oip input{width:90px;border:0.5px solid var(--ink);background:var(--paper);padding:3px 5px;text-align:right;font-variant-numeric:tabular-nums}
 .tool2d input{width:96px;border:0.5px solid var(--ink);background:var(--paper);padding:5px 6px}
 .paleta{position:absolute;top:10px;left:10px;display:flex;flex-direction:column;gap:0;z-index:2;max-height:calc(100% - 70px);overflow-y:auto;background:var(--paper)}
 .paleta .btn{display:flex;flex-direction:column;align-items:center;gap:1px;width:58px;padding:5px 2px 4px;font-size:9px;line-height:1.1;background:var(--paper)}
@@ -1700,10 +1702,16 @@ const V2 = (() => {
       if (n === 4 || d.t === 3) out.push("lados " + m3(Math.hypot(g[1][0] - g[0][0], g[1][1] - g[0][1])) + " × " + m3(Math.hypot(g[2][0] - g[1][0], g[2][1] - g[1][1])));
       if (!d.caja) out.push("área " + fmt(Math.abs(A) / 2e6, 3) + " m²");
       out.push("perímetro " + m3(L));
-    } else out.push("longitud " + m3(L));
-    if (!d.caja) out.push(g.length + " vértices");
+    } else {
+      out.push("longitud " + m3(L));
+      if (g.length === 2) out.push("ángulo " + fmt(angLinea(g), 1) + "°");
+    }
+    if (!d.caja && g.length > 2) out.push(g.length + " vértices");
     return out;
   }
+  // ángulo de una línea, como en Vectorworks: grados antihorarios desde la horizontal, entre -180 y 180
+  function angLinea(g) { const a = Math.atan2(g[1][1] - g[0][1], g[1][0] - g[0][0]) * 180 / Math.PI; return Math.abs(a) < 0.005 ? 0 : a; }
+  function lineaEditable(d) { if (!editable || d.caja || d.cerr || d.texto) return null; if (!d.nuevo && !d.edit) return null; const g = geomN(d); return g && g.length === 2 ? g : null; }
   function infoSel() {
     const n = selec.size; $("accSel").hidden = !n || !editable; $("btnQuitaV").hidden = !vSel; if (editable) pintaAtributos();
     $("grpVert").hidden = !(editable && (vSel || herr === "poli" || herr === "poligono"));
@@ -1722,9 +1730,24 @@ const V2 = (() => {
     const pts = puntosDe(d);
     if (pts && pts.length && P.origen) { let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity; for (const p of pts) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); }
       h += "<br>centro x " + fmt(((x0 + x1) / 2 - P.origen[0]) / 1000, 3) + " · y " + fmt(((y0 + y1) / 2 - P.origen[1]) / 1000, 3) + " m"; }
+    const gl = lineaEditable(d);
+    if (gl) h += '<div class="oip"><label>Longitud <input id="oipL" inputmode="decimal" value="' + Math.round(Math.hypot(gl[1][0] - gl[0][0], gl[1][1] - gl[0][1]) * 10) / 10 + '"> mm</label>' +
+      '<label>Ángulo <input id="oipA" inputmode="decimal" value="' + fmt(angLinea(gl), 1) + '"> °</label><span class="nota">Se mantiene el punto de inicio; Intro para aplicar.</span></div>';
     if (!d.nuevo && !d.copia && !o.uuid) h += "<br><span style='color:var(--warn)'>Sin identificador: no se puede editar.</span>";
     else if (editable && !d.nuevo && !d.copia && !d.edit) h += "<br><span class=nota>Se puede mover, girar, hacer simetría, copiar, borrar o cambiar de clase; sus vértices no.</span>";
     $("insp2d").innerHTML = h;
+    if (gl) {
+      // cambiar lo que mide o el ángulo desde la info del objeto (como la paleta de Vectorworks): el inicio queda fijo
+      const num = x => parseFloat(String(x).replace(/\./g, (m, i, t) => /,/.test(t) ? "" : m).replace(",", "."));
+      const aplica = () => {
+        const L = num($("oipL").value), A = num($("oipA").value), g = geomN(d);
+        if (!(L > 0) || !(A === A) || !g) { infoSel(); return; }
+        const L0 = Math.hypot(g[1][0] - g[0][0], g[1][1] - g[0][1]), A0 = angLinea(g);
+        if (Math.abs(L - L0) < 0.05 && Math.abs(A - A0) < 0.005) return;
+        guardaHist(); setVertice(d, 1, [g[0][0] + L * Math.cos(A * Math.PI / 180), g[0][1] + L * Math.sin(A * Math.PI / 180)]); trasCambio();
+      };
+      for (const id of ["oipL", "oipA"]) { const f = $(id); f.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); aplica(); } if (e.key === "Escape") infoSel(); }); f.addEventListener("change", aplica); }
+    }
   }
 
   /* ---- paletas de capas y clases */
