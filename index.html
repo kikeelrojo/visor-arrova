@@ -357,6 +357,12 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
             <div class="fila"><button class="btn" id="btnOjo" title="Cámara horizontal a la altura del ojo (dos puntos de fuga)">Poner a la altura del ojo</button></div>
           </div>
         </div>
+        <div class="sec" id="secInstVer" hidden>
+          <h3>Ver las instalaciones</h3>
+          <div class="fila"><span class="chk"><input type="checkbox" id="cInstAtraves" checked> Ver a través de la obra</span></div>
+          <div class="fila"><span class="chk"><input type="checkbox" id="cInstPuntos" checked> Edificio a puntos</span></div>
+          <div class="fila"><span class="chk"><input type="checkbox" id="cInstIconos"> Iconos de los planos 2D</span></div>
+        </div>
         <div class="sec">
           <h3>Explotar por plantas</h3>
           <label class="campo">Separación<input type="range" id="rExplota" min="0" max="8000" step="100" value="0"><output id="oExplota">0 m</output></label>
@@ -380,9 +386,6 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
           <h3>Instalaciones</h3>
           <div class="stats" id="instStats"></div>
           <div class="leyenda" id="instLeyenda"></div>
-          <div class="fila"><span class="chk"><input type="checkbox" id="cInstAtraves" checked> Ver a través de la obra</span></div>
-          <div class="fila"><span class="chk"><input type="checkbox" id="cInstPuntos" checked> Edificio a puntos</span></div>
-          <div class="fila"><span class="chk"><input type="checkbox" id="cInstIconos"> Iconos de los planos 2D</span></div>
           <p class="nota">Tubos, conductos y aparatos con sus medidas (diámetros y secciones orientativos, como en las memorias). Al tocar un elemento, la ficha dice cómo se dibuja en los planos 2D.</p>
         </div>
         <div class="sec">
@@ -829,7 +832,7 @@ const V3 = (() => {
   function visibilidad() {
     for (const g of elems) { const e = g.userData.e; g.visible = grupoVis[e.g] !== false && plantaVis[e.p] !== false && !(e.red && redVis[e.red] === false); }
     for (const ig of instIconos) ig.visible = !ig.userData.conSolido || instVerIconos;
-    if ($("secInst")) { $("secInst").hidden = !(D && D.elementos.some(e => e.g === "instalaciones") && grupoVis.instalaciones !== false); statsInst(); }
+    if ($("secInst")) { $("secInst").hidden = $("secInstVer").hidden = !(D && D.elementos.some(e => e.g === "instalaciones") && grupoVis.instalaciones !== false); statsInst(); }
     if (modoPuntos() !== puntosAct) { materiales(); visibilidad(); }
     // con el edificio entero y sin explotar, las aristas fundidas de todas las plantas (sin juntas entre plantas)
     const todas = explota === 0 && D.plantas.every(p => p.id === "entorno" || plantaVis[p.id] !== false);
