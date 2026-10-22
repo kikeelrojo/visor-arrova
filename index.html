@@ -90,6 +90,8 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 .tool2d .grupo .btn+.btn{border-left:0}
 .oip{display:grid;gap:4px;margin-top:6px}.oip label{display:grid;grid-template-columns:64px 90px auto;align-items:center;gap:6px;font-size:var(--s-s)}
 .oip input{width:90px;border:0.5px solid var(--ink);background:var(--paper);padding:3px 5px;text-align:right;font-variant-numeric:tabular-nums}
+.tool2d #inAng{width:72px}
+.tool2d input.fija{font-weight:700}
 .tool2d input{width:96px;border:0.5px solid var(--ink);background:var(--paper);padding:5px 6px}
 .paleta{position:absolute;top:10px;left:10px;display:flex;flex-direction:column;gap:0;z-index:2;max-height:calc(100% - 70px);overflow-y:auto;background:var(--paper)}
 .paleta .btn{display:flex;flex-direction:column;align-items:center;gap:1px;width:58px;padding:5px 2px 4px;font-size:9px;line-height:1.1;background:var(--paper)}
@@ -265,7 +267,8 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
       <div class="tool2d" id="tool2d" hidden>
         <select id="selClase" aria-label="Clase activa" title="Clase activa (la de los objetos nuevos)"></select>
         <select id="selTrama" aria-label="Trama"></select>
-        <input id="inLong" inputmode="decimal" placeholder="mm  ángulo" aria-label="Longitud en mm y ángulo en grados" title="Mientras dibujas: «3500» longitud (o radio) en mm; «3500 30» longitud y ángulo; «<30» fija el ángulo y luego marcas la longitud. Al girar: el ángulo. Intro.">
+        <input id="inLong" inputmode="decimal" enterkeyhint="next" placeholder="longitud mm" aria-label="Longitud en mm" title="Escribe la longitud (o el radio) en mm e Intro (o Tab / Mayúsculas): queda fija y pasas al ángulo. Al girar: el ángulo.">
+        <input id="inAng" inputmode="decimal" enterkeyhint="done" placeholder="ángulo °" aria-label="Ángulo en grados" title="Ángulo en grados (antihorario desde la horizontal) e Intro. Vacío e Intro: la dirección que marques con el lápiz.">
         <button class="btn" id="btnOrto" aria-pressed="false" title="Forzar ángulos de 0°, 45° y 90° (sin él, el lápiz se engancha a 30°, 45°, 60° y 90° con una guía de puntos)">Orto</button>
         <button class="btn" id="btnIman" aria-pressed="true">Imán</button>
         <button class="btn" id="btnDedo" aria-pressed="true" title="Activo: dibuja solo el Apple Pencil y el dedo mueve el plano. Desactivado: también dibuja el dedo (dos dedos mueven)">Lápiz</button>
@@ -405,7 +408,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
         </div>
         <div class="sec ed-only">
           <h3>Gestos</h3>
-          <p class="nota">Lápiz: dibuja y selecciona. Un dedo: mueve el plano; dos dedos: zoom. Con «Lápiz» desactivado, también dibuja el dedo y dos dedos mueven. Ratón: rueda para zoom, botón central o espacio para mover. Al dibujar, el trazo se engancha a 30°, 45°, 60° y 90° con una guía de puntos. Mientras dibujas, escribe la longitud en mm y pulsa Intro; con el ángulo detrás («3500 30») sale con ese ángulo, y «<30» fija solo el ángulo. Al girar, el ángulo en grados.</p>
+          <p class="nota">Lápiz: dibuja y selecciona. Un dedo: mueve el plano; dos dedos: zoom. Con «Lápiz» desactivado, también dibuja el dedo y dos dedos mueven. Ratón: rueda para zoom, botón central o espacio para mover. Al dibujar, el trazo se engancha a 30°, 45°, 60° y 90° con una guía de puntos. Medidas exactas: con el primer punto puesto, escribe la longitud en mm e Intro (en el portátil también Tab o Mayúsculas); la longitud queda fija y pasas al ángulo: escríbelo e Intro, o marca la dirección con el lápiz. También al revés (primero el ángulo) o todo junto («3500 30»). En el iPad sin teclado: toca la casilla de longitud, escribe, «siguiente», el ángulo y «OK». Al girar, el ángulo en grados.</p>
         </div>
       </div>
       <div id="pDocs" hidden>
@@ -1065,7 +1068,7 @@ const V2 = (() => {
   let cx = 0, cy = 0, k = 0.05;                 // centro de la vista (mm) y escala (px por mm)
   let herr = "sel", selec = new Set(), vSel = null;   // vSel: vértice seleccionado {d, k}
   let ed = {}, nuevos = [], copias = [], hist = [], futuro = [];
-  let tmp = null, cursor = null, snap = null, orto = false, guia = null, angFijo = null, iman = true, dedo = false, espacio = false, duplicar = false;
+  let tmp = null, cursor = null, snap = null, orto = false, guia = null, angFijo = null, lenFija = null, iman = true, dedo = false, espacio = false, duplicar = false;
   let editable = false, capaVis = {}, claseVis = {}, capaAct = null, escCapa = {};
   const clave = () => "visor.cambios." + (S.proyecto ? S.proyecto.id : "") + "." + (P ? P.fecha : "");
   const claveVis = () => "visor.vis2d." + (S.proyecto ? S.proyecto.id : "");
@@ -1822,7 +1825,7 @@ const V2 = (() => {
     // como en Vectorworks: con una herramienta en marcha, lo que se teclea (números, ángulo) va solo a la casilla de medidas
     const enCampo = /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName) || e.target.isContentEditable;
     if (editable && tmp && !enCampo && !e.metaKey && !e.ctrlKey && !e.altKey && /^[0-9.,<@;\/+-]$/.test(e.key)) {
-      e.preventDefault(); const f = $("inLong"); f.focus(); f.value += e.key; try { f.setSelectionRange(f.value.length, f.value.length); } catch (er) { /* sin selección */ }
+      e.preventDefault(); const f = lenFija != null && angFijo == null ? $("inAng") : $("inLong"); f.focus(); f.value += e.key; try { f.setSelectionRange(f.value.length, f.value.length); } catch (er) { /* sin selección */ }
       return;
     }
     if (e.key === " " && e.target === document.body) { espacio = true; e.preventDefault(); }
@@ -1841,10 +1844,15 @@ const V2 = (() => {
     if (tmp && (tmp.tipo === "poli" || tmp.tipo === "poligono") && tmp.pts.length > 2) { const p0 = tmp.pts[0]; if (Math.hypot(p[0] - p0[0], p[1] - p0[1]) * k < 12) { snap = {p: p0, tipo: "extremo"}; return p0; } }
     const ex = arrastre && arrastre.excluir;
     snap = iman_(p, ex); guia = null;
-    if (desde && angFijo != null) { p = enRayo(desde, snap ? snap.p : p, angFijo); guia = {o: desde, a: angFijo, fijo: true}; return p; }   // ángulo escrito: la línea va por ahí
-    if (snap) p = snap.p;
+    if (desde && angFijo != null) { p = enRayo(desde, snap ? snap.p : p, angFijo); guia = {o: desde, a: angFijo, fijo: true}; }   // ángulo escrito: la línea va por ahí
+    else if (snap) p = snap.p;
     else if (desde && orto) p = ortoP(desde, p);
     else if (desde) { const g = guiaAng(desde, p); if (g) { p = g.p; guia = {o: desde, a: g.a}; } }
+    if (desde && lenFija != null && tmp && LINEALES.includes(tmp.tipo)) {        // longitud escrita: el lápiz solo da la dirección
+      let dx = p[0] - desde[0], dy = p[1] - desde[1], n = Math.hypot(dx, dy);
+      if (n < 1e-6) { dx = 1; dy = 0; n = 1; }
+      p = [desde[0] + dx / n * lenFija, desde[1] + dy / n * lenFija];
+    }
     return p;
   }
   const TRANSF = ["mover", "girar", "simetria"];
@@ -1913,8 +1921,9 @@ const V2 = (() => {
       punto(p);
     }
   }
+  function soltarFijos() { angFijo = null; lenFija = null; guia = null; for (const id of ["inAng"]) { const f = $(id); if (f) { f.value = ""; f.classList.remove("fija"); } } const f = $("inLong"); if (f && f.classList.contains("fija")) { f.value = ""; f.classList.remove("fija"); } }
   function punto(p) {
-    angFijo = null; guia = null;
+    soltarFijos();
     const ult = tmp.pts[tmp.pts.length - 1], T = tmp.tipo;
     if (Math.hypot(p[0] - ult[0], p[1] - ult[1]) < 0.5) return;
     if (T === "poli" || T === "poligono") {
@@ -1958,7 +1967,7 @@ const V2 = (() => {
     attrInicial(n);
     nuevos.push(n); trasCambio();
   }
-  function cancelaPluma() { angFijo = null; guia = null; if (arrastre && arrastre.tipo === "mover" && arrastre.hecho) trasCambio(); tmp = null; arrastre = null; cursor = null; snap = null; ventana = null; $("btnFin").hidden = true; pedir(); }
+  function cancelaPluma() { soltarFijos(); if (arrastre && arrastre.tipo === "mover" && arrastre.hecho) trasCambio(); tmp = null; arrastre = null; cursor = null; snap = null; ventana = null; $("btnFin").hidden = true; pedir(); }
   function setVertice(d, i, p) { edita(d, (e, nuevo) => { const g = (nuevo ? e.v : (e.v || d.base)).map(q => q.slice()); g[i] = p; e.v = g; }); }
   function tiposDe(d, e, nuevo) {
     if (nuevo) return e.vt ? [e.vt, e.vr || (e.vr = e.vt.map(() => 0))] : null;
@@ -2013,11 +2022,21 @@ const V2 = (() => {
     else { dx = c[0] - a[0]; dy = c[1] - a[1]; const n = Math.hypot(dx, dy) || 1; dx /= n; dy /= n; }
     punto([a[0] + dx * L, a[1] + dy * L]); return true;
   }
+  const LINEALES = ["linea", "poli", "poligono", "mover"];
+  function fijaLong(L) {
+    // la longitud queda fija; la dirección la da el lápiz (con sus guías) o el ángulo que se escriba después
+    if (!tmp || !tmp.pts.length || !(L > 0) || !LINEALES.includes(tmp.tipo)) return false;
+    if (angFijo != null) { longitud(L, angFijo); return "hecho"; }
+    lenFija = L; pedir(); return true;
+  }
   function fijaAng(A) {
     // «<30»: la siguiente línea sale con ese ángulo; la longitud se marca con el lápiz o se escribe
     if (!tmp || !tmp.pts.length || !(A === A) || tmp.tipo === "girar" || tmp.tipo === "rect" || tmp.tipo === "circulo") return false;
-    angFijo = ((A % 360) + 360) % 360; pedir(); return true;
+    angFijo = ((A % 360) + 360) % 360;
+    if (lenFija != null && LINEALES.includes(tmp.tipo)) { const L = lenFija; longitud(L, angFijo); return "hecho"; }
+    pedir(); return true;
   }
+  function conLongFija() { if (lenFija == null || !tmp) return false; const L = lenFija; longitud(L); return true; }
   async function enviar() {
     const C = cambios(); if (!C.cambios.length) { toast("No hay cambios que enviar"); return; }
     const db = await cap("db");
@@ -2202,7 +2221,7 @@ const V2 = (() => {
   function setEditable(v) { editable = !!v; if (!editable) { cancelaPluma(); herr = "sel"; } vSel = null; infoSel(); pintaCapas(); pintaClases(); pedir(); }
   return {preparar, redim, encuadrar, pedir, deshacer, rehacer, borrarSel, aClase, aTrama, restauraSel, quitaVertice, terminaPoli, enviar, archivo, vaciar, longitud, setEditable, pintaClases, todasVis,
     aplicaAtributo, booleana, dividir, cambios: () => cambios(), setModoV(v) { modoV = v; pedir(); }, setMas(v) { masSel = v; }, tipoVertice,
-    setHerr(h) { if (tmp && (tmp.tipo === "poli" || tmp.tipo === "poligono") && tmp.pts.length >= 2) terminaPoli(); herr = h; cancelaPluma(); }, setOrto(v) { orto = v; }, fijaAng, setIman(v) { iman = v; }, setDedo(v) { dedo = v; }, setDup(v) { duplicar = v; },
+    setHerr(h) { if (tmp && (tmp.tipo === "poli" || tmp.tipo === "poligono") && tmp.pts.length >= 2) terminaPoli(); herr = h; cancelaPluma(); }, setOrto(v) { orto = v; }, fijaAng, fijaLong, conLongFija, dibujando: () => !!(tmp && tmp.pts.length), lineal: () => !!(tmp && LINEALES.includes(tmp.tipo)), setIman(v) { iman = v; }, setDedo(v) { dedo = v; }, setDup(v) { duplicar = v; },
     hay: () => !!P, tema() { patrones.clear(); pedir(); }};
 })();
 
@@ -2842,15 +2861,40 @@ $("btnBorrar").onclick = () => V2.borrarSel(); $("btnAClase").onclick = () => V2
 $("btnQuitaV").onclick = () => V2.quitaVertice(); $("btnRestaura").onclick = () => V2.restauraSel();
 $("btnEnviar").onclick = () => V2.enviar(); $("btnArchivo").onclick = () => V2.archivo(); $("btnVaciar").onclick = () => V2.vaciar();
 $("btnEncuadre").onclick = () => V2.encuadrar();
-// «3500» longitud · «3500 30» (o 3500<30, 3500;30) longitud y ángulo · «<30» solo el ángulo
+// longitud y ángulo en dos pasos, como en Vectorworks: «3500» e Intro (o Tab / Mayúsculas) fija la longitud y pasa al ángulo;
+// «30» e Intro en el ángulo cierra el tramo (vacío e Intro: la dirección del lápiz). También vale todo junto: «3500 30» o «<30».
+const numF = x => x == null || x === "" ? null : parseFloat(String(x).replace(",", "."));
+function pasaAlAngulo() {
+  const f = $("inLong"), v = f.value.trim();
+  if (!/^[-+]?\d+(?:[.,]\d+)?$/.test(v) || !V2.lineal()) return false;
+  const r = V2.fijaLong(numF(v));
+  if (r === "hecho") { f.value = ""; f.classList.remove("fija"); $("inAng").value = ""; $("inAng").classList.remove("fija"); return true; }
+  if (r) { f.classList.add("fija"); $("inAng").focus(); toast("Longitud fija: " + v + " mm. Ahora el ángulo, o marca la dirección con el lápiz", 2500); return true; }
+  return false;
+}
 $("inLong").addEventListener("keydown", e => {
+  if ((e.key === "Tab" && !e.shiftKey) || (e.key === "Shift" && !e.repeat)) { if (pasaAlAngulo()) e.preventDefault(); return; }
   if (e.key !== "Enter") return;
+  if (pasaAlAngulo()) { e.preventDefault(); return; }
   const m = e.target.value.trim().match(/^([-+]?\d+(?:[.,]\d+)?)?\s*(?:(?:<|@|;|\/|\s)\s*([-+]?\d+(?:[.,]\d+)?)\s*°?)?$/);
   const num = x => x == null ? null : parseFloat(x.replace(",", "."));
   if (!m || (m[1] == null && m[2] == null)) { toast("Escribe la longitud en mm y, si quieres, el ángulo: «3500 30»"); return; }
   const L = num(m[1]), A = num(m[2]);
   if (L == null) { if (V2.fijaAng(A)) { e.target.value = ""; toast("Ángulo fijado: " + A + "°. Marca la longitud o escríbela", 2500); } else toast("Empieza la línea con un primer punto; luego escribe el ángulo"); return; }
   if (V2.longitud(L, A)) e.target.value = ""; else toast("Empieza una línea y apunta la dirección; luego escribe la longitud");
+});
+$("inAng").addEventListener("keydown", e => {
+  if (e.key === "Escape") { e.target.blur(); return; }
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  const v = e.target.value.trim().replace(/°$/, "");
+  if (v === "") { if (!V2.conLongFija()) toast("Escribe el ángulo en grados, o la longitud en la otra casilla"); return; }   // la dirección del lápiz
+  const A = numF(v);
+  if (!(A === A)) { toast("El ángulo en grados, por ejemplo 30"); return; }
+  const r = V2.fijaAng(A);
+  if (r === "hecho") { e.target.value = ""; $("inLong").value = ""; $("inLong").classList.remove("fija"); }
+  else if (r) { e.target.classList.add("fija"); toast("Ángulo fijo: " + A + "°. Ahora la longitud, o márcala con el lápiz", 2500); $("inLong").focus(); }
+  else toast("Empieza la línea con un primer punto; luego el ángulo");
 });
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { V3.tema(); V2.tema(); });
 new MutationObserver(() => { V3.tema(); V2.tema(); }).observe(document.documentElement, {attributes: true, attributeFilter: ["data-theme"]});
