@@ -828,15 +828,16 @@ const V3 = (() => {
     for (const g of elems) { const e = g.userData.e; g.visible = grupoVis[e.g] !== false && plantaVis[e.p] !== false && !(e.red && redVis[e.red] === false); }
     for (const ig of instIconos) ig.visible = !ig.userData.conSolido || instVerIconos;
     if ($("secInst")) { $("secInst").hidden = !(D && D.elementos.some(e => e.g === "instalaciones") && grupoVis.instalaciones !== false); statsInst(); }
-    if (modoPuntos() !== puntosAct) materiales();
+    if (modoPuntos() !== puntosAct) { materiales(); visibilidad(); }
     // con el edificio entero y sin explotar, las aristas fundidas de todas las plantas (sin juntas entre plantas)
     const todas = explota === 0 && D.plantas.every(p => p.id === "entorno" || plantaVis[p.id] !== false);
     for (const a of aristas) {
       const u = a.userData;
-      if (u.elem) { a.visible = estilo !== "mapa"; continue; }
+      const sinPiel = modoPuntos() && (u.g === "piel" || u.g === "revoco");     // a puntos, sin tejas ni revoco: solo la obra
+      if (u.elem) { a.visible = estilo !== "mapa" && !sinPiel; continue; }
       const gl = todas && conGlobal[u.g + "|" + u.m];
       const plantaOk = String(u.p).startsWith("fachada:") ? true : plantaVis[u.p] !== false;
-      a.visible = estilo !== "mapa" && grupoVis[u.g] !== false && (u.global ? !!gl : (plantaOk && !gl));
+      a.visible = estilo !== "mapa" && !sinPiel && grupoVis[u.g] !== false && (u.global ? !!gl : (plantaOk && !gl));
     }
     mediciones(); pedir();
     try { Datos.refrescar(); } catch (e) { /* aún no está */ }
@@ -1135,13 +1136,24 @@ const V3 = (() => {
     }
     const lados = r => r < 20 ? 6 : r < 50 ? 10 : 16;
     for (const s of e.s) {
-      const o = G(s.col || e.c, s.k === "t" ? "t" : "o");
+      const o = G(s.col || e.c, s.k === "t" || s.k === "n" ? "t" : "o");
       if (s.k === "t") {
         const r = s.r / 1000, n = lados(s.r), P = [];
         for (let k = 0; k + 2 < s.p.length; k += 3) P.push(new V(s.p[k] / 1000, s.p[k + 1] / 1000, s.p[k + 2] / 1000));
         for (let k = 0; k + 1 < P.length; k++) cil(P[k], P[k + 1], r, o, n, false);
         for (const q of P) bola(q, r, o, n);
       } else if (s.k === "b") caja(new V(s.c[0] / 1000, s.c[1] / 1000, s.c[2] / 1000), s.d, s.u, o);
+      else if (s.k === "n") {
+        // punta de flecha: cono desde la base (c) en la dirección e
+        const A = new V(s.c[0] / 1000, s.c[1] / 1000, s.c[2] / 1000), d = new V(s.e[0], s.e[1], s.e[2]).normalize(), B = A.clone().addScaledVector(d, s.h / 1000);
+        const [u, w] = base(A, d), r = s.r / 1000, n = 16, b0 = o.p.length / 3;
+        for (let k = 0; k <= n; k++) { const t = 2 * Math.PI * k / n, c = Math.cos(t), sn = Math.sin(t), nx = u.x * c + w.x * sn, ny = u.y * c + w.y * sn, nz = u.z * c + w.z * sn;
+          o.p.push(A.x + nx * r, A.y + ny * r, A.z + nz * r, B.x, B.y, B.z); o.n.push(nx, ny, nz, nx, ny, nz); }
+        for (let k = 0; k < n; k++) { const i = b0 + 2 * k; o.i.push(i, i + 2, i + 1); }
+        const c0 = o.p.length / 3; o.p.push(A.x, A.y, A.z); o.n.push(-d.x, -d.y, -d.z);
+        for (let k = 0; k <= n; k++) { const t = 2 * Math.PI * k / n; o.p.push(A.x + (u.x * Math.cos(t) + w.x * Math.sin(t)) * r, A.y + (u.y * Math.cos(t) + w.y * Math.sin(t)) * r, A.z + (u.z * Math.cos(t) + w.z * Math.sin(t)) * r); o.n.push(-d.x, -d.y, -d.z); }
+        for (let k = 0; k < n; k++) o.i.push(c0, c0 + 2 + k, c0 + 1 + k);
+      }
       else if (s.k === "c") {
         const C = new V(s.c[0] / 1000, s.c[1] / 1000, s.c[2] / 1000), d = new V(s.e[0], s.e[1], s.e[2]).normalize(), hh = s.h / 2000;
         cil(C.clone().addScaledVector(d, -hh), C.clone().addScaledVector(d, hh), s.r / 1000, o, lados(s.r) + 6, true);
