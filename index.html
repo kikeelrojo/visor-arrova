@@ -183,6 +183,12 @@ h3 .adm{color:#7b1d2c}
 .a-claude{width:100%;color:var(--warn);border-color:var(--warn)}
 .a-claude[aria-pressed="true"]{background:var(--warn);color:var(--paper)}
 #secClaude .lnk{margin-top:6px}
+.resuelta{margin:0 0 10px;font-weight:700}
+details.resueltas{margin-top:8px}details.resueltas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-weight:700}
+details.resueltas button{opacity:.75}details.resueltas button.on{opacity:1}
+.notas.chat .nota-i{padding:3px 0;border:0;background:none}.notas.chat .nota-i .acc,.notas.chat .nota-i [data-borrar]{display:none}
+.notas.chat .nota-i .txt{font-size:var(--s-xs)}.notas.chat .nota-i .meta{font-size:calc(var(--s-xs) * .92)}
+#secNotas.cerrada #notasHerr,#secNotas.cerrada #notasEstilo{display:none!important}
 #docs.soltar{outline:1px dashed var(--warn);outline-offset:-8px}
 .acciones .btn{line-height:16px;height:28px;padding:5px 4px;font-weight:400;text-align:center;overflow:hidden;text-overflow:ellipsis}
 a.btn.rojo{color:var(--warn);border-color:var(--warn)}
@@ -480,6 +486,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
         </div>
         <div class="sec" id="secNotas" hidden>
           <h3>Comentarios</h3>
+          <label class="chk resuelta" id="filaResuelta" hidden title="Se agrupa con sus comentarios y cada 15 días se archiva en un PDF en la carpeta del proyecto"><input type="checkbox" id="chkResuelta"> Resuelta: agrupar y archivar</label>
           <div class="fila" id="notasHerr" role="group" aria-label="Marcar en la página">
             <button class="btn on" data-nh="ver" title="Moverse por el documento">Ver</button>
             <button class="btn" data-nh="lapiz" title="Lápiz: tantos trazos como quieras; luego escribe el comentario">Lápiz</button>
@@ -2859,25 +2866,32 @@ const Docs = (() => {
   async function abrir(t) {
     tipo = t; $("docsTit").textContent = {laminas: "Láminas", memorias: "Memorias", capturas: "Capturas"}[t];
     const cap = t === "capturas";
-    $("btnAbrirPdf").textContent = cap ? "Abrir la imagen" : "Abrir el PDF"; $("btnBorrarCap").hidden = true; $("secClaude").hidden = true; $("filaImportar").hidden = !cap;
+    $("btnAbrirPdf").textContent = cap ? "Abrir la imagen" : "Abrir el PDF"; $("btnBorrarCap").hidden = true; $("secClaude").hidden = true; $("filaImportar").hidden = !cap; $("filaResuelta").hidden = true; $("secNotas").classList.remove("cerrada");
     $("notaDocs").textContent = cap ? "Capturas de lo que se ve en 3D o 2D (botón de la cámara, arriba) o imágenes importadas. Marca encima con las herramientas de «Comentarios» y escribe al lado." : "«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.";
     const L = await lista(t), el = $("listaDocs"); el.innerHTML = "";
     if (!L.length) {
       el.innerHTML = '<span class="nota">' + ({laminas: "Aún no hay láminas: se publican desde Vectorworks (las hojas del archivo, en PDF).", memorias: "Aún no hay memorias publicadas.", capturas: "Aún no hay capturas: en 3D o 2D, pulsa el botón de la cámara, o importa una imagen."}[t]) + "</span>";
       $("docsPag").innerHTML = '<div class="vacio-doc"><b>' + ({laminas: "Sin láminas", memorias: "Sin memorias", capturas: "Sin capturas"}[t]) + "</b></div>"; $("btnAbrirPdf").hidden = true; return;
     }
-    L.forEach((d, i) => {
+    const res = cap ? L.filter(d => d.resuelta_por) : [], abiertas = L.filter(d => !res.includes(d));
+    let grupo = null;
+    if (res.length) { grupo = document.createElement("details"); grupo.className = "resueltas"; grupo.innerHTML = "<summary>Resueltas (" + res.length + ") · se archivan en PDF cada 15 días</summary>"; }
+    const botones = new Map();
+    for (const d of abiertas.concat(res)) {
       const b = document.createElement("button"); b.innerHTML = escH(d.titulo || d.archivo) + (d.nota ? "<span>" + escH(d.nota) + "</span>" : "");
       b.dataset.arch = d.archivo;
       if (d.marcado) b.classList.add("marcado");
-      b.onclick = () => ver(d, b); el.appendChild(b);
-    });
+      b.onclick = () => ver(d, b); (d.resuelta_por ? grupo : el).appendChild(b); botones.set(d, b);
+    }
+    if (grupo) el.appendChild(grupo);
+    if (!abiertas.length && !res.length) return;
     const pre = ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + "." + t);
-    const i = Math.max(0, L.findIndex(d => d.archivo === pre));
-    ver(L[i], el.children[i]);
+    const d0 = L.find(d => d.archivo === pre) || abiertas[0] || res[0];
+    if (d0.resuelta_por && grupo) grupo.open = true;
+    ver(d0, botones.get(d0));
   }
   async function ver(d, b) {
-    actual = d; [...$("listaDocs").children].forEach(x => x.classList.toggle("on", x === b));
+    actual = d; $("listaDocs").querySelectorAll("button[data-arch]").forEach(x => x.classList.toggle("on", x === b));
     ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + "." + tipo, d.archivo);
     if (tipo === "capturas") {
       $("btnAbrirPdf").hidden = false; $("btnAbrirPdf").href = d.url;
@@ -2885,6 +2899,14 @@ const Docs = (() => {
       const pcb = $("btnParaClaude"); $("secClaude").hidden = false;
       const pon = () => { pcb.setAttribute("aria-pressed", !!d.para_claude); pcb.textContent = d.para_claude ? "Mandada a Claude ✓" : "Mandar a Claude"; pcb.title = d.para_claude ? "Pulsa para quitarla de lo pendiente de Claude" : "Le llega a Claude la captura con todas sus marcas y comentarios"; };
       pon(); d.alMandar = () => { d.para_claude = true; pon(); };
+      const rz = $("chkResuelta"); $("filaResuelta").hidden = false; rz.checked = !!d.resuelta_por;
+      const estado = () => { pcb.hidden = !!d.resuelta_por; $("notaClaude").textContent = d.resuelta_por ? "Resuelta por " + d.resuelta_por + (d.resuelta_en ? " el " + new Date(d.resuelta_en).toLocaleDateString("es-ES") : "") + ". Queda agrupada con sus comentarios y se archivará en un PDF en la carpeta del proyecto." : "Le llega la imagen con todas sus marcas y comentarios. Al publicar un comentario en una captura se manda sola."; $("secNotas").classList.toggle("cerrada", !!d.resuelta_por); };
+      estado();
+      rz.onchange = async () => {
+        const si = rz.checked;
+        try { const r = await Notas.resolverCaptura(d.archivo, si); Object.assign(d, r); toast(si ? "Resuelta: queda agrupada en «Resueltas»" : "Reabierta", 3000); abrir("capturas"); }
+        catch (e) { rz.checked = !si; toast(e.message, 4000); }
+      };
       pcb.onclick = async () => { const si = !d.para_claude; try { await Notas.marcarCaptura(d.archivo, si); d.para_claude = si; pon(); toast(si ? "Mandada a Claude: dile en el chat «mira lo pendiente»" : "Quitada de lo pendiente de Claude", 3500); } catch (e) { toast(e.message, 4000); } };
       $("btnBorrarCap").onclick = async () => {
         const bb = $("btnBorrarCap"); if (!bb.dataset.seguro) { bb.dataset.seguro = 1; bb.textContent = "¿Seguro? Borrar"; setTimeout(() => { delete bb.dataset.seguro; bb.textContent = "Borrar la captura"; }, 4000); return; }
@@ -3019,6 +3041,12 @@ const Notas = (() => {
     if (cfg.local) { const L = ls(LKEY) || [], x = L.find(y => y.id === n.id); if (x) x.para_claude = si; ls(LKEY, L); n.para_claude = si; return; }
     const r = await api("PATCH", "notas?id=eq." + n.id, {para_claude: si}, {Prefer: "return=representation"}); if (r && r[0]) Object.assign(n, r[0]);
   }
+  async function resolverCaptura(id, si) {
+    const v = si ? (autor() || "Alguien") : null;
+    if (cfg.local) { const L = ls(LKEY + ".cap") || [], x = L.find(c => c.id === id); if (x) { x.resuelta_por = v; x.resuelta_en = si ? new Date().toISOString() : null; if (si) x.para_claude = false; } ls(LKEY + ".cap", L); return {resuelta_por: v, resuelta_en: x && x.resuelta_en, para_claude: x ? x.para_claude : false}; }
+    const r = await api("PATCH", "capturas?id=eq." + id, {resuelta_por: v}, {Prefer: "return=representation"});
+    const c = r && r[0] || {}; return {resuelta_por: c.resuelta_por || null, resuelta_en: c.resuelta_en || null, para_claude: !!c.para_claude};
+  }
   async function marcarCaptura(id, si) {
     if (cfg.local) { const L = ls(LKEY + ".cap") || [], x = L.find(c => c.id === id); if (x) x.para_claude = si; ls(LKEY + ".cap", L); return; }
     await api("PATCH", "capturas?id=eq." + id, {para_claude: si}, {Prefer: "return=minimal"});
@@ -3032,10 +3060,10 @@ const Notas = (() => {
   async function capturas() {
     if (!await config()) return null;
     let L;
-    try { L = cfg.local ? (ls(LKEY + ".cap") || []).filter(c => c.proyecto === proy()) : await api("GET", "capturas?select=*&proyecto=eq." + encodeURIComponent(proy()) + "&borrado=eq.false&order=creado.desc"); }
+    try { L = cfg.local ? (ls(LKEY + ".cap") || []).filter(c => c.proyecto === proy() && !c.archivada_en) : await api("GET", "capturas?select=*&proyecto=eq." + encodeURIComponent(proy()) + "&borrado=eq.false&archivada_en=is.null&order=creado.desc"); }
     catch (e) { toast(e.message, 4000); return []; }
     await todas(true);
-    return L.map(c => ({archivo: c.id, titulo: c.vista || "Captura", nota: c.autor + " · " + fecha(c.creado) + (c.para_claude ? " · mandada a Claude" : ""), para_claude: !!c.para_claude, url: cfg.local ? c.datos : urlCap(c.archivo), ancho: c.ancho, alto: c.alto, autor: c.autor, borrable: mia(c)}));
+    return L.map(c => ({archivo: c.id, titulo: c.vista || "Captura", nota: c.autor + " · " + fecha(c.creado) + (c.para_claude ? " · mandada a Claude" : ""), para_claude: !!c.para_claude, resuelta_por: c.resuelta_por || null, resuelta_en: c.resuelta_en || null, url: cfg.local ? c.datos : urlCap(c.archivo), ancho: c.ancho, alto: c.alto, autor: c.autor, borrable: mia(c)}));
   }
   async function subirCaptura(blob, meta) {
     if (!await config()) throw new Error("Las capturas necesitan la base de datos de comentarios");
@@ -3275,6 +3303,9 @@ const Notas = (() => {
     $("secNotas").querySelector("h3").innerHTML = "Comentarios" + (esAdmin ? ' <span class="adm">· administrador</span>' : "");
     await todas();
     const el = $("notasDoc"); if (!el) return;
+    const cerrada = ambito === "capturas" && $("secNotas").classList.contains("cerrada");
+    el.classList.toggle("chat", cerrada);
+    if (cerrada) { pend = null; if (herr !== "ver") herramienta("ver"); el.innerHTML = htmlLista(deDoc(ambito, docAct)).replace(/<details class="hechas">/, '<details class="hechas" open>'); engancha(el, ambito, docAct); for (const n of paginas.keys()) marcas(n); return; }
     el.innerHTML = htmlLista(deDoc(ambito, docAct)) + compositor("compDoc", pend ? "Comentario…" : ambito === "capturas" ? "Qué hay que cambiar: escribe aquí y marca encima de la imagen con las herramientas de arriba…" : "Comentario general del documento, o marca algo en la página con las herramientas de arriba…");
     engancha(el, ambito, docAct);
     for (const n of paginas.keys()) marcas(n);
@@ -3311,7 +3342,7 @@ const Notas = (() => {
     try { history.replaceState(null, "", location.pathname + (q ? q + "&" : "?") + "admin=" + k + location.hash); } catch (e) { return; }
     toast("Listo para guardar como app en modo admin: en el iPad, Compartir › Añadir a pantalla de inicio; en el Mac, Archivo › Añadir al Dock. No compartas esta dirección.", 9000);
   };
-  return {enDoc, enDatos, pagina, herramienta, capturas, subirCaptura, borrarCaptura, marcarCaptura};
+  return {enDoc, enDatos, pagina, herramienta, capturas, subirCaptura, borrarCaptura, marcarCaptura, resolverCaptura};
 })();
 
 /* ============================================================ interfaz */
