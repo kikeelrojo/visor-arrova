@@ -42,7 +42,7 @@ header .barra{display:flex;align-items:center;gap:12px;min-width:0;padding-right
 header .acciones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding-inline:0 max(16px,env(safe-area-inset-right,0px))}   /* empieza justo en la línea del panel: marca la franja de arriba abajo */
 header .marca span{font-weight:400}
 .tabs{display:flex;gap:0;flex:0 0 auto}
-.tabs button{border:0.5px solid var(--ink);background:transparent;padding:5px 12px;font-weight:700;cursor:pointer}
+.tabs button{border:0.5px solid var(--ink);background:transparent;padding:0 12px;height:26px;min-width:40px;font-weight:700;cursor:pointer}
 .tabs button+button{border-left:0}
 .tabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 header .sp{flex:1}
@@ -153,7 +153,7 @@ details.hechas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-w
 h3 .adm{color:#7b1d2c}
 .acciones .btn{line-height:16px;height:28px;padding:5px 4px;font-weight:400;text-align:center;overflow:hidden;text-overflow:ellipsis}
 a.btn.rojo{color:var(--warn);border-color:var(--warn)}
-header .barra .ico{width:26px;height:26px;padding:0;display:inline-grid;place-items:center;flex:0 0 auto}
+header .barra .ico{width:41px;height:26px;padding:0;display:inline-grid;place-items:center;flex:0 0 auto}
 header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:square}
 #notasHerr .btn.on{background:var(--ink);color:var(--paper)}
 .ppto input{width:84px;border:0.5px solid var(--ink);background:var(--paper);padding:2px 4px;text-align:right;font-variant-numeric:tabular-nums}
