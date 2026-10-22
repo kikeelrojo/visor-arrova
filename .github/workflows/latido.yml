@@ -1,0 +1,19 @@
+# Latido diario de la base de datos del visor (Supabase gratuito): si pasa una semana sin uso, el proyecto se pausa
+# y los comentarios y capturas dejan de cargar. Esto lo mantiene despierto aunque nadie abra el visor (vacaciones…).
+name: Latido de Supabase
+on:
+  schedule:
+    - cron: "17 5 * * *"      # cada día a las 05:17 UTC (07:17 en Pamplona en verano)
+  workflow_dispatch: {}
+jobs:
+  latido:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Latido
+        env:
+          URL: https://ehzfnxqmvaejuxzqkofd.supabase.co
+          CLAVE: sb_publishable_TVb184-vZ9594nBMSyynyw_GG5j_1zt   # clave pública (la misma que lleva el visor)
+        run: |
+          curl -fsS -X POST "$URL/rest/v1/rpc/latir" -H "apikey: $CLAVE" -H "Content-Type: application/json" -d '{"p_origen":"github"}'
+          echo
+          curl -fsS "$URL/rest/v1/notas?select=id&limit=1" -H "apikey: $CLAVE" > /dev/null && echo "lectura ok"
