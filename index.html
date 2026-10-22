@@ -88,7 +88,7 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 .tool2d .btn.on,.tool2d .btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .tool2d .grupo{display:flex}
 .tool2d .grupo .btn+.btn{border-left:0}
-.tool2d input{width:70px;border:0.5px solid var(--ink);background:var(--paper);padding:5px 6px}
+.tool2d input{width:96px;border:0.5px solid var(--ink);background:var(--paper);padding:5px 6px}
 .paleta{position:absolute;top:10px;left:10px;display:flex;flex-direction:column;gap:0;z-index:2;max-height:calc(100% - 70px);overflow-y:auto;background:var(--paper)}
 .paleta .btn{display:flex;flex-direction:column;align-items:center;gap:1px;width:58px;padding:5px 2px 4px;font-size:9px;line-height:1.1;background:var(--paper)}
 .paleta .btn+.btn{border-top:0}
@@ -1796,6 +1796,12 @@ const V2 = (() => {
   cv.addEventListener("wheel", e => { e.preventDefault(); const p = aM(e.offsetX, e.offsetY); k *= Math.exp(-e.deltaY * 0.0015); const q = aM(e.offsetX, e.offsetY); cx += p[0] - q[0]; cy += p[1] - q[1]; pedir(); }, {passive: false});
   addEventListener("keydown", e => {
     if (S.modo !== "2d" && S.modo !== "ed") return;
+    // como en Vectorworks: con una herramienta en marcha, lo que se teclea (números, ángulo) va solo a la casilla de medidas
+    const enCampo = /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName) || e.target.isContentEditable;
+    if (editable && tmp && !enCampo && !e.metaKey && !e.ctrlKey && !e.altKey && /^[0-9.,<@;\/+-]$/.test(e.key)) {
+      e.preventDefault(); const f = $("inLong"); f.focus(); f.value += e.key; try { f.setSelectionRange(f.value.length, f.value.length); } catch (er) { /* sin selección */ }
+      return;
+    }
     if (e.key === " " && e.target === document.body) { espacio = true; e.preventDefault(); }
     if (e.target.tagName === "INPUT" && e.target.id !== "inLong") return;
     if (e.key === "Escape") { cancelaPluma(); selec.clear(); vSel = null; infoSel(); pedir(); }
