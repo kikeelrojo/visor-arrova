@@ -119,7 +119,7 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 .mini{font-weight:400;font-size:var(--s-xs);float:right}
 .lnk{border:0;background:none;padding:0;text-decoration:underline;cursor:pointer;font-size:var(--s-xs)}
 .filtro{width:100%;border:0.5px solid var(--ink);background:var(--paper);padding:4px 6px;margin-bottom:6px}
-.docs{position:absolute;inset:0;overflow:auto;background:var(--paper);padding:20px 34px 40px}
+.docs{position:absolute;inset:0;overflow:auto;overflow-y:scroll;background:var(--paper);padding:20px 34px 40px}
 .docs-pag{display:flex;flex-direction:column;align-items:center;gap:18px}
 .docs-pag canvas{display:block;box-shadow:0 0 0 0.5px var(--ink);background:#fff}
 .docs-pag .vacio-doc{max-width:420px;text-align:center;line-height:1.5;padding-top:15vh}
@@ -2384,14 +2384,15 @@ const Docs = (() => {
   async function pinta() {
     const pag = $("docsPag"); pag.innerHTML = "";
     if (obs) obs.disconnect();
-    const ancho = Math.max(200, $("docs").clientWidth - 68), dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // ancho útil: el del visor de documentos menos sus márgenes (la barra de desplazamiento ya está siempre puesta: no lo cambia al aparecer)
+    const ancho = Math.max(200, $("docs").clientWidth - 68 - 2), dpr = Math.min(window.devicePixelRatio || 1, 2);
     obs = new IntersectionObserver(es => { for (const e of es) if (e.isIntersecting && !e.target.dataset.hecho) { e.target.dataset.hecho = 1; dibuja(e.target); } }, {root: $("docs"), rootMargin: "600px"});
     for (let n = 1; n <= pdf.numPages; n++) {
       const p = await pdf.getPage(n), v = p.getViewport({scale: 1});
       const esc_ = z ? z : Math.min(ancho / v.width, 3);
       const px = Math.min(esc_ * dpr, Math.sqrt(16e6 / (v.width * v.height)));   // tope de iOS para un canvas
       const c = document.createElement("canvas"); c.width = Math.round(v.width * px); c.height = Math.round(v.height * px);
-      c.style.width = Math.round(v.width * esc_) + "px"; c.style.height = Math.round(v.height * esc_) + "px";
+      c.style.width = Math.floor(v.width * esc_) + "px"; c.style.height = Math.floor(v.height * esc_) + "px";
       c._p = p; c._esc = px; c._css = esc_;
       const w = document.createElement("div"); w.className = "pg"; w.appendChild(c); pag.appendChild(w); obs.observe(c);
       Notas.pagina(w, n, v.width, v.height, esc_);
