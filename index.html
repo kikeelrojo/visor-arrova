@@ -494,7 +494,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
         </div>
         <div class="sec" id="secClaude" hidden>
           <button class="btn a-claude" id="btnParaClaude" aria-pressed="false" title="Le llega a Claude la captura con todas sus marcas y comentarios">Mandar a Claude</button>
-          <p class="nota" id="notaClaude">Le llega la imagen con todas sus marcas y comentarios. Al publicar un comentario en una captura se manda sola.</p>
+          <p class="nota" id="notaClaude">Le llega la imagen con todas sus marcas y comentarios; la revisa en menos de una hora (de 8 a 24 h) y contesta aquí. Al publicar un comentario en una captura se manda sola.</p>
           <button class="lnk" id="btnBorrarCap" hidden>Borrar la captura</button>
         </div>
         <div class="sec" id="secNotas" hidden>
@@ -3039,9 +3039,9 @@ const Docs = (() => {
       const pcb = $("btnParaClaude"); $("secClaude").hidden = false;
       const pon = () => { pcb.setAttribute("aria-pressed", !!d.para_claude); pcb.textContent = d.para_claude ? "Mandada a Claude ✓" : "Mandar a Claude"; pcb.title = d.para_claude ? "Pulsa para quitarla de lo pendiente de Claude" : "Le llega a Claude la captura con todas sus marcas y comentarios"; };
       pon(); d.alMandar = () => { d.para_claude = true; pon(); };
-      const estado = () => { pcb.hidden = !!d.resuelta_por; $("notaClaude").textContent = d.resuelta_por ? "Definitiva: queda agrupada con sus comentarios y se archivará en un PDF en la carpeta del proyecto." : "Le llega la imagen con todas sus marcas y comentarios. Al publicar un comentario en una captura se manda sola."; $("secNotas").classList.toggle("cerrada", !!d.resuelta_por); };
+      const estado = () => { pcb.hidden = !!d.resuelta_por; $("notaClaude").textContent = d.resuelta_por ? "Definitiva: queda agrupada con sus comentarios y se archivará en un PDF en la carpeta del proyecto." : "Le llega la imagen con todas sus marcas y comentarios; la revisa en menos de una hora (de 8 a 24 h) y contesta aquí. Al publicar un comentario en una captura se manda sola."; $("secNotas").classList.toggle("cerrada", !!d.resuelta_por); };
       estado();
-      pcb.onclick = async () => { const si = !d.para_claude; try { await Notas.marcarCaptura(d.archivo, si); d.para_claude = si; pon(); toast(si ? "Mandada a Claude: dile en el chat «mira lo pendiente»" : "Quitada de lo pendiente de Claude", 3500); } catch (e) { toast(e.message, 4000); } };
+      pcb.onclick = async () => { const si = !d.para_claude; try { await Notas.marcarCaptura(d.archivo, si); d.para_claude = si; pon(); toast(si ? "Mandada a Claude: la revisa en menos de una hora y contesta aquí" : "Quitada de lo pendiente de Claude", 3500); } catch (e) { toast(e.message, 4000); } };
       $("btnBorrarCap").onclick = async () => {
         const bb = $("btnBorrarCap"); if (!bb.dataset.seguro) { bb.dataset.seguro = 1; bb.textContent = "¿Seguro? Borrar"; setTimeout(() => { delete bb.dataset.seguro; bb.textContent = "Borrar la captura"; }, 4000); return; }
         try { await Notas.borrarCaptura(d.archivo); toast("Captura borrada"); abrir("capturas"); } catch (e) { toast(e.message, 4000); }
