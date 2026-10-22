@@ -1535,19 +1535,19 @@ const V2 = (() => {
     ctx.setLineDash([]);
     // tiradores de vértices
     if (editable) for (const d of selec) if (d.edit) {
-      const g = geomN(d); if (!g) continue; ctx.fillStyle = pap; ctx.strokeStyle = acc; ctx.lineWidth = 1;
+      const g = geomN(d); if (!g) continue; ctx.fillStyle = pap; ctx.strokeStyle = acc; ctx.lineWidth = 0.75;
       const cu = curvaDe(d);
       g.forEach((p, i) => { const [sx, sy] = aP(p[0], p[1]); const on = vSel && vSel.d === d && vSel.k === i, t = cu ? cu.vt[i] || 0 : 0; ctx.fillStyle = on ? acc : pap; ctx.beginPath();
-        if (t === 3) ctx.arc(sx, sy, 4.5, 0, 7); else if (t) { ctx.moveTo(sx, sy - 5); ctx.lineTo(sx + 5, sy); ctx.lineTo(sx, sy + 5); ctx.lineTo(sx - 5, sy); ctx.closePath(); } else ctx.rect(sx - 4, sy - 4, 8, 8);
+        if (t === 3) ctx.arc(sx, sy, 2.8, 0, 7); else if (t) { ctx.moveTo(sx, sy - 3.3); ctx.lineTo(sx + 3.3, sy); ctx.lineTo(sx, sy + 3.3); ctx.lineTo(sx - 3.3, sy); ctx.closePath(); } else ctx.rect(sx - 2.5, sy - 2.5, 5, 5);
         ctx.fill(); ctx.stroke(); });
-      if (d.t !== 2 && !(d.nuevo && d.o.tipo === "linea")) { const n = g.length; for (let i = 0; i < n - (d.cerr ? 0 : 1); i++) { const a = g[i], b = g[(i + 1) % n]; const [sx, sy] = aP((a[0] + b[0]) / 2, (a[1] + b[1]) / 2); ctx.beginPath(); ctx.moveTo(sx - 3, sy); ctx.lineTo(sx + 3, sy); ctx.moveTo(sx, sy - 3); ctx.lineTo(sx, sy + 3); ctx.stroke(); } }
+      if (d.t !== 2 && !(d.nuevo && d.o.tipo === "linea")) { const n = g.length; for (let i = 0; i < n - (d.cerr ? 0 : 1); i++) { const a = g[i], b = g[(i + 1) % n]; const [sx, sy] = aP((a[0] + b[0]) / 2, (a[1] + b[1]) / 2); ctx.beginPath(); ctx.moveTo(sx - 2, sy); ctx.lineTo(sx + 2, sy); ctx.moveTo(sx, sy - 2); ctx.lineTo(sx, sy + 2); ctx.stroke(); } }
     }
     // punto medio de las líneas elegidas (como en Vectorworks)
     for (const d of selec) {
       if (d.cerr || d.caja || d.texto) continue;
       const g = geomN(d); if (!g || g.length !== 2) continue;
       const [sx, sy] = aP((g[0][0] + g[1][0]) / 2, (g[0][1] + g[1][1]) / 2);
-      ctx.fillStyle = pap; ctx.strokeStyle = acc; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(sx - 5, sy + 4); ctx.lineTo(sx, sy - 5); ctx.lineTo(sx + 5, sy + 4); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = pap; ctx.strokeStyle = acc; ctx.lineWidth = 0.75; ctx.beginPath(); ctx.arc(sx, sy, 2.3, 0, 7); ctx.fill(); ctx.stroke();
     }
     // dibujo en curso
     if (tmp) dibujaTmp(acc);
@@ -1869,7 +1869,7 @@ const V2 = (() => {
       if (uno) for (const t of medidas(d)) { const [k_, ...v] = t.split(" "); if (/^(área|perímetro|longitud)$/.test(k_)) filas.push([k_[0].toUpperCase() + k_.slice(1), "<span>" + escH(v.join(" ")) + "</span>"]); else if (/vértices$/.test(t)) filas.push(["Vértices", "<span>" + escH(t.split(" ")[0]) + "</span>"]); }
       else { let A = 0; for (const x of lista) { const m = medidas(x).find(t => t.startsWith("área")); if (m) A += parseFloat(m.replace("área ", "").replace(/\./g, "").replace(",", ".")); } if (A) filas.push(["Suma de áreas", "<span>" + fmt(A, 3) + "</span> <span class=u>m²</span>"]); }
     }
-    if (uno) { filas.push(["Grosor", "<span>" + fmt(mmDe(claseDe(d), d.nuevo ? null : o.lw), 2) + "</span> <span class=u>mm</span>"]);
+    if (uno) {
       if (o.sim) filas.push(["Símbolo", "<span>" + escH(o.sim) + "</span>"]); if (o.po) filas.push(["Objeto", "<span>" + escH(o.po) + "</span>"]); if (d.texto) filas.push(["Texto", "<span>«" + escH(o.txt || "") + "»</span>"]); }
     const tit = uno ? (d.nuevo ? (TIPOS_N[o.tipo] || o.tipo) + " · nuevo" : (d.copia ? "Copia · " : "") + (TIPOS[d.t] || "Objeto " + d.t)) : n + " objetos";
     let h = '<div class="oip-t">' + escH(tit) + '</div><div class="oip2">' + filas.map(([k_, v]) => k_ ? "<label>" + escH(k_) + "</label><div>" + v + "</div>" : '<div class="oip-ref">' + v + "</div>").join("") + "</div>";
