@@ -263,10 +263,10 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
       <div class="tool2d" id="tool2d" hidden>
         <select id="selClase" aria-label="Clase activa" title="Clase activa (la de los objetos nuevos)"></select>
         <select id="selTrama" aria-label="Trama"></select>
-        <input id="inLong" inputmode="decimal" placeholder="mm · °" aria-label="Longitud en mm, radio o ángulo" title="Mientras dibujas: longitud o radio en mm; al girar: ángulo en grados. Intro.">
-        <button class="btn" id="btnOrto" aria-pressed="true" title="Ángulos de 0°, 45° y 90°">Orto</button>
+        <input id="inLong" inputmode="decimal" placeholder="mm  ángulo" aria-label="Longitud en mm y ángulo en grados" title="Mientras dibujas: «3500» longitud (o radio) en mm; «3500 30» longitud y ángulo; «<30» fija el ángulo y luego marcas la longitud. Al girar: el ángulo. Intro.">
+        <button class="btn" id="btnOrto" aria-pressed="false" title="Forzar ángulos de 0°, 45° y 90° (sin él, el lápiz se engancha a 30°, 45°, 60° y 90° con una guía de puntos)">Orto</button>
         <button class="btn" id="btnIman" aria-pressed="true">Imán</button>
-        <button class="btn" id="btnDedo" aria-pressed="false" title="Dibujar con el dedo (sin Apple Pencil)">Dedo</button>
+        <button class="btn" id="btnDedo" aria-pressed="true" title="Activo: dibuja solo el Apple Pencil y el dedo mueve el plano. Desactivado: también dibuja el dedo (dos dedos mueven)">Lápiz</button>
         <button class="btn" id="btnMas" aria-pressed="false" title="Cada toque añade (o quita) de la selección, como con mayúsculas">+ Selección</button>
         <button class="btn" id="btnDup" aria-pressed="false" title="Mover, girar y simetría dejan el original y hacen una copia">Duplicar</button>
         <span class="grupo" id="grpVert" hidden role="group" aria-label="Tipo de vértice">
@@ -403,7 +403,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
         </div>
         <div class="sec ed-only">
           <h3>Gestos</h3>
-          <p class="nota">Lápiz: dibuja y selecciona. Un dedo: mueve el plano; dos dedos: zoom. Con «Dedo» activo, un dedo dibuja y dos mueven. Ratón: rueda para zoom, botón central o espacio para mover. Mientras dibujas, escribe la longitud (o el radio) en mm y pulsa Intro; al girar, el ángulo en grados.</p>
+          <p class="nota">Lápiz: dibuja y selecciona. Un dedo: mueve el plano; dos dedos: zoom. Con «Lápiz» desactivado, también dibuja el dedo y dos dedos mueven. Ratón: rueda para zoom, botón central o espacio para mover. Al dibujar, el trazo se engancha a 30°, 45°, 60° y 90° con una guía de puntos. Mientras dibujas, escribe la longitud en mm y pulsa Intro; con el ángulo detrás («3500 30») sale con ese ángulo, y «<30» fija solo el ángulo. Al girar, el ángulo en grados.</p>
         </div>
       </div>
       <div id="pDocs" hidden>
@@ -1063,7 +1063,7 @@ const V2 = (() => {
   let cx = 0, cy = 0, k = 0.05;                 // centro de la vista (mm) y escala (px por mm)
   let herr = "sel", selec = new Set(), vSel = null;   // vSel: vértice seleccionado {d, k}
   let ed = {}, nuevos = [], copias = [], hist = [], futuro = [];
-  let tmp = null, cursor = null, snap = null, orto = true, iman = true, dedo = false, espacio = false, duplicar = false;
+  let tmp = null, cursor = null, snap = null, orto = false, guia = null, angFijo = null, iman = true, dedo = false, espacio = false, duplicar = false;
   let editable = false, capaVis = {}, claseVis = {}, capaAct = null, escCapa = {};
   const clave = () => "visor.cambios." + (S.proyecto ? S.proyecto.id : "") + "." + (P ? P.fecha : "");
   const claveVis = () => "visor.vis2d." + (S.proyecto ? S.proyecto.id : "");
@@ -1355,6 +1355,22 @@ const V2 = (() => {
     if (!best) for (const [, a, b] of segs) { const [dd, q] = distSeg(p, a, b); if (dd <= r) prueba(q, "sobre", 2); }
     return best;
   }
+  // guías de ángulo, como en Vectorworks: cerca de 0/30/45/60/90… el punto se engancha a esa dirección y sale una guía de puntos
+  const ANG_GUIA = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330];
+  function guiaAng(p0, p) {
+    const dx = p[0] - p0[0], dy = p[1] - p0[1], L = Math.hypot(dx, dy);
+    if (L * k < 18) return null;
+    let mejor = null;
+    for (const g of ANG_GUIA) {
+      const a = g * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a), t = dx * ux + dy * uy;
+      if (t <= 0) continue;
+      const dist = Math.abs(dx * uy - dy * ux) * k;                // píxeles de la guía
+      const dA = Math.abs(Math.atan2(dx * uy - dy * ux, t)) * 180 / Math.PI;   // grados de diferencia
+      if ((dist <= 7 || dA <= 2.5) && (!mejor || dA < mejor.dA)) mejor = {d: dist, dA, a: g, p: [p0[0] + ux * t, p0[1] + uy * t]};
+    }
+    return mejor;
+  }
+  function enRayo(p0, p, g) { const a = g * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a), t = Math.max(0, (p[0] - p0[0]) * ux + (p[1] - p0[1]) * uy); return [p0[0] + ux * t, p0[1] + uy * t]; }
   function ortoP(p0, p) {
     if (!orto || !p0) return p;
     const dx = p[0] - p0[0], dy = p[1] - p0[1], L = Math.hypot(dx, dy), a = Math.atan2(dy, dx);
@@ -1498,7 +1514,15 @@ const V2 = (() => {
     if (orto) a = Math.round(a / 15) * 15;
     return a;
   }
+  function dibujaGuia(acc) {
+    if (!guia || !cursor) return;
+    const [ox, oy] = aP(guia.o[0], guia.o[1]), a = guia.a * Math.PI / 180, R_ = (W + H) * 2;
+    ctx.save(); ctx.strokeStyle = acc; ctx.lineWidth = 0.8; ctx.setLineDash([1, 4]); ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(ox - Math.cos(a) * R_ * 0.15, oy + Math.sin(a) * R_ * 0.15); ctx.lineTo(ox + Math.cos(a) * R_, oy - Math.sin(a) * R_); ctx.stroke();
+    ctx.restore();
+  }
   function dibujaTmp(acc) {
+    dibujaGuia(acc);
     const c = $("selClase").value, pts = tmp.pts.concat(cursor ? [cursor] : []);
     ctx.strokeStyle = acc; ctx.lineWidth = Math.max(1, ancho({nuevo: true, o: {clase: c, capa: capaAct}})); ctx.setLineDash(trazo(c));
     const T = tmp.tipo;
@@ -1520,7 +1544,8 @@ const V2 = (() => {
     if (pts.length > 1 && T !== "girar" && T !== "simetria") {
       const a = pts[pts.length - 2], b = pts[pts.length - 1]; const L = Math.hypot(b[0] - a[0], b[1] - a[1]); const s = aP(b[0], b[1]);
       ctx.fillStyle = acc; ctx.font = "bold 11px " + css("--f");
-      ctx.fillText((T === "circulo" ? "r " : "") + Math.round(L) + " mm" + (T === "medir" ? " · " + fmt(Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI, 1) + "°" : ""), s[0] + 10, s[1] - 10);
+      const ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
+      ctx.fillText((T === "circulo" ? "r " : "") + Math.round(L) + " mm" + (T !== "circulo" && T !== "rect" ? " · " + fmt(Math.abs(ang) < 0.05 ? 0 : ang, 1) + "°" : ""), s[0] + 10, s[1] - 10);
     }
   }
   function redim() {
@@ -1786,8 +1811,11 @@ const V2 = (() => {
     let p = aM(e.offsetX, e.offsetY);
     if (tmp && (tmp.tipo === "poli" || tmp.tipo === "poligono") && tmp.pts.length > 2) { const p0 = tmp.pts[0]; if (Math.hypot(p[0] - p0[0], p[1] - p0[1]) * k < 12) { snap = {p: p0, tipo: "extremo"}; return p0; } }
     const ex = arrastre && arrastre.excluir;
-    snap = iman_(p, ex);
-    if (snap) p = snap.p; else if (desde) p = ortoP(desde, p);
+    snap = iman_(p, ex); guia = null;
+    if (desde && angFijo != null) { p = enRayo(desde, snap ? snap.p : p, angFijo); guia = {o: desde, a: angFijo, fijo: true}; return p; }   // ángulo escrito: la línea va por ahí
+    if (snap) p = snap.p;
+    else if (desde && orto) p = ortoP(desde, p);
+    else if (desde) { const g = guiaAng(desde, p); if (g) { p = g.p; guia = {o: desde, a: g.a}; } }
     return p;
   }
   const TRANSF = ["mover", "girar", "simetria"];
@@ -1857,6 +1885,7 @@ const V2 = (() => {
     }
   }
   function punto(p) {
+    angFijo = null; guia = null;
     const ult = tmp.pts[tmp.pts.length - 1], T = tmp.tipo;
     if (Math.hypot(p[0] - ult[0], p[1] - ult[1]) < 0.5) return;
     if (T === "poli" || T === "poligono") {
@@ -1900,7 +1929,7 @@ const V2 = (() => {
     attrInicial(n);
     nuevos.push(n); trasCambio();
   }
-  function cancelaPluma() { if (arrastre && arrastre.tipo === "mover" && arrastre.hecho) trasCambio(); tmp = null; arrastre = null; cursor = null; snap = null; ventana = null; $("btnFin").hidden = true; pedir(); }
+  function cancelaPluma() { angFijo = null; guia = null; if (arrastre && arrastre.tipo === "mover" && arrastre.hecho) trasCambio(); tmp = null; arrastre = null; cursor = null; snap = null; ventana = null; $("btnFin").hidden = true; pedir(); }
   function setVertice(d, i, p) { edita(d, (e, nuevo) => { const g = (nuevo ? e.v : (e.v || d.base)).map(q => q.slice()); g[i] = p; e.v = g; }); }
   function tiposDe(d, e, nuevo) {
     if (nuevo) return e.vt ? [e.vt, e.vr || (e.vr = e.vt.map(() => 0))] : null;
@@ -1942,14 +1971,23 @@ const V2 = (() => {
     box.addEventListener("keydown", e => { if (e.key === "Enter") ok(); if (e.key === "Escape") box.remove(); });
     box.addEventListener("blur", ok, {once: true});
   }
-  function longitud(L) {
-    // con la herramienta en marcha, el número es la longitud (mm), el radio, la distancia de mover o el ángulo de girar
+  function longitud(L, A) {
+    // con la herramienta en marcha, el número es la longitud (mm), el radio, la distancia de mover o el ángulo de girar;
+    // con un segundo número, el ángulo (grados, antihorario desde la horizontal, como en Vectorworks)
     if (!tmp || !tmp.pts.length || !(L === L) || L === 0) return false;
     const a = tmp.pts[tmp.pts.length - 1], c = cursor || [a[0] + 1, a[1]];
     if (tmp.tipo === "girar") { if (tmp.pts.length < 2) return false; const o = tmp.pts[0]; tmp = null; cursor = null; snap = null; transformar({girar: [o[0], o[1], L]}, duplicar); return true; }
     if (tmp.tipo === "rect" || tmp.tipo === "simetria" || tmp.tipo === "arco" || !(L > 0)) return false;
-    let dx = c[0] - a[0], dy = c[1] - a[1], n = Math.hypot(dx, dy) || 1;
-    punto([a[0] + dx / n * L, a[1] + dy / n * L]); return true;
+    const ang = A === A && A != null && tmp.tipo !== "circulo" ? A : angFijo;
+    let dx, dy;
+    if (ang != null && tmp.tipo !== "circulo") { dx = Math.cos(ang * Math.PI / 180); dy = Math.sin(ang * Math.PI / 180); }
+    else { dx = c[0] - a[0]; dy = c[1] - a[1]; const n = Math.hypot(dx, dy) || 1; dx /= n; dy /= n; }
+    punto([a[0] + dx * L, a[1] + dy * L]); return true;
+  }
+  function fijaAng(A) {
+    // «<30»: la siguiente línea sale con ese ángulo; la longitud se marca con el lápiz o se escribe
+    if (!tmp || !tmp.pts.length || !(A === A) || tmp.tipo === "girar" || tmp.tipo === "rect" || tmp.tipo === "circulo") return false;
+    angFijo = ((A % 360) + 360) % 360; pedir(); return true;
   }
   async function enviar() {
     const C = cambios(); if (!C.cambios.length) { toast("No hay cambios que enviar"); return; }
@@ -2135,7 +2173,7 @@ const V2 = (() => {
   function setEditable(v) { editable = !!v; if (!editable) { cancelaPluma(); herr = "sel"; } vSel = null; infoSel(); pintaCapas(); pintaClases(); pedir(); }
   return {preparar, redim, encuadrar, pedir, deshacer, rehacer, borrarSel, aClase, aTrama, restauraSel, quitaVertice, terminaPoli, enviar, archivo, vaciar, longitud, setEditable, pintaClases, todasVis,
     aplicaAtributo, booleana, dividir, cambios: () => cambios(), setModoV(v) { modoV = v; pedir(); }, setMas(v) { masSel = v; }, tipoVertice,
-    setHerr(h) { if (tmp && (tmp.tipo === "poli" || tmp.tipo === "poligono") && tmp.pts.length >= 2) terminaPoli(); herr = h; cancelaPluma(); }, setOrto(v) { orto = v; }, setIman(v) { iman = v; }, setDedo(v) { dedo = v; }, setDup(v) { duplicar = v; },
+    setHerr(h) { if (tmp && (tmp.tipo === "poli" || tmp.tipo === "poligono") && tmp.pts.length >= 2) terminaPoli(); herr = h; cancelaPluma(); }, setOrto(v) { orto = v; }, fijaAng, setIman(v) { iman = v; }, setDedo(v) { dedo = v; }, setDup(v) { duplicar = v; },
     hay: () => !!P, tema() { patrones.clear(); pedir(); }};
 })();
 
@@ -2753,7 +2791,7 @@ function rotulo() {
 // 2D
 document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => { document.querySelectorAll("[data-h]").forEach(x => x.classList.toggle("on", x === b)); V2.setHerr(b.dataset.h); $("grpVert").hidden = !["poli", "poligono"].includes(b.dataset.h); });
 const tog = (id, fn) => $(id).onclick = () => { const v = $(id).getAttribute("aria-pressed") !== "true"; $(id).setAttribute("aria-pressed", v); fn(v); };
-tog("btnOrto", v => V2.setOrto(v)); tog("btnIman", v => V2.setIman(v)); tog("btnDedo", v => V2.setDedo(v)); tog("btnDup", v => V2.setDup(v)); tog("btnMas", v => V2.setMas(v));
+tog("btnOrto", v => V2.setOrto(v)); tog("btnIman", v => V2.setIman(v)); tog("btnDedo", v => V2.setDedo(!v));   // «Lápiz» activo = solo dibuja el Pencil (lo contrario del antiguo «Dedo») tog("btnDup", v => V2.setDup(v)); tog("btnMas", v => V2.setMas(v));
 $("btnBorrarP").onclick = () => V2.borrarSel();
 $("btnDividir").onclick = () => V2.dividir();
 $("btnSumar").onclick = () => V2.booleana("sumar"); $("btnRestar").onclick = () => V2.booleana("restar"); $("btnInter").onclick = () => V2.booleana("intersectar");
@@ -2775,7 +2813,16 @@ $("btnBorrar").onclick = () => V2.borrarSel(); $("btnAClase").onclick = () => V2
 $("btnQuitaV").onclick = () => V2.quitaVertice(); $("btnRestaura").onclick = () => V2.restauraSel();
 $("btnEnviar").onclick = () => V2.enviar(); $("btnArchivo").onclick = () => V2.archivo(); $("btnVaciar").onclick = () => V2.vaciar();
 $("btnEncuadre").onclick = () => V2.encuadrar();
-$("inLong").addEventListener("keydown", e => { if (e.key === "Enter") { const L = parseFloat(e.target.value.replace(",", ".")); if (V2.longitud(L)) e.target.value = ""; else toast("Empieza una línea y apunta la dirección; luego escribe la longitud"); } });
+// «3500» longitud · «3500 30» (o 3500<30, 3500;30) longitud y ángulo · «<30» solo el ángulo
+$("inLong").addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  const m = e.target.value.trim().match(/^([-+]?\d+(?:[.,]\d+)?)?\s*(?:(?:<|@|;|\/|\s)\s*([-+]?\d+(?:[.,]\d+)?)\s*°?)?$/);
+  const num = x => x == null ? null : parseFloat(x.replace(",", "."));
+  if (!m || (m[1] == null && m[2] == null)) { toast("Escribe la longitud en mm y, si quieres, el ángulo: «3500 30»"); return; }
+  const L = num(m[1]), A = num(m[2]);
+  if (L == null) { if (V2.fijaAng(A)) { e.target.value = ""; toast("Ángulo fijado: " + A + "°. Marca la longitud o escríbela", 2500); } else toast("Empieza la línea con un primer punto; luego escribe el ángulo"); return; }
+  if (V2.longitud(L, A)) e.target.value = ""; else toast("Empieza una línea y apunta la dirección; luego escribe la longitud");
+});
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { V3.tema(); V2.tema(); });
 new MutationObserver(() => { V3.tema(); V2.tema(); }).observe(document.documentElement, {attributes: true, attributeFilter: ["data-theme"]});
 
