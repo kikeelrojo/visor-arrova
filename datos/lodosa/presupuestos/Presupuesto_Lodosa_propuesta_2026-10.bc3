@@ -1,6 +1,6 @@
 ~V|ARROVA|FIEBDC-3/2016|Claude|\|ANSI||||||
 ~K|\2\2\3\2\2\2\2\EUR\|0|
-~C|LODOSA##||VIVIENDA UNIFAMILIAR EN LODOSA · C. ANCHA 34|361959.63|22102026|0|
+~C|LODOSA##||VIVIENDA UNIFAMILIAR EN LODOSA · C. ANCHA 34|364130.49|22102026|0|
 ~D|LODOSA##|01#\1\1\02#\1\1\03#\1\1\04#\1\1\05#\1\1\06#\1\1\07#\1\1\08#\1\1\09#\1\1\10#\1\1\11#\1\1\12#\1\1\13#\1\1\14#\1\1\15#\1\1\16#\1\1\18#\1\1\19#\1\1\20#\1\1\|
 ~C|01#||CONSIDERACIONES PREVIAS|1530.90|22102026|0|
 ~D|01#|01.01\1\1\01.02\1\1\01.03\1\1\01.04\1\1\01.05\1\1\01.06\1\1\|
@@ -375,7 +375,7 @@
 ~C|15.02|m²|PINTURA AL SILICATO EN EXTERIORES (SI EL REVOCO NO VA COLOREADO)|7.55|22102026|0|
 ~T|15.02|M². Pintura al silicato en exteriores, con dos manos, i/limpieza de superficies y acabado. Igual a medicion de revestimiento monocapa                                                                                        130,42 =11/D13GD054.CanPres|
 ~M|15#\15.02||310.64|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\310.64\\\|
-~C|16#||INSTALACIONES|44091.19|22102026|0|
+~C|16#||INSTALACIONES|46262.05|22102026|0|
 ~D|16#|16.01#\1\1\16.02#\1\1\16.03#\1\1\16.04#\1\1\16.05#\1\1\16.06#\1\1\|
 ~C|16.01#||FONTANERÍA|8549.61|22102026|0|
 ~D|16.01#|16.01.01\1\1\16.01.02\1\1\16.01.03\1\10\16.01.04\1\1\16.01.05\1\110\16.01.06\1\160\16.01.07\1\50\16.01.08\1\25\16.01.09\1\16\16.01.10\1\2\16.01.11\1\1\16.01.12\1\2\16.01.13\1\2\16.01.14\1\3\16.01.15\1\1\16.01.16\1\4\16.01.17\1\5\16.01.18\1\2\16.01.19\1\3\|
@@ -383,10 +383,10 @@
 ~D|16.02#|16.02.01\1\1\16.02.02\1\1\16.02.03\1\2\|
 ~C|16.03#||CALEFACCIÓN Y A.C.S.|18015.07|22102026|0|
 ~D|16.03#|16.03.01\1\1\16.03.02\1\1\16.03.03\1\1\16.03.04\1\1\16.03.05\1\1\16.03.06\1\1\16.03.07\1\1\16.03.08\1\1\16.03.09\1\1\16.03.10\1\1\16.03.11\1\1\16.03.12\1\1\16.03.13\1\23\16.03.14\1\1\16.03.15\1\1\16.03.16\1\1\16.03.20\1\188.3\16.03.21\1\3\16.03.22\1\6\16.03.23\1\1\|
-~C|16.04#||VENTILACIÓN|2249.50|22102026|0|
-~D|16.04#|16.04.01\1\6\16.04.02\1\2\16.04.03\1\9\16.04.04\1\20\16.04.05\1\12\16.04.06\1\3\|
-~C|16.05#||ELECTRICIDAD E ILUMINACIÓN|12449.21|22102026|0|
-~D|16.05#|16.05.01\1\10\16.05.02\1\15\16.05.03\1\4\16.05.04\1\1\16.05.05\1\1\16.05.06\1\1\16.05.07\1\6\16.05.08\1\1.5\16.05.09\1\160\16.05.10\1\480\16.05.11\1\70\16.05.12\1\30\16.05.13\1\15\16.05.14\1\600\16.05.15\1\1100\16.05.16\1\200\16.05.17\1\30\16.05.18\1\32\16.05.19\1\2\16.05.20\1\72\16.05.21\1\2\16.05.22\1\2\16.05.23\1\9\16.05.24\1\3\16.05.25\1\15\16.05.26\1\10\16.05.27\1\4\16.05.28\1\3\16.05.29\1\4\16.05.30\1\7\16.05.31\1\2\16.05.32\1\15\16.05.33\1\10\16.05.34\1\2\16.05.35\1\72\16.05.36\1\9\16.05.37\1\1\16.05.38\1\1\|
+~C|16.04#||VENTILACIÓN|4334.50|22102026|0|
+~D|16.04#|16.04.01\1\11\16.04.02\1\11\16.04.03\1\9\16.04.04\1\20\16.04.05\1\12\16.04.06\1\3\|
+~C|16.05#||ELECTRICIDAD E ILUMINACIÓN|12535.07|22102026|0|
+~D|16.05#|16.05.01\1\10\16.05.02\1\15\16.05.03\1\4\16.05.04\1\1\16.05.05\1\1\16.05.06\1\1\16.05.07\1\6\16.05.08\1\1.5\16.05.09\1\160\16.05.10\1\480\16.05.11\1\70\16.05.12\1\30\16.05.13\1\15\16.05.14\1\600\16.05.15\1\1100\16.05.16\1\200\16.05.17\1\30\16.05.18\1\32\16.05.19\1\2\16.05.20\1\72\16.05.21\1\2\16.05.22\1\2\16.05.23\1\9\16.05.24\1\12\16.05.25\1\15\16.05.26\1\10\16.05.27\1\4\16.05.28\1\3\16.05.29\1\4\16.05.30\1\7\16.05.31\1\2\16.05.32\1\15\16.05.33\1\10\16.05.34\1\2\16.05.35\1\72\16.05.36\1\9\16.05.37\1\1\16.05.38\1\1\|
 ~C|16.06#||TELECOMUNICACIONES|2678.31|22102026|0|
 ~D|16.06#|16.06.01\1\1\16.06.02\1\1\16.06.03\1\1\16.06.04\1\100\16.06.05\1\1\16.06.06\1\3\16.06.07\1\1\16.06.08\1\35\16.06.09\1\1\16.06.10\1\7\|
 ~C|16.01.01|UD|ACOMETIDA SOTERRADA A.F.S.|974.39|22102026|0|
@@ -515,12 +515,12 @@
 ~C|16.03.23|UD|SONDA SYMARO QAC22 TEMP. EXTERIOR -35-70ºC|33.06|22102026|0|
 ~T|16.03.23|Suministro e instalación de sonda, siemens, symaro pasiva de temperatura para exterior. Rango de utilización -35 a 70ºc, con ni 1000 ohmios a 0ºc como elemento sensor. Constante de tiempo de 14 minutos. Conexión a dos hilos. Grado de protección ip54. Incluso accesorio, pequeño material, mano de obra de instalación y pruebas.|
 ~M|16.03#\16.03.23||1|\General\1\\\\|
-~C|16.04.01|ud|BOCA DE EXTRACCIÓN AUTORREGULABLE EN LOCALES HÚMEDOS|48.00|22102026|0|
-~T|16.04.01|Boca de extracción autorregulable (caudal según DB-HS 3) en baños, aseos, cocina y lavandería, con conexión al conducto.|
-~M|16.04#\16.04.01||6|\Baño, aseos, cocina y lavandería\6\\\\|
-~C|16.04.02|ud|EXTRACTOR DE BAJO CONSUMO PARA LA VENTILACIÓN HÍBRIDA|480.00|22102026|0|
-~T|16.04.02|Ventilador de extracción de bajo consumo (EC) en conducto, con regulación, para la ventilación híbrida de simple flujo.|
-~M|16.04#\16.04.02||2|\Conductos a cubierta\2\\\\|
+~C|16.04.01|ud|REJILLA CIRCULAR VISTA Ø125 DE ALUMINIO ANODIZADO EN BOCAS DE EXTRACCIÓN|38.00|22102026|0|
+~T|16.04.01|Rejilla de extracción circular vista de Ø125 mm de aluminio anodizado (tipo Mayfe o la marca que fije la dirección facultativa), enrasada en techo o falso techo, con su marco de montaje y conexión al conducto Ø125.|
+~M|16.04#\16.04.01||11|\Bocas de extracción de los planos LO-H5 y LO-H6 (11, contadas en el modelo 3D el 22-oct; la campana va aparte)\11\\\\|
+~C|16.04.02|ud|EXTRACTOR SILENCIOSO EN LÍNEA DE MOTOR INDEPENDIENTE (TIPO SOLER & PALAU) EN FALSO TECHO|265.00|22102026|0|
+~T|16.04.02|Extractor helicocentrífugo en línea de bajo nivel sonoro para conducto Ø125 (tipo Soler & Palau TD-Silent o equivalente), con motor independiente de la rejilla, montado en el falso techo del local con soportes antivibratorios y conexión flexible, regulación de velocidad y funcionamiento continuo a caudal de DB-HS 3; uno por boca. Más caro que el extractor todo en uno, pero permite elegir el acabado de la rejilla y es más silencioso.|
+~M|16.04#\16.04.02||11|\Uno por boca de extracción (planos LO-H5 y LO-H6)\11\\\\|
 ~C|16.04.03|ud|AIREADOR DE ADMISIÓN EN CARPINTERÍA (MICROVENTILACIÓN)|42.00|22102026|0|
 ~T|16.04.03|Aireador de admisión integrado en la carpintería o microventilación de los locales secos, con caudal según el DB-HS 3.|
 ~M|16.04#\16.04.03||9|\Dormitorios, salón, biblioteca, txoko\9\\\\|
@@ -604,7 +604,7 @@
 ~M|16.05#\16.05.23||9|\Persianas (7) y estores (2)\9\\\\|
 ~C|16.05.24|UD|PUNTO VENTILACIÓN-EXTRACCIÓN|9.54|22102026|0|
 ~T|16.05.24|Punto de ventilacion, empotrado con cable de cobre 07z1-k de 2,5 mm2, 4 mm2 o 6 mm2, segun corresponda al equipo, cero halógenos marca general cable o equivalente bajo tubo corrugado 25 mm de diámetro cero halógenos marca aiscan o equivalente, con parte proporcional de cajas de empotrar de paso y derivación, fijaciones, accesorios de unión y derivación, bornas, totalmente conexionado e instalado.|
-~M|16.05#\16.05.24||3|\Extractores y campana\3\\\\|
+~M|16.05#\16.05.24||12|\Extractores (11) y campana\12\\\\|
 ~C|16.05.25|UD|PUNTO INTERRUPTOR EMPOTRADO|13.78|22102026|0|
 ~T|16.05.25|Punto de interruptor empotrado con cable de cobre 07z1-k de 1,5 mm2 cero halógenos marca general cable o equivalente bajo tubo corrugado 20 mm de diámetro cero halógenos marca aiscan o equivalente, con parte proporcional de cajas de empotrar de paso y derivación, fijaciones, accesorios de unión y derivación, bornas, totalmente conexionado e instalado. .- PLANTA BAJA|
 ~M|16.05#\16.05.25||15|\Interruptores\15\\\\|
