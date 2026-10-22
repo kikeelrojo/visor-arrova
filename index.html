@@ -238,8 +238,10 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
       <button id="tabLam" aria-pressed="false">Láminas</button>
       <button id="tabMem" aria-pressed="false">Memorias</button>
       <button id="tabDatos" aria-pressed="false">Mediciones</button>
+      <button id="tabCap" aria-pressed="false">Capturas</button>
     </div>
     <button class="btn ico" id="btnRefrescar" title="Actualizar: carga la última versión publicada" aria-label="Actualizar"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16.2 10.6A6.2 6.2 0 1 1 14.4 5.6M14.9 2.6v3.4h-3.4"/></svg></button>
+    <button class="btn ico" id="btnCaptura" title="Captura de lo que se ve, para marcar encima y comentar" aria-label="Captura"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 6.5h3l1.5-2h6l1.5 2h3v9h-15z"/><circle cx="10" cy="11" r="3"/></svg></button>
     <select id="selProyecto" aria-label="Proyecto"></select>
     <select id="selModelo" aria-label="Modelo"></select>
     <div class="estado" id="estado"></div>
@@ -452,8 +454,9 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
             <button class="btn" id="btnZ0">Ajustar</button>
             <button class="btn" id="btnZp" aria-label="Acercar">+</button>
             <a class="btn" id="btnAbrirPdf" target="_blank" rel="noopener">Abrir el PDF</a>
+            <button class="btn" id="btnBorrarCap" hidden>Borrar la captura</button>
           </div>
-          <p class="nota">«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.</p>
+          <p class="nota" id="notaDocs">«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.</p>
         </div>
         <div class="sec" id="secNotas" hidden>
           <h3>Comentarios</h3>
@@ -572,7 +575,7 @@ async function elegirProyecto(id) {
   else if (bim1) s.value = bim1.id;
   await elegirModelo(s.value);
   if (S.modo === "2d" || S.modo === "ed") await abrir2d();
-  if (S.modo === "lam" || S.modo === "mem") Docs.abrir(S.modo === "lam" ? "laminas" : "memorias");
+  if (S.modo === "lam" || S.modo === "mem" || S.modo === "cap") Docs.abrir({lam: "laminas", mem: "memorias", cap: "capturas"}[S.modo]);
 }
 
 async function elegirModelo(id) {
@@ -1255,7 +1258,8 @@ const V3 = (() => {
       if (b) guardarArchivo(((S.proyecto ? S.proyecto.id : "modelo") + "_" + D.modelo + "_" + estilo + ".png").replace(/\s+/g, "_"), b);
     }, "image/png");
   }
-  return {cargar, encuadra, resaltar, datos: () => D, visibles: () => elems.filter(g => g.visible).map(g => g.userData.e), aplicaEstilo, vista, setPersp, focal, alOjo, cortes, setExplota, exportarSVG, exportarPNG, redim, pedir,
+  function captura() { render(); return canvas; }     // se lee justo después de pintar (sin guardar el búfer de WebGL)
+  return {captura, cargar, encuadra, resaltar, datos: () => D, visibles: () => elems.filter(g => g.visible).map(g => g.userData.e), aplicaEstilo, vista, setPersp, focal, alOjo, cortes, setExplota, exportarSVG, exportarPNG, redim, pedir,
     tema() { for (const k in matCache) { matCache[k].dispose(); delete matCache[k]; } if (D) aplicaEstilo(estilo); }};
 })();
 
@@ -2813,6 +2817,7 @@ const Docs = (() => {
   }
   async function lista(t) {
     const P = S.proyecto; if (!P) return [];
+    if (t === "capturas") return (await Notas.capturas()) || [];
     P.docs = P.docs || {};
     if (P.docs[t]) return P.docs[t];
     const f = (P.indice || {})[t] || (t + ".json");
@@ -2821,11 +2826,14 @@ const Docs = (() => {
     return P.docs[t];
   }
   async function abrir(t) {
-    tipo = t; $("docsTit").textContent = t === "laminas" ? "Láminas" : "Memorias";
+    tipo = t; $("docsTit").textContent = {laminas: "Láminas", memorias: "Memorias", capturas: "Capturas"}[t];
+    const cap = t === "capturas";
+    $("btnAbrirPdf").textContent = cap ? "Abrir la imagen" : "Abrir el PDF"; $("btnBorrarCap").hidden = true;
+    $("notaDocs").textContent = cap ? "Captura de lo que se ve en 3D o 2D (botón de la cámara, arriba). Marca encima con las herramientas de «Comentarios» y escribe al lado." : "«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.";
     const L = await lista(t), el = $("listaDocs"); el.innerHTML = "";
     if (!L.length) {
-      el.innerHTML = '<span class="nota">' + (t === "laminas" ? "Aún no hay láminas: se publican desde Vectorworks (las hojas del archivo, en PDF)." : "Aún no hay memorias publicadas.") + "</span>";
-      $("docsPag").innerHTML = '<div class="vacio-doc"><b>' + (t === "laminas" ? "Sin láminas" : "Sin memorias") + "</b></div>"; $("btnAbrirPdf").hidden = true; return;
+      el.innerHTML = '<span class="nota">' + ({laminas: "Aún no hay láminas: se publican desde Vectorworks (las hojas del archivo, en PDF).", memorias: "Aún no hay memorias publicadas.", capturas: "Aún no hay capturas: en 3D o 2D, pulsa el botón de la cámara."}[t]) + "</span>";
+      $("docsPag").innerHTML = '<div class="vacio-doc"><b>' + ({laminas: "Sin láminas", memorias: "Sin memorias", capturas: "Sin capturas"}[t]) + "</b></div>"; $("btnAbrirPdf").hidden = true; return;
     }
     L.forEach((d, i) => {
       const b = document.createElement("button"); b.innerHTML = escH(d.titulo || d.archivo) + (d.nota ? "<span>" + escH(d.nota) + "</span>" : "");
@@ -2840,6 +2848,15 @@ const Docs = (() => {
   async function ver(d, b) {
     actual = d; [...$("listaDocs").children].forEach(x => x.classList.toggle("on", x === b));
     ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + "." + tipo, d.archivo);
+    if (tipo === "capturas") {
+      $("btnAbrirPdf").hidden = false; $("btnAbrirPdf").href = d.url;
+      $("btnBorrarCap").hidden = !d.borrable;
+      $("btnBorrarCap").onclick = async () => {
+        const bb = $("btnBorrarCap"); if (!bb.dataset.seguro) { bb.dataset.seguro = 1; bb.textContent = "¿Seguro? Borrar"; setTimeout(() => { delete bb.dataset.seguro; bb.textContent = "Borrar la captura"; }, 4000); return; }
+        try { await Notas.borrarCaptura(d.archivo); toast("Captura borrada"); abrir("capturas"); } catch (e) { toast(e.message, 4000); }
+      };
+      Notas.enDoc(tipo, d); pdf = null; z = 0; pintaImg(); return;
+    }
     const url = "datos/" + S.proyecto.id + "/" + d.archivo + (d.nota ? "?v=" + encodeURIComponent(d.nota).slice(0, 60) : "");   // la nota lleva la fecha del archivo: si cambia, se baja de nuevo
     $("btnAbrirPdf").hidden = false; $("btnAbrirPdf").href = url;
     Notas.enDoc(tipo, d);
@@ -2868,14 +2885,27 @@ const Docs = (() => {
       Notas.pagina(w, n, v.width, v.height, esc_);
     }
   }
+  function pintaImg() {
+    // la captura a lo ancho (y alto) del visor, con su capa de marcas en píxeles de la imagen
+    const d = actual; if (!d) return;
+    const pag = $("docsPag"); pag.innerHTML = "";
+    const ancho = Math.max(200, $("docs").clientWidth - 68 - 2), alto = Math.max(200, $("docs").clientHeight - 60);
+    const esc_ = z ? z : Math.min(ancho / d.ancho, alto / d.alto, 3);
+    const w = document.createElement("div"); w.className = "pg";
+    const im = new Image(); im.src = d.url; im.alt = d.titulo || "Captura"; im.width = Math.floor(d.ancho * esc_); im.height = Math.floor(d.alto * esc_);
+    im.style.display = "block"; im.style.boxShadow = "0 0 0 0.5px var(--ink)"; im.draggable = false;
+    w.appendChild(im); pag.appendChild(w);
+    Notas.pagina(w, 1, d.ancho, d.alto, esc_);
+  }
   function dibuja(c) { const v = c._p.getViewport({scale: c._esc}); c._p.render({canvasContext: c.getContext("2d"), viewport: v}); }
   function zoom(f) {
     if (!pdf) return;
+    if (tipo === "capturas") { const im = $("docsPag").querySelector("img"); const e0 = im && actual ? im.width / actual.ancho : 1; z = f === 0 ? 0 : Math.max(0.1, Math.min(8, e0 * f)); pintaImg(); return; }
     const c = $("docsPag").querySelector("canvas"); const actualEsc = c ? c._css : 1;
     z = f === 0 ? 0 : Math.max(0.2, Math.min(8, actualEsc * f)); pinta();
   }
-  addEventListener("resize", () => { if ((S.modo === "lam" || S.modo === "mem") && pdf && !z) pinta(); });
-  return {abrir, zoom};
+  addEventListener("resize", () => { if (z) return; if (S.modo === "cap" && actual) pintaImg(); else if ((S.modo === "lam" || S.modo === "mem") && pdf) pinta(); });
+  return {abrir, zoom, recargar: t => { if (S.proyecto && S.proyecto.docs) delete S.proyecto.docs[t]; }};
 })();
 
 /* ============================================================ comentarios y anotaciones (Supabase) */
@@ -2952,6 +2982,34 @@ const Notas = (() => {
     else if (!await api("POST", "rpc/borrar_nota", {p_id: n.id, p_llave: esAdmin ? ls("visor.admin") : llave})) throw new Error("No se ha podido borrar (solo se borra desde el navegador con el que se escribió)");
     cache = cache.filter(y => y.id !== n.id && y.respuesta_a !== n.id);
   }
+  const urlCap = a => cfg.url.replace(/\/$/, "") + "/storage/v1/object/public/capturas/" + a;
+  async function capturas() {
+    if (!await config()) return null;
+    let L;
+    try { L = cfg.local ? (ls(LKEY + ".cap") || []).filter(c => c.proyecto === proy()) : await api("GET", "capturas?select=*&proyecto=eq." + encodeURIComponent(proy()) + "&borrado=eq.false&order=creado.desc"); }
+    catch (e) { toast(e.message, 4000); return []; }
+    await todas(true);
+    return L.map(c => ({archivo: c.id, titulo: c.vista || "Captura", nota: c.autor + " · " + fecha(c.creado), url: cfg.local ? c.datos : urlCap(c.archivo), ancho: c.ancho, alto: c.alto, autor: c.autor, borrable: mia(c)}));
+  }
+  async function subirCaptura(blob, meta) {
+    if (!await config()) throw new Error("Las capturas necesitan la base de datos de comentarios");
+    if (!autor()) { const nm = (prompt("Tu nombre (sale con la captura y sus comentarios)") || "").trim(); if (!nm) throw new Error("Hace falta un nombre"); ls("visor.autor", nm.slice(0, 60)); }
+    await huellaP;
+    const id = (crypto.randomUUID ? crypto.randomUUID() : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)));
+    const archivo = proy().toLowerCase().replace(/[^a-z0-9_-]/g, "") + "/" + id + ".jpg";
+    const fila = {id, proyecto: proy(), autor: autor(), vista: meta.vista, archivo, ancho: meta.ancho, alto: meta.alto, llave_hash: huella || null};
+    if (cfg.local) { const L = ls(LKEY + ".cap") || []; L.unshift(Object.assign({creado: new Date().toISOString(), datos: meta.dataURL}, fila)); ls(LKEY + ".cap", L); return fila; }
+    const k = cfg.anon || cfg.clave, h = {apikey: k, "Content-Type": "image/jpeg", "x-upsert": "false"};
+    if (!/^sb_/.test(k)) h.Authorization = "Bearer " + k;
+    const r = await fetch(cfg.url.replace(/\/$/, "") + "/storage/v1/object/capturas/" + archivo, {method: "POST", headers: h, body: blob});
+    if (!r.ok) throw new Error("No se ha podido subir la imagen: " + r.status + " " + (await r.text()).slice(0, 120));
+    await api("POST", "capturas", fila, {Prefer: "return=minimal"});
+    return fila;
+  }
+  async function borrarCaptura(id) {
+    if (cfg.local) { ls(LKEY + ".cap", (ls(LKEY + ".cap") || []).filter(c => c.id !== id)); return; }
+    if (!await api("POST", "rpc/borrar_captura", {p_id: id, p_llave: esAdmin ? ls("visor.admin") : llave})) throw new Error("No se ha podido borrar (solo se borra desde el navegador con el que se hizo)");
+  }
   async function resolver(n, si) {
     const cambio = {resuelto_por: si ? autor() : null};
     if (cfg.local) {
@@ -2978,7 +3036,7 @@ const Notas = (() => {
   function htmlLista(lst, conCompositor) {
     const raiz = lst.filter(n => !n.respuesta_a), resp = id => lst.filter(n => n.respuesta_a === id), num = numeros(lst);
     const uno = (n, sub) => '<div class="nota-i' + (sub ? " resp" : "") + (n.id === focoId ? " foco" : "") + '" data-id="' + n.id + '" style="--c:' + colorDe(n.autor) + '">' +
-      '<div class="txt">' + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.pagina ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
+      '<div class="txt">' + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.pagina && ambito !== "capturas" ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
       '<div class="meta"><b>' + escH(n.autor) + "</b><br>" + fecha(n.creado) + (mia(n) ? '<br><button class="lnk" data-borrar>Borrar</button>' : "") + "</div>" +
       (sub ? "" : '<div class="acc">' + (n.resuelto_por ? '<span class="nota">Resuelto por ' + escH(n.resuelto_por) + (n.resuelto_en ? " · " + fecha(n.resuelto_en) : "") + '</span> <button class="lnk" data-r="0">Reabrir</button>'
         : '<button class="lnk" data-resp>Responder</button> <button class="lnk" data-r="1">Resolver</button>') + "</div>") + "</div>" +
@@ -2990,7 +3048,7 @@ const Notas = (() => {
   }
   function compositor(id, texto) {
     const a = autor();
-    return '<div class="comp" id="' + id + '">' + (pend ? '<p class="nota"><b>Marca en la página ' + pend.pagina + "</b>: escribe el comentario.</p>" : "") +
+    return '<div class="comp" id="' + id + '">' + (pend ? '<p class="nota"><b>' + (ambito === "capturas" ? "Marca en la captura" : "Marca en la página " + pend.pagina) + "</b>: escribe el comentario.</p>" : "") +
       (a ? '<p class="nota">Comentas como <b>' + escH(a) + "</b>" + (esAdmin ? " (administrador)" : "") + ' <button class="lnk" data-quien>cambiar</button></p>' : '<input class="filtro" data-nombre placeholder="Tu nombre (se ve con cada comentario)">') +
       '<textarea class="filtro" rows="3" placeholder="' + escH(texto) + '"></textarea><div class="fila"><button class="btn" data-guardar>Publicar</button>' +
       (pend ? '<button class="btn" data-cancelar>Quitar la marca</button>' : "") + "</div></div>";
@@ -3135,7 +3193,7 @@ const Notas = (() => {
   function enDatos() { ambito = "mediciones"; pend = null; pinta(); }
   document.querySelectorAll("#notasHerr [data-nh]").forEach(b => b.onclick = () => herramienta(herr === b.dataset.nh && b.dataset.nh !== "ver" ? "ver" : b.dataset.nh));
   setInterval(async () => {                                 // lo que escriban otros aparece solo
-    if (document.hidden || !(S.modo === "lam" || S.modo === "mem" || S.modo === "datos") || !cfg) return;
+    if (document.hidden || !(S.modo === "lam" || S.modo === "mem" || S.modo === "datos" || S.modo === "cap") || !cfg) return;
     const n0 = cache ? cache.length + "|" + cache.filter(n => n.resuelto_por).length : "";
     await todas(true);
     const n1 = cache.length + "|" + cache.filter(n => n.resuelto_por).length;
@@ -3153,7 +3211,7 @@ const Notas = (() => {
     try { history.replaceState(null, "", location.pathname + (q ? q + "&" : "?") + "admin=" + k + location.hash); } catch (e) { return; }
     toast("Listo para guardar como app en modo admin: en el iPad, Compartir › Añadir a pantalla de inicio; en el Mac, Archivo › Añadir al Dock. No compartas esta dirección.", 9000);
   };
-  return {enDoc, enDatos, pagina, herramienta};
+  return {enDoc, enDatos, pagina, herramienta, capturas, subirCaptura, borrarCaptura};
 })();
 
 /* ============================================================ interfaz */
@@ -3170,8 +3228,9 @@ function modo(m) {
   if (S.soloEditor && m !== "ed") return;
   S.modo = m;
   document.body.classList.toggle("editor", m === "ed");
-  const plano = m === "2d" || m === "ed", doc = m === "lam" || m === "mem";
-  const tabs = {"3d": "tab3d", "2d": "tab2d", lam: "tabLam", mem: "tabMem", datos: "tabDatos"};
+  const plano = m === "2d" || m === "ed", doc = m === "lam" || m === "mem" || m === "cap";
+  const tabs = {"3d": "tab3d", "2d": "tab2d", lam: "tabLam", mem: "tabMem", datos: "tabDatos", cap: "tabCap"};
+  $("btnCaptura").hidden = !(m === "3d" || m === "2d");
   for (const [k_, id] of Object.entries(tabs)) $(id).setAttribute("aria-pressed", m === k_);
   $("c3d").hidden = m !== "3d"; $("c2d").hidden = !plano; $("p3d").hidden = m !== "3d" && m !== "datos"; $("p2d").hidden = !plano; $("pDocs").hidden = !doc;
   $("tool2d").hidden = m !== "ed"; $("paleta").hidden = m !== "ed";
@@ -3181,17 +3240,17 @@ function modo(m) {
   $("selModelo").hidden = m !== "3d" && m !== "datos";
   $("rotulo").hidden = m !== "3d";
   document.querySelectorAll(".aspa,.esq").forEach(x => x.hidden = m === "datos" || doc);
-  const h = {"3d": "", "2d": "#2d", ed: "", lam: "#laminas", mem: "#memorias", datos: "#datos"}[m];
+  const h = {"3d": "", "2d": "#2d", ed: "", lam: "#laminas", mem: "#memorias", datos: "#datos", cap: "#capturas"}[m];
   if (!S.soloEditor) try { history.replaceState(null, "", h || location.pathname + location.search); } catch (e) { /* vista previa */ }
   if (m === "datos") { Datos.refrescar(); return; }
-  if (doc) { $("vacio").hidden = true; Docs.abrir(m === "lam" ? "laminas" : "memorias"); return; }
+  if (doc) { $("vacio").hidden = true; Docs.abrir({lam: "laminas", mem: "memorias", cap: "capturas"}[m]); return; }
   if (plano) { V2.setEditable(m === "ed"); abrir2d(); requestAnimationFrame(() => V2.redim()); } else { requestAnimationFrame(() => V3.redim()); if (!S.modelo) $("vacio").hidden = false; }
 }
 $("tab3d").onclick = () => modo("3d"); $("tab2d").onclick = () => modo("2d");
 // el editor va aparte: en la web, en otra pestaña del navegador; dentro de Claude, en la misma página con «Visor» para volver
 $("btnEditor").onclick = e => { if (window.claude) { e.preventDefault(); S.volverA = S.modo; modo("ed"); } };
 $("btnVolver").onclick = () => modo(S.volverA || "2d");
-$("tabLam").onclick = () => modo("lam"); $("tabMem").onclick = () => modo("mem"); $("tabDatos").onclick = () => modo("datos");
+$("tabLam").onclick = () => modo("lam"); $("tabMem").onclick = () => modo("mem"); $("tabDatos").onclick = () => modo("datos"); $("tabCap").onclick = () => modo("cap");
 $("btnVerTodo").onclick = () => V3.resaltar(null);
 $("selProyecto").onchange = e => elegirProyecto(e.target.value);
 $("selModelo").onchange = e => elegirModelo(e.target.value);
@@ -3281,6 +3340,25 @@ $("inAng").addEventListener("keydown", e => {
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { V3.tema(); V2.tema(); });
 new MutationObserver(() => { V3.tema(); V2.tema(); }).observe(document.documentElement, {attributes: true, attributeFilter: ["data-theme"]});
 
+// captura: lo que se ve en 3D o 2D, para marcar encima y comentar (queda en «Capturas» para todos)
+$("btnCaptura").onclick = async () => {
+  const b = $("btnCaptura"); if (b.disabled) return;
+  try {
+    b.disabled = true;
+    const src = S.modo === "3d" ? V3.captura() : $("c2d");
+    const k_ = Math.min(1, 2400 / Math.max(src.width, src.height)), c = document.createElement("canvas");
+    c.width = Math.round(src.width * k_); c.height = Math.round(src.height * k_);
+    const x = c.getContext("2d"); x.fillStyle = getComputedStyle(document.body).backgroundColor || "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(src, 0, 0, c.width, c.height);
+    const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.88));
+    const so = $("selCam").selectedOptions[0], mo = $("selModelo").selectedOptions[0];
+    const vista = S.modo === "3d" ? "3D · " + (so ? so.textContent : "") + (mo ? " · " + mo.textContent : "") : "2D · " + ((S.proyecto && S.proyecto.plano && S.proyecto.plano.doc) || "plano");
+    toast("Subiendo la captura…", 8000);
+    const f = await Notas.subirCaptura(blob, {vista, ancho: c.width, alto: c.height, dataURL: c.toDataURL("image/jpeg", 0.6)});
+    ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + ".capturas", f.id);
+    modo("cap"); toast("Captura guardada: marca encima con las herramientas de la derecha y comenta", 4000);
+  } catch (e) { toast(e.message || String(e), 5000); }
+  finally { b.disabled = false; }
+};
 // refrescar: vuelve a pedir la página con una marca nueva, para saltarse lo guardado en el navegador
 $("btnRefrescar").onclick = () => { try { const u = new URL(location.href); u.searchParams.set("v", Date.now().toString(36)); location.replace(u.toString()); } catch (e) { location.reload(); } };
 if (/[?&]v=/.test(location.search)) try { history.replaceState(null, "", location.pathname + location.search.replace(/[?&]v=[^&]*/, "").replace(/^&/, "?") + location.hash); } catch (e) { /* vista previa */ }
@@ -3289,7 +3367,7 @@ if (/[?&]v=/.test(location.search)) try { history.replaceState(null, "", locatio
   await cargarPublicado();
   if (Object.keys(S.proyectos).length) rellenarProyectos(); else $("vacio").hidden = false;
   rotulo();
-  const hs = {"#2d": "2d", "#plano": "2d", "#editor": "ed", "#laminas": "lam", "#memorias": "mem", "#datos": "datos"}[location.hash];
+  const hs = {"#2d": "2d", "#plano": "2d", "#editor": "ed", "#laminas": "lam", "#memorias": "mem", "#datos": "datos", "#capturas": "cap"}[location.hash];
   S.soloEditor = /(^|[?&])editor\b/.test(location.search) || hs === "ed";
   if (S.soloEditor) { document.body.classList.add("solo-editor"); document.title = "Editor arrova"; $("marcaSub").textContent = "· editor"; }
   // quien solo puede ver la página en claude.ai (p. ej. el aparejador) no tiene el editor; en la web pública sí
