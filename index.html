@@ -3304,7 +3304,7 @@ const Notas = (() => {
   function etiqueta(n) {
     const e = estadoN(n);
     if (e === "pendiente") return '<span class="est est-p">Pendiente</span> ';
-    if (e === "curso") return '<span class="est est-c">Lo corrige ' + escH(n.encargado) + "</span> ";
+    if (e === "curso") return '<span class="est est-c">En revisión · ' + escH(n.encargado) + "</span> ";
     if (e === "corregido") return '<span class="est est-h">Corregido · ' + escH(n.corregido_por) + "</span> ";
     return "";
   }
@@ -3313,8 +3313,8 @@ const Notas = (() => {
     const claude = ambito === "capturas" || e === "ok" ? "" : '<button class="lnk" data-pc>' + (n.para_claude ? "Quitar de Claude" : "Mandar a Claude") + "</button>";
     if (e === "ok") return '<span class="nota">Visto bueno de ' + escH(n.resuelto_por) + (n.resuelto_en ? " · " + fecha(n.resuelto_en) : "") + (n.corregido_por ? " · corrigió " + escH(n.corregido_por) : "") + "</span> " + L("reabrir", "Reabrir");
     const r = '<button class="lnk" data-resp>Responder</button> ';
-    if (e === "pendiente") return r + L("encargo", "Me encargo", "Para que se sepa que lo estás corrigiendo") + L("corregido", "Corregido") + claude;
-    if (e === "curso") return r + L("corregido", "Corregido") + L("soltar", "Ya no me encargo", "Si al final no lo vas a corregir tú: vuelve a «Pendiente» para que lo coja otro") + claude;
+    if (e === "pendiente") return r + L("encargo", "En revisión", "Lo coges tú: sale tu nombre, para que se sepa quién lo está corrigiendo") + L("corregido", "Corregido") + claude;
+    if (e === "curso") return r + (String(n.encargado).trim().toLowerCase() !== autor().trim().toLowerCase() ? L("encargo", "Lo cojo yo", "Pasa a tu nombre") : "") + L("corregido", "Corregido") + claude;
     return r + L("ok", "Visto bueno", "Está bien: se agrupa en «Resueltos»") + L("mal", "No está bien", "Vuelve a pendiente; di qué falta en la respuesta") + claude;
   }
   function htmlLista(lst, conCompositor) {
