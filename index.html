@@ -177,6 +177,8 @@ details.hechas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-w
 .notas-datos{max-width:760px}
 .ldocs button .cnt{float:right;font-style:normal;font-weight:700;font-size:var(--s-xs);color:var(--warn);border:0.5px solid var(--warn);min-width:16px;text-align:center;padding:0 3px;margin-left:6px}
 h3 .adm{color:#7b1d2c}
+.nota-i .pc{font-size:var(--s-xs);font-weight:700;color:var(--warn);border:0.5px solid var(--warn);padding:0 3px;white-space:nowrap}
+.pc-chk{font-size:var(--s-xs)}
 .acciones .btn{line-height:16px;height:28px;padding:5px 4px;font-weight:400;text-align:center;overflow:hidden;text-overflow:ellipsis}
 a.btn.rojo{color:var(--warn);border-color:var(--warn)}
 header .barra .ico{width:41px;height:26px;padding:0;display:inline-grid;place-items:center;flex:0 0 auto}
@@ -454,6 +456,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
             <button class="btn" id="btnZ0">Ajustar</button>
             <button class="btn" id="btnZp" aria-label="Acercar">+</button>
             <a class="btn" id="btnAbrirPdf" target="_blank" rel="noopener">Abrir el PDF</a>
+            <button class="btn" id="btnParaClaude" hidden aria-pressed="false" title="Para que Claude revise esta captura con sus marcas y comentarios">Para Claude</button>
             <button class="btn" id="btnBorrarCap" hidden>Borrar la captura</button>
           </div>
           <p class="nota" id="notaDocs">«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.</p>
@@ -2828,7 +2831,7 @@ const Docs = (() => {
   async function abrir(t) {
     tipo = t; $("docsTit").textContent = {laminas: "Láminas", memorias: "Memorias", capturas: "Capturas"}[t];
     const cap = t === "capturas";
-    $("btnAbrirPdf").textContent = cap ? "Abrir la imagen" : "Abrir el PDF"; $("btnBorrarCap").hidden = true;
+    $("btnAbrirPdf").textContent = cap ? "Abrir la imagen" : "Abrir el PDF"; $("btnBorrarCap").hidden = true; $("btnParaClaude").hidden = true;
     $("notaDocs").textContent = cap ? "Captura de lo que se ve en 3D o 2D (botón de la cámara, arriba). Marca encima con las herramientas de «Comentarios» y escribe al lado." : "«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.";
     const L = await lista(t), el = $("listaDocs"); el.innerHTML = "";
     if (!L.length) {
@@ -2851,6 +2854,8 @@ const Docs = (() => {
     if (tipo === "capturas") {
       $("btnAbrirPdf").hidden = false; $("btnAbrirPdf").href = d.url;
       $("btnBorrarCap").hidden = !d.borrable;
+      const pcb = $("btnParaClaude"); pcb.hidden = false; pcb.setAttribute("aria-pressed", !!d.para_claude);
+      pcb.onclick = async () => { const si = !d.para_claude; try { await Notas.marcarCaptura(d.archivo, si); d.para_claude = si; pcb.setAttribute("aria-pressed", si); toast(si ? "Marcada para Claude: díselo en el chat («mira lo pendiente»)" : "Quitada de Claude", 3500); } catch (e) { toast(e.message, 4000); } };
       $("btnBorrarCap").onclick = async () => {
         const bb = $("btnBorrarCap"); if (!bb.dataset.seguro) { bb.dataset.seguro = 1; bb.textContent = "¿Seguro? Borrar"; setTimeout(() => { delete bb.dataset.seguro; bb.textContent = "Borrar la captura"; }, 4000); return; }
         try { await Notas.borrarCaptura(d.archivo); toast("Captura borrada"); abrir("capturas"); } catch (e) { toast(e.message, 4000); }
@@ -2977,6 +2982,15 @@ const Notas = (() => {
     const r = await api("POST", "notas", fila, {Prefer: "return=representation"});
     cache.push(r[0]); return r[0];
   }
+  async function marcar(n, si) {
+    // «Para Claude»: lo puede poner o quitar cualquiera
+    if (cfg.local) { const L = ls(LKEY) || [], x = L.find(y => y.id === n.id); if (x) x.para_claude = si; ls(LKEY, L); n.para_claude = si; return; }
+    const r = await api("PATCH", "notas?id=eq." + n.id, {para_claude: si}, {Prefer: "return=representation"}); if (r && r[0]) Object.assign(n, r[0]);
+  }
+  async function marcarCaptura(id, si) {
+    if (cfg.local) { const L = ls(LKEY + ".cap") || [], x = L.find(c => c.id === id); if (x) x.para_claude = si; ls(LKEY + ".cap", L); return; }
+    await api("PATCH", "capturas?id=eq." + id, {para_claude: si}, {Prefer: "return=minimal"});
+  }
   async function borrar(n) {
     if (cfg.local) { const L = (ls(LKEY) || []).filter(y => y.id !== n.id); ls(LKEY, L); }
     else if (!await api("POST", "rpc/borrar_nota", {p_id: n.id, p_llave: esAdmin ? ls("visor.admin") : llave})) throw new Error("No se ha podido borrar (solo se borra desde el navegador con el que se escribió)");
@@ -2989,7 +3003,7 @@ const Notas = (() => {
     try { L = cfg.local ? (ls(LKEY + ".cap") || []).filter(c => c.proyecto === proy()) : await api("GET", "capturas?select=*&proyecto=eq." + encodeURIComponent(proy()) + "&borrado=eq.false&order=creado.desc"); }
     catch (e) { toast(e.message, 4000); return []; }
     await todas(true);
-    return L.map(c => ({archivo: c.id, titulo: c.vista || "Captura", nota: c.autor + " · " + fecha(c.creado), url: cfg.local ? c.datos : urlCap(c.archivo), ancho: c.ancho, alto: c.alto, autor: c.autor, borrable: mia(c)}));
+    return L.map(c => ({archivo: c.id, titulo: c.vista || "Captura", nota: c.autor + " · " + fecha(c.creado) + (c.para_claude ? " · para Claude" : ""), para_claude: !!c.para_claude, url: cfg.local ? c.datos : urlCap(c.archivo), ancho: c.ancho, alto: c.alto, autor: c.autor, borrable: mia(c)}));
   }
   async function subirCaptura(blob, meta) {
     if (!await config()) throw new Error("Las capturas necesitan la base de datos de comentarios");
@@ -3036,10 +3050,10 @@ const Notas = (() => {
   function htmlLista(lst, conCompositor) {
     const raiz = lst.filter(n => !n.respuesta_a), resp = id => lst.filter(n => n.respuesta_a === id), num = numeros(lst);
     const uno = (n, sub) => '<div class="nota-i' + (sub ? " resp" : "") + (n.id === focoId ? " foco" : "") + '" data-id="' + n.id + '" style="--c:' + colorDe(n.autor) + '">' +
-      '<div class="txt">' + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.pagina && ambito !== "capturas" ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
+      '<div class="txt">' + (n.para_claude && !n.resuelto_por ? '<span class="pc">Para Claude</span> ' : "") + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.pagina && ambito !== "capturas" ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
       '<div class="meta"><b>' + escH(n.autor) + "</b><br>" + fecha(n.creado) + (mia(n) ? '<br><button class="lnk" data-borrar>Borrar</button>' : "") + "</div>" +
       (sub ? "" : '<div class="acc">' + (n.resuelto_por ? '<span class="nota">Resuelto por ' + escH(n.resuelto_por) + (n.resuelto_en ? " · " + fecha(n.resuelto_en) : "") + '</span> <button class="lnk" data-r="0">Reabrir</button>'
-        : '<button class="lnk" data-resp>Responder</button> <button class="lnk" data-r="1">Resolver</button>') + "</div>") + "</div>" +
+        : '<button class="lnk" data-resp>Responder</button> <button class="lnk" data-r="1">Resolver</button> <button class="lnk" data-pc>' + (n.para_claude ? "Quitar de Claude" : "Para Claude") + "</button>") + "</div>") + "</div>" +
       (sub ? "" : resp(n.id).map(r => uno(r, true)).join(""));
     const abiertas = raiz.filter(n => !n.resuelto_por), hechas = raiz.filter(n => n.resuelto_por);
     let h = abiertas.map(n => uno(n)).join("") || '<p class="nota">Sin comentarios todavía.</p>';
@@ -3050,7 +3064,7 @@ const Notas = (() => {
     const a = autor();
     return '<div class="comp" id="' + id + '">' + (pend ? '<p class="nota"><b>' + (ambito === "capturas" ? "Marca en la captura" : "Marca en la página " + pend.pagina) + "</b>: escribe el comentario.</p>" : "") +
       (a ? '<p class="nota">Comentas como <b>' + escH(a) + "</b>" + (esAdmin ? " (administrador)" : "") + ' <button class="lnk" data-quien>cambiar</button></p>' : '<input class="filtro" data-nombre placeholder="Tu nombre (se ve con cada comentario)">') +
-      '<textarea class="filtro" rows="3" placeholder="' + escH(texto) + '"></textarea><div class="fila"><button class="btn" data-guardar>Publicar</button>' +
+      '<textarea class="filtro" rows="3" placeholder="' + escH(texto) + '"></textarea><div class="fila"><button class="btn" data-guardar>Publicar</button><label class="chk pc-chk" title="Para que Claude lo revise"><input type="checkbox" data-pcn> Para Claude</label>' +
       (pend ? '<button class="btn" data-cancelar>Quitar la marca</button>' : "") + "</div></div>";
   }
   function engancha(el, amb, doc) {
@@ -3063,6 +3077,7 @@ const Notas = (() => {
         if (nom) { if (!nom.value.trim()) { nom.focus(); toast("Escribe tu nombre"); return; } ls("visor.autor", nom.value.trim().slice(0, 60)); }
         const t = ta.value.trim(); if (!t && !pend) { ta.focus(); return; }
         const f = {ambito: amb, doc: doc, texto: t};
+        const pcn = comp.querySelector("[data-pcn]"); if (pcn && pcn.checked) f.para_claude = true;
         if (comp.dataset.resp) f.respuesta_a = comp.dataset.resp;
         if (pend && !comp.dataset.resp) { f.pagina = pend.pagina; f.dibujo = pend.dibujo; }
         try { const n = await crear(f); if (!comp.dataset.resp) pend = null; focoId = n.id; pinta(); } catch (e) { toast(e.message, 4000); }
@@ -3082,6 +3097,8 @@ const Notas = (() => {
         if (!bb.dataset.seguro) { bb.dataset.seguro = 1; bb.textContent = "¿Seguro? Borrar"; setTimeout(() => { if (bb.isConnected) { delete bb.dataset.seguro; bb.textContent = "Borrar"; } }, 4000); return; }
         try { await borrar(n); if (focoId === n.id) focoId = null; pinta(); } catch (er) { toast(er.message, 4000); }
       };
+      const pb = d.querySelector("[data-pc]");
+      if (pb) pb.onclick = async e => { e.stopPropagation(); try { await marcar(n, !n.para_claude); pinta(); } catch (er) { toast(er.message, 4000); } };
       const rb = d.querySelector("[data-resp]");
       if (rb) rb.onclick = e => {
         e.stopPropagation();
@@ -3211,7 +3228,7 @@ const Notas = (() => {
     try { history.replaceState(null, "", location.pathname + (q ? q + "&" : "?") + "admin=" + k + location.hash); } catch (e) { return; }
     toast("Listo para guardar como app en modo admin: en el iPad, Compartir › Añadir a pantalla de inicio; en el Mac, Archivo › Añadir al Dock. No compartas esta dirección.", 9000);
   };
-  return {enDoc, enDatos, pagina, herramienta, capturas, subirCaptura, borrarCaptura};
+  return {enDoc, enDatos, pagina, herramienta, capturas, subirCaptura, borrarCaptura, marcarCaptura};
 })();
 
 /* ============================================================ interfaz */
