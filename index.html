@@ -183,7 +183,14 @@ h3 .adm{color:#7b1d2c}
 .a-claude{width:100%;color:var(--warn);border-color:var(--warn)}
 .a-claude[aria-pressed="true"]{background:var(--warn);color:var(--paper)}
 #secClaude .lnk{margin-top:6px}
-.resuelta{margin:0 0 10px;font-weight:700}
+.estado-doc{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:0 0 4px}.estado-doc .btn{width:100%;margin:0}
+.estado-doc [data-ed="revision"].on{color:var(--warn);border-color:var(--warn);font-weight:700}
+.estado-doc [data-ed="definitivo"].on{background:var(--ink);color:var(--paper);font-weight:700}
+#notaEstado{margin:0 0 10px}
+.est{font-size:var(--s-xs);font-weight:700;white-space:nowrap;padding:0 3px;border:0.5px solid currentColor}
+.est-p{color:var(--warn)}.est-c{color:var(--ink)}.est-h{color:#1f4a2c}
+.ldocs button .estl{float:right;font-style:normal;font-size:var(--s-xs);font-weight:700;margin-left:6px;clear:right}
+.ldocs button .estl.rev{color:var(--warn)}.ldocs button .estl.def{color:var(--ink)}
 details.resueltas{margin-top:8px}details.resueltas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-weight:700}
 details.resueltas button{opacity:.75}details.resueltas button.on{opacity:1}
 .notas.chat .nota-i{padding:3px 0;border:0;background:none}.notas.chat .nota-i .acc,.notas.chat .nota-i [data-borrar]{display:none}
@@ -492,7 +499,11 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
         </div>
         <div class="sec" id="secNotas" hidden>
           <h3>Comentarios</h3>
-          <label class="chk resuelta" id="filaResuelta" hidden title="Se agrupa con sus comentarios y cada 15 días se archiva en un PDF en la carpeta del proyecto"><input type="checkbox" id="chkResuelta"> Resuelta: agrupar y archivar</label>
+          <div class="estado-doc" id="filaEstado" hidden role="group" aria-label="Estado del archivo">
+            <button class="btn" data-ed="revision" title="Hay cosas que cambiar o se está corrigiendo">En revisión</button>
+            <button class="btn" data-ed="definitivo" title="Está bien: visto bueno al archivo entero">Definitivo</button>
+          </div>
+          <p class="nota" id="notaEstado" hidden></p>
           <div class="fila" id="notasHerr" role="group" aria-label="Marcar en la página">
             <button class="btn on" data-nh="ver" title="Moverse por el documento">Ver</button>
             <button class="btn" data-nh="lapiz" title="Lápiz: tantos trazos como quieras; luego escribe el comentario">Lápiz</button>
@@ -2995,7 +3006,7 @@ const Docs = (() => {
   async function abrir(t) {
     tipo = t; $("docsTit").textContent = {laminas: "Láminas", memorias: "Memorias", capturas: "Capturas"}[t];
     const cap = t === "capturas";
-    $("btnAbrirPdf").textContent = cap ? "Abrir la imagen" : "Abrir el PDF"; $("btnBorrarCap").hidden = true; $("secClaude").hidden = true; $("filaImportar").hidden = !cap; $("filaResuelta").hidden = true; $("secNotas").classList.remove("cerrada");
+    $("btnAbrirPdf").textContent = cap ? "Abrir la imagen" : "Abrir el PDF"; $("btnBorrarCap").hidden = true; $("secClaude").hidden = true; $("filaImportar").hidden = !cap; $("secNotas").classList.remove("cerrada");
     $("notaDocs").textContent = cap ? "Capturas de lo que se ve en 3D o 2D (botón de la cámara, arriba) o imágenes importadas. Marca encima con las herramientas de «Comentarios» y escribe al lado." : "«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.";
     const L = await lista(t), el = $("listaDocs"); el.innerHTML = "";
     if (!L.length) {
@@ -3008,7 +3019,7 @@ const Docs = (() => {
     const botones = new Map();
     for (const d of abiertas.concat(res)) {
       const b = document.createElement("button"); b.innerHTML = escH(d.titulo || d.archivo) + (d.nota ? "<span>" + escH(d.nota) + "</span>" : "");
-      b.dataset.arch = d.archivo;
+      b.dataset.arch = d.archivo; b.dataset.ver = d.nota || ""; if (d.resuelta_por) b.dataset.def = "1";
       if (d.marcado) b.classList.add("marcado");
       b.onclick = () => ver(d, b); (d.resuelta_por ? grupo : el).appendChild(b); botones.set(d, b);
     }
@@ -3028,14 +3039,8 @@ const Docs = (() => {
       const pcb = $("btnParaClaude"); $("secClaude").hidden = false;
       const pon = () => { pcb.setAttribute("aria-pressed", !!d.para_claude); pcb.textContent = d.para_claude ? "Mandada a Claude ✓" : "Mandar a Claude"; pcb.title = d.para_claude ? "Pulsa para quitarla de lo pendiente de Claude" : "Le llega a Claude la captura con todas sus marcas y comentarios"; };
       pon(); d.alMandar = () => { d.para_claude = true; pon(); };
-      const rz = $("chkResuelta"); $("filaResuelta").hidden = false; rz.checked = !!d.resuelta_por;
-      const estado = () => { pcb.hidden = !!d.resuelta_por; $("notaClaude").textContent = d.resuelta_por ? "Resuelta por " + d.resuelta_por + (d.resuelta_en ? " el " + new Date(d.resuelta_en).toLocaleDateString("es-ES") : "") + ". Queda agrupada con sus comentarios y se archivará en un PDF en la carpeta del proyecto." : "Le llega la imagen con todas sus marcas y comentarios. Al publicar un comentario en una captura se manda sola."; $("secNotas").classList.toggle("cerrada", !!d.resuelta_por); };
+      const estado = () => { pcb.hidden = !!d.resuelta_por; $("notaClaude").textContent = d.resuelta_por ? "Definitiva: queda agrupada con sus comentarios y se archivará en un PDF en la carpeta del proyecto." : "Le llega la imagen con todas sus marcas y comentarios. Al publicar un comentario en una captura se manda sola."; $("secNotas").classList.toggle("cerrada", !!d.resuelta_por); };
       estado();
-      rz.onchange = async () => {
-        const si = rz.checked;
-        try { const r = await Notas.resolverCaptura(d.archivo, si); Object.assign(d, r); toast(si ? "Resuelta: queda agrupada en «Resueltas»" : "Reabierta", 3000); abrir("capturas"); }
-        catch (e) { rz.checked = !si; toast(e.message, 4000); }
-      };
       pcb.onclick = async () => { const si = !d.para_claude; try { await Notas.marcarCaptura(d.archivo, si); d.para_claude = si; pon(); toast(si ? "Mandada a Claude: dile en el chat «mira lo pendiente»" : "Quitada de lo pendiente de Claude", 3500); } catch (e) { toast(e.message, 4000); } };
       $("btnBorrarCap").onclick = async () => {
         const bb = $("btnBorrarCap"); if (!bb.dataset.seguro) { bb.dataset.seguro = 1; bb.textContent = "¿Seguro? Borrar"; setTimeout(() => { delete bb.dataset.seguro; bb.textContent = "Borrar la captura"; }, 4000); return; }
@@ -3141,14 +3146,19 @@ const Notas = (() => {
     $("marcaAdmin").hidden = !esAdmin;
     if (esAdmin && mA) toast("Modo administrador en este navegador: puedes borrar cualquier comentario", 4500);
   }
+  let estados = [];
   async function todas(forzar) {
     if (!await config()) return null;
     if (cache && !forzar && Date.now() - ultimaCarga < 15000) return cache;
     if (cargando) return cargando;
     cargando = (async () => {
       try {
-        if (cfg.local) cache = (ls(LKEY) || []).filter(n => n.proyecto === proy());
-        else cache = await api("GET", "notas?select=*&proyecto=eq." + encodeURIComponent(proy()) + "&borrado=eq.false&order=creado.asc");
+        if (cfg.local) { cache = (ls(LKEY) || []).filter(n => n.proyecto === proy()); estados = (ls(LKEY + ".est") || []).filter(e => e.proyecto === proy()); }
+        else {
+          const [a, b] = await Promise.all([api("GET", "notas?select=*&proyecto=eq." + encodeURIComponent(proy()) + "&borrado=eq.false&order=creado.asc"),
+            api("GET", "estados_doc?select=*&proyecto=eq." + encodeURIComponent(proy())).catch(() => null)]);
+          cache = a; if (b) estados = b;
+        }
         ultimaCarga = Date.now();
       } catch (e) { toast(e.message, 4000); cache = cache || []; }
       cargando = null; return cache;
@@ -3213,6 +3223,61 @@ const Notas = (() => {
     if (cfg.local) { ls(LKEY + ".cap", (ls(LKEY + ".cap") || []).filter(c => c.id !== id)); return; }
     if (!await api("POST", "rpc/borrar_captura", {p_id: id, p_llave: esAdmin ? ls("visor.admin") : llave})) throw new Error("No se ha podido borrar (solo se borra desde el navegador con el que se hizo)");
   }
+  async function cambia(n, campos) {
+    if (cfg.local) {
+      const L = ls(LKEY) || [], x = L.find(y => y.id === n.id), t = new Date().toISOString();
+      for (const [k_, en] of [["resuelto_por", "resuelto_en"], ["encargado", "encargado_en"], ["corregido_por", "corregido_en"]]) if (k_ in campos) campos[en] = campos[k_] ? t : null;
+      Object.assign(x, campos); ls(LKEY, L); Object.assign(n, x); return;
+    }
+    const r = await api("PATCH", "notas?id=eq." + n.id, campos, {Prefer: "return=representation"});
+    if (r && r[0]) Object.assign(n, r[0]);
+  }
+  const estadoN = n => n.resuelto_por ? "ok" : n.corregido_por ? "corregido" : n.encargado ? "curso" : "pendiente";
+  // estado de un archivo: «definitivo» vale mientras no haya comentarios abiertos, ni nuevos después, ni una versión nueva
+  function estadoDoc(amb, doc, ver, def) {
+    const lst = deDoc(amb, doc), abiertos = lst.filter(n => !n.respuesta_a && !n.resuelto_por).length;
+    if (amb === "capturas") return def ? {e: "definitivo"} : {e: "revision", abiertos};
+    const st = estados.find(x => x.ambito === amb && x.doc === doc);
+    if (st && st.estado === "definitivo") {
+      const nuevo = lst.some(n => new Date(n.creado) > new Date(st.en)), otraVer = ver && st.version && st.version !== ver;
+      if (!abiertos && !nuevo && !otraVer) return {e: "definitivo", por: st.por, en: st.en};
+      return {e: "revision", abiertos, motivo: otraVer ? "hay una versión nueva desde el visto bueno" : nuevo || abiertos ? "hay comentarios desde el visto bueno" : ""};
+    }
+    if (abiertos || lst.some(n => !n.respuesta_a) || (st && st.estado === "revision")) return {e: "revision", abiertos, por: st && st.por, en: st && st.en};
+    return {e: null};
+  }
+  async function ponEstado(amb, doc, e, ver) {
+    const fila = {proyecto: proy(), ambito: amb, doc, estado: e, version: ver || null, por: autor()};
+    if (cfg.local) { const L = (ls(LKEY + ".est") || []).filter(x => !(x.proyecto === fila.proyecto && x.ambito === amb && x.doc === doc)); fila.en = new Date().toISOString(); L.push(fila); ls(LKEY + ".est", L); estados = L.filter(x => x.proyecto === proy()); return; }
+    const r = await api("POST", "estados_doc", fila, {Prefer: "resolution=merge-duplicates,return=representation"});
+    estados = estados.filter(x => !(x.ambito === amb && x.doc === doc)).concat(r || [fila]);
+  }
+  function pintaEstado() {
+    const fila = $("filaEstado"), nota = $("notaEstado");
+    if (!fila) return;
+    const d = Docs.actualDoc(), ok = ["laminas", "memorias", "capturas"].includes(ambito) && docAct && d && d.archivo === docAct;
+    fila.hidden = nota.hidden = !ok; if (!ok) return;
+    const ver = ambito === "capturas" ? null : d.nota || "", E = estadoDoc(ambito, docAct, ver, !!d.resuelta_por);
+    if (ambito === "capturas" && E.e === "definitivo") nota.hidden = true;           /* ya lo dice el bloque de Claude */
+    fila.querySelectorAll("[data-ed]").forEach(b => { b.classList.toggle("on", b.dataset.ed === E.e); delete b.dataset.seguro; b.textContent = b.dataset.ed === "revision" ? "En revisión" : "Definitivo"; });
+    const k_ = E.abiertos || 0;
+    nota.textContent = E.e === "definitivo" ? (ambito === "capturas" ? "Definitiva: agrupada en «Resueltas» y se archiva en PDF cada 15 días." : "Visto bueno" + (E.por ? " de " + E.por : "") + (E.en ? " · " + fecha(E.en) : "") + ". Si alguien comenta algo o sale una versión nueva, vuelve solo a «En revisión».")
+      : E.e === "revision" ? (k_ ? k_ + (k_ === 1 ? " comentario abierto" : " comentarios abiertos") : "Todo con visto bueno: ya se puede marcar «Definitivo»") + (E.motivo ? " · " + E.motivo : "") + "."
+      : "Sin estado: márcalo cuando toque.";
+    fila.querySelectorAll("[data-ed]").forEach(b => b.onclick = async () => {
+      if (!autor()) { toast("Escribe primero tu nombre abajo"); return; }
+      const e = b.dataset.ed;
+      try {
+        if (e === "definitivo") {
+          const abiertos = deDoc(ambito, docAct).filter(n => !n.respuesta_a && !n.resuelto_por);
+          if (abiertos.length && !b.dataset.seguro) { b.dataset.seguro = 1; b.textContent = "¿Visto bueno a " + abiertos.length + " y definitivo?"; setTimeout(() => { if (b.isConnected) { delete b.dataset.seguro; b.textContent = "Definitivo"; } }, 4500); return; }
+          for (const n of abiertos) await cambia(n, {resuelto_por: autor()});
+        }
+        if (ambito === "capturas") { const r = await resolverCaptura(docAct, e === "definitivo"); Object.assign(d, r); toast(e === "definitivo" ? "Definitiva: queda agrupada en «Resueltas»" : "En revisión", 3000); Docs.abrir("capturas"); return; }
+        await ponEstado(ambito, docAct, e, ver); toast(e === "definitivo" ? "Definitivo: visto bueno de " + autor() : "En revisión", 3000); pinta();
+      } catch (er) { toast(er.message, 4000); }
+    });
+  }
   async function resolver(n, si) {
     const cambio = {resuelto_por: si ? autor() : null};
     if (cfg.local) {
@@ -3236,17 +3301,32 @@ const Notas = (() => {
   function numeros(lst) { const m = new Map(); let i = 0; for (const n of lst) if (!n.respuesta_a && n.dibujo) m.set(n.id, ++i); return m; }
 
   /* ---------- lista (panel de láminas y memorias, y bloque de mediciones) */
+  function etiqueta(n) {
+    const e = estadoN(n);
+    if (e === "pendiente") return '<span class="est est-p">Pendiente</span> ';
+    if (e === "curso") return '<span class="est est-c">Lo corrige ' + escH(n.encargado) + "</span> ";
+    if (e === "corregido") return '<span class="est est-h">Corregido · ' + escH(n.corregido_por) + "</span> ";
+    return "";
+  }
+  function acciones(n) {
+    const e = estadoN(n), L = (k_, t, tit) => '<button class="lnk" data-st="' + k_ + '"' + (tit ? ' title="' + tit + '"' : "") + ">" + t + "</button> ";
+    const claude = ambito === "capturas" || e === "ok" ? "" : '<button class="lnk" data-pc>' + (n.para_claude ? "Quitar de Claude" : "Mandar a Claude") + "</button>";
+    if (e === "ok") return '<span class="nota">Visto bueno de ' + escH(n.resuelto_por) + (n.resuelto_en ? " · " + fecha(n.resuelto_en) : "") + (n.corregido_por ? " · corrigió " + escH(n.corregido_por) : "") + "</span> " + L("reabrir", "Reabrir");
+    const r = '<button class="lnk" data-resp>Responder</button> ';
+    if (e === "pendiente") return r + L("encargo", "Me encargo", "Para que se sepa que lo estás corrigiendo") + L("corregido", "Corregido") + claude;
+    if (e === "curso") return r + L("corregido", "Corregido") + L("soltar", "Dejarlo", "Ya no lo corriges tú: vuelve a pendiente") + claude;
+    return r + L("ok", "Visto bueno", "Está bien: se agrupa en «Resueltos»") + L("mal", "No está bien", "Vuelve a pendiente; di qué falta en la respuesta") + claude;
+  }
   function htmlLista(lst, conCompositor) {
     const raiz = lst.filter(n => !n.respuesta_a), resp = id => lst.filter(n => n.respuesta_a === id), num = numeros(lst);
     const uno = (n, sub) => '<div class="nota-i' + (sub ? " resp" : "") + (n.id === focoId ? " foco" : "") + '" data-id="' + n.id + '" style="--c:' + colorDe(n.autor) + '">' +
-      '<div class="txt">' + (n.para_claude && !n.resuelto_por ? '<span class="pc">A Claude</span> ' : "") + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.pagina && ambito !== "capturas" ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
+      '<div class="txt">' + (sub ? "" : etiqueta(n)) + (n.para_claude && !n.resuelto_por ? '<span class="pc">A Claude</span> ' : "") + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.pagina && ambito !== "capturas" ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
       '<div class="meta"><b>' + escH(n.autor) + "</b><br>" + fecha(n.creado) + (mia(n) ? '<br><button class="lnk" data-borrar>Borrar</button>' : "") + "</div>" +
-      (sub ? "" : '<div class="acc">' + (n.resuelto_por ? '<span class="nota">Resuelto por ' + escH(n.resuelto_por) + (n.resuelto_en ? " · " + fecha(n.resuelto_en) : "") + '</span> <button class="lnk" data-r="0">Reabrir</button>'
-        : '<button class="lnk" data-resp>Responder</button> <button class="lnk" data-r="1">Resolver</button> ' + (ambito === "capturas" ? "" : '<button class="lnk" data-pc>' + (n.para_claude ? "Quitar de Claude" : "Mandar a Claude") + "</button>"))  + "</div>") + "</div>" +
+      (sub ? "" : '<div class="acc">' + acciones(n) + "</div>") + "</div>" +
       (sub ? "" : resp(n.id).map(r => uno(r, true)).join(""));
     const abiertas = raiz.filter(n => !n.resuelto_por), hechas = raiz.filter(n => n.resuelto_por);
     let h = abiertas.map(n => uno(n)).join("") || '<p class="nota">Sin comentarios todavía.</p>';
-    if (hechas.length) h += '<details class="hechas"><summary>Resueltos (' + hechas.length + ")</summary>" + hechas.map(n => uno(n)).join("") + "</details>";
+    if (hechas.length) h += '<details class="hechas"><summary>Resueltos con visto bueno (' + hechas.length + ")</summary>" + hechas.map(n => uno(n)).join("") + "</details>";
     return h;
   }
   function compositor(id, texto) {
@@ -3279,10 +3359,15 @@ const Notas = (() => {
     }
     el.querySelectorAll(".nota-i").forEach(d => {
       const n = (cache || []).find(x => x.id === d.dataset.id); if (!n) return;
-      d.querySelectorAll("[data-r]").forEach(b => b.onclick = async e => {
+      d.querySelectorAll("[data-st]").forEach(b => b.onclick = async e => {
         e.stopPropagation();
-        if (!autor()) { toast("Escribe primero tu nombre abajo"); return; }
-        try { await resolver(n, b.dataset.r === "1"); pinta(); } catch (er) { toast(er.message, 4000); }
+        const a = autor(); if (!a) { toast("Escribe primero tu nombre abajo"); return; }
+        const st = b.dataset.st, C = {encargo: {encargado: a}, corregido: {corregido_por: a, encargado: n.encargado || a}, soltar: {encargado: null},
+          ok: {resuelto_por: a}, mal: {corregido_por: null, encargado: null}, reabrir: {resuelto_por: null, corregido_por: null, encargado: null}}[st];
+        try {
+          await cambia(n, C); pinta();
+          if (st === "mal") setTimeout(() => { const x = document.querySelector('#notasDoc .nota-i[data-id="' + n.id + '"] [data-resp], #comentariosDatos .nota-i[data-id="' + n.id + '"] [data-resp]'); if (x) { x.click(); const t = document.querySelector(".comp.resp textarea"); if (t) t.placeholder = "¿Qué falta?"; } }, 50);
+        } catch (er) { toast(er.message, 4000); }
       });
       const bb = d.querySelector("[data-borrar]");
       if (bb) bb.onclick = async e => {
@@ -3434,7 +3519,8 @@ const Notas = (() => {
     const el = $("notasDoc"); if (!el) return;
     const cerrada = ambito === "capturas" && $("secNotas").classList.contains("cerrada");
     el.classList.toggle("chat", cerrada);
-    if (cerrada) { pend = null; if (herr !== "ver") herramienta("ver"); el.innerHTML = htmlLista(deDoc(ambito, docAct)).replace(/<details class="hechas">/, '<details class="hechas" open>'); engancha(el, ambito, docAct); for (const n of paginas.keys()) marcas(n); return; }
+    pintaEstado();
+    if (cerrada) { pend = null; if (herr !== "ver") herramienta("ver"); el.innerHTML = htmlLista(deDoc(ambito, docAct)).replace('<p class="nota">Sin comentarios todavía.</p>', "").replace(/<details class="hechas">/, '<details class="hechas" open>'); engancha(el, ambito, docAct); for (const n of paginas.keys()) marcas(n); cuentas(); return; }
     el.innerHTML = htmlLista(deDoc(ambito, docAct)) + compositor("compDoc", pend ? "Comentario…" : ambito === "capturas" ? "Qué hay que cambiar: escribe aquí y marca encima de la imagen con las herramientas de arriba…" : "Comentario general del documento, o marca algo en la página con las herramientas de arriba…");
     engancha(el, ambito, docAct);
     for (const n of paginas.keys()) marcas(n);
@@ -3445,6 +3531,10 @@ const Notas = (() => {
     // cuántos comentarios abiertos tiene cada documento, en la lista de la izquierda del panel
     document.querySelectorAll("#listaDocs button[data-arch]").forEach(b => {
       const k = deDoc(ambito, b.dataset.arch).filter(n => !n.respuesta_a && !n.resuelto_por).length;
+      const E = estadoDoc(ambito, b.dataset.arch, ambito === "capturas" ? null : b.dataset.ver, !!b.dataset.def);
+      let t = b.querySelector(".estl");
+      if (!E.e || ambito === "capturas") { if (t) t.remove(); }
+      else { if (!t) { t = document.createElement("i"); b.prepend(t); } t.className = "estl " + (E.e === "definitivo" ? "def" : "rev"); t.textContent = E.e === "definitivo" ? "Definitivo ✓" : "En revisión"; }
       let s = b.querySelector(".cnt"); if (!k) { if (s) s.remove(); return; }
       if (!s) { s = document.createElement("i"); s.className = "cnt"; b.prepend(s); } s.textContent = k;
     });
