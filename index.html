@@ -379,6 +379,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
           <div class="stats" id="instStats"></div>
           <div class="leyenda" id="instLeyenda"></div>
           <div class="fila"><span class="chk"><input type="checkbox" id="cInstAtraves" checked> Ver a través de la obra</span></div>
+          <div class="fila"><span class="chk"><input type="checkbox" id="cInstPuntos" checked> Edificio a puntos</span></div>
           <div class="fila"><span class="chk"><input type="checkbox" id="cInstIconos"> Iconos de los planos 2D</span></div>
           <p class="nota">Tubos, conductos y aparatos con sus medidas (diámetros y secciones orientativos, como en las memorias). Al tocar un elemento, la ficha dice cómo se dibuja en los planos 2D.</p>
         </div>
@@ -827,6 +828,7 @@ const V3 = (() => {
     for (const g of elems) { const e = g.userData.e; g.visible = grupoVis[e.g] !== false && plantaVis[e.p] !== false && !(e.red && redVis[e.red] === false); }
     for (const ig of instIconos) ig.visible = !ig.userData.conSolido || instVerIconos;
     if ($("secInst")) { $("secInst").hidden = !(D && D.elementos.some(e => e.g === "instalaciones") && grupoVis.instalaciones !== false); statsInst(); }
+    if (modoPuntos() !== puntosAct) materiales();
     // con el edificio entero y sin explotar, las aristas fundidas de todas las plantas (sin juntas entre plantas)
     const todas = explota === 0 && D.plantas.every(p => p.id === "entorno" || plantaVis[p.id] !== false);
     for (const a of aristas) {
@@ -847,10 +849,23 @@ const V3 = (() => {
     $("rZ").max = Math.ceil(s.z * 1000 + 500); $("rZ").min = Math.floor(caja.min.z * 1000);
     cortes();
   }
+  // Enrique 22-oct: con las instalaciones a la vista, el edificio a puntos (sin caras que tapen): se ve si los tubos van por el
+  // falso techo, por el forjado o por los muros
+  let puntosAct = false, instPuntos = true;
+  const modoPuntos = () => !!(D && instPuntos && instMallas.length && grupoVis.instalaciones !== false);
+  const lineaPuntos = () => matCache.__lp || (matCache.__lp = acercar(new THREE.LineDashedMaterial({color: colores().ink, dashSize: 0.03, gapSize: 0.05, transparent: true, opacity: 0.6})));
+  const caraOculta = () => matCache.__co || (matCache.__co = new THREE.MeshBasicMaterial({colorWrite: false, depthWrite: false}));
+  function materiales() {
+    puntosAct = modoPuntos();
+    for (const m of meshes) m.material = puntosAct ? caraOculta() : (resalta && !resalta.has(m.userData.g.userData.i) ? fantasma() : material(m.userData.parte.m));
+    for (const a of aristas) {
+      if (puntosAct && !a.userData.dist) { a.computeLineDistances(); a.userData.dist = true; }
+      a.material = puntosAct ? lineaPuntos() : (resalta ? lineaTenue() : lineaMat());
+    }
+  }
   function aplicaEstilo(e) {
     estilo = e;
-    for (const m of meshes) m.material = resalta && !resalta.has(m.userData.g.userData.i) ? fantasma() : material(m.userData.parte.m);
-    for (const a of aristas) a.material = resalta ? lineaTenue() : lineaMat();
+    materiales();
     estiloInst();
     visibilidad();
     const C = colores();
@@ -1066,6 +1081,12 @@ const V3 = (() => {
   function render() {
     orientaIconos();
     renderer.getDrawingBufferSize(_rv); HULL_U.res.value.copy(_rv); HULL_U.ancho.value = 0.65 * renderer.getPixelRatio();
+    if (puntosAct && matCache.__lp) {
+      // puntos de tamaño fijo en pantalla: 2 px de trazo y 4 de hueco (en metros, según el encuadre)
+      const hpx = Math.max(1, canvas.clientHeight);
+      const m = cam === ortho ? (ortho.top - ortho.bottom) / ortho.zoom / hpx : 2 * Math.tan(persp.fov * Math.PI / 360) * cam.position.distanceTo(ctrl.target) / hpx;
+      matCache.__lp.dashSize = 2 * m; matCache.__lp.gapSize = 4 * m;
+    }
     const hay = instMallas.length && grupoVis.instalaciones !== false;
     if (hay && instAtraves) {
       // primero la obra; luego, borrada la profundidad, las instalaciones (se ven a través de muros, suelos y techos)
@@ -1157,6 +1178,7 @@ const V3 = (() => {
     }
     $("cInstAtraves").onchange = ev => { instAtraves = ev.target.checked; pedir(); };
     $("cInstIconos").onchange = ev => { instVerIconos = ev.target.checked; visibilidad(); };
+    $("cInstPuntos").onchange = ev => { instPuntos = ev.target.checked; materiales(); pedir(); };
   }
   function statsInst() {
     if (!D) return;
