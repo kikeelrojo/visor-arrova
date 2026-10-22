@@ -65,6 +65,16 @@ a.btn{color:var(--ink);text-decoration:none;display:inline-block}
 .chk{display:flex;align-items:center;gap:6px;font-size:var(--s-s);cursor:pointer;min-width:0}
 .chk input{margin:0;accent-color:var(--ink)}
 .lista{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+.leyenda{display:grid;grid-template-columns:1fr auto;gap:3px 8px;font-size:var(--s-s);align-items:center}
+.leyenda .sw{display:inline-block;width:14px;height:6px;border-radius:3px;flex:0 0 auto}
+.leyenda .v{font-variant-numeric:tabular-nums;color:var(--ink-2,inherit);opacity:.75;text-align:right;white-space:nowrap}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:8px 0}
+.stats div{border:1px solid var(--line,#ddd);border-radius:6px;padding:6px 8px}
+.stats b{display:block;font-size:var(--s-m);font-variant-numeric:tabular-nums}
+.stats span{font-size:var(--s-xs);opacity:.75}
+.ico2d{display:flex;gap:10px;align-items:center;margin:6px 0;padding:6px;border:1px solid var(--line,#ddd);border-radius:6px;background:#fff}
+.ico2d svg{width:56px;height:56px;flex:0 0 auto}
+.ico2d span{font-size:var(--s-xs);color:#333}
 label.campo{display:grid;grid-template-columns:72px 1fr 44px;align-items:center;gap:8px;font-size:var(--s-s)}
 label.campo input[type=range]{width:100%;accent-color:var(--ink)}
 label.campo output{font-variant-numeric:tabular-nums;text-align:right}
@@ -344,6 +354,14 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
           <h3>Plantas</h3>
           <div class="lista" id="listaPlantas"></div>
         </div>
+        <div class="sec" id="secInst" hidden>
+          <h3>Instalaciones</h3>
+          <div class="stats" id="instStats"></div>
+          <div class="leyenda" id="instLeyenda"></div>
+          <div class="fila"><span class="chk"><input type="checkbox" id="cInstAtraves" checked> Ver a través de la obra</span></div>
+          <div class="fila"><span class="chk"><input type="checkbox" id="cInstIconos"> Iconos de los planos 2D</span></div>
+          <p class="nota">Tubos, conductos y aparatos con sus medidas (diámetros y secciones orientativos, como en las memorias). Al tocar un elemento, la ficha dice cómo se dibuja en los planos 2D.</p>
+        </div>
         <div class="sec">
           <h3>Elemento</h3>
           <div class="insp" id="insp"><span class="nota">Toca un elemento para ver qué es.</span></div>
@@ -592,6 +610,7 @@ const V3 = (() => {
   const scene = new THREE.Scene();
   const hemi = new THREE.HemisphereLight(0xffffff, 0x888888, 0.75); hemi.position.set(0, 0, 1); scene.add(hemi);
   const sol = new THREE.DirectionalLight(0xffffff, 0.55); sol.position.set(-0.5, -1, 1.6); scene.add(sol);
+  hemi.layers.enable(1); sol.layers.enable(1);   // las instalaciones van en la capa 1 (se pintan después, «a través de la obra»)
   const ortho = new THREE.OrthographicCamera(-1, 1, 1, -1, -1000, 1000);
   const persp = new THREE.PerspectiveCamera(50, 1, 0.05, 2000);
   ortho.up.set(0, 0, 1); persp.up.set(0, 0, 1);
@@ -599,7 +618,7 @@ const V3 = (() => {
   let ctrl = new THREE.OrbitControls(cam, canvas);
   ctrl.enableDamping = false; ctrl.screenSpacePanning = true;
   ctrl.addEventListener("change", pedir);
-  let root = null, D = null, elems = [], meshes = [], aristas = [], instLineas = [], instIconos = [], conGlobal = {}, nivelDe = () => 0, resalta = null, realce = [];
+  let root = null, D = null, elems = [], meshes = [], aristas = [], instLineas = [], instIconos = [], instMallas = [], redVis = {}, instAtraves = true, instVerIconos = false, instSelec = [], conGlobal = {}, nivelDe = () => 0, resalta = null, realce = [];
   let estilo = "linea", explota = 0, explotaAnim = 0, caja = new THREE.Box3(), sel = null;
   const grupoVis = {}, plantaVis = {};
   const matCache = {};
@@ -641,6 +660,8 @@ const V3 = (() => {
   const tinta = c => (c && c[0] + c[1] + c[2] < 90) ? colores().ink : rgb(c, 0x000000);
   const instMat = c => matCache["__i" + c] || (matCache["__i" + c] = new THREE.LineBasicMaterial({color: tinta(c), depthTest: false, transparent: true}));
   const instRel = c => matCache["__r" + c] || (matCache["__r" + c] = new THREE.MeshBasicMaterial({color: (c && c[0] + c[1] + c[2] < 90) ? colores().ink : (c && c[0] + c[1] + c[2] > 750 ? colores().paper : rgb(c, 0xffffff)), depthTest: false, transparent: true, side: THREE.DoubleSide}));
+  const instSolido = c => matCache["__s" + c] || (matCache["__s" + c] = new THREE.MeshLambertMaterial({color: rgb(c, 0x888888), side: THREE.DoubleSide}));
+  const instSolidoSel = () => matCache.__ss || (matCache.__ss = new THREE.MeshLambertMaterial({color: colores().accent, emissive: colores().accent, emissiveIntensity: 0.35, side: THREE.DoubleSide}));
   const instSel = () => matCache.__is || (matCache.__is = new THREE.LineBasicMaterial({color: colores().accent, depthTest: false, transparent: true}));
 
   function cargar(datos) {
@@ -648,7 +669,7 @@ const V3 = (() => {
     for (const k in matCache) { matCache[k].dispose(); delete matCache[k]; }
     if (root) { scene.remove(root); root.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
     root = new THREE.Group(); scene.add(root);
-    elems = []; meshes = []; aristas = []; instLineas = []; instIconos = []; sel = null; resalta = null; quitaRealce();
+    elems = []; meshes = []; aristas = []; instLineas = []; instIconos = []; instMallas = []; instSelec = []; sel = null; resalta = null; quitaRealce();
     const orden = D.plantas.map(p => p.id).filter(p => p !== "entorno");
     nivelDe = p => Math.max(0, orden.indexOf(p));
     const fundidas = Array.isArray(D.aristas) && D.aristas.length > 0;
@@ -676,6 +697,11 @@ const V3 = (() => {
         const ln = new THREE.Line(geo, instMat(e.c)); ln.renderOrder = 6; ln.userData = {g, inst: true};
         g.add(ln); instLineas.push(ln);
       }
+      // tubos, conductos y aparatos con sus medidas (Enrique 22-oct, MEP «de verdad»): una malla por color, en la capa 1
+      if (e.s && e.s.length) for (const [col, geo] of solidosGeo(e)) {
+        const m = new THREE.Mesh(geo, instSolido(col)); m.layers.set(1); m.userData = {g, instS: true, col};
+        g.add(m); instMallas.push(m);
+      }
       // el icono de la lámina (Enrique 22-oct): el mismo símbolo que en los planos 2D, con sus colores y rellenos, siempre de frente
       if (e.ico) {
         const ig = new THREE.Group(); ig.position.set(e.ico.o[0] / 1000, e.ico.o[1] / 1000, e.ico.o[2] / 1000); ig.userData = {ico: true, g};
@@ -689,6 +715,7 @@ const V3 = (() => {
           const ln = new (q.z ? THREE.LineLoop : THREE.Line)(new THREE.BufferGeometry().setFromPoints(pts), instMat(q.c));
           ln.renderOrder = 7; ln.userData = {g, inst: true}; ig.add(ln); instLineas.push(ln);
         }
+        if (e.s) ig.userData.conSolido = true;
         g.add(ig); instIconos.push(ig);
       }
       root.add(g); elems.push(g);
@@ -707,6 +734,7 @@ const V3 = (() => {
     for (const k of grupos) { if (grupoVis[k] === undefined) grupoVis[k] = !OCULTOS[k]; $("listaGrupos").appendChild(chk(GRUPOS[k] || k, grupoVis[k], v => { grupoVis[k] = v; visibilidad(); })); }
     $("listaPlantas").innerHTML = "";
     for (const p of D.plantas) { if (!D.elementos.some(e => e.p === p.id)) continue; if (plantaVis[p.id] === undefined) plantaVis[p.id] = true; $("listaPlantas").appendChild(chk(p.nombre, plantaVis[p.id], v => { plantaVis[p.id] = v; visibilidad(); })); }
+    leyendaInst();
     // dudas
     const du = (D.dudas || []).concat(D.avisos || []);
     $("secDudas").hidden = !du.length;
@@ -724,7 +752,9 @@ const V3 = (() => {
     l.appendChild(i); l.appendChild(document.createTextNode(txt)); return l;
   }
   function visibilidad() {
-    for (const g of elems) { const e = g.userData.e; g.visible = grupoVis[e.g] !== false && plantaVis[e.p] !== false; }
+    for (const g of elems) { const e = g.userData.e; g.visible = grupoVis[e.g] !== false && plantaVis[e.p] !== false && !(e.red && redVis[e.red] === false); }
+    for (const ig of instIconos) ig.visible = !ig.userData.conSolido || instVerIconos;
+    if ($("secInst")) { $("secInst").hidden = !(D && D.elementos.some(e => e.g === "instalaciones") && grupoVis.instalaciones !== false); statsInst(); }
     // con el edificio entero y sin explotar, las aristas fundidas de todas las plantas (sin juntas entre plantas)
     const todas = explota === 0 && D.plantas.every(p => p.id === "entorno" || plantaVis[p.id] !== false);
     for (const a of aristas) {
@@ -893,15 +923,17 @@ const V3 = (() => {
     if (ent.length) h += "<tr><td colspan=2>&nbsp;</td></tr>" + ent.map(([k, v]) => "<tr><td>" + k + "</td><td>" + v + "</td></tr>").join("");
     $("med").innerHTML = h || "<tr><td class=nota>Nada visible</td></tr>";
   }
-  function quitaRealce() { for (const r of realce) { r.parent && r.parent.remove(r); r.geometry.dispose(); } realce = []; }
+  function quitaRealce() { for (const r of realce) { r.parent && r.parent.remove(r); r.geometry.dispose(); } realce = []; for (const m of instSelec) m.material = instSolido(m.userData.col); instSelec = []; }
   function realzar(gs) {
     quitaRealce();
-    for (const g of gs) for (const m of g.children) if (m.isMesh) {
+    for (const g of gs) for (const m of [...g.children]) if (m.userData.instS) {
+      m.material = instSolidoSel(); instSelec.push(m);
+    } else if (m.isMesh) {
       const l = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 25), resalta ? realceMat() : selMat()); l.userData.realce = true; l.renderOrder = 10; g.add(l); realce.push(l);
     } else if (m.isLine && m.userData.inst) {
       const l = new THREE.Line(m.geometry.clone(), instSel()); l.userData.realce = true; l.renderOrder = 11; g.add(l); realce.push(l);
     } else if (m.userData.ico) {
-      for (const q of m.children) if (q.isLine) { const l = new (q.isLineLoop ? THREE.LineLoop : THREE.Line)(q.geometry.clone(), instSel()); l.userData.realce = true; l.renderOrder = 11; m.add(l); realce.push(l); }
+      for (const q of [...m.children]) if (q.isLine) { const l = new (q.isLineLoop ? THREE.LineLoop : THREE.Line)(q.geometry.clone(), instSel()); l.userData.realce = true; l.renderOrder = 11; m.add(l); realce.push(l); }
     }
   }
   function resaltar(indices) {
@@ -928,7 +960,17 @@ const V3 = (() => {
     if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6 || Date.now() - down.t > 600) return;
     const r = canvas.getBoundingClientRect();
     const p = new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-    const rc = new THREE.Raycaster(); rc.setFromCamera(p, cam);
+    const rc = new THREE.Raycaster(); rc.setFromCamera(p, cam); rc.layers.enableAll();
+    // tubos y aparatos: «a través de la obra» van delante de todo; si no, compiten por distancia con el resto
+    const visS = instMallas.filter(m => { for (let x = m; x; x = x.parent) if (!x.visible) return false; return true; });
+    if (visS.length) {
+      const hs = rc.intersectObjects(visS, false).filter(h => renderer.clippingPlanes.every(pl => pl.distanceToPoint(h.point) >= -1e-4));
+      if (hs.length) {
+        if (instAtraves) { inspeccion(hs[0].object.userData.g); return; }
+        const ho = rc.intersectObjects(meshes.filter(m => m.userData.g.visible), false).filter(h => renderer.clippingPlanes.every(pl => pl.distanceToPoint(h.point) >= -1e-4));
+        if (!ho.length || ho[0].distance >= hs[0].distance - 1e-4) { inspeccion(hs[0].object.userData.g); return; }
+      }
+    }
     // las instalaciones van por encima de todo: se eligen antes que lo que tengan delante (a unos 6 px de la línea)
     const visL = instLineas.filter(l => l.userData.g.visible);
     if (visL.length) {
@@ -945,7 +987,115 @@ const V3 = (() => {
   // los iconos de las instalaciones miran siempre a la cámara (en planta quedan como en los planos 2D)
   const _qi = new THREE.Quaternion();
   function orientaIconos() { for (const ig of instIconos) { ig.parent.getWorldQuaternion(_qi); ig.quaternion.copy(_qi.invert().multiply(cam.quaternion)); } }
-  function render() { orientaIconos(); renderer.render(scene, cam); }
+  function render() {
+    orientaIconos();
+    const hay = instMallas.length && grupoVis.instalaciones !== false;
+    if (hay && instAtraves) {
+      // primero la obra; luego, borrada la profundidad, las instalaciones (se ven a través de muros, suelos y techos)
+      cam.layers.set(0); renderer.render(scene, cam);
+      const ac = renderer.autoClear; renderer.autoClear = false; renderer.clearDepth();
+      cam.layers.set(1); renderer.render(scene, cam);
+      renderer.autoClear = ac; cam.layers.set(0);
+    } else {
+      cam.layers.enable(1); renderer.render(scene, cam); cam.layers.set(0);
+    }
+  }
+  // ------------------------------------------------------------------ instalaciones: mallas de tubos y aparatos
+  function solidosGeo(e) {
+    const V = THREE.Vector3, grupos = new Map();
+    const G = c => { const k = String(c); if (!grupos.has(k)) grupos.set(k, {c, p: [], n: [], i: []}); return grupos.get(k); };
+    const base = (A, d) => { const a = Math.abs(d.z) < 0.9 ? new V(0, 0, 1) : new V(1, 0, 0); const u = new V().crossVectors(d, a).normalize(); return [u, new V().crossVectors(d, u)]; };
+    function cil(A, B, r, o, n, tapas) {
+      const d = new V().subVectors(B, A), L = d.length(); if (L < 1e-6) return; d.divideScalar(L);
+      const [u, w] = base(A, d), b0 = o.p.length / 3;
+      for (let k = 0; k <= n; k++) { const t = 2 * Math.PI * k / n, c = Math.cos(t), s = Math.sin(t), nx = u.x * c + w.x * s, ny = u.y * c + w.y * s, nz = u.z * c + w.z * s;
+        o.p.push(A.x + nx * r, A.y + ny * r, A.z + nz * r, B.x + nx * r, B.y + ny * r, B.z + nz * r); o.n.push(nx, ny, nz, nx, ny, nz); }
+      for (let k = 0; k < n; k++) { const i = b0 + 2 * k; o.i.push(i, i + 2, i + 1, i + 1, i + 2, i + 3); }
+      if (tapas) for (const [P, sg] of [[A, -1], [B, 1]]) {
+        const c0 = o.p.length / 3; o.p.push(P.x, P.y, P.z); o.n.push(d.x * sg, d.y * sg, d.z * sg);
+        for (let k = 0; k <= n; k++) { const t = 2 * Math.PI * k / n, c = Math.cos(t), s = Math.sin(t);
+          o.p.push(P.x + (u.x * c + w.x * s) * r, P.y + (u.y * c + w.y * s) * r, P.z + (u.z * c + w.z * s) * r); o.n.push(d.x * sg, d.y * sg, d.z * sg); }
+        for (let k = 0; k < n; k++) o.i.push(c0, c0 + 1 + k, c0 + 2 + k);
+      }
+    }
+    function bola(P, r, o, n) {
+      const b0 = o.p.length / 3, nl = Math.max(3, n / 2);
+      for (let a = 0; a <= nl; a++) { const th = Math.PI * a / nl; for (let k = 0; k <= n; k++) { const ph = 2 * Math.PI * k / n, nx = Math.sin(th) * Math.cos(ph), ny = Math.sin(th) * Math.sin(ph), nz = Math.cos(th);
+        o.p.push(P.x + nx * r, P.y + ny * r, P.z + nz * r); o.n.push(nx, ny, nz); } }
+      for (let a = 0; a < nl; a++) for (let k = 0; k < n; k++) { const i = b0 + a * (n + 1) + k, j = i + n + 1; o.i.push(i, j, i + 1, i + 1, j, j + 1); }
+    }
+    function caja(c, d, u, o) {
+      const ax = [[u[0], u[1], 0], [-u[1], u[0], 0], [0, 0, 1]], h = [d[0] / 2000, d[1] / 2000, d[2] / 2000];
+      for (let f = 0; f < 3; f++) for (const sg of [-1, 1]) {
+        const N = ax[f], A = ax[(f + 1) % 3], B = ax[(f + 2) % 3], hn = h[f], ha = h[(f + 1) % 3], hb = h[(f + 2) % 3], b0 = o.p.length / 3;
+        for (const [sa, sb] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+          for (let q = 0; q < 3; q++) o.p.push((q === 0 ? c.x : q === 1 ? c.y : c.z) + N[q] * hn * sg + A[q] * ha * sa + B[q] * hb * sb);
+          o.n.push(N[0] * sg, N[1] * sg, N[2] * sg);
+        }
+        o.i.push(b0, b0 + 1, b0 + 2, b0, b0 + 2, b0 + 3);
+      }
+    }
+    const lados = r => r < 20 ? 6 : r < 50 ? 10 : 16;
+    for (const s of e.s) {
+      const o = G(s.col || e.c);
+      if (s.k === "t") {
+        const r = s.r / 1000, n = lados(s.r), P = [];
+        for (let k = 0; k + 2 < s.p.length; k += 3) P.push(new V(s.p[k] / 1000, s.p[k + 1] / 1000, s.p[k + 2] / 1000));
+        for (let k = 0; k + 1 < P.length; k++) cil(P[k], P[k + 1], r, o, n, false);
+        for (const q of P) bola(q, r, o, n);
+      } else if (s.k === "b") caja(new V(s.c[0] / 1000, s.c[1] / 1000, s.c[2] / 1000), s.d, s.u, o);
+      else if (s.k === "c") {
+        const C = new V(s.c[0] / 1000, s.c[1] / 1000, s.c[2] / 1000), d = new V(s.e[0], s.e[1], s.e[2]).normalize(), hh = s.h / 2000;
+        cil(C.clone().addScaledVector(d, -hh), C.clone().addScaledVector(d, hh), s.r / 1000, o, lados(s.r) + 6, true);
+      }
+    }
+    const out = [];
+    for (const o of grupos.values()) {
+      if (!o.i.length) continue;
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.Float32BufferAttribute(o.p, 3)); geo.setAttribute("normal", new THREE.Float32BufferAttribute(o.n, 3));
+      geo.setIndex(o.p.length / 3 > 65535 ? new THREE.Uint32BufferAttribute(o.i, 1) : new THREE.Uint16BufferAttribute(o.i, 1));
+      geo.computeBoundingSphere(); geo.computeBoundingBox();
+      out.push([o.c, geo]);
+    }
+    return out;
+  }
+  const FAM_INST = [["agua", "Agua fría, caliente y primario", ["af", "acs", "aero"], "m"], ["rad", "Tubo de suelo radiante", ["radiante"], "m"], ["san", "Saneamiento y pluviales", ["residuales", "colector", "pluviales"], "m"],
+    ["vent", "Conductos de ventilación", ["ventilacion", "campana", "cupolex", "garaje"], "m"], ["elec", "Cableado (tubo corrugado)", null, "m"]];
+  function famDe(red) { for (const f of FAM_INST) if (!f[2] || f[2].includes(red)) return f[0]; }
+  function leyendaInst() {
+    const L = $("instLeyenda"); if (!L) return;
+    const redes = new Map();
+    for (const e of D.elementos) if (e.g === "instalaciones" && e.red) {
+      const k = e.red; if (!redes.has(k)) redes.set(k, {c: e.c, n: (e.info && e.info.red) || k});
+    }
+    L.innerHTML = "";
+    for (const [k, r] of redes) {
+      if (redVis[k] === undefined) redVis[k] = true;
+      const l = chk("", redVis[k], v => { redVis[k] = v; visibilidad(); });
+      const sw = document.createElement("span"); sw.className = "sw"; sw.style.background = "rgb(" + (r.c || [128, 128, 128]).join(",") + ")";
+      l.insertBefore(sw, l.lastChild); const nm_ = r.n.replace(/^Electricidad · /, ""); l.lastChild.textContent = " " + nm_.charAt(0).toUpperCase() + nm_.slice(1);
+      const v = document.createElement("span"); v.className = "v"; v.dataset.red = k;
+      L.appendChild(l); L.appendChild(v);
+    }
+    $("cInstAtraves").onchange = ev => { instAtraves = ev.target.checked; pedir(); };
+    $("cInstIconos").onchange = ev => { instVerIconos = ev.target.checked; visibilidad(); };
+  }
+  function statsInst() {
+    if (!D) return;
+    const m = {}, porRed = {}; let ud = 0;
+    for (const g of elems) {
+      const e = g.userData.e; if (e.g !== "instalaciones" || !g.visible) continue;
+      const ml = (e.med && e.med.ml) || 0;
+      porRed[e.red] = porRed[e.red] || {ml: 0, ud: 0};
+      if (ml) { const f = famDe(e.red); m[f] = (m[f] || 0) + ml; porRed[e.red].ml += ml; }
+      else if (e.s && e.s.length) { ud++; porRed[e.red].ud++; }
+    }
+    const S = $("instStats"); if (!S) return;
+    S.innerHTML = FAM_INST.map(f => "<div><b>" + fmt(m[f[0]] || 0, 0) + " m</b><span>" + f[1] + "</span></div>").join("") +
+      "<div><b>" + ud + "</b><span>Aparatos y mecanismos</span></div>";
+    for (const v of document.querySelectorAll("#instLeyenda .v")) { const r = porRed[v.dataset.red]; v.textContent = r ? [r.ml ? fmt(r.ml, 0) + " m" : "", r.ud ? r.ud + " ud" : ""].filter(Boolean).join(" · ") : "—"; }
+  }
   function redim() {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     if (!w || !h) return;
@@ -2420,6 +2570,23 @@ function medTxt(m) {
   if (m.ud) r.push(m.ud + " ud"); if (m.ml) r.push(fmt(m.ml, 2) + " m"); if (m.h) r.push("h " + fmt(m.h, 2) + " m"); if (m.m2) r.push(fmt(m.m2, 2) + " m²");
   return r.join(" · ");
 }
+// cómo se dibuja en los planos 2D (Enrique 22-oct): el símbolo de la lámina, con sus colores, y su descripción
+function icono2d(e) {
+  let svg = "";
+  if (e.ico && e.ico.l && e.ico.l.length) {
+    let m = 1; for (const q of e.ico.l) for (const v of q.p) m = Math.max(m, Math.abs(v)); m *= 1.15;
+    const sw = Math.max(4, Math.round(m / 30));
+    svg = '<svg viewBox="' + [-m, -m, 2 * m, 2 * m].join(" ") + '" aria-hidden="true">' + e.ico.l.map(q => {
+      let d = ""; for (let k = 0; k + 1 < q.p.length; k += 2) d += (k ? " L" : "M") + q.p[k] + " " + (-q.p[k + 1]);
+      if (q.z) d += " Z";
+      return '<path d="' + d + '" fill="' + (q.f && q.z ? "rgb(" + q.f.join(",") + ")" : "none") + '" stroke="rgb(' + (q.c || [0, 0, 0]).join(",") + ')" stroke-width="' + sw + '" stroke-linejoin="round"/>';
+    }).join("") + "</svg>";
+  } else if (e.c) {
+    svg = '<svg viewBox="0 0 56 56" aria-hidden="true"><path d="M6 40 L26 40 L26 16 L50 16" fill="none" stroke="rgb(' + e.c.join(",") + ')" stroke-width="3"/></svg>';
+  }
+  const t = (e.i2 || "").replace(/^en el /, "");
+  return '<div class="ico2d">' + svg + '<span><b style="display:inline;font-size:inherit">En los planos 2D</b><br>' + escH(t.charAt(0).toUpperCase() + t.slice(1)) + "</span></div>";
+}
 function ficha(D, e) {
   const T = (D.tipos || {})[e.t] || null, I = e.info || {};
   let h = "<b>" + escH(e.n) + "</b>" + [e.ifc, NOMBRE_PLANTA(D, e.p)].filter(Boolean).map(escH).join(" · ");
@@ -2440,6 +2607,7 @@ function ficha(D, e) {
     superficie_fabrica_m2: "Fábrica (m²)", acabado_interior_m2: "Acabado interior (m²)", acabado_interior: "Acabado interior", alto_mm: "Alto (mm)",
     superficie_cara_m2: "Cara del paño (m²)", mochetas_y_dinteles_m2: "Mochetas y dinteles (m²)", mochetas: "Huecos con mochetas"};
   for (const k in ET) if (I[k] != null && I[k] !== "" && !(carp && k === "medidas")) h += "<br>" + ET[k] + ": " + escH(I[k]);
+  if (e.g === "instalaciones" && (e.i2 || e.ico)) h += icono2d(e);
   if (e.g === "instalaciones") {
     const EI = {red: "Red", elemento: "Elemento", diametro: "Diámetro / sección", cotas: "Cota", altura: "Altura sobre el suelo", recorrido: "Recorrido", vertical: "Vertical", "rótulo": "En el plano"};
     for (const k in EI) if (I[k] != null && I[k] !== "") h += "<br>" + EI[k] + ": " + escH(I[k]);
