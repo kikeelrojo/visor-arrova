@@ -1,9 +1,5 @@
 <!doctype html>
-<html lang="es">
-<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
 <title>Visor arrova</title>
 <link rel="icon" href="icono-32.png" sizes="32x32">
 <link rel="icon" href="icono.svg" type="image/svg+xml">
@@ -183,6 +179,11 @@ h3 .adm{color:#7b1d2c}
 a.btn.rojo{color:var(--warn);border-color:var(--warn)}
 header .barra .ico{width:41px;height:26px;padding:0;display:inline-grid;place-items:center;flex:0 0 auto}
 header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:square}
+.estilo-nota{display:grid;grid-template-columns:auto repeat(3,1fr);gap:4px;align-items:center}.estilo-nota[hidden]{display:none}.estilo-nota .nota{margin:0 4px 0 0}.estilo-nota .btn{width:100%;margin:0}
+.estilo-nota .btn{padding:3px 4px;line-height:0}.estilo-nota svg{width:24px;height:12px;fill:none;stroke:currentColor}
+.estilo-nota .btn.on{background:var(--ink);color:var(--paper)}
+.marcas .tz{fill:none;stroke-linecap:round;stroke-linejoin:round}.marcas .tz.prov{opacity:.85}
+#notasHerr{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}#notasHerr .btn{width:100%;margin:0}
 #notasHerr .btn.on{background:var(--ink);color:var(--paper)}
 .ppto input{width:84px;border:0.5px solid var(--ink);background:var(--paper);padding:2px 4px;text-align:right;font-variant-numeric:tabular-nums}
 .vacio{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px}
@@ -465,10 +466,21 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
           <h3>Comentarios</h3>
           <div class="fila" id="notasHerr" role="group" aria-label="Marcar en la página">
             <button class="btn on" data-nh="ver" title="Moverse por el documento">Ver</button>
-            <button class="btn" data-nh="nota" title="Un punto en la página">Nota</button>
-            <button class="btn" data-nh="mano" title="A mano alzada (lápiz o dedo)">Mano</button>
+            <button class="btn" data-nh="lapiz" title="Lápiz: tantos trazos como quieras; luego escribe el comentario">Lápiz</button>
+            <button class="btn" data-nh="goma" title="Goma: pasa por encima de un trazo del dibujo en curso para quitarlo">Goma</button>
             <button class="btn" data-nh="rect" title="Recuadro">Recuadro</button>
             <button class="btn" data-nh="flecha" title="Flecha: de dónde a dónde">Flecha</button>
+            <button class="btn" data-nh="nota" title="Un punto en la página">Nota</button>
+          </div>
+          <div class="fila estilo-nota" id="notasEstilo" hidden>
+            <span class="nota">Grosor</span>
+            <button class="btn" data-gr="1.2" aria-label="Fino"><svg viewBox="0 0 24 12"><path d="M3 6h18" stroke-width="1"/></svg></button>
+            <button class="btn" data-gr="2.5" aria-label="Medio"><svg viewBox="0 0 24 12"><path d="M3 6h18" stroke-width="2.2"/></svg></button>
+            <button class="btn" data-gr="5" aria-label="Grueso"><svg viewBox="0 0 24 12"><path d="M3 6h18" stroke-width="4.2"/></svg></button>
+            <span class="nota">Línea</span>
+            <button class="btn" data-li="c" aria-label="Continua"><svg viewBox="0 0 24 12"><path d="M3 6h18" stroke-width="1.6"/></svg></button>
+            <button class="btn" data-li="d" aria-label="Discontinua"><svg viewBox="0 0 24 12"><path d="M3 6h18" stroke-width="1.6" stroke-dasharray="4 3"/></svg></button>
+            <button class="btn" data-li="p" aria-label="De puntos"><svg viewBox="0 0 24 12"><path d="M3 6h18" stroke-width="2" stroke-dasharray="0 4" stroke-linecap="round"/></svg></button>
           </div>
           <div class="notas" id="notasDoc"></div>
         </div>
@@ -2938,8 +2950,9 @@ const Notas = (() => {
   }
   async function api(metodo, ruta, cuerpo, extra) {
     const r = await fetch(cfg.url.replace(/\/$/, "") + "/rest/v1/" + ruta, {method: metodo, headers: cab(extra), body: cuerpo ? JSON.stringify(cuerpo) : undefined});
-    if (!r.ok) throw new Error("Comentarios: " + r.status + " " + (await r.text()).slice(0, 160));
-    return r.status === 204 ? null : r.json();
+    const txt = await r.text();
+    if (!r.ok) throw new Error("Comentarios: " + r.status + " " + txt.slice(0, 160));
+    return txt.trim() ? JSON.parse(txt) : null;          // 201/204 sin cuerpo: Safari no deja leerlo como JSON
   }
   const proy = () => S.proyecto ? S.proyecto.id : "";
   // llave secreta de este navegador: con cada comentario va solo su huella, y con la llave se puede borrar lo propio
@@ -3062,10 +3075,10 @@ const Notas = (() => {
   }
   function compositor(id, texto) {
     const a = autor();
-    return '<div class="comp" id="' + id + '">' + (pend ? '<p class="nota"><b>' + (ambito === "capturas" ? "Marca en la captura" : "Marca en la página " + pend.pagina) + "</b>: escribe el comentario.</p>" : "") +
+    return '<div class="comp" id="' + id + '">' + (pend ? '<p class="nota" data-pend>' + textoPend() + "</p>" : "") +
       (a ? '<p class="nota">Comentas como <b>' + escH(a) + "</b>" + (esAdmin ? " (administrador)" : "") + ' <button class="lnk" data-quien>cambiar</button></p>' : '<input class="filtro" data-nombre placeholder="Tu nombre (se ve con cada comentario)">') +
       '<textarea class="filtro" rows="3" placeholder="' + escH(texto) + '"></textarea><div class="fila"><button class="btn" data-guardar>Publicar</button><label class="chk pc-chk" title="Para que Claude lo revise"><input type="checkbox" data-pcn> Para Claude</label>' +
-      (pend ? '<button class="btn" data-cancelar>Quitar la marca</button>' : "") + "</div></div>";
+      (pend ? '<button class="btn" data-cancelar>' + (pend.dibujo.t === "trazos" ? "Quitar el dibujo" : "Quitar la marca") + "</button>" : "") + "</div></div>";
   }
   function engancha(el, amb, doc) {
     const comp = el.querySelector(".comp");
@@ -3082,7 +3095,7 @@ const Notas = (() => {
         if (pend && !comp.dataset.resp) { f.pagina = pend.pagina; f.dibujo = pend.dibujo; }
         try { const n = await crear(f); if (!comp.dataset.resp) pend = null; focoId = n.id; pinta(); } catch (e) { toast(e.message, 4000); }
       };
-      if (pend) setTimeout(() => comp.querySelector("textarea").focus(), 0);
+      if (pend && pend.dibujo.t !== "trazos") setTimeout(() => comp.querySelector("textarea").focus(), 0);   /* al dibujar no se abre el teclado del iPad */
     }
     el.querySelectorAll(".nota-i").forEach(d => {
       const n = (cache || []).find(x => x.id === d.dataset.id); if (!n) return;
@@ -3124,14 +3137,29 @@ const Notas = (() => {
     }
     return "";
   }
+  // estilo del lápiz (en píxeles de pantalla) y tipo de línea; se recuerdan en este navegador
+  let grosor = ls("visor.lapiz.grosor") || 2.5, linea = ls("visor.lapiz.linea") || "c";
+  const dSeg = (p, a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy; const t = L ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L)) : 0; return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy); };
+  const dashDe = (l, w) => l === "d" ? (3.2 * w) + " " + (2.6 * w) : l === "p" ? "0 " + (2.4 * w) : null;
+  const primerPunto = dib => !dib ? [0, 0] : dib.t === "trazos" ? ((dib.s[0] || {}).q || [[[0, 0]]])[0][0] : dib.t === "rect" ? [Math.min(dib.p[0][0], dib.p[1][0]), Math.min(dib.p[0][1], dib.p[1][1])] : dib.p[0];
   function marcas(n) {
     const P = paginas.get(n); if (!P) return;
     const lst = deDoc(ambito, docAct), num = numeros(lst), g = P.g;
     while (g.firstChild) g.removeChild(g.firstChild);
     const r = 9 / P.esc;                                     // tamaño en pantalla constante
     const pon = (d, id, k, prov, col) => {
-      if (d.t !== "nota") { const pa = document.createElementNS(NS, "path"); pa.setAttribute("d", forma(d)); pa.setAttribute("class", "mk" + (prov ? " prov" : "") + (id === focoId ? " foco" : "")); pa.style.stroke = col; g.appendChild(pa); }
-      const q = d.t === "rect" ? [Math.min(d.p[0][0], d.p[1][0]), Math.min(d.p[0][1], d.p[1][1])] : d.p[0];
+      if (d.t === "trazos") {
+        for (const t of d.s) {
+          const pa = document.createElementNS(NS, "path");
+          pa.setAttribute("d", t.q.map(l => "M" + l.map(q => q[0] + " " + q[1]).join("L")).join(""));
+          pa.setAttribute("class", "tz" + (prov ? " prov" : "")); pa.style.stroke = col; pa.style.strokeWidth = t.w * (id === focoId ? 1.35 : 1);
+          const da = dashDe(t.l, t.w); if (da) pa.setAttribute("stroke-dasharray", da);
+          g.appendChild(pa);
+        }
+        if (!d.s.length) return;
+      } else if (d.t !== "nota") { const pa = document.createElementNS(NS, "path"); pa.setAttribute("d", forma(d)); pa.setAttribute("class", "mk" + (prov ? " prov" : "") + (id === focoId ? " foco" : "")); pa.style.stroke = col; g.appendChild(pa); }
+      if (prov && d.t === "trazos") return;                   // el dibujo en curso aún no lleva número
+      const q = primerPunto(d);
       const c = document.createElementNS(NS, "g"); c.setAttribute("class", "pin" + (id === focoId ? " foco" : "")); c.setAttribute("transform", "translate(" + q[0] + " " + q[1] + ")");
       c.style.fill = col;
       c.innerHTML = '<circle r="' + r + '"/><text y="' + (r * 0.36) + '" font-size="' + (r * 1.05) + '">' + (k || "·") + "</text>";
@@ -3140,43 +3168,75 @@ const Notas = (() => {
     for (const x of lst) if (x.dibujo && x.pagina === n && !x.respuesta_a && !x.resuelto_por) pon(x.dibujo, x.id, num.get(x.id), false, colorDe(x.autor));
     if (pend && pend.pagina === n) pon(pend.dibujo, null, "", true, colorDe(autor()));
   }
+  function cuentaPend() {
+    // el aviso del comentario en curso, sin rehacer la caja (así no se pierde lo que se esté escribiendo)
+    const el = document.querySelector("#compDoc [data-pend]"); if (!el || !pend) return false;
+    el.innerHTML = textoPend(); return true;
+  }
+  const textoPend = () => pend.dibujo.t === "trazos" ? "<b>Dibujo en " + (ambito === "capturas" ? "la captura" : "la página " + pend.pagina) + "</b> (" + pend.dibujo.s.length + " trazo" + (pend.dibujo.s.length === 1 ? "" : "s") + "): sigue dibujando o escribe el comentario y «Publicar»."
+    : "<b>" + (ambito === "capturas" ? "Marca en la captura" : "Marca en la página " + pend.pagina) + "</b>: escribe el comentario.";
   function pagina(cont, n, W, H, esc) {
-    // la capa de marcas de una página del PDF, en puntos del PDF
+    // la capa de marcas de una página (o captura), en sus propias unidades: puntos del PDF o píxeles de la imagen
     const s = document.createElementNS(NS, "svg"); s.setAttribute("viewBox", "0 0 " + W + " " + H); s.setAttribute("class", "marcas");
     const g = document.createElementNS(NS, "g"); s.appendChild(g); cont.appendChild(s);
     paginas.set(n, {g, W, H, esc, s}); marcas(n);
     let cur = null;
     const pt = e => { const b = s.getBoundingClientRect(); return [+((e.clientX - b.left) / b.width * W).toFixed(1), +((e.clientY - b.top) / b.height * H).toFixed(1)]; };
+    const trazo = c => {
+      if (c.k === "rect") { const [a, b] = [c.a, c.b]; return [[a, [b[0], a[1]], b, [a[0], b[1]], a]]; }
+      if (c.k === "flecha") {
+        const [a, b] = [c.a, c.b], an = Math.atan2(b[1] - a[1], b[0] - a[0]), L = Math.max(10 / esc, c.w * 4);
+        const c1 = [+(b[0] - L * Math.cos(an - 0.45)).toFixed(1), +(b[1] - L * Math.sin(an - 0.45)).toFixed(1)], c2 = [+(b[0] - L * Math.cos(an + 0.45)).toFixed(1), +(b[1] - L * Math.sin(an + 0.45)).toFixed(1)];
+        return [[a, b], [c1, b, c2]];
+      }
+      return [c.pts.length > 1 ? c.pts : [c.pts[0], [c.pts[0][0] + 0.1, c.pts[0][1]]]];
+    };
+    const enCurso = () => pend && pend.pagina === n && pend.dibujo.t === "trazos" ? pend.dibujo : null;
+    const borraEn = p => {
+      const d = enCurso(); if (!d) return false; const rr = 10 / esc; let cambia = false;
+      d.s = d.s.filter(t => { const toca = t.q.some(l => l.some((q, i) => i && dSeg(p, l[i - 1], q) <= rr + t.w / 2) || (l.length === 1 && Math.hypot(l[0][0] - p[0], l[0][1] - p[1]) <= rr)); if (toca) cambia = true; return !toca; });
+      return cambia;
+    };
     s.addEventListener("pointerdown", e => {
       if (herr === "ver") return;
       e.preventDefault(); s.setPointerCapture(e.pointerId);
       const p = pt(e);
       if (herr === "nota") { pend = {pagina: n, dibujo: {t: "nota", p: [p]}}; pinta(); return; }
-      cur = {t: herr, p: herr === "mano" ? [p] : [p, p]}; pend = {pagina: n, dibujo: cur}; marcas(n);
+      if (herr === "goma") { cur = {goma: true}; if (borraEn(p)) { marcas(n); cuentaPend() || pinta(); } return; }
+      if (pend && pend.pagina !== n && pend.dibujo.t === "trazos" && pend.dibujo.s.length) { toast("Publica o quita antes el dibujo de " + (ambito === "capturas" ? "la otra captura" : "la página " + pend.pagina)); return; }
+      if (!enCurso()) pend = {pagina: n, dibujo: {t: "trazos", s: []}};
+      cur = {k: herr, a: p, b: p, pts: [p], w: +(grosor / esc).toFixed(2), l: linea};
+      cur.t = {q: trazo(cur), w: cur.w, l: cur.l}; pend.dibujo.s.push(cur.t); marcas(n);
     });
     s.addEventListener("pointermove", e => {
       if (!cur) return; const p = pt(e);
-      if (cur.t === "mano") { const u = cur.p[cur.p.length - 1]; if (Math.hypot(p[0] - u[0], p[1] - u[1]) > 1.2 / esc * 2) cur.p.push(p); } else cur.p[1] = p;
-      marcas(n);
+      if (cur.goma) { if (borraEn(p)) { marcas(n); cuentaPend() || pinta(); } return; }
+      if (cur.k === "lapiz") { const u = cur.pts[cur.pts.length - 1]; if (Math.hypot(p[0] - u[0], p[1] - u[1]) > 1.2 / esc) cur.pts.push(p); } else cur.b = p;
+      cur.t.q = trazo(cur); marcas(n);
     });
     const fin = () => {
-      if (!cur) return; const d = cur; cur = null;
-      const [a, b] = [d.p[0], d.p[d.p.length - 1]];
-      if (d.p.length < 2 || (d.t !== "mano" && Math.hypot(b[0] - a[0], b[1] - a[1]) < 3)) { pend = null; marcas(n); return; }
-      if (d.t === "rect") d.p = [[Math.min(a[0], b[0]), Math.min(a[1], b[1])], [Math.max(a[0], b[0]), Math.max(a[1], b[1])]];
-      pinta();
+      if (!cur) return; const c = cur; cur = null;
+      if (c.goma) { const d = enCurso(); if (d && !d.s.length) { pend = null; pinta(); } return; }
+      if (c.k !== "lapiz" && Math.hypot(c.b[0] - c.a[0], c.b[1] - c.a[1]) < 3 / esc) { const d = enCurso(); if (d) d.s = d.s.filter(t => t !== c.t); if (d && !d.s.length) { pend = null; pinta(); } else marcas(n); return; }
+      c.t.q = trazo(c); marcas(n);
+      if (!cuentaPend()) pinta();                             // el primer trazo abre la caja del comentario; los siguientes solo cuentan
     };
     s.addEventListener("pointerup", fin); s.addEventListener("pointercancel", fin);
   }
   function irA(n) {
     const P = paginas.get(n.pagina); if (!P) return;
-    const q = n.dibujo ? n.dibujo.p[0] : [0, 0], el = $("docs"), b = P.s.getBoundingClientRect(), e = el.getBoundingClientRect();
+    const q = primerPunto(n.dibujo), el = $("docs"), b = P.s.getBoundingClientRect(), e = el.getBoundingClientRect();
     el.scrollTo({top: el.scrollTop + b.top - e.top + q[1] / P.H * b.height - el.clientHeight / 3, left: el.scrollLeft + b.left - e.left + q[0] / P.W * b.width - el.clientWidth / 2, behavior: "smooth"});
   }
   function herramienta(h) {
     herr = h; document.querySelectorAll("#notasHerr [data-nh]").forEach(b => b.classList.toggle("on", b.dataset.nh === h));
     $("docs").classList.toggle("anotando", h !== "ver");
+    $("notasEstilo").hidden = !["lapiz", "rect", "flecha"].includes(h);
+    document.querySelectorAll("#notasEstilo [data-gr]").forEach(b => b.classList.toggle("on", +b.dataset.gr === grosor));
+    document.querySelectorAll("#notasEstilo [data-li]").forEach(b => b.classList.toggle("on", b.dataset.li === linea));
   }
+  document.querySelectorAll("#notasEstilo [data-gr]").forEach(b => b.onclick = () => { grosor = +b.dataset.gr; ls("visor.lapiz.grosor", grosor); herramienta(herr); });
+  document.querySelectorAll("#notasEstilo [data-li]").forEach(b => b.onclick = () => { linea = b.dataset.li; ls("visor.lapiz.linea", linea); herramienta(herr); });
 
   /* ---------- montaje */
   async function pinta() {
