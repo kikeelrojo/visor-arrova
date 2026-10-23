@@ -1,12 +1,12 @@
 {
  "formato": "arrova-memorias",
  "proyecto": "lodosa",
- "fecha": "2026-10-23 00:26",
+ "fecha": "2026-10-23 23:12",
  "pdfs": [
   {
    "archivo": "memorias/00_Hoja_Control_Pendientes.pdf",
    "titulo": "Hoja de control · pendientes y discrepancias",
-   "nota": "12 páginas · 23-10-2026 00:25",
+   "nota": "13 páginas · 23-10-2026 23:10",
    "marcado": true
   },
   {
@@ -22,12 +22,12 @@
   {
    "archivo": "memorias/00_Ficha_Resumen_e_Indice.pdf",
    "titulo": "Ficha resumen e índice",
-   "nota": "4 páginas · 22-10-2026 09:42"
+   "nota": "4 páginas · 23-10-2026 23:10"
   },
   {
    "archivo": "memorias/00_Indice_General_Proyecto.pdf",
    "titulo": "Índice general del proyecto",
-   "nota": "5 páginas · 22-10-2026 09:42"
+   "nota": "5 páginas · 23-10-2026 23:10"
   },
   {
    "archivo": "memorias/00_Modelos_Nombramientos_y_Designacion_CSS.pdf",
@@ -47,17 +47,22 @@
   {
    "archivo": "memorias/03_Memoria_Descriptiva_y_Constructiva.pdf",
    "titulo": "Memoria descriptiva y constructiva",
-   "nota": "03 · 19 páginas · 22-10-2026 09:42"
+   "nota": "03 · 20 páginas · 23-10-2026 23:11"
   },
   {
    "archivo": "memorias/04_1_Memoria_Cumplimiento_CTE.pdf",
    "titulo": "Memoria de cumplimiento del CTE",
-   "nota": "04_1 · 40 páginas · 22-10-2026 09:42"
+   "nota": "04_1 · 40 páginas · 23-10-2026 23:11"
   },
   {
    "archivo": "memorias/04_2_Anejo_Justificacion_DB-HE.pdf",
    "titulo": "Anejo · justificación DB-HE",
    "nota": "04_2 · 15 páginas · 22-10-2026 09:42"
+  },
+  {
+   "archivo": "memorias/04_3_Memoria_Estructural.pdf",
+   "titulo": "Memoria estructural",
+   "nota": "04_3 · 13 páginas · 23-10-2026 23:07"
   },
   {
    "archivo": "memorias/05_Justificacion_Accesibilidad.pdf",
