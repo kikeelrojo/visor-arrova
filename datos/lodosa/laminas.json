@@ -1,7 +1,7 @@
 {
  "formato": "arrova-laminas",
  "proyecto": "lodosa",
- "fecha": "2026-10-24 00:10",
+ "fecha": "2026-10-24 00:18",
  "doc": "basico op3.vwx",
  "hojas": [
   {
@@ -31,6 +31,14 @@
   {
    "n": "LO-E1",
    "titulo": "Estructura 1"
+  },
+  {
+   "n": "LO-E2",
+   "titulo": "Estructura 2"
+  },
+  {
+   "n": "LO-E3",
+   "titulo": "Detalles de estructura"
   },
   {
    "n": "LO-F1",
@@ -163,21 +171,13 @@
   {
    "n": "X-LO-E4 ingeniero",
    "titulo": ""
-  },
-  {
-   "n": "LO-E2",
-   "titulo": "Estructura 2"
-  },
-  {
-   "n": "LO-E3",
-   "titulo": "Detalles de estructura"
   }
  ],
  "pdfs": [
   {
    "archivo": "laminas/basico op3.pdf",
    "titulo": "Juego completo de láminas",
-   "nota": "29 páginas · 24-10-2026 00:10"
+   "nota": "29 páginas · 24-10-2026 00:18"
   }
  ]
 }
