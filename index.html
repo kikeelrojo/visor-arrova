@@ -187,6 +187,8 @@ details.hechas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-w
 .notas-datos{max-width:760px}
 .ldocs button .cnt{float:right;font-style:normal;font-weight:700;font-size:var(--s-xs);color:var(--warn);border:0.5px solid var(--warn);min-width:16px;text-align:center;padding:0 3px;margin-left:6px}
 h3 .adm{color:#7b1d2c}
+.nota-i .editado{font-style:italic}
+.nota-i .txt textarea{width:100%;margin:2px 0 4px;font-family:var(--f);font-size:var(--s-s)}
 .nota-i .pc{font-size:var(--s-xs);font-weight:700;color:var(--warn);border:0.5px solid var(--warn);padding:0 3px;white-space:nowrap}
 .pc-chk{font-size:var(--s-xs)}
 .importar{align-items:center;margin-bottom:10px}.importar .btn{cursor:pointer;font-size:var(--s-s)}
@@ -3242,6 +3244,13 @@ const Notas = (() => {
     if (cfg.local) { const L = ls(LKEY + ".cap") || [], x = L.find(c => c.id === id); if (x) x.para_claude = si; ls(LKEY + ".cap", L); return; }
     await api("PATCH", "capturas?id=eq." + id, {para_claude: si}, {Prefer: "return=minimal"});
   }
+  async function editar(n, t) {
+    // corregir lo escrito: solo desde el navegador con el que se escribió (o en modo administrador)
+    if (cfg.local) { const L = ls(LKEY) || [], x = L.find(y => y.id === n.id); if (x) { x.texto = t; x.editado_en = new Date().toISOString(); ls(LKEY, L); Object.assign(n, x); } return; }
+    await huellaP;
+    if (!await api("POST", "rpc/editar_nota", {p_id: n.id, p_llave: esAdmin ? ls("visor.admin") : llave, p_texto: t})) throw new Error("No se ha podido editar (solo desde el navegador con el que se escribió)");
+    n.texto = t; n.editado_en = new Date().toISOString();
+  }
   async function borrar(n) {
     if (cfg.local) { const L = (ls(LKEY) || []).filter(y => y.id !== n.id); ls(LKEY, L); }
     else if (!await api("POST", "rpc/borrar_nota", {p_id: n.id, p_llave: esAdmin ? ls("visor.admin") : llave})) throw new Error("No se ha podido borrar (solo se borra desde el navegador con el que se escribió)");
@@ -3404,7 +3413,7 @@ const Notas = (() => {
     const raiz = lst.filter(n => !n.respuesta_a), resp = id => lst.filter(n => n.respuesta_a === id), num = numeros(lst);
     const uno = (n, sub) => '<div class="nota-i' + (sub ? " resp" : "") + (n.id === focoId ? " foco" : "") + '" data-id="' + n.id + '" style="--c:' + colorDe(n.autor) + '">' +
       '<div class="txt">' + (sub ? "" : etiqueta(n)) + (n.para_claude && !n.resuelto_por ? '<span class="pc">A Claude</span> ' : "") + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.imagen ? '<img class="mini" src="' + escH(n.url || urlCap(n.imagen)) + '" data-ver="' + n.pagina + '" alt="Imagen ' + n.pagina + '">' : "") + (n.pagina > 1 && ambito === "capturas" && !n.imagen ? '<span class="pg-ref">imagen ' + n.pagina + "</span> " : "") + (n.pagina && ambito !== "capturas" ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
-      '<div class="meta"><b>' + escH(n.autor) + "</b><br>" + fecha(n.creado) + (mia(n) ? '<br><button class="lnk" data-borrar>Borrar</button>' : "") + "</div>" +
+      '<div class="meta"><b>' + escH(n.autor) + "</b><br>" + fecha(n.creado) + (n.editado_en ? '<br><span class="editado" title="Editado el ' + fecha(n.editado_en) + '">editado</span>' : "") + (mia(n) ? '<br><button class="lnk" data-editar>Editar</button> <button class="lnk" data-borrar>Borrar</button>' : "") + "</div>" +
       (sub ? "" : '<div class="acc">' + acciones(n) + "</div>") + "</div>" +
       (sub ? "" : resp(n.id).map(r => uno(r, true)).join(""));
     if (ambito === "capturas") return raiz.map(n => uno(n)).join("") || '<p class="nota">Sin comentarios todavía.</p>';   /* una conversación: en orden */
@@ -3453,6 +3462,20 @@ const Notas = (() => {
           if (st === "mal") setTimeout(() => { const x = document.querySelector('#notasDoc .nota-i[data-id="' + n.id + '"] [data-resp], #comentariosDatos .nota-i[data-id="' + n.id + '"] [data-resp]'); if (x) { x.click(); const t = document.querySelector(".comp.resp textarea"); if (t) t.placeholder = "¿Qué falta?"; } }, 50);
         } catch (er) { toast(er.message, 4000); }
       });
+      const eb = d.querySelector("[data-editar]");
+      if (eb) eb.onclick = e => {
+        e.stopPropagation();
+        const tx = d.querySelector(".txt"); if (!tx || tx.querySelector("textarea")) return;
+        const antes = tx.innerHTML;
+        tx.innerHTML = '<textarea class="filtro" rows="3"></textarea><div class="fila"><button class="btn" data-ok>Guardar</button> <button class="lnk" data-no>Cancelar</button></div>';
+        const ta = tx.querySelector("textarea"); ta.value = n.texto || ""; ta.onclick = ev => ev.stopPropagation(); ta.focus();
+        tx.querySelector("[data-no]").onclick = ev => { ev.stopPropagation(); tx.innerHTML = antes; };
+        tx.querySelector("[data-ok]").onclick = async ev => {
+          ev.stopPropagation(); const t = ta.value.trim();
+          if (!t && !n.dibujo && !n.imagen) { ta.focus(); return; }
+          try { await editar(n, t); toast("Comentario corregido"); pinta(); } catch (er) { toast(er.message, 4000); }
+        };
+      };
       const bb = d.querySelector("[data-borrar]");
       if (bb) bb.onclick = async e => {
         e.stopPropagation();
