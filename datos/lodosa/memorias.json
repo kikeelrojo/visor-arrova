@@ -1,12 +1,12 @@
 {
  "formato": "arrova-memorias",
  "proyecto": "lodosa",
- "fecha": "2026-10-23 23:12",
+ "fecha": "2026-10-23 23:23",
  "pdfs": [
   {
    "archivo": "memorias/00_Hoja_Control_Pendientes.pdf",
    "titulo": "Hoja de control · pendientes y discrepancias",
-   "nota": "13 páginas · 23-10-2026 23:10",
+   "nota": "13 páginas · 23-10-2026 23:22",
    "marcado": true
   },
   {
@@ -47,12 +47,12 @@
   {
    "archivo": "memorias/03_Memoria_Descriptiva_y_Constructiva.pdf",
    "titulo": "Memoria descriptiva y constructiva",
-   "nota": "03 · 20 páginas · 23-10-2026 23:11"
+   "nota": "03 · 20 páginas · 23-10-2026 23:22"
   },
   {
    "archivo": "memorias/04_1_Memoria_Cumplimiento_CTE.pdf",
    "titulo": "Memoria de cumplimiento del CTE",
-   "nota": "04_1 · 40 páginas · 23-10-2026 23:11"
+   "nota": "04_1 · 40 páginas · 23-10-2026 23:22"
   },
   {
    "archivo": "memorias/04_2_Anejo_Justificacion_DB-HE.pdf",
@@ -62,7 +62,7 @@
   {
    "archivo": "memorias/04_3_Memoria_Estructural.pdf",
    "titulo": "Memoria estructural",
-   "nota": "04_3 · 13 páginas · 23-10-2026 23:07"
+   "nota": "04_3 · 13 páginas · 23-10-2026 23:22"
   },
   {
    "archivo": "memorias/05_Justificacion_Accesibilidad.pdf",
