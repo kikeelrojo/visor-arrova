@@ -275,7 +275,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
       <button id="tabLam" aria-pressed="false">Láminas</button>
       <button id="tabMem" aria-pressed="false">Memorias</button>
       <button id="tabDatos" aria-pressed="false">Mediciones</button>
-      <button id="tabCap" aria-pressed="false">Capturas</button>
+      <button id="tabCap" aria-pressed="false">Chat</button>
     </div>
     <button class="btn ico" id="btnRefrescar" title="Actualizar: carga la última versión publicada" aria-label="Actualizar"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16.2 10.6A6.2 6.2 0 1 1 14.4 5.6M14.9 2.6v3.4h-3.4"/></svg></button>
     <button class="btn ico" id="btnCaptura" title="Captura de lo que se ve, para marcar encima y comentar" aria-label="Captura"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 6.5h3l1.5-2h6l1.5 2h3v9h-15z"/><circle cx="10" cy="11" r="3"/></svg></button>
@@ -3038,14 +3038,14 @@ const Docs = (() => {
     return P.docs[t];
   }
   async function abrir(t) {
-    tipo = t; $("docsTit").textContent = {laminas: "Láminas", memorias: "Memorias", capturas: "Capturas"}[t];
+    tipo = t; $("docsTit").textContent = {laminas: "Láminas", memorias: "Memorias", capturas: "Chat"}[t];
     const cap = t === "capturas";
     $("btnAbrirPdf").textContent = cap ? "Abrir la imagen" : "Abrir el PDF"; $("btnBorrarCap").hidden = true; $("secClaude").hidden = true; $("filaImportar").hidden = !cap; $("secNotas").classList.remove("cerrada");
     $("notaDocs").textContent = cap ? "Capturas de lo que se ve en 3D o 2D (botón de la cámara, arriba) o imágenes importadas. Marca encima con las herramientas de «Comentarios» y escribe al lado." : "«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.";
     const L = await lista(t), el = $("listaDocs"); el.innerHTML = "";
     if (!L.length) {
-      el.innerHTML = '<span class="nota">' + ({laminas: "Aún no hay láminas: se publican desde Vectorworks (las hojas del archivo, en PDF).", memorias: "Aún no hay memorias publicadas.", capturas: "Aún no hay capturas: en 3D o 2D, pulsa el botón de la cámara, o importa una imagen."}[t]) + "</span>";
-      $("docsPag").innerHTML = '<div class="vacio-doc"><b>' + ({laminas: "Sin láminas", memorias: "Sin memorias", capturas: "Sin capturas"}[t]) + "</b></div>"; $("btnAbrirPdf").hidden = true; return;
+      el.innerHTML = '<span class="nota">' + ({laminas: "Aún no hay láminas: se publican desde Vectorworks (las hojas del archivo, en PDF).", memorias: "Aún no hay memorias publicadas.", capturas: "Aún no hay conversaciones: en 3D o 2D pulsa el botón de la cámara, o importa una imagen."}[t]) + "</span>";
+      $("docsPag").innerHTML = '<div class="vacio-doc"><b>' + ({laminas: "Sin láminas", memorias: "Sin memorias", capturas: "Sin conversaciones"}[t]) + "</b></div>"; $("btnAbrirPdf").hidden = true; return;
     }
     const res = cap ? L.filter(d => d.resuelta_por) : [], abiertas = L.filter(d => !res.includes(d));
     let grupo = null;
