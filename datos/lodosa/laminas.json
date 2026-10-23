@@ -1,7 +1,7 @@
 {
  "formato": "arrova-laminas",
  "proyecto": "lodosa",
- "fecha": "2026-10-23 19:48",
+ "fecha": "2026-10-23 22:21",
  "doc": "basico op3.vwx",
  "hojas": [
   {
@@ -151,6 +151,18 @@
   {
    "n": "LO-G3b",
    "titulo": "Propuesta V12 · puerta de la aerotermia"
+  },
+  {
+   "n": "LO-E2",
+   "titulo": ""
+  },
+  {
+   "n": "LO-E3",
+   "titulo": ""
+  },
+  {
+   "n": "LO-E4",
+   "titulo": ""
   }
  ],
  "pdfs": [
