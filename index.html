@@ -158,6 +158,16 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 .ldocs button.marcado{font-weight:700;border-left:2px solid var(--warn);padding-left:6px}
 .ldocs button.marcado span{color:var(--warn)}
 .pg{position:relative}
+body.pantallazo header,body.pantallazo .panel,body.pantallazo #rotulo,body.pantallazo .toast{display:none!important}
+body.pantallazo{margin:0}body.pantallazo .app{grid-template-rows:1fr}body.pantallazo .vista{margin:0;padding:0}body.pantallazo .main{grid-template-columns:1fr}
+.versiones{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.versiones button{border:0.5px solid var(--ink);background:none;padding:0;cursor:pointer;position:relative;line-height:0}
+.versiones button.on{outline:1.5px solid var(--warn);outline-offset:1px}.versiones img{width:58px;height:42px;object-fit:cover;display:block}
+.versiones span{position:absolute;left:2px;top:2px;font-size:9px;line-height:1;background:var(--paper);padding:1px 2px}
+.tema-cap{width:100%;margin:0 0 8px;font-weight:700}
+.nota-i img.mini{display:block;max-width:140px;max-height:100px;margin:4px 0;border:0.5px solid var(--ink);cursor:pointer}
+.destino{position:fixed;inset:0;background:rgba(0,0,0,.25);display:grid;place-items:center;z-index:50}
+.destino>div{background:var(--paper);border:0.5px solid var(--ink);padding:16px;width:min(420px,92vw);max-height:80vh;overflow:auto;display:grid;gap:8px}
+.destino h3{margin:0}.destino .lst{display:grid;gap:4px}.destino .lst button{text-align:left}
 .marcas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 .docs.anotando .marcas{pointer-events:auto;touch-action:none;cursor:crosshair}
 .marcas .pin{pointer-events:auto;cursor:pointer}
@@ -184,7 +194,7 @@ h3 .adm{color:#7b1d2c}
 .a-claude[aria-pressed="true"]{background:var(--warn);color:var(--paper)}
 #secClaude .lnk{margin-top:6px}
 .estado-doc{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:0 0 4px}.estado-doc .btn{width:100%;margin:0}
-.estado-doc [data-ed="revision"].on{color:var(--warn);border-color:var(--warn);font-weight:700}
+.estado-doc [data-ed="revision"].on{color:var(--warn);border-color:var(--warn);background:transparent;font-weight:700}
 .estado-doc [data-ed="definitivo"].on{background:var(--ink);color:var(--paper);font-weight:700}
 #notaEstado{margin:0 0 10px}
 .est{font-size:var(--s-xs);font-weight:700;white-space:nowrap;padding:0 3px;border:0.5px solid currentColor}
@@ -493,6 +503,8 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
           <p class="nota" id="notaDocs">«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.</p>
         </div>
         <div class="sec" id="secClaude" hidden>
+          <input class="filtro tema-cap" id="inTema" placeholder="Tema (p. ej. Aerotermia y tubos a cubierta)" aria-label="Tema de la captura" maxlength="120">
+          <div class="versiones" id="versiones" hidden></div>
           <button class="btn a-claude" id="btnParaClaude" aria-pressed="false" title="Le llega a Claude la captura con todas sus marcas y comentarios">Mandar a Claude</button>
           <p class="nota" id="notaClaude">Le llega la imagen con todas sus marcas y comentarios. Al publicar un comentario en una captura se manda sola.</p>
           <button class="lnk" id="btnBorrarCap" hidden>Borrar la captura</button>
@@ -623,7 +635,7 @@ async function elegirProyecto(id) {
   const s = $("selModelo"); s.innerHTML = "";
   if (!S.proyecto) { $("vacio").hidden = false; return; }
   for (const m of S.proyecto.indice.modelos) { const o = document.createElement("option"); o.value = m.id; o.textContent = m.titulo; s.appendChild(o); }
-  const pref = ls("visor.modelo." + id), nuevo = S.proyecto.indice.preferido;
+  const pref = S.camaraUrl && S.camaraUrl.m ? S.camaraUrl.m : ls("visor.modelo." + id), nuevo = S.camaraUrl ? null : S.proyecto.indice.preferido;
   const bim1 = S.proyecto.indice.modelos.find(m => m.id.startsWith("bim"));
   if (nuevo && S.proyecto.modelos[nuevo] && ls("visor.preferido." + id) !== nuevo) { s.value = nuevo; ls("visor.preferido." + id, nuevo); }
   else if (pref && S.proyecto.modelos[pref]) s.value = pref;
@@ -642,6 +654,7 @@ async function elegirModelo(id) {
     S.proyecto.modelos[id] = D;
     S.modelo = D;
     V3.cargar(D);
+    if (S.camaraUrl) setTimeout(() => { V3.ponCamara(S.camaraUrl); document.body.dataset.listo = "1"; }, 60);
     $("vacio").hidden = true;
     $("estado").textContent = D.fecha + " · " + D.elementos.length + " elementos";
     rotulo(); Datos.refrescar();
@@ -1347,7 +1360,26 @@ const V3 = (() => {
     }, "image/png");
   }
   function captura() { render(); return canvas; }     // se lee justo después de pintar (sin guardar el búfer de WebGL)
-  return {captura, cargar, encuadra, resaltar, datos: () => D, visibles: () => elems.filter(g => g.visible).map(g => g.userData.e), aplicaEstilo, vista, setPersp, focal, alOjo, cortes, setExplota, exportarSVG, exportarPNG, redim, pedir,
+  // el punto de vista de una captura (para que Claude pueda repetirla tal cual después de corregir)
+  function camara() {
+    const r3 = v => [+v.x.toFixed(4), +v.y.toFixed(4), +v.z.toFixed(4)];
+    return {p: cam === persp, pos: r3(cam.position), tgt: r3(ctrl.target), z: +ortho.zoom.toFixed(4), f: +$("rFocal").value, e: estilo, x: Math.round(explota * 1000),
+      g: Object.keys(grupoVis).filter(k => grupoVis[k] === false), gv: Object.keys(grupoVis).filter(k => grupoVis[k] === true && OCULTOS[k]),
+      pl: Object.keys(plantaVis).filter(k => plantaVis[k] === false), w: canvas.clientWidth, h: canvas.clientHeight};
+  }
+  function ponCamara(c) {
+    if (!c) return;
+    for (const k of c.g || []) grupoVis[k] = false; for (const k of c.gv || []) grupoVis[k] = true; for (const k of c.pl || []) plantaVis[k] = false;
+    if (c.e) aplicaEstilo(c.e);
+    if (c.f) { $("rFocal").value = c.f; focal(c.f); }
+    setPersp(!!c.p);
+    if (c.x) { explota = c.x / 1000; explotaAnim = explota; }
+    visibilidad();
+    cam.position.set(...c.pos); ctrl.target.set(...c.tgt);
+    if (!c.p && c.z) { ortho.zoom = c.z; ortho.updateProjectionMatrix(); }
+    ctrl.update(); anima(); pedir();
+  }
+  return {captura, camara, ponCamara, cargar, encuadra, resaltar, datos: () => D, visibles: () => elems.filter(g => g.visible).map(g => g.userData.e), aplicaEstilo, vista, setPersp, focal, alOjo, cortes, setExplota, exportarSVG, exportarPNG, redim, pedir,
     tema() { for (const k in matCache) { matCache[k].dispose(); delete matCache[k]; } if (D) aplicaEstilo(estilo); }};
 })();
 
@@ -3046,6 +3078,8 @@ const Docs = (() => {
         const bb = $("btnBorrarCap"); if (!bb.dataset.seguro) { bb.dataset.seguro = 1; bb.textContent = "¿Seguro? Borrar"; setTimeout(() => { delete bb.dataset.seguro; bb.textContent = "Borrar la captura"; }, 4000); return; }
         try { await Notas.borrarCaptura(d.archivo); toast("Captura borrada"); abrir("capturas"); } catch (e) { toast(e.message, 4000); }
       };
+      const it = $("inTema"); it.value = d.tema || ""; it.onchange = async () => { const t = it.value.trim().slice(0, 120); try { await Notas.ponTema(d.archivo, t); d.tema = t; d.titulo = t || d.vista || "Captura"; const bb = $("listaDocs").querySelector('[data-arch="' + d.archivo + '"]'); const tn = bb && [...bb.childNodes].find(x => x.nodeType === 3); if (tn) tn.textContent = d.titulo; toast("Tema guardado"); } catch (e) { toast(e.message, 4000); } };
+      verAct = 0; nVers = 0; $("versiones").hidden = true;
       Notas.enDoc(tipo, d); pdf = null; z = 0; pintaImg(); return;
     }
     const url = "datos/" + S.proyecto.id + "/" + d.archivo + (d.nota ? "?v=" + encodeURIComponent(d.nota).slice(0, 60) : "");   // la nota lleva la fecha del archivo: si cambia, se baja de nuevo
@@ -3077,9 +3111,27 @@ const Docs = (() => {
     }
   }
   const actualDoc = () => actual;
+  let verAct = 0, nVers = 0;
+  function versiones(d) {
+    const L = [{k: 1, url: d.url, ancho: d.ancho, alto: d.alto}];
+    for (const n of Notas.imagenesDe(d.archivo)) L.push({k: L.length + 1, url: n.url, ancho: n.img_w, alto: n.img_h, nota: n});
+    return L;
+  }
+  function tiraVersiones() {
+    // las imágenes del tema, de la primera a la última; la última es la que se ve al abrir
+    const d = actual; if (!d || tipo !== "capturas") return;
+    const L = versiones(d), el = $("versiones");
+    if (L.length !== nVers) { const nuevo = nVers && L.length > nVers; nVers = L.length; if (!verAct || nuevo || verAct > L.length) { verAct = L.length; pintaImg(); } }
+    el.hidden = L.length < 2;
+    el.innerHTML = L.map(v => '<button data-v="' + v.k + '" class="' + (v.k === verAct ? "on" : "") + '" title="Imagen ' + v.k + (v.k === 1 ? " (la inicial)" : "") + '"><img src="' + escH(v.url) + '" alt=""><span>' + v.k + "</span></button>").join("");
+    el.querySelectorAll("[data-v]").forEach(b => b.onclick = () => verVersion(+b.dataset.v));
+  }
+  function verVersion(k) { verAct = k; z = 0; pintaImg(); tiraVersiones(); }
   function pintaImg() {
     // la captura a lo ancho (y alto) del visor, con su capa de marcas en píxeles de la imagen
-    const d = actual; if (!d) return;
+    const d0 = actual; if (!d0) return;
+    const L = versiones(d0); if (!verAct || verAct > L.length) verAct = L.length;
+    const v = L[verAct - 1], d = {url: v.url, ancho: v.ancho || d0.ancho, alto: v.alto || d0.alto, titulo: d0.titulo};
     const pag = $("docsPag"); pag.innerHTML = "";
     const ancho = Math.max(200, $("docs").clientWidth - 68 - 2), alto = Math.max(200, $("docs").clientHeight - 60);
     const esc_ = z ? z : Math.min(ancho / d.ancho, alto / d.alto, 3);
@@ -3087,7 +3139,7 @@ const Docs = (() => {
     const im = new Image(); im.src = d.url; im.alt = d.titulo || "Captura"; im.width = Math.floor(d.ancho * esc_); im.height = Math.floor(d.alto * esc_);
     im.style.display = "block"; im.style.boxShadow = "0 0 0 0.5px var(--ink)"; im.draggable = false;
     w.appendChild(im); pag.appendChild(w);
-    Notas.pagina(w, 1, d.ancho, d.alto, esc_);
+    Notas.pagina(w, verAct, d.ancho, d.alto, esc_);
   }
   function dibuja(c) { const v = c._p.getViewport({scale: c._esc}); c._p.render({canvasContext: c.getContext("2d"), viewport: v}); }
   function zoom(f) {
@@ -3097,7 +3149,7 @@ const Docs = (() => {
     z = f === 0 ? 0 : Math.max(0.2, Math.min(8, actualEsc * f)); pinta();
   }
   addEventListener("resize", () => { if (z) return; if (S.modo === "cap" && actual) pintaImg(); else if ((S.modo === "lam" || S.modo === "mem") && pdf) pinta(); });
-  return {abrir, zoom, actualDoc, recargar: t => { if (S.proyecto && S.proyecto.docs) delete S.proyecto.docs[t]; }};
+  return {abrir, zoom, actualDoc, tiraVersiones, verVersion, verActual: () => verAct, recargar: t => { if (S.proyecto && S.proyecto.docs) delete S.proyecto.docs[t]; }};
 })();
 
 /* ============================================================ comentarios y anotaciones (Supabase) */
@@ -3202,20 +3254,47 @@ const Notas = (() => {
     try { L = cfg.local ? (ls(LKEY + ".cap") || []).filter(c => c.proyecto === proy() && !c.archivada_en) : await api("GET", "capturas?select=*&proyecto=eq." + encodeURIComponent(proy()) + "&borrado=eq.false&archivada_en=is.null&order=creado.desc"); }
     catch (e) { toast(e.message, 4000); return []; }
     await todas(true);
-    return L.map(c => ({archivo: c.id, titulo: c.vista || "Captura", nota: c.autor + " · " + fecha(c.creado) + (c.para_claude ? " · mandada a Claude" : ""), para_claude: !!c.para_claude, resuelta_por: c.resuelta_por || null, resuelta_en: c.resuelta_en || null, url: cfg.local ? c.datos : urlCap(c.archivo), ancho: c.ancho, alto: c.alto, autor: c.autor, borrable: mia(c)}));
+    return L.map(c => ({archivo: c.id, titulo: c.tema || c.vista || "Captura", tema: c.tema || "", vista: c.vista || "", camara: c.camara || null, nota: c.autor + " · " + fecha(c.creado) + (c.para_claude ? " · mandada a Claude" : ""), para_claude: !!c.para_claude, resuelta_por: c.resuelta_por || null, resuelta_en: c.resuelta_en || null, url: cfg.local ? c.datos : urlCap(c.archivo), ancho: c.ancho, alto: c.alto, autor: c.autor, borrable: mia(c)}));
+  }
+  async function subirArchivo(blob) {
+    // la imagen al almacén público de capturas; devuelve su ruta
+    const id = (crypto.randomUUID ? crypto.randomUUID() : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)));
+    const archivo = proy().toLowerCase().replace(/[^a-z0-9_-]/g, "") + "/" + id + ".jpg";
+    if (cfg.local) return {id, archivo};
+    const k = cfg.anon || cfg.clave, h = {apikey: k, "Content-Type": "image/jpeg", "x-upsert": "false"};
+    if (!/^sb_/.test(k)) h.Authorization = "Bearer " + k;
+    const r = await fetch(cfg.url.replace(/\/$/, "") + "/storage/v1/object/capturas/" + archivo, {method: "POST", headers: h, body: blob});
+    if (!r.ok) throw new Error("No se ha podido subir la imagen: " + r.status + " " + (await r.text()).slice(0, 120));
+    return {id, archivo};
+  }
+  function imagenesDe(doc) {
+    return (cache || []).filter(n => n.ambito === "capturas" && n.doc === doc && n.imagen && !n.borrado).sort((a, b) => a.creado < b.creado ? -1 : 1)
+      .map(n => Object.assign(n, {url: cfg && cfg.local ? n.datos : urlCap(n.imagen)}));
+  }
+  async function subirImagenTema(doc, blob, meta) {
+    // una imagen nueva dentro de la conversación de una captura: pasa a ser la imagen principal del tema
+    if (!await config()) throw new Error("Las capturas necesitan la base de datos de comentarios");
+    if (!autor()) { const nm = (prompt("Tu nombre (sale con la imagen)") || "").trim(); if (!nm) throw new Error("Hace falta un nombre"); ls("visor.autor", nm.slice(0, 60)); }
+    await todas(true);
+    const {archivo} = await subirArchivo(blob);
+    const k = imagenesDe(doc).length + 2;
+    const f = {ambito: "capturas", doc, texto: meta.texto || "", imagen: archivo, img_w: meta.ancho, img_h: meta.alto, pagina: k};
+    if (cfg.local) f.datos = meta.dataURL;
+    const n = await crear(f);
+    try { await marcarCaptura(doc, true); } catch (e) { /* sin Claude */ }
+    return n;
+  }
+  async function ponTema(id, t) {
+    if (cfg.local) { const L = ls(LKEY + ".cap") || [], x = L.find(c => c.id === id); if (x) x.tema = t; ls(LKEY + ".cap", L); return; }
+    await api("PATCH", "capturas?id=eq." + id, {tema: t || null}, {Prefer: "return=minimal"});
   }
   async function subirCaptura(blob, meta) {
     if (!await config()) throw new Error("Las capturas necesitan la base de datos de comentarios");
     if (!autor()) { const nm = (prompt("Tu nombre (sale con la captura y sus comentarios)") || "").trim(); if (!nm) throw new Error("Hace falta un nombre"); ls("visor.autor", nm.slice(0, 60)); }
     await huellaP;
-    const id = (crypto.randomUUID ? crypto.randomUUID() : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)));
-    const archivo = proy().toLowerCase().replace(/[^a-z0-9_-]/g, "") + "/" + id + ".jpg";
-    const fila = {id, proyecto: proy(), autor: autor(), vista: meta.vista, archivo, ancho: meta.ancho, alto: meta.alto, llave_hash: huella || null};
+    const {id, archivo} = await subirArchivo(blob);
+    const fila = {id, proyecto: proy(), autor: autor(), vista: meta.vista, archivo, ancho: meta.ancho, alto: meta.alto, llave_hash: huella || null, tema: meta.tema || null, camara: meta.camara || null};
     if (cfg.local) { const L = ls(LKEY + ".cap") || []; L.unshift(Object.assign({creado: new Date().toISOString(), datos: meta.dataURL}, fila)); ls(LKEY + ".cap", L); return fila; }
-    const k = cfg.anon || cfg.clave, h = {apikey: k, "Content-Type": "image/jpeg", "x-upsert": "false"};
-    if (!/^sb_/.test(k)) h.Authorization = "Bearer " + k;
-    const r = await fetch(cfg.url.replace(/\/$/, "") + "/storage/v1/object/capturas/" + archivo, {method: "POST", headers: h, body: blob});
-    if (!r.ok) throw new Error("No se ha podido subir la imagen: " + r.status + " " + (await r.text()).slice(0, 120));
     await api("POST", "capturas", fila, {Prefer: "return=minimal"});
     return fila;
   }
@@ -3233,9 +3312,11 @@ const Notas = (() => {
     if (r && r[0]) Object.assign(n, r[0]);
   }
   const estadoN = n => n.resuelto_por ? "ok" : n.corregido_por ? "corregido" : n.encargado ? "curso" : "pendiente";
+  const soloImagen = n => !!n.imagen && !String(n.texto || "").trim();
+  const abiertoN = n => !n.respuesta_a && !n.resuelto_por && !soloImagen(n);
   // estado de un archivo: «definitivo» vale mientras no haya comentarios abiertos, ni nuevos después, ni una versión nueva
   function estadoDoc(amb, doc, ver, def) {
-    const lst = deDoc(amb, doc), abiertos = lst.filter(n => !n.respuesta_a && !n.resuelto_por).length;
+    const lst = deDoc(amb, doc), abiertos = lst.filter(abiertoN).length;
     if (amb === "capturas") return def ? {e: "definitivo"} : {e: "revision", abiertos};
     const st = estados.find(x => x.ambito === amb && x.doc === doc);
     if (st && st.estado === "definitivo") {
@@ -3269,7 +3350,7 @@ const Notas = (() => {
       const e = b.dataset.ed;
       try {
         if (e === "definitivo") {
-          const abiertos = deDoc(ambito, docAct).filter(n => !n.respuesta_a && !n.resuelto_por);
+          const abiertos = deDoc(ambito, docAct).filter(abiertoN);
           if (abiertos.length && !b.dataset.seguro) { b.dataset.seguro = 1; b.textContent = "¿Visto bueno a " + abiertos.length + " y definitivo?"; setTimeout(() => { if (b.isConnected) { delete b.dataset.seguro; b.textContent = "Definitivo"; } }, 4500); return; }
           for (const n of abiertos) await cambia(n, {resuelto_por: autor()});
         }
@@ -3302,6 +3383,7 @@ const Notas = (() => {
 
   /* ---------- lista (panel de láminas y memorias, y bloque de mediciones) */
   function etiqueta(n) {
+    if (soloImagen(n)) return "";
     const e = estadoN(n);
     if (e === "pendiente") return '<span class="est est-p">Pendiente</span> ';
     if (e === "curso") return '<span class="est est-c">En revisión · ' + escH(n.encargado) + "</span> ";
@@ -3309,6 +3391,7 @@ const Notas = (() => {
     return "";
   }
   function acciones(n) {
+    if (soloImagen(n)) return '<button class="lnk" data-resp>Responder</button>';
     const e = estadoN(n), L = (k_, t, tit) => '<button class="lnk" data-st="' + k_ + '"' + (tit ? ' title="' + tit + '"' : "") + ">" + t + "</button> ";
     const claude = ambito === "capturas" || e === "ok" ? "" : '<button class="lnk" data-pc>' + (n.para_claude ? "Quitar de Claude" : "Mandar a Claude") + "</button>";
     if (e === "ok") return '<span class="nota">Visto bueno de ' + escH(n.resuelto_por) + (n.resuelto_en ? " · " + fecha(n.resuelto_en) : "") + (n.corregido_por ? " · corrigió " + escH(n.corregido_por) : "") + "</span> " + L("reabrir", "Reabrir");
@@ -3320,10 +3403,11 @@ const Notas = (() => {
   function htmlLista(lst, conCompositor) {
     const raiz = lst.filter(n => !n.respuesta_a), resp = id => lst.filter(n => n.respuesta_a === id), num = numeros(lst);
     const uno = (n, sub) => '<div class="nota-i' + (sub ? " resp" : "") + (n.id === focoId ? " foco" : "") + '" data-id="' + n.id + '" style="--c:' + colorDe(n.autor) + '">' +
-      '<div class="txt">' + (sub ? "" : etiqueta(n)) + (n.para_claude && !n.resuelto_por ? '<span class="pc">A Claude</span> ' : "") + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.pagina && ambito !== "capturas" ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
+      '<div class="txt">' + (sub ? "" : etiqueta(n)) + (n.para_claude && !n.resuelto_por ? '<span class="pc">A Claude</span> ' : "") + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.imagen ? '<img class="mini" src="' + escH(n.url || urlCap(n.imagen)) + '" data-ver="' + n.pagina + '" alt="Imagen ' + n.pagina + '">' : "") + (n.pagina > 1 && ambito === "capturas" && !n.imagen ? '<span class="pg-ref">imagen ' + n.pagina + "</span> " : "") + (n.pagina && ambito !== "capturas" ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
       '<div class="meta"><b>' + escH(n.autor) + "</b><br>" + fecha(n.creado) + (mia(n) ? '<br><button class="lnk" data-borrar>Borrar</button>' : "") + "</div>" +
       (sub ? "" : '<div class="acc">' + acciones(n) + "</div>") + "</div>" +
       (sub ? "" : resp(n.id).map(r => uno(r, true)).join(""));
+    if (ambito === "capturas") return raiz.map(n => uno(n)).join("") || '<p class="nota">Sin comentarios todavía.</p>';   /* una conversación: en orden */
     const abiertas = raiz.filter(n => !n.resuelto_por), hechas = raiz.filter(n => n.resuelto_por);
     let h = abiertas.map(n => uno(n)).join("") || '<p class="nota">Sin comentarios todavía.</p>';
     if (hechas.length) h += '<details class="hechas"><summary>Resueltos con visto bueno (' + hechas.length + ")</summary>" + hechas.map(n => uno(n)).join("") + "</details>";
@@ -3385,7 +3469,7 @@ const Notas = (() => {
         const w = document.createElement("div"); w.innerHTML = compositor("compResp", "Respuesta…"); const c = w.firstChild; c.classList.add("resp"); c.dataset.resp = n.id;
         d.after(c); engancha({querySelector: () => c, querySelectorAll: () => []}, amb, doc); pend = sv; c.querySelector("textarea").focus();
       };
-      d.onclick = () => { focoId = n.id; if (n.pagina) irA(n); pinta(); };
+      d.onclick = () => { focoId = n.id; if (ambito === "capturas" && n.pagina && n.pagina !== Docs.verActual()) { Docs.verVersion(n.pagina); return; } if (n.pagina) irA(n); pinta(); };
     });
   }
 
@@ -3520,6 +3604,7 @@ const Notas = (() => {
     const cerrada = ambito === "capturas" && $("secNotas").classList.contains("cerrada");
     el.classList.toggle("chat", cerrada);
     pintaEstado();
+    if (ambito === "capturas") Docs.tiraVersiones();
     if (cerrada) { pend = null; if (herr !== "ver") herramienta("ver"); el.innerHTML = htmlLista(deDoc(ambito, docAct)).replace('<p class="nota">Sin comentarios todavía.</p>', "").replace(/<details class="hechas">/, '<details class="hechas" open>'); engancha(el, ambito, docAct); for (const n of paginas.keys()) marcas(n); cuentas(); return; }
     el.innerHTML = htmlLista(deDoc(ambito, docAct)) + compositor("compDoc", pend ? "Comentario…" : ambito === "capturas" ? "Qué hay que cambiar: escribe aquí y marca encima de la imagen con las herramientas de arriba…" : "Comentario general del documento, o marca algo en la página con las herramientas de arriba…");
     engancha(el, ambito, docAct);
@@ -3530,7 +3615,7 @@ const Notas = (() => {
   function cuentas() {
     // cuántos comentarios abiertos tiene cada documento, en la lista de la izquierda del panel
     document.querySelectorAll("#listaDocs button[data-arch]").forEach(b => {
-      const k = deDoc(ambito, b.dataset.arch).filter(n => !n.respuesta_a && !n.resuelto_por).length;
+      const k = deDoc(ambito, b.dataset.arch).filter(abiertoN).length;
       const E = estadoDoc(ambito, b.dataset.arch, ambito === "capturas" ? null : b.dataset.ver, !!b.dataset.def);
       let t = b.querySelector(".estl");
       if (!E.e || ambito === "capturas") { if (t) t.remove(); }
@@ -3561,7 +3646,7 @@ const Notas = (() => {
     try { history.replaceState(null, "", location.pathname + (q ? q + "&" : "?") + "admin=" + k + location.hash); } catch (e) { return; }
     toast("Listo para guardar como app en modo admin: en el iPad, Compartir › Añadir a pantalla de inicio; en el Mac, Archivo › Añadir al Dock. No compartas esta dirección.", 9000);
   };
-  return {enDoc, enDatos, pagina, herramienta, capturas, subirCaptura, borrarCaptura, marcarCaptura, resolverCaptura};
+  return {enDoc, enDatos, pagina, herramienta, capturas, subirCaptura, subirImagenTema, imagenesDe, ponTema, borrarCaptura, marcarCaptura, resolverCaptura};
 })();
 
 /* ============================================================ interfaz */
@@ -3704,18 +3789,47 @@ $("btnCaptura").onclick = async () => {
     const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.88));
     const so = $("selCam").selectedOptions[0], mo = $("selModelo").selectedOptions[0];
     const vista = S.modo === "3d" ? "3D · " + (so ? so.textContent : "") + (mo ? " · " + mo.textContent : "") : "2D · " + ((S.proyecto && S.proyecto.plano && S.proyecto.plano.doc) || "plano");
+    const camara = S.modo === "3d" ? Object.assign(V3.camara(), {m: $("selModelo").value, pr: S.proyecto ? S.proyecto.id : null}) : null;
+    const dest = await elegirDestino(1); if (!dest) return;
     toast("Subiendo la captura…", 8000);
-    const f = await Notas.subirCaptura(blob, {vista, ancho: c.width, alto: c.height, dataURL: c.toDataURL("image/jpeg", 0.6)});
+    const f = await subirImagen(blob, {vista, ancho: c.width, alto: c.height, dataURL: c.toDataURL("image/jpeg", 0.6), camara}, dest);
     ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + ".capturas", f.id);
-    modo("cap"); toast("Captura guardada: marca encima con las herramientas de «Comentarios» y escribe", 4000);
+    if (S.modo === "cap") Docs.abrir("capturas"); else modo("cap"); toast("Captura guardada: marca encima con las herramientas de «Comentarios» y escribe", 4000);
   } catch (e) { toast(e.message || String(e), 5000); }
   finally { b.disabled = false; }
 };
+// ¿dónde va una imagen nueva? a un tema nuevo o a la conversación de uno abierto
+async function elegirDestino(n) {
+  const L = ((await Notas.capturas()) || []).filter(c => !c.resuelta_por);
+  const act = S.modo === "cap" ? Docs.actualDoc() : null;
+  return new Promise(ok => {
+    const fondo = document.createElement("div"); fondo.className = "destino";
+    fondo.innerHTML = '<div role="dialog" aria-label="Dónde va la imagen"><h3>' + (n > 1 ? n + " imágenes" : "Imagen") + '</h3>' +
+      '<input class="filtro" data-tema placeholder="Tema nuevo (p. ej. Aerotermia y tubos a cubierta)" maxlength="120">' +
+      '<button class="btn rojo" data-nuevo>Tema nuevo</button>' +
+      (L.length ? '<p class="nota">o añádela a la conversación de:</p><div class="lst">' + L.slice(0, 8).map(c => '<button class="btn' + (act && act.archivo === c.archivo ? " on" : "") + '" data-a="' + c.archivo + '">' + escH(c.titulo) + "</button>").join("") + "</div>" : "") +
+      '<button class="lnk" data-no>Cancelar</button></div>';
+    const fin = v => { fondo.remove(); removeEventListener("keydown", esc_); ok(v); };
+    const esc_ = e => { if (e.key === "Escape") fin(null); };
+    addEventListener("keydown", esc_);
+    fondo.onclick = e => { if (e.target === fondo) fin(null); };
+    fondo.querySelector("[data-no]").onclick = () => fin(null);
+    fondo.querySelector("[data-nuevo]").onclick = () => fin({nuevo: true, tema: fondo.querySelector("[data-tema]").value.trim().slice(0, 120)});
+    fondo.querySelector("[data-tema]").onkeydown = e => { if (e.key === "Enter") fondo.querySelector("[data-nuevo]").click(); };
+    fondo.querySelectorAll("[data-a]").forEach(b => b.onclick = () => fin({a: b.dataset.a}));
+    document.body.appendChild(fondo); fondo.querySelector("[data-tema]").focus();
+  });
+}
+async function subirImagen(blob, meta, dest) {
+  if (dest.a) { await Notas.subirImagenTema(dest.a, blob, meta); return {id: dest.a}; }
+  return Notas.subirCaptura(blob, Object.assign({}, meta, {tema: dest.tema || null}));
+}
 // importar imágenes (pantallazos de Vectorworks, fotos…): se suben como capturas
 async function importarImagenes(files) {
   const L = [...files].filter(f => /^image\//.test(f.type) || /\.(jpe?g|png|heic|heif|webp|gif|tiff?)$/i.test(f.name || ""));
   if (!L.length) { toast("Eso no es una imagen"); return; }
   let ult = null, n = 0;
+  const dest = await elegirDestino(L.length); if (!dest) return;
   for (const f of L) {
     try {
       toast("Subiendo " + (L.length > 1 ? (n + 1) + " de " + L.length + "…" : "la imagen…"), 8000);
@@ -3726,7 +3840,7 @@ async function importarImagenes(files) {
       const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
       const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.88));
       const nom = (f.name || "").replace(/\.[^.]+$/, "").trim(), vista = "Importada" + (nom && !/^image$/i.test(nom) ? " · " + nom.slice(0, 120) : "");
-      ult = await Notas.subirCaptura(blob, {vista, ancho: c.width, alto: c.height, dataURL: c.toDataURL("image/jpeg", 0.6)}); n++;
+      ult = await subirImagen(blob, {vista, ancho: c.width, alto: c.height, dataURL: c.toDataURL("image/jpeg", 0.6)}, dest); n++;
     } catch (e) { toast(e.message || String(e), 5000); }
   }
   if (!ult) return;
@@ -3753,6 +3867,8 @@ addEventListener("paste", e => {
 $("btnRefrescar").onclick = () => { try { const u = new URL(location.href); u.searchParams.set("v", Date.now().toString(36)); location.replace(u.toString()); } catch (e) { location.reload(); } };
 if (/[?&]v=/.test(location.search)) try { history.replaceState(null, "", location.pathname + location.search.replace(/[?&]v=[^&]*/, "").replace(/^&/, "?") + location.hash); } catch (e) { /* vista previa */ }
 (async function inicio() {
+  const mcU = location.search.match(/[?&]camara=([^&]+)/);
+  if (mcU) try { S.camaraUrl = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(mcU[1]).replace(/-/g, "+").replace(/_/g, "/"))))); document.body.classList.add("pantallazo"); } catch (e) { S.camaraUrl = null; }
   const est = ls("visor.estilo"); if (est) { const b = document.querySelector('[data-estilo="' + est + '"]'); if (b) b.click(); }
   await cargarPublicado();
   if (Object.keys(S.proyectos).length) rellenarProyectos(); else $("vacio").hidden = false;
