@@ -1,7 +1,7 @@
 {
  "formato": "arrova-laminas",
  "proyecto": "lodosa",
- "fecha": "2026-10-23 22:49",
+ "fecha": "2026-10-23 22:52",
  "doc": "basico op3.vwx",
  "hojas": [
   {
@@ -30,7 +30,7 @@
   },
   {
    "n": "LO-E1",
-   "titulo": "Estructura"
+   "titulo": "Estructura 1"
   },
   {
    "n": "LO-F1",
@@ -153,23 +153,31 @@
    "titulo": "Propuesta V12 · puerta de la aerotermia"
   },
   {
-   "n": "LO-E2",
+   "n": "X-LO-E2 ingeniero",
    "titulo": ""
+  },
+  {
+   "n": "X-LO-E3 ingeniero",
+   "titulo": ""
+  },
+  {
+   "n": "X-LO-E4 ingeniero",
+   "titulo": ""
+  },
+  {
+   "n": "LO-E2",
+   "titulo": "Estructura 2"
   },
   {
    "n": "LO-E3",
-   "titulo": ""
-  },
-  {
-   "n": "LO-E4",
-   "titulo": ""
+   "titulo": "Detalles de estructura"
   }
  ],
  "pdfs": [
   {
    "archivo": "laminas/basico op3.pdf",
    "titulo": "Juego completo de láminas",
-   "nota": "27 páginas · 23-10-2026 22:49"
+   "nota": "27 páginas · 23-10-2026 22:52"
   }
  ]
 }
