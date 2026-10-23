@@ -3095,7 +3095,10 @@ const Docs = (() => {
       await pinta();
     } catch (e) { pag.innerHTML = '<div class="vacio-doc"><b>No se puede mostrar aquí</b>' + escH(e.message) + '<br><a href="' + url + '" target="_blank" rel="noopener">Abrir el PDF</a></div>'; }
   }
+  let genPinta = 0;
   async function pinta() {
+    // si se vuelve a pintar mientras tanto (al abrir llegan dos avisos seguidos), solo vale la última: las páginas no se repiten
+    const g = ++genPinta;
     const pag = $("docsPag"); pag.innerHTML = "";
     if (obs) obs.disconnect();
     // ancho útil: el del visor de documentos menos sus márgenes (la barra de desplazamiento ya está siempre puesta: no lo cambia al aparecer)
@@ -3103,6 +3106,7 @@ const Docs = (() => {
     obs = new IntersectionObserver(es => { for (const e of es) if (e.isIntersecting && !e.target.dataset.hecho) { e.target.dataset.hecho = 1; dibuja(e.target); } }, {root: $("docs"), rootMargin: "600px"});
     for (let n = 1; n <= pdf.numPages; n++) {
       const p = await pdf.getPage(n), v = p.getViewport({scale: 1});
+      if (g !== genPinta) return;
       const esc_ = z ? z : Math.min(ancho / v.width, 3);
       const px = Math.min(esc_ * dpr, Math.sqrt(16e6 / (v.width * v.height)));   // tope de iOS para un canvas
       const c = document.createElement("canvas"); c.width = Math.round(v.width * px); c.height = Math.round(v.height * px);
