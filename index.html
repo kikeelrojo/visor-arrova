@@ -206,6 +206,11 @@ h3 .adm{color:#7b1d2c}
 .ldocs button .estl.rev{color:var(--warn)}.ldocs button .estl.def{color:var(--ink)}
 details.resueltas{margin-top:8px}details.resueltas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-weight:700}
 details.resueltas button{opacity:.75}details.resueltas button.on{opacity:1}
+.bloque-img{padding:4px 0 6px 10px;border-left:2px solid transparent}
+.bloque-img+.bloque-img{margin-top:6px;background-image:radial-gradient(circle,var(--ink) 0.55px,transparent 0.75px);background-size:4px 3px;background-repeat:repeat-x;background-position:10px 0;padding-top:10px}
+.bloque-img.on{border-left-color:var(--ink)}
+.cab-img{display:flex;align-items:center;gap:8px;font-size:var(--s-xs);cursor:pointer;margin:0 0 4px}
+.cab-img img{width:60px;height:42px;object-fit:cover;border:0.5px solid var(--ink);flex:0 0 auto}
 .notas.chat .nota-i{padding:3px 0;border:0;background:none}.notas.chat .nota-i .acc,.notas.chat .nota-i [data-borrar]{display:none}
 .notas.chat .nota-i .txt{font-size:var(--s-xs)}.notas.chat .nota-i .meta{font-size:calc(var(--s-xs) * .92)}
 #secNotas.cerrada #notasHerr,#secNotas.cerrada #notasEstilo{display:none!important}
@@ -3108,7 +3113,7 @@ const Docs = (() => {
       const pcb = $("btnParaClaude"); $("secClaude").hidden = false;
       const pon = () => { pcb.setAttribute("aria-pressed", !!d.para_claude); pcb.textContent = d.para_claude ? "Mandada a Claude ✓" : "Mandar a Claude"; pcb.title = d.para_claude ? "Pulsa para quitarla de lo pendiente de Claude" : "Le llega a Claude la captura con todas sus marcas y comentarios"; };
       pon(); d.alMandar = () => { d.para_claude = true; pon(); };
-      const estado = () => { pcb.hidden = !!d.resuelta_por; $("notaClaude").textContent = d.resuelta_por ? "Definitiva: queda agrupada con sus comentarios y se archivará en un PDF en la carpeta del proyecto." : "Le llega la imagen con todas sus marcas y comentarios. Al publicar un comentario en una captura se manda sola."; $("secNotas").classList.toggle("cerrada", !!d.resuelta_por); };
+      const estado = () => { pcb.hidden = !!d.resuelta_por; $("notaClaude").textContent = d.resuelta_por ? "Definitiva: queda agrupada con sus comentarios y se archivará en un PDF en la carpeta del proyecto." : "Le llega a Claude al publicar lo que dibujes y/o escribas (con todas sus imágenes y marcas). Una imagen nueva sola no se manda."; $("secNotas").classList.toggle("cerrada", !!d.resuelta_por); };
       estado();
       pcb.onclick = async () => { const si = !d.para_claude; try { await Notas.marcarCaptura(d.archivo, si); d.para_claude = si; pon(); toast(si ? "Mandada a Claude" : "Quitada de lo pendiente de Claude", 3500); } catch (e) { toast(e.message, 4000); } };
       $("btnBorrarCap").onclick = async () => {
@@ -3194,7 +3199,7 @@ const Docs = (() => {
     const im = new Image(); im.src = d.url; im.alt = d.titulo || "Captura"; im.width = Math.floor(d.ancho * esc_); im.height = Math.floor(d.alto * esc_);
     im.style.display = "block"; im.style.boxShadow = "0 0 0 0.5px var(--ink)"; im.draggable = false;
     w.appendChild(im); pag.appendChild(w);
-    Notas.pagina(w, verAct, d.ancho, d.alto, esc_);
+    Notas.pagina(w, verAct, d.ancho, d.alto, esc_); Notas.marcaBloque(verAct);
   }
   function dibuja(c) { const v = c._p.getViewport({scale: c._esc}); c._p.render({canvasContext: c.getContext("2d"), viewport: v}); }
   function zoom(f) {
@@ -3353,9 +3358,7 @@ const Notas = (() => {
     const k = imagenesDe(doc).length + 2;
     const f = {ambito: "capturas", doc, texto: meta.texto || "", imagen: archivo, img_w: meta.ancho, img_h: meta.alto, pagina: k};
     if (cfg.local) f.datos = meta.dataURL;
-    const n = await crear(f);
-    try { await marcarCaptura(doc, true); } catch (e) { /* sin Claude */ }
-    return n;
+    return crear(f);           /* Enrique 24-oct: no se manda sola; se manda al publicar el comentario (con lo dibujado encima) */
   }
   async function ponTema(id, t) {
     if (cfg.local) { const L = ls(LKEY + ".cap") || [], x = L.find(c => c.id === id); if (x) x.tema = t; ls(LKEY + ".cap", L); return; }
@@ -3476,15 +3479,35 @@ const Notas = (() => {
   function htmlLista(lst, conCompositor) {
     const raiz = lst.filter(n => !n.respuesta_a), resp = id => lst.filter(n => n.respuesta_a === id), num = numeros(lst);
     const uno = (n, sub) => '<div class="nota-i' + (sub ? " resp" : "") + (n.id === focoId ? " foco" : "") + '" data-id="' + n.id + '" style="--c:' + colorDe(n.autor) + '">' +
-      '<div class="txt">' + (sub ? "" : etiqueta(n)) + (n.para_claude && !n.resuelto_por ? '<span class="pc">A Claude</span> ' : "") + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.imagen ? '<img class="mini" src="' + escH(n.url || urlCap(n.imagen)) + '" data-ver="' + n.pagina + '" alt="Imagen ' + n.pagina + '">' : "") + (n.pagina > 1 && ambito === "capturas" && !n.imagen ? '<span class="pg-ref">imagen ' + n.pagina + "</span> " : "") + (n.pagina && ambito !== "capturas" ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
+      '<div class="txt">' + (sub ? "" : etiqueta(n)) + (n.para_claude && !n.resuelto_por ? '<span class="pc">A Claude</span> ' : "") + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.imagen && ambito !== "capturas" ? '<img class="mini" src="' + escH(n.url || urlCap(n.imagen)) + '" data-ver="' + n.pagina + '" alt="Imagen ' + n.pagina + '">' : "") + (n.pagina && ambito !== "capturas" ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
       '<div class="meta"><b>' + escH(n.autor) + "</b><br>" + fecha(n.creado) + (n.editado_en ? '<br><span class="editado" title="Editado el ' + fecha(n.editado_en) + '">editado</span>' : "") + (mia(n) ? '<br><button class="lnk" data-editar>Editar</button> <button class="lnk" data-borrar>Borrar</button>' : "") + "</div>" +
       (sub ? (ambito !== "capturas" && !(lst.find(x => x.id === n.respuesta_a) || {}).resuelto_por ? '<div class="acc"><button class="lnk" data-resp>Responder</button></div>' : "") : '<div class="acc">' + acciones(n) + "</div>") + "</div>" +
       (sub ? "" : resp(n.id).map(r => uno(r, true)).join(""));
-    if (ambito === "capturas") return raiz.map(n => uno(n)).join("") || '<p class="nota">Sin comentarios todavía.</p>';   /* una conversación: en orden */
+    if (ambito === "capturas") return bloquesChat(raiz, uno);   /* una conversación: en orden, por imágenes */
     const abiertas = raiz.filter(n => !n.resuelto_por), hechas = raiz.filter(n => n.resuelto_por);
     let h = abiertas.map(n => uno(n)).join("") || '<p class="nota">Sin comentarios todavía.</p>';
     if (hechas.length) h += '<details class="hechas"><summary>Resueltos con visto bueno (' + hechas.length + ")</summary>" + hechas.map(n => uno(n)).join("") + "</details>";
     return h;
+  }
+  // Enrique 24-oct: que se vea qué parte del chat va con cada imagen. Cada imagen abre un bloque y lo que se escribe
+  // después va con ella; si algo se dibujó o escribió sobre otra imagen, lo dice. El bloque de la imagen a la vista, marcado.
+  function bloquesChat(raiz, uno) {
+    const d = Docs.actualDoc(), va = Docs.verActual() || 1;
+    const cab = (k, n, url) => '<div class="cab-img" data-k="' + k + '" title="Ver esta imagen">' + (url ? '<img src="' + escH(url) + '" alt="">' : "") + "<span><b>Imagen " + k + "</b>" + (n ? " · " + escH(n) : "") + "</span></div>";
+    const bloques = [{k: 1, cab: cab(1, d ? String(d.nota || d.autor || "").replace(/ · mandada a Claude$/, "") : "", d && d.url), items: []}];
+    for (const n of raiz) {
+      if (n.imagen) { const k = bloques.length + 1; bloques.push({k, cab: cab(k, (n.autor || "") + " · " + fecha(n.creado), n.url || urlCap(n.imagen)), items: []}); }
+      const b = bloques[bloques.length - 1];
+      if (n.imagen && !String(n.texto || "").trim() && !mia(n)) continue;     // la imagen sola ya está en la cabecera del bloque
+      let h = uno(n);
+      if (!n.imagen && n.pagina && n.pagina !== b.k) h = h.replace('<div class="txt">', '<div class="txt"><span class="pg-ref otra">sobre la imagen ' + n.pagina + "</span> ");
+      b.items.push(h);
+    }
+    return bloques.map(b => '<div class="bloque-img' + (b.k === va ? " on" : "") + '" data-k="' + b.k + '">' + b.cab + (b.items.join("") || (b.k === 1 ? '<p class="nota">Sin comentarios todavía.</p>' : "")) + "</div>").join("");
+  }
+  function marcaBloque(k) {
+    const el = $("notasDoc"); if (!el) return;
+    el.querySelectorAll(".bloque-img").forEach(b => b.classList.toggle("on", +b.dataset.k === k));
   }
   function compositor(id, texto) {
     const a = autor();
@@ -3506,17 +3529,19 @@ const Notas = (() => {
         const pcn = comp.querySelector("[data-pcn]"); if (pcn && pcn.checked) f.para_claude = true;
         if (comp.dataset.resp) f.respuesta_a = comp.dataset.resp;
         if (pend && !comp.dataset.resp) { f.pagina = pend.pagina; f.dibujo = pend.dibujo; }
+        else if (amb === "capturas" && Docs.verActual()) f.pagina = Docs.verActual();
         if (amb === "capturas") delete f.para_claude;       /* en capturas lo que se manda es la captura entera */
         try {
           const n = await crear(f); if (!comp.dataset.resp) pend = null; focoId = n.id;
           /* una respuesta mandada a Claude reabre el hilo para Claude (lo que vigila es el comentario principal) */
           if (f.respuesta_a && f.para_claude) { const raiz = (cache || []).find(x => x.id === f.respuesta_a); if (raiz && !raiz.para_claude) try { await marcar(raiz, true); } catch (e) {} }
           pinta();
-          if (amb === "capturas" && doc) { const d = Docs.actualDoc(); if (d && d.archivo === doc && !d.para_claude) { await marcarCaptura(doc, true); d.alMandar && d.alMandar(); toast("Comentario publicado y captura mandada a Claude", 3000); } }
+          if (amb === "capturas" && doc) { const d = Docs.actualDoc(); if (d && d.archivo === doc && !d.resuelta_por) { await marcarCaptura(doc, true); d.alMandar && d.alMandar(); toast("Publicado y mandado a Claude", 3000); } }
         } catch (e) { toast(e.message, 4000); }
       };
       if (pend && pend.dibujo.t !== "trazos") setTimeout(() => comp.querySelector("textarea").focus(), 0);   /* al dibujar no se abre el teclado del iPad */
     }
+    el.querySelectorAll(".cab-img").forEach(c => c.onclick = () => Docs.verVersion(+c.dataset.k));
     el.querySelectorAll(".nota-i").forEach(d => {
       const n = (cache || []).find(x => x.id === d.dataset.id); if (!n) return;
       d.querySelectorAll("[data-st]").forEach(b => b.onclick = async e => {
@@ -3738,7 +3763,7 @@ const Notas = (() => {
     try { history.replaceState(null, "", location.pathname + (q ? q + "&" : "?") + "admin=" + k + location.hash); } catch (e) { return; }
     toast("Listo para guardar como app en modo admin: en el iPad, Compartir › Añadir a pantalla de inicio; en el Mac, Archivo › Añadir al Dock. No compartas esta dirección.", 9000);
   };
-  return {enDoc, enDatos, pagina, herramienta, capturas, subirCaptura, subirImagenTema, imagenesDe, ponTema, borrarCaptura, marcarCaptura, resolverCaptura};
+  return {enDoc, enDatos, pagina, marcaBloque, herramienta, capturas, subirCaptura, subirImagenTema, imagenesDe, ponTema, borrarCaptura, marcarCaptura, resolverCaptura};
 })();
 
 /* ============================================================ interfaz */
@@ -3889,7 +3914,7 @@ $("btnCaptura").onclick = async () => {
     toast("Subiendo la captura…", 8000);
     const f = await subirImagen(blob, {vista, ancho: c.width, alto: c.height, dataURL: c.toDataURL("image/jpeg", 0.6), camara}, dest);
     ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + ".capturas", f.id);
-    if (S.modo === "cap") Docs.abrir("capturas"); else modo("cap"); toast("Captura guardada: marca encima con las herramientas de «Comentarios» y escribe", 4000);
+    if (S.modo === "cap") Docs.abrir("capturas"); else modo("cap"); toast("Captura guardada. Dibuja encima y/o escribe: le llega a Claude al publicar", 5000);
   } catch (e) { toast(e.message || String(e), 5000); }
   finally { b.disabled = false; }
 };
