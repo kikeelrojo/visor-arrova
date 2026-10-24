@@ -1,6 +1,6 @@
 ~V|ARROVA|FIEBDC-3/2016|Claude|\|ANSI||||||
 ~K|\2\2\3\2\2\2\2\EUR\|0|
-~C|LODOSA##||VIVIENDA UNIFAMILIAR EN LODOSA · C. ANCHA 34|394401.67|24102026|0|
+~C|LODOSA##||VIVIENDA UNIFAMILIAR EN LODOSA · C. ANCHA 34|399862.28|24102026|0|
 ~D|LODOSA##|D#\1\1\ON#\1\1\|
 ~C|D#||DERRIBO|21339.28|24102026|0|
 ~D|D#|D01#\1\1\D02#\1\1\D03#\1\1\D04#\1\1\|
@@ -81,7 +81,7 @@
 ~C|D04.05|ud|HIGIENE, BOTIQUÍN Y FORMACIÓN|178.00|24102026|0|
 ~T|D04.05|Instalaciones de higiene (aseo químico o local habilitado), botiquín y formación e información de los trabajadores. Según el Estudio Básico de Seguridad y Salud del Proyecto de Derribo (anexo 4).|
 ~M|D04#\D04.05||1|\Partida alzada\1\\\\|
-~C|ON#||OBRA NUEVA|373062.39|24102026|0|
+~C|ON#||OBRA NUEVA|378523.00|24102026|0|
 ~D|ON#|01#\1\1\02#\1\1\03#\1\1\04#\1\1\05#\1\1\06#\1\1\07#\1\1\08#\1\1\09#\1\1\10#\1\1\11#\1\1\12#\1\1\13#\1\1\14#\1\1\15#\1\1\16#\1\1\18#\1\1\19#\1\1\20#\1\1\|
 ~C|01#||CONSIDERACIONES PREVIAS|1530.90|24102026|0|
 ~D|01#|01.01\1\1\01.02\1\1\01.03\1\1\01.04\1\1\01.05\1\1\01.06\1\1\|
@@ -148,10 +148,10 @@
 ~C|04.07|m|CONDUCTO DE VENTILACIÓN DE LA CÁMARA A CUBIERTA Ø160 MM|26.00|24102026|0|
 ~T|04.07|Conducto de PVC Ø160 mm desde la cámara del forjado sanitario hasta cubierta, con remate y sombrerete, para la ventilación permanente de la cámara (protección frente al radón y la humedad).|
 ~M|04#\04.07||12|\Conducto a cubierta\1\12\\\|
-~C|05#||CIMENTACIÓN Y ESTRUCTURA|81127.25|24102026|0|
+~C|05#||CIMENTACIÓN Y ESTRUCTURA|86385.23|24102026|0|
 ~D|05#|05.01#\1\1\05.02#\1\1\|
-~C|05.01#||CIMENTACIÓN Y FORJADO SANITARIO|18548.05|24102026|0|
-~D|05.01#|05.01.01\1\5.65\05.01.02\1\26.57\05.01.03\1\13.34\05.01.04\1\111\05.01.05\1\109.44\|
+~C|05.01#||CIMENTACIÓN Y FORJADO SANITARIO|23806.03|24102026|0|
+~D|05.01#|05.01.01\1\5.65\05.01.02\1\26.57\05.01.03\1\27.71\05.01.04\1\111\05.01.05\1\109.44\|
 ~C|05.02#||ESTRUCTURA|62579.20|24102026|0|
 ~D|05.02#|05.02.01\1\244.03\05.02.02\1\19.17\05.02.03\1\1842\05.02.04\1\217.99\05.02.05\1\30\05.02.06\1\4.4\05.02.07\1\82.06\05.02.08\1\36\05.02.09\1\49.52\05.02.10\1\473\05.02.11\1\11.06\|
 ~C|05.01.01|m3|HORMIGÓN DE LIMPIEZA HM-20 BAJO ZAPATAS|98.00|24102026|0|
@@ -162,7 +162,7 @@
 ~M|05.01#\05.01.02||26.57|\Medición del IFC (lodosa_bim_20261024-0000.ifc): zapatas corridas 20,71 m³ (ZC-1 80×50 excéntricas en medianeras, ZC-2 70×40, trazadas bajo los muros con zócalo) + aisladas 2,35 m³ + vigas de atado 3,51 m³\1\26.57\\\|
 ~C|05.01.03|m3|ZÓCALO DE HORMIGÓN ARMADO HA-25 DE 0,90 M|365.90|24102026|0|
 ~T|05.01.03|Muro de zócalo de hormigón armado HA-25 de 0,90 m de altura en el arranque de todos los muros de planta baja (en los tramos con trasdosado ocupa todo el espesor), encofrado a dos caras, armado y vibrado, con barrera impermeable en su coronación; según el proyecto de estructuras.|
-~M|05.01#\05.01.03||13.34|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\13.34\\\|
+~M|05.01#\05.01.03||27.71|\Zócalo, medición del modelo BIM de Vectorworks (14-oct-2026)\1\13.34\\\\Muros de hormigón bajo rasante (MC) hasta la cimentación, BIM (24-oct-2026)\1\14.37\\\|
 ~C|05.01.04|m2|SOLERA DE HORMIGÓN HM-20 DE 11,5 CM BAJO CUPOLEX|14.50|24102026|0|
 ~T|05.01.04|Solera de hormigón HM-20 de 11,5 cm de espesor sobre el encachado y la lámina de polietileno, como base de apoyo de las piezas Cupolex.|
 ~M|05.01#\05.01.04||111|\Planta baja\1\111\\\|
@@ -350,11 +350,11 @@
 ~C|10.09|m2|MORTERO DE PROTECCIÓN DE 4 CM SOBRE LA LÁMINA (PATIO, PORCHE, TERRAZA Y CUBIERTA PLANA)|15.00|24102026|0|
 ~T|10.09|Mortero de protección de 4 cm armado con malla, sobre la lámina impermeable de los forjados exteriores (patio y porche, terraza de planta segunda y cubierta plana), como base del microcemento exterior, con juntas de dilatación y junta perimetral.|
 ~M|10#\10.09||70.01|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\70.01\\\|
-~C|11#||REVESTIMIENTOS|28576.34|24102026|0|
-~D|11#|11.01\1\310.64\11.02\1\950.13\11.03\1\88.02\11.04\1\8.4\|
+~C|11#||REVESTIMIENTOS|28737.74|24102026|0|
+~D|11#|11.01\1\316.1\11.02\1\950.13\11.03\1\88.02\11.04\1\8.4\|
 ~C|11.01|m²|REVOCO DE CAL / MONOCAPA EN FACHADAS Y PATIOS|29.56|24102026|0|
 ~T|11.01|Revestimiento exterior de mortero de cal (o monocapa, a elegir por la dirección facultativa), en espesores de 10–15 mm, con malla de fibra de vidrio en encuentros y frentes de forjado y juntas de trabajo, acabado según muestra.|
-~M|11#\11.01||310.64|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\310.64\\\|
+~M|11#\11.01||316.10|\Medición del IFC de Vectorworks, opción 3 de cubiertas (24-oct-2026)\1\316.10\\\|
 ~C|11.02|m2|GUARNECIDO Y ENLUCIDO DE YESO EN PAREDES Y TECHOS|14.00|24102026|0|
 ~T|11.02|Guarnecido maestreado y enlucido de yeso de 15 mm en paredes y techos interiores, con guardavivos y malla en encuentros de materiales.|
 ~M|11#\11.02||950.13|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\950.13\\\|
@@ -448,14 +448,14 @@
 ~C|14.06|ud|CELOSÍA DE TRAMEX GALVANIZADO DEL FALDÓN VENTILADO · 2,77 × 1,80, FIJO + PUERTA DE 0,80|1450.00|24102026|0|
 ~T|14.06|Celosía de rejilla electrosoldada (tramex) de acero galvanizado en caliente, malla 33 × 100 mm con pletina portante de 30 × 3 mm, en un paño fijo de ~ 1,85 m y una puerta abatible de 0,80 m del mismo material, con bastidor de pletina, bisagras soldadas y cerradura de llave; marco perimetral de angular L 40.40.4 galvanizado anclado al piñón, al muro y a la cubierta plana (sobre la protección de la lámina, sin perforarla) con tacos químicos y sellado. 2,77 × 1,80 m. Cierra el frente del faldón ventilado de C. del Peso, donde van la unidad exterior de la aerotermia y un almacenaje. Según la ficha de carpintería LO-G.|
 ~M|14#\14.06||0|\Opción 3 de cubiertas (IFC, 21-oct): no hay faldón ventilado ni celosía\0\\\\|
-~C|15#||PINTURA|8961.34|24102026|0|
-~D|15#|15.01\1\1038.62\15.02\1\310.64\|
+~C|15#||PINTURA|9002.57|24102026|0|
+~D|15#|15.01\1\1038.62\15.02\1\316.1\|
 ~C|15.01|m2|PINTURA PLÁSTICA LISA EN PAREDES Y TECHOS|6.37|24102026|0|
 ~T|15.01|M2 de emplastecido, lijado de plastes, y dos manos de pintura plástica lisa blanca o pigmentada sobre paredes. Tipo acrílica lavable, acabado mate-seda. La pintura debe ser de calidad extra, superior, y debe aguantar sin alteraciones lavados con agua y lejía (desinfección y esterilización de zonas); La d.F. Exigirá prueba con resultado satisfactorio antes de la aplicación general a todas las zonas. Se incluye en el precio el pintado/lacado por separado de aparatos de todo tipo que tengan un color distinto al del paramento a cubrir, tal como difusores, rejillas, detectores, mecanismos, altavoces, cámaras, sondas, reguladores, etc. Color a definir por la df” Volumen 1 Planta baja|
 ~M|15#\15.01||1038.62|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\1038.62\\\|
 ~C|15.02|m²|PINTURA AL SILICATO EN EXTERIORES (SI EL REVOCO NO VA COLOREADO)|7.55|24102026|0|
 ~T|15.02|M². Pintura al silicato en exteriores, con dos manos, i/limpieza de superficies y acabado. Igual a medicion de revestimiento monocapa                                                                                        130,42 =11/D13GD054.CanPres|
-~M|15#\15.02||310.64|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\310.64\\\|
+~M|15#\15.02||316.10|\Medición del IFC de Vectorworks, opción 3 de cubiertas (24-oct-2026)\1\316.10\\\|
 ~C|16#||INSTALACIONES|45949.51|24102026|0|
 ~D|16#|16.01#\1\1\16.02#\1\1\16.03#\1\1\16.04#\1\1\16.05#\1\1\16.06#\1\1\|
 ~C|16.01#||FONTANERÍA|8549.61|24102026|0|

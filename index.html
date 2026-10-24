@@ -396,6 +396,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
         <div class="sec">
           <h3>Capas</h3>
           <div class="lista" id="listaGrupos"></div>
+          <div class="fila"><span class="chk" title="La estructura con sus caras y aristas; el resto del edificio a puntos (como con las instalaciones). Se pueden seleccionar los elementos de estructura"><input type="checkbox" id="cEstrPuntos"> Estructura a la vista (resto a puntos)</span></div>
         </div>
         <div class="sec">
           <h3>Plantas</h3>
@@ -858,17 +859,17 @@ const V3 = (() => {
     const i = document.createElement("input"); i.type = "checkbox"; i.checked = val; i.onchange = () => fn(i.checked);
     l.appendChild(i); l.appendChild(document.createTextNode(txt)); return l;
   }
-  const cruzOk = (gs, todas) => todas && gs.every(g => grupoVis[g] !== false) && !(modoPuntos() && gs.some(g => g === "piel" || g === "revoco"));
+  const cruzOk = (gs, todas) => todas && gs.every(g => grupoVis[g] !== false) && !(aPuntos() && gs.some(g => g === "piel" || g === "revoco")) && !(modoEstr() && gs.includes("estructura"));
   function visibilidad() {
     for (const g of elems) { const e = g.userData.e; g.visible = grupoVis[e.g] !== false && plantaVis[e.p] !== false && !(e.red && redVis[e.red] === false); }
     for (const ig of instIconos) ig.visible = !ig.userData.conSolido || instVerIconos;
     if ($("secInst")) { $("secInst").hidden = $("secInstVer").hidden = !(D && D.elementos.some(e => e.g === "instalaciones") && grupoVis.instalaciones !== false); statsInst(); }
-    if (modoPuntos() !== puntosAct) { materiales(); visibilidad(); }
+    if (aPuntos() !== puntosAct) { materiales(); visibilidad(); }
     // con el edificio entero y sin explotar, las aristas fundidas de todas las plantas (sin juntas entre plantas)
     const todas = explota === 0 && D.plantas.every(p => p.id === "entorno" || plantaVis[p.id] !== false);
     for (const a of aristas) {
       const u = a.userData;
-      const sinPiel = modoPuntos() && (u.g === "piel" || u.g === "revoco");     // a puntos, sin tejas ni revoco: solo la obra
+      const sinPiel = aPuntos() && (u.g === "piel" || u.g === "revoco");     // a puntos, sin tejas ni revoco: solo la obra
       if (u.elem) { a.visible = estilo !== "mapa" && !sinPiel; continue; }
       if (u.gs) { a.visible = estilo !== "mapa" && cruzOk(u.gs, todas); continue; }
       const cz = conCruz[u.g + "|" + u.m]; if (cz && cruzOk(cz, todas)) { a.visible = false; continue; }
@@ -889,16 +890,20 @@ const V3 = (() => {
   }
   // Enrique 22-oct: con las instalaciones a la vista, el edificio a puntos (sin caras que tapen): se ve si los tubos van por el
   // falso techo, por el forjado o por los muros
-  let puntosAct = false, instPuntos = true;
+  let puntosAct = false, instPuntos = true, estrPuntos = false;
   const modoPuntos = () => !!(D && instPuntos && instMallas.length && grupoVis.instalaciones !== false);
+  const modoEstr = () => !!(D && estrPuntos && grupoVis.estructura !== false && elems.some(g => g.userData.e.g === "estructura"));
+  const aPuntos = () => modoPuntos() || modoEstr();
   const lineaPuntos = () => matCache.__lp || (matCache.__lp = acercar(new THREE.LineDashedMaterial({color: colores().ink, dashSize: 0.03, gapSize: 0.05, transparent: true, opacity: 0.6})));
   const caraOculta = () => matCache.__co || (matCache.__co = new THREE.MeshBasicMaterial({colorWrite: false, depthWrite: false}));
   function materiales() {
-    puntosAct = modoPuntos();
-    for (const m of meshes) m.material = puntosAct ? caraOculta() : (resalta && !resalta.has(m.userData.g.userData.i) ? fantasma() : material(m.userData.parte.m));
+    puntosAct = aPuntos(); const est_ = modoEstr();
+    // Enrique 24-oct: con «Estructura a la vista», la estructura queda con sus caras y aristas y el resto a puntos
+    const esEstr = g => est_ && g === "estructura";
+    for (const m of meshes) m.material = puntosAct && !esEstr(m.userData.g.userData.e.g) ? caraOculta() : (resalta && !resalta.has(m.userData.g.userData.i) ? fantasma() : material(m.userData.parte.m));
     for (const a of aristas) {
       if (puntosAct && !a.userData.dist) { a.computeLineDistances(); a.userData.dist = true; }
-      a.material = puntosAct ? lineaPuntos() : (resalta ? lineaTenue() : lineaMat());
+      a.material = puntosAct && !esEstr(a.userData.g) ? lineaPuntos() : (resalta ? lineaTenue() : lineaMat());
     }
   }
   function aplicaEstilo(e) {
@@ -1106,6 +1111,11 @@ const V3 = (() => {
       const hl = rc.intersectObjects(visL, false);
       if (hl.length) { inspeccion(hl[0].object.userData.g); return; }
     }
+    if (modoEstr()) {   // con la estructura a la vista, se elige la estructura aunque tenga delante la obra a puntos
+      const ve = meshes.filter(m => m.userData.g.visible && m.userData.g.userData.e.g === "estructura");
+      const he = rc.intersectObjects(ve, false).filter(h => renderer.clippingPlanes.every(pl => pl.distanceToPoint(h.point) >= -1e-4));
+      if (he.length) { inspeccion(he[0].object.userData.g); return; }
+    }
     const vis = meshes.filter(m => m.userData.g.visible);
     const hits = rc.intersectObjects(vis, false).filter(h => renderer.clippingPlanes.every(pl => pl.distanceToPoint(h.point) >= -1e-4));
     inspeccion(hits.length ? hits[0].object.userData.g : null);
@@ -1228,6 +1238,7 @@ const V3 = (() => {
     $("cInstAtraves").onchange = ev => { instAtraves = ev.target.checked; pedir(); };
     $("cInstIconos").onchange = ev => { instVerIconos = ev.target.checked; visibilidad(); };
     $("cInstPuntos").onchange = ev => { instPuntos = ev.target.checked; materiales(); pedir(); };
+    $("cEstrPuntos").onchange = ev => { estrPuntos = ev.target.checked; materiales(); visibilidad(); };
   }
   function statsInst() {
     if (!D) return;
