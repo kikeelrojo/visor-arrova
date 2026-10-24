@@ -207,10 +207,17 @@ h3 .adm{color:#7b1d2c}
 details.resueltas{margin-top:8px}details.resueltas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-weight:700}
 details.resueltas button{opacity:.75}details.resueltas button.on{opacity:1}
 .bloque-img{padding:4px 0 6px 10px;border-left:2px solid transparent}
+.cab-img .mins{display:flex;gap:4px;flex:0 0 auto}.cab-img .cab-t{flex:1;min-width:0}
+.plegar{flex:0 0 auto;background:none;border:0.5px solid var(--ink);color:var(--ink);font:inherit;font-size:var(--s-s);line-height:1;width:28px;height:28px;cursor:pointer;padding:0}
+.bloque-img.plegado .cab-img{margin:0}.n-msg{white-space:nowrap}
+.adjs{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0}.adjs:empty{display:none}
+.adj{position:relative;display:block}.adj img{display:block;height:56px;max-width:110px;object-fit:cover;border:0.5px solid var(--ink)}
+.adj .lnk{position:absolute;top:-2px;right:2px;font-size:var(--s-s);text-decoration:none;background:var(--paper);line-height:1;padding:0 2px}
+.pg-num{font-size:var(--s-xs);font-weight:700;margin:0 0 4px}
 .bloque-img+.bloque-img{margin-top:6px;background-image:radial-gradient(circle,var(--ink) 0.55px,transparent 0.75px);background-size:4px 3px;background-repeat:repeat-x;background-position:10px 0;padding-top:10px}
 .bloque-img.on{border-left-color:var(--ink)}
 .cab-img{display:flex;align-items:center;gap:8px;font-size:var(--s-xs);cursor:pointer;margin:0 0 4px}
-.cab-img img{width:60px;height:42px;object-fit:cover;border:0.5px solid var(--ink);flex:0 0 auto}
+.cab-img img{width:60px;height:42px;object-fit:cover;border:0.5px solid var(--ink);flex:0 0 auto;cursor:pointer}
 .notas.chat .nota-i{padding:3px 0;border:0;background:none}.notas.chat .nota-i .acc,.notas.chat .nota-i [data-borrar]{display:none}
 .notas.chat .nota-i .txt{font-size:var(--s-xs)}.notas.chat .nota-i .meta{font-size:calc(var(--s-xs) * .92)}
 #secNotas.cerrada #notasHerr,#secNotas.cerrada #notasEstilo{display:none!important}
@@ -3191,15 +3198,24 @@ const Docs = (() => {
     const L = versiones(d0);
     if (pendCap && pendCap.a === d0.archivo && L.length >= (pendCap.v || 1)) { verAct = pendCap.v || L.length; z = pendCap.z || 0; ponScroll(pendCap); pendCap = null; }
     if (!verAct || verAct > L.length) verAct = L.length;
-    const v = L[verAct - 1], d = {url: v.url, ancho: v.ancho || d0.ancho, alto: v.alto || d0.alto, titulo: d0.titulo};
+    // las imágenes que van juntas (seguidas, sin nada entre ellas) se ven juntas, una debajo de otra
+    const G = Notas.grupos(d0.archivo), ks = (G.find(g => g.includes(verAct)) || [verAct]).filter(k => k <= L.length);
     const pag = $("docsPag"); pag.innerHTML = "";
     const ancho = Math.max(200, $("docs").clientWidth - 68 - 2), alto = Math.max(200, $("docs").clientHeight - 60);
-    const esc_ = z ? z : Math.min(ancho / d.ancho, alto / d.alto, 3); escImg = esc_;
-    const w = document.createElement("div"); w.className = "pg";
-    const im = new Image(); im.src = d.url; im.alt = d.titulo || "Captura"; im.width = Math.floor(d.ancho * esc_); im.height = Math.floor(d.alto * esc_);
-    im.style.display = "block"; im.style.boxShadow = "0 0 0 0.5px var(--ink)"; im.draggable = false;
-    w.appendChild(im); pag.appendChild(w);
-    Notas.pagina(w, verAct, d.ancho, d.alto, esc_); Notas.marcaBloque(verAct);
+    let primera = true;
+    for (const k of ks) {
+      const v = L[k - 1], d = {url: v.url, ancho: v.ancho || d0.ancho, alto: v.alto || d0.alto, titulo: d0.titulo};
+      const esc_ = z ? z : Math.min(ancho / d.ancho, (ks.length > 1 ? alto * 0.8 : alto) / d.alto, 3); if (primera) escImg = esc_;
+      const w = document.createElement("div"); w.className = "pg"; w.dataset.k = k;
+      if (ks.length > 1) { const r = document.createElement("div"); r.className = "pg-num"; r.textContent = "Imagen " + k; w.appendChild(r); }
+      const im = new Image(); im.src = d.url; im.alt = (d.titulo || "Captura") + " · imagen " + k; im.width = Math.floor(d.ancho * esc_); im.height = Math.floor(d.alto * esc_);
+      im.style.display = "block"; im.style.boxShadow = "0 0 0 0.5px var(--ink)"; im.draggable = false;
+      w.appendChild(im); pag.appendChild(w);
+      Notas.pagina(w, k, d.ancho, d.alto, esc_);
+      primera = false;
+    }
+    Notas.marcaBloque(verAct);
+    if (ks.length > 1 && ks[0] !== verAct) { const w = pag.querySelector('.pg[data-k="' + verAct + '"]'); if (w) requestAnimationFrame(() => w.scrollIntoView({block: "start"})); }
   }
   function dibuja(c) { const v = c._p.getViewport({scale: c._esc}); c._p.render({canvasContext: c.getContext("2d"), viewport: v}); }
   function zoom(f) {
@@ -3491,29 +3507,55 @@ const Notas = (() => {
   }
   // Enrique 24-oct: que se vea qué parte del chat va con cada imagen. Cada imagen abre un bloque y lo que se escribe
   // después va con ella; si algo se dibujó o escribió sobre otra imagen, lo dice. El bloque de la imagen a la vista, marcado.
+  // Enrique 24-oct: varias imágenes seguidas, sin nada escrito ni dibujado entre ellas, van juntas en un mismo bloque
+  // (dos ángulos del mismo problema) y se ven juntas, una debajo de otra.
+  function gruposDe(raiz) {
+    const L = raiz.slice().sort((a, b) => a.creado < b.creado ? -1 : a.creado > b.creado ? 1 : 0);
+    const G = [{ks: [1], notas: [], abierto: true, img: [null]}];
+    let k = 1;
+    for (const n of L) {
+      let g = G[G.length - 1];
+      if (n.imagen) { k++; if (g.abierto) { g.ks.push(k); g.img.push(n); } else { g = {ks: [k], notas: [], abierto: true, img: [n]}; G.push(g); } }
+      if (!n.imagen || String(n.texto || "").trim() || n.dibujo) g.abierto = false;
+      g.notas.push(n);
+    }
+    return G;
+  }
+  const grupos = doc => gruposDe(deDoc("capturas", doc).filter(n => !n.respuesta_a && !n.borrado)).map(g => g.ks);
+  const listaKs = ks => ks.length === 1 ? "Imagen " + ks[0] : "Imágenes " + ks.slice(0, -1).join(", ") + " y " + ks[ks.length - 1];
   function bloquesChat(raiz, uno) {
     const d = Docs.actualDoc(), va = Docs.verActual() || 1;
-    const cab = (k, n, url) => '<div class="cab-img" data-k="' + k + '" title="Ver esta imagen">' + (url ? '<img src="' + escH(url) + '" alt="">' : "") + "<span><b>Imagen " + k + "</b>" + (n ? " · " + escH(n) : "") + "</span></div>";
-    const bloques = [{k: 1, cab: cab(1, d ? String(d.nota || d.autor || "").replace(/ · mandada a Claude$/, "") : "", d && d.url), items: []}];
-    for (const n of raiz) {
-      if (n.imagen) { const k = bloques.length + 1; bloques.push({k, cab: cab(k, (n.autor || "") + " · " + fecha(n.creado), n.url || urlCap(n.imagen)), items: []}); }
-      const b = bloques[bloques.length - 1];
-      if (n.imagen && !String(n.texto || "").trim() && !mia(n)) continue;     // la imagen sola ya está en la cabecera del bloque
-      let h = uno(n);
-      if (!n.imagen && n.pagina && n.pagina !== b.k) h = h.replace('<div class="txt">', '<div class="txt"><span class="pg-ref otra">sobre la imagen ' + n.pagina + "</span> ");
-      b.items.push(h);
-    }
-    return bloques.map(b => '<div class="bloque-img' + (b.k === va ? " on" : "") + '" data-k="' + b.k + '">' + b.cab + (b.items.join("") || (b.k === 1 ? '<p class="nota">Sin comentarios todavía.</p>' : "")) + "</div>").join("");
+    const G = gruposDe(raiz), pleg = ls("visor.plegado." + docAct) || [];
+    if (!raiz.length) G[0].notas = [];
+    return G.map((g, i) => {
+      const quien = g.img[0] ? (g.img[0].autor || "") + " · " + fecha(g.img[0].creado) : d ? String(d.nota || d.autor || "").replace(/ · mandada a Claude$/, "") : "";
+      const miniaturas = g.ks.map((k, j) => { const n = g.img[j], u = n ? (n.url || urlCap(n.imagen)) : d && d.url; return u ? '<img src="' + escH(u) + '" alt="Imagen ' + k + '" data-k="' + k + '" title="Ver la imagen ' + k + '">' : ""; }).join("");
+      const items = g.notas.map(n => {
+        if (n.imagen && !String(n.texto || "").trim() && !n.dibujo && !mia(n)) return "";      // la imagen sola ya está en la cabecera
+        let h = uno(n);
+        if (n.pagina && !g.ks.includes(n.pagina)) h = h.replace('<div class="txt">', '<div class="txt"><span class="pg-ref otra">sobre la imagen ' + n.pagina + "</span> ");
+        else if (n.dibujo && g.ks.length > 1 && n.pagina) h = h.replace('<div class="txt">', '<div class="txt"><span class="pg-ref">imagen ' + n.pagina + "</span> ");
+        return h;
+      });
+      const nm = items.filter(Boolean).length, cerrado = pleg.includes(g.ks[0]);
+      // Enrique 24-oct: cada bloque se pliega con su flecha (se recuerda en este navegador), para no tener que bajar tanto
+      const cab = '<div class="cab-img" data-k="' + g.ks[0] + '"><span class="mins">' + miniaturas + "</span><span class=\"cab-t\"><b>" + listaKs(g.ks) + "</b>" + (quien ? " · " + escH(quien) : "") +
+        (cerrado && nm ? ' · <span class="n-msg">' + nm + (nm === 1 ? " mensaje" : " mensajes") + "</span>" : "") + "</span>" +
+        (nm ? '<button class="plegar" data-plegar="' + g.ks[0] + '" aria-expanded="' + !cerrado + '" title="' + (cerrado ? "Desplegar" : "Plegar") + '">' + (cerrado ? "▸" : "▾") + "</button>" : "") + "</div>";
+      return '<div class="bloque-img' + (g.ks.includes(va) ? " on" : "") + (cerrado ? " plegado" : "") + '" data-ks="' + g.ks.join(",") + '">' + cab + (cerrado ? "" : items.join("") || (i === 0 && !raiz.length ? '<p class="nota">Sin comentarios todavía.</p>' : "")) + "</div>";
+    }).join("");
   }
   function marcaBloque(k) {
     const el = $("notasDoc"); if (!el) return;
-    el.querySelectorAll(".bloque-img").forEach(b => b.classList.toggle("on", +b.dataset.k === k));
+    el.querySelectorAll(".bloque-img").forEach(b => b.classList.toggle("on", b.dataset.ks.split(",").map(Number).includes(k)));
   }
   function compositor(id, texto) {
     const a = autor();
     return '<div class="comp" id="' + id + '">' + (pend ? '<p class="nota" data-pend>' + textoPend() + "</p>" : "") +
       (a ? '<p class="nota">Comentas como <b>' + escH(a) + "</b>" + (esAdmin ? " (administrador)" : "") + ' <button class="lnk" data-quien>cambiar</button></p>' : '<input class="filtro" data-nombre placeholder="Tu nombre (se ve con cada comentario)">') +
-      '<textarea class="filtro" rows="3" placeholder="' + escH(texto) + '"></textarea><div class="fila"><button class="btn" data-guardar>Publicar</button><label class="chk pc-chk" title="Que le llegue a Claude"' + (ambito === "capturas" && id === "compDoc" ? " hidden" : "") + '><input type="checkbox" data-pcn checked> Mandar a Claude</label>' +
+      '<textarea class="filtro" rows="3" placeholder="' + escH(texto) + '"></textarea>' +
+      (ambito === "capturas" && id === "compDoc" ? '<div class="adjs" data-adjs>' + adjuntos.map((a, i) => '<span class="adj"><img src="' + a.url + '" alt=""><button class="lnk" data-quita="' + i + '" aria-label="Quitar">×</button></span>').join("") + "</div>" : "") +
+      '<div class="fila"><button class="btn" data-guardar>Publicar</button>' + (ambito === "capturas" && id === "compDoc" ? '<button class="btn" data-adj title="Una o varias imágenes con el mensaje (también se pueden pegar aquí)">Añadir imagen</button><input type="file" accept="image/*,.heic,.heif" multiple hidden data-adjf>' : "") + '<label class="chk pc-chk" title="Que le llegue a Claude"' + (ambito === "capturas" && id === "compDoc" ? " hidden" : "") + '><input type="checkbox" data-pcn checked> Mandar a Claude</label>' +
       (pend ? '<button class="btn" data-cancelar>' + (pend.dibujo.t === "trazos" ? "Quitar el dibujo" : "Quitar la marca") + "</button>" : "") + "</div></div>";
   }
   function engancha(el, amb, doc) {
@@ -3521,14 +3563,25 @@ const Notas = (() => {
     if (comp) {
       const q = comp.querySelector("[data-quien]"); if (q) q.onclick = () => { ls("visor.autor", ""); pinta(); };
       const c = comp.querySelector("[data-cancelar]"); if (c) c.onclick = () => { pend = null; pinta(); };
+      const ab = comp.querySelector("[data-adj]"), af = comp.querySelector("[data-adjf]");
+      if (ab && af) { ab.onclick = () => af.click(); af.onchange = () => { const f = af.files; if (f && f.length) adjuntar([...f]); af.value = ""; }; }
+      comp.querySelectorAll("[data-quita]").forEach(x => x.onclick = () => { const a = adjuntos.splice(+x.dataset.quita, 1)[0]; if (a) URL.revokeObjectURL(a.url); const ta = comp.querySelector("textarea"), v = ta.value; pinta().then(() => { const t2 = document.querySelector("#notasDoc .comp textarea"); if (t2 && v && !t2.value) t2.value = v; }); });
       comp.querySelector("[data-guardar]").onclick = async () => {
         const nom = comp.querySelector("[data-nombre]"), ta = comp.querySelector("textarea");
         if (nom) { if (!nom.value.trim()) { nom.focus(); toast("Escribe tu nombre"); return; } ls("visor.autor", nom.value.trim().slice(0, 60)); }
-        const t = ta.value.trim(); if (!t && (!pend || comp.dataset.resp)) { ta.focus(); return; }
+        const t = ta.value.trim(), conImg = amb === "capturas" && doc && !comp.dataset.resp && adjuntos.length;
+        if (!t && !conImg && (!pend || comp.dataset.resp)) { ta.focus(); return; }
+        if (conImg) {          // primero las imágenes (abren su bloque en la conversación) y luego lo escrito, que va con ellas
+          const L = adjuntos.slice(); let i = 0;
+          try { for (const a of L) { toast("Subiendo " + (L.length > 1 ? "la imagen " + (++i) + " de " + L.length : "la imagen") + "…", 8000); await subirImagenTema(doc, a.blob, a.meta); adjuntos.shift(); URL.revokeObjectURL(a.url); } }
+          catch (e) { toast(e.message || String(e), 5000); pinta(); return; }
+          if (!t && !pend) { ta.value = ""; await pinta(); Docs.tiraVersiones(); toast((L.length > 1 ? "Imágenes añadidas" : "Imagen añadida") + ". Dibuja encima y/o escribe: le llega a Claude al publicar", 5000); return; }
+        }
         const f = {ambito: amb, doc: doc, texto: t};
         const pcn = comp.querySelector("[data-pcn]"); if (pcn && pcn.checked) f.para_claude = true;
         if (comp.dataset.resp) f.respuesta_a = comp.dataset.resp;
         if (pend && !comp.dataset.resp) { f.pagina = pend.pagina; f.dibujo = pend.dibujo; }
+        else if (conImg) f.pagina = imagenesDe(doc).length + 1;
         else if (amb === "capturas" && Docs.verActual()) f.pagina = Docs.verActual();
         if (amb === "capturas") delete f.para_claude;       /* en capturas lo que se manda es la captura entera */
         try {
@@ -3541,7 +3594,11 @@ const Notas = (() => {
       };
       if (pend && pend.dibujo.t !== "trazos") setTimeout(() => comp.querySelector("textarea").focus(), 0);   /* al dibujar no se abre el teclado del iPad */
     }
-    el.querySelectorAll(".cab-img").forEach(c => c.onclick = () => Docs.verVersion(+c.dataset.k));
+    el.querySelectorAll(".cab-img").forEach(c => c.onclick = e => {
+      const pb = e.target.closest("[data-plegar]");
+      if (pb) { e.stopPropagation(); const k = +pb.dataset.plegar, K = "visor.plegado." + docAct, L = (ls(K) || []).filter(x => x !== k); if (pb.getAttribute("aria-expanded") === "true") L.push(k); ls(K, L); pinta(); return; }
+      const t = e.target.closest("[data-k]"); Docs.verVersion(+(t || c).dataset.k);
+    });
     el.querySelectorAll(".nota-i").forEach(d => {
       const n = (cache || []).find(x => x.id === d.dataset.id); if (!n) return;
       d.querySelectorAll("[data-st]").forEach(b => b.onclick = async e => {
@@ -3741,7 +3798,18 @@ const Notas = (() => {
       if (!s) { s = document.createElement("i"); s.className = "cnt"; b.prepend(s); } s.textContent = k;
     });
   }
-  function enDoc(t, d) { ambito = t; docAct = d ? d.archivo : null; pend = null; focoId = null; paginas.clear(); pinta(); }
+  function enDoc(t, d) { const nd = d ? d.archivo : null; if (nd !== docAct) quitaAdjuntos(); ambito = t; docAct = nd; pend = null; focoId = null; paginas.clear(); pinta(); }
+  // imágenes que acompañan al mensaje que se está escribiendo en el Chat (se suben al publicar)
+  let adjuntos = [];
+  function quitaAdjuntos() { for (const a of adjuntos) URL.revokeObjectURL(a.url); adjuntos = []; }
+  async function adjuntar(files) {
+    const L = [...files].filter(f => /^image\//.test(f.type) || /\.(jpe?g|png|heic|heif|webp|gif|tiff?)$/i.test(f.name || ""));
+    if (!L.length) { toast("Eso no es una imagen"); return; }
+    const ta = document.querySelector("#notasDoc .comp textarea"), txt = ta ? ta.value : "";
+    for (const f of L) { try { const r = await prepImagen(f); adjuntos.push({blob: r.blob, meta: r, url: URL.createObjectURL(r.blob)}); } catch (e) { toast(e.message || String(e), 5000); } }
+    await pinta();
+    const t2 = document.querySelector("#notasDoc .comp textarea"); if (t2 && txt && !t2.value) t2.value = txt;
+  }
   function enDatos() { ambito = "mediciones"; pend = null; pinta(); }
   document.querySelectorAll("#notasHerr [data-nh]").forEach(b => b.onclick = () => herramienta(herr === b.dataset.nh && b.dataset.nh !== "ver" ? "ver" : b.dataset.nh));
   setInterval(async () => {                                 // lo que escriban otros aparece solo
@@ -3763,7 +3831,7 @@ const Notas = (() => {
     try { history.replaceState(null, "", location.pathname + (q ? q + "&" : "?") + "admin=" + k + location.hash); } catch (e) { return; }
     toast("Listo para guardar como app en modo admin: en el iPad, Compartir › Añadir a pantalla de inicio; en el Mac, Archivo › Añadir al Dock. No compartas esta dirección.", 9000);
   };
-  return {enDoc, enDatos, pagina, marcaBloque, herramienta, capturas, subirCaptura, subirImagenTema, imagenesDe, ponTema, borrarCaptura, marcarCaptura, resolverCaptura};
+  return {enDoc, enDatos, pagina, marcaBloque, grupos, adjuntar, herramienta, capturas, subirCaptura, subirImagenTema, imagenesDe, ponTema, borrarCaptura, marcarCaptura, resolverCaptura};
 })();
 
 /* ============================================================ interfaz */
@@ -3945,6 +4013,18 @@ async function subirImagen(blob, meta, dest) {
   return Notas.subirCaptura(blob, Object.assign({}, meta, {tema: dest.tema || null}));
 }
 // importar imágenes (pantallazos de Vectorworks, fotos…): se suben como capturas
+// una imagen (archivo, pantallazo pegado, foto) lista para subir: JPEG de 2400 px como mucho, sobre blanco
+async function prepImagen(f) {
+  const url = URL.createObjectURL(f), im = new Image();
+  try { await new Promise((ok, ko) => { im.onload = ok; im.onerror = () => ko(new Error("No se puede leer la imagen " + (f.name || ""))); im.src = url; }); }
+  finally { setTimeout(() => URL.revokeObjectURL(url), 0); }
+  const k_ = Math.min(1, 2400 / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(im.naturalWidth * k_)); c.height = Math.max(1, Math.round(im.naturalHeight * k_));
+  const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0, c.width, c.height);
+  const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.88));
+  const nom = (f.name || "").replace(/\.[^.]+$/, "").trim();
+  return {blob, ancho: c.width, alto: c.height, dataURL: c.toDataURL("image/jpeg", 0.6), vista: "Importada" + (nom && !/^image$/i.test(nom) ? " · " + nom.slice(0, 120) : "")};
+}
 async function importarImagenes(files) {
   const L = [...files].filter(f => /^image\//.test(f.type) || /\.(jpe?g|png|heic|heif|webp|gif|tiff?)$/i.test(f.name || ""));
   if (!L.length) { toast("Eso no es una imagen"); return; }
@@ -3953,26 +4033,23 @@ async function importarImagenes(files) {
   for (const f of L) {
     try {
       toast("Subiendo " + (L.length > 1 ? (n + 1) + " de " + L.length + "…" : "la imagen…"), 8000);
-      const url = URL.createObjectURL(f), im = new Image();
-      await new Promise((ok, ko) => { im.onload = ok; im.onerror = () => ko(new Error("No se puede leer la imagen " + (f.name || ""))); im.src = url; });
-      const k_ = Math.min(1, 2400 / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement("canvas");
-      c.width = Math.max(1, Math.round(im.naturalWidth * k_)); c.height = Math.max(1, Math.round(im.naturalHeight * k_));
-      const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
-      const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.88));
-      const nom = (f.name || "").replace(/\.[^.]+$/, "").trim(), vista = "Importada" + (nom && !/^image$/i.test(nom) ? " · " + nom.slice(0, 120) : "");
-      ult = await subirImagen(blob, {vista, ancho: c.width, alto: c.height, dataURL: c.toDataURL("image/jpeg", 0.6)}, dest); n++;
+      const r = await prepImagen(f);
+      ult = await subirImagen(r.blob, {vista: r.vista, ancho: r.ancho, alto: r.alto, dataURL: r.dataURL}, dest); n++;
     } catch (e) { toast(e.message || String(e), 5000); }
   }
   if (!ult) return;
   ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + ".capturas", ult.id);
   if (S.modo === "cap") Docs.abrir("capturas"); else modo("cap");
-  toast((n > 1 ? n + " imágenes subidas" : "Imagen subida") + ": marca encima con las herramientas de «Comentarios» y escribe", 4000);
+  toast((n > 1 ? n + " imágenes subidas (van juntas)" : "Imagen subida") + ". Dibuja encima y/o escribe: le llega a Claude al publicar", 5000);
 }
 $("archImportar").onchange = e => { const f = e.target.files; if (f && f.length) importarImagenes(f); e.target.value = ""; };
 addEventListener("paste", e => {
   if (S.modo !== "cap") return;
   const f = [...((e.clipboardData && e.clipboardData.files) || [])].filter(x => /^image\//.test(x.type));
-  if (!f.length) return; e.preventDefault(); importarImagenes(f);
+  if (!f.length) return; e.preventDefault();
+  const ae = document.activeElement;
+  if (ae && ae.closest && ae.closest("#notasDoc .comp")) { Notas.adjuntar(f); return; }      // pegada mientras se escribe: va con el mensaje
+  importarImagenes(f);
 });
 { const zona = $("docs"); let cuenta = 0;
   const hayArch = e => S.modo === "cap" && e.dataTransfer && [...e.dataTransfer.types].includes("Files");
