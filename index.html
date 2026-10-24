@@ -657,8 +657,11 @@ async function elegirModelo(id) {
     const D = await obtener(S.proyecto.modelos[id]);
     S.proyecto.modelos[id] = D;
     S.modelo = D;
+    const R3 = S.restaura && S.restaura.cam && !S.restaura.hecho3d ? S.restaura : null;
+    if (R3) { R3.hecho3d = true; V3.prepara(R3.cam); }
     V3.cargar(D);
     if (S.camaraUrl) setTimeout(() => { V3.ponCamara(S.camaraUrl); document.body.dataset.listo = "1"; }, 60);
+    if (R3) setTimeout(() => restaura3d(R3), 60);
     $("vacio").hidden = true;
     $("estado").textContent = D.fecha + " · " + D.elementos.length + " elementos";
     rotulo(); Datos.refrescar();
@@ -866,6 +869,7 @@ const V3 = (() => {
   }
   const cruzOk = (gs, todas) => todas && gs.every(g => grupoVis[g] !== false) && !(aPuntos() && gs.some(g => g === "piel" || g === "revoco")) && !(modoEstr() && gs.includes("estructura"));
   function visibilidad() {
+    if (!D) return;                 // (al arrancar, el estilo recordado se pone antes de que haya modelo)
     for (const g of elems) { const e = g.userData.e; g.visible = grupoVis[e.g] !== false && plantaVis[e.p] !== false && !(e.red && redVis[e.red] === false); }
     for (const ig of instIconos) ig.visible = !ig.userData.conSolido || instVerIconos;
     if ($("secInst")) { $("secInst").hidden = $("secInstVer").hidden = !(D && D.elementos.some(e => e.g === "instalaciones") && grupoVis.instalaciones !== false); statsInst(); }
@@ -1389,11 +1393,17 @@ const V3 = (() => {
     const r3 = v => [+v.x.toFixed(4), +v.y.toFixed(4), +v.z.toFixed(4)];
     return {p: cam === persp, pos: r3(cam.position), tgt: r3(ctrl.target), z: +ortho.zoom.toFixed(4), f: +$("rFocal").value, e: estilo, x: Math.round(explota * 1000),
       g: Object.keys(grupoVis).filter(k => grupoVis[k] === false), gv: Object.keys(grupoVis).filter(k => grupoVis[k] === true && OCULTOS[k]),
-      pl: Object.keys(plantaVis).filter(k => plantaVis[k] === false), w: canvas.clientWidth, h: canvas.clientHeight};
+      pl: Object.keys(plantaVis).filter(k => plantaVis[k] === false), r: Object.keys(redVis).filter(k => redVis[k] === false), w: canvas.clientWidth, h: canvas.clientHeight};
+  }
+  // antes de cargar el modelo: capas, plantas y redes como estaban (así sus casillas salen ya marcadas como antes)
+  function prepara(c) {
+    if (!c) return;
+    for (const k of c.g || []) grupoVis[k] = false; for (const k of c.gv || []) grupoVis[k] = true;
+    for (const k of c.pl || []) plantaVis[k] = false; for (const k of c.r || []) redVis[k] = false;
   }
   function ponCamara(c) {
     if (!c) return;
-    for (const k of c.g || []) grupoVis[k] = false; for (const k of c.gv || []) grupoVis[k] = true; for (const k of c.pl || []) plantaVis[k] = false;
+    for (const k of c.g || []) grupoVis[k] = false; for (const k of c.gv || []) grupoVis[k] = true; for (const k of c.pl || []) plantaVis[k] = false; for (const k of c.r || []) redVis[k] = false;
     if (c.e) aplicaEstilo(c.e);
     if (c.f) { $("rFocal").value = c.f; focal(c.f); }
     setPersp(!!c.p);
@@ -1401,9 +1411,9 @@ const V3 = (() => {
     visibilidad();
     cam.position.set(...c.pos); ctrl.target.set(...c.tgt);
     if (!c.p && c.z) { ortho.zoom = c.z; ortho.updateProjectionMatrix(); }
-    ctrl.update(); anima(); pedir();
+    ctrl.update(); anima(); pedir(); encajado = false;      // el punto de vista puesto se mantiene aunque cambie el tamaño
   }
-  return {captura, camara, ponCamara, cargar, encuadra, resaltar, datos: () => D, visibles: () => elems.filter(g => g.visible).map(g => g.userData.e), aplicaEstilo, vista, setPersp, focal, alOjo, cortes, setExplota, exportarSVG, exportarPNG, redim, pedir,
+  return {captura, camara, ponCamara, prepara, cargar, encuadra, resaltar, datos: () => D, visibles: () => elems.filter(g => g.visible).map(g => g.userData.e), aplicaEstilo, vista, setPersp, focal, alOjo, cortes, setExplota, exportarSVG, exportarPNG, redim, pedir,
     tema() { for (const k in matCache) { matCache[k].dispose(); delete matCache[k]; } if (D) aplicaEstilo(estilo); }};
 })();
 
@@ -2825,7 +2835,7 @@ const V2 = (() => {
   return {preparar, redim, encuadrar, pedir, deshacer, rehacer, borrarSel, aClase, aTrama, restauraSel, quitaVertice, terminaPoli, enviar, archivo, vaciar, longitud, setEditable, pintaClases, todasVis,
     aplicaAtributo, booleana, dividir, cambios: () => cambios(), setModoV(v) { modoV = v; pedir(); }, setMas(v) { masSel = v; }, tipoVertice,
     setHerr(h) { if (tmp && (tmp.tipo === "poli" || tmp.tipo === "poligono") && tmp.pts.length >= 2) terminaPoli(); herr = h; cancelaPluma(); }, setOrto(v) { orto = v; }, fijaAng, fijaLong, conLongFija, dibujando: () => !!(tmp && tmp.pts.length), lineal: () => !!(tmp && LINEALES.includes(tmp.tipo)), setIman(v) { iman = v; }, setEnderezar(v) { enderezar = v; }, setDedo(v) { dedo = v; }, setDup(v) { duplicar = v; },
-    hay: () => !!P, tema() { patrones.clear(); pedir(); }};
+    hay: () => !!P, tema() { patrones.clear(); pedir(); }, vista: () => ({cx, cy, k}), ponVista(v) { if (v && v.k > 0) { cx = v.cx; cy = v.cy; k = v.k; pedir(); } }};
 })();
 
 /* ============================================================ fichas BIM y tablas */
@@ -3087,6 +3097,9 @@ const Docs = (() => {
     ver(d0, botones.get(d0));
   }
   async function ver(d, b) {
+    let pr = pendR && pendR.t === tipo && pendR.a === d.archivo ? pendR : null; if (pendR && pendR.t === tipo) pendR = null;
+    if (pr) reDoc = Object.assign({}, pr, {hasta: Date.now() + 8000});
+    else if (reDoc && reDoc.t === tipo && reDoc.a === d.archivo && Date.now() < reDoc.hasta) pr = reDoc;
     actual = d; $("listaDocs").querySelectorAll("button[data-arch]").forEach(x => x.classList.toggle("on", x === b));
     ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + "." + tipo, d.archivo);
     if (tipo === "capturas") {
@@ -3103,7 +3116,7 @@ const Docs = (() => {
         try { await Notas.borrarCaptura(d.archivo); toast("Captura borrada"); abrir("capturas"); } catch (e) { toast(e.message, 4000); }
       };
       const it = $("inTema"); it.value = d.tema || ""; it.onchange = async () => { const t = it.value.trim().slice(0, 120); try { await Notas.ponTema(d.archivo, t); d.tema = t; d.titulo = t || d.vista || "Captura"; const bb = $("listaDocs").querySelector('[data-arch="' + d.archivo + '"]'); const tn = bb && [...bb.childNodes].find(x => x.nodeType === 3); if (tn) tn.textContent = d.titulo; toast("Tema guardado"); } catch (e) { toast(e.message, 4000); } };
-      verAct = 0; nVers = 0; $("versiones").hidden = true;
+      verAct = 0; nVers = 0; $("versiones").hidden = true; pendCap = pr || (pendCap && pendCap.a === d.archivo ? pendCap : null);
       Notas.enDoc(tipo, d); pdf = null; z = 0; pintaImg(); return;
     }
     const url = "datos/" + S.proyecto.id + "/" + d.archivo + (d.nota ? "?v=" + encodeURIComponent(d.nota).slice(0, 60) : "");   // la nota lleva la fecha del archivo: si cambia, se baja de nuevo
@@ -3114,7 +3127,9 @@ const Docs = (() => {
       const L = await pdfjs();
       pdf = await L.getDocument(url).promise;
       if (actual !== d) return;
+      if (pr) z = pr.z || 0;
       await pinta();
+      if (pr) ponScroll(pr);
     } catch (e) { pag.innerHTML = '<div class="vacio-doc"><b>No se puede mostrar aquí</b>' + escH(e.message) + '<br><a href="' + url + '" target="_blank" rel="noopener">Abrir el PDF</a></div>'; }
   }
   let genPinta = 0;
@@ -3150,16 +3165,27 @@ const Docs = (() => {
     const d = actual; if (!d || tipo !== "capturas") return;
     const L = versiones(d), el = $("versiones");
     if (L.length !== nVers) { const nuevo = nVers && L.length > nVers; nVers = L.length; if (!verAct || nuevo || verAct > L.length) { verAct = L.length; pintaImg(); } }
+    if (pendCap && pendCap.a === d.archivo && L.length >= (pendCap.v || 1)) pintaImg();
     el.hidden = L.length < 2;
     el.innerHTML = L.map(v => '<button data-v="' + v.k + '" class="' + (v.k === verAct ? "on" : "") + '" title="Imagen ' + v.k + (v.k === 1 ? " (la inicial)" : "") + '"><img src="' + escH(v.url) + '" alt=""><span>' + v.k + "</span></button>").join("");
     el.querySelectorAll("[data-v]").forEach(b => b.onclick = () => verVersion(+b.dataset.v));
   }
-  let escImg = 1;
+  let escImg = 1, pendR = null, pendCap = null, reDoc = null;   // reDoc: al arrancar el documento se abre dos veces seguidas: se vuelve a poner
+  // «Actualizar»: el documento, la imagen del tema, el zoom y por dónde ibas, como estaban
+  const estado = () => tipo && actual ? {t: tipo, a: actual.archivo, z, v: verAct, sx: $("docs").scrollLeft, sy: $("docs").scrollTop} : null;
+  const ponScroll = r => {        // las páginas se van montando: se insiste unos segundos, hasta que la persona toque
+    const dc = $("docs"); let n = 0, toca = false; const para = () => { toca = true; };
+    for (const ev of ["wheel", "touchstart", "pointerdown"]) dc.addEventListener(ev, para, {once: true, passive: true});
+    const f = () => { if (toca) return; if (Math.abs(dc.scrollTop - r.sy) > 4 || Math.abs(dc.scrollLeft - r.sx) > 4) { dc.scrollLeft = r.sx; dc.scrollTop = r.sy; } if (++n < 24) setTimeout(f, 250); };
+    requestAnimationFrame(f);
+  };
   function verVersion(k) { verAct = k; z = 0; pintaImg(); tiraVersiones(); }
   function pintaImg() {
     // la captura a lo ancho (y alto) del visor, con su capa de marcas en píxeles de la imagen
     const d0 = actual; if (!d0) return;
-    const L = versiones(d0); if (!verAct || verAct > L.length) verAct = L.length;
+    const L = versiones(d0);
+    if (pendCap && pendCap.a === d0.archivo && L.length >= (pendCap.v || 1)) { verAct = pendCap.v || L.length; z = pendCap.z || 0; ponScroll(pendCap); pendCap = null; }
+    if (!verAct || verAct > L.length) verAct = L.length;
     const v = L[verAct - 1], d = {url: v.url, ancho: v.ancho || d0.ancho, alto: v.alto || d0.alto, titulo: d0.titulo};
     const pag = $("docsPag"); pag.innerHTML = "";
     const ancho = Math.max(200, $("docs").clientWidth - 68 - 2), alto = Math.max(200, $("docs").clientHeight - 60);
@@ -3189,7 +3215,7 @@ const Docs = (() => {
     z = f === 0 ? 0 : Math.max(0.2, Math.min(8, actualEsc * f)); pinta();
   }
   addEventListener("resize", () => { if (z) return; if (S.modo === "cap" && actual) pintaImg(); else if ((S.modo === "lam" || S.modo === "mem") && pdf) pinta(); });
-  return {abrir, zoom, actualDoc, tiraVersiones, verVersion, verActual: () => verAct, recargar: t => { if (S.proyecto && S.proyecto.docs) delete S.proyecto.docs[t]; }};
+  return {abrir, zoom, actualDoc, estado, restaura: r => { pendR = r; }, tiraVersiones, verVersion, verActual: () => verAct, recargar: t => { if (S.proyecto && S.proyecto.docs) delete S.proyecto.docs[t]; }};
 })();
 
 /* ============================================================ comentarios y anotaciones (Supabase) */
@@ -3721,6 +3747,9 @@ async function abrir2d() {
   try {
     const P = await obtener(S.proyecto.plano); S.proyecto.plano = P;
     if (V2._p !== P) { V2.preparar(P); V2._p = P; }
+    // al arrancar tras «Actualizar» el plano puede prepararse dos veces seguidas: la vista guardada se pone tras cada una
+    const R2 = S.restaura && S.restaura.v2 && Date.now() - S.restaura.cargado < 15000 ? S.restaura : null;
+    if (R2) { V2.ponVista(R2.v2); setTimeout(() => V2.ponVista(R2.v2), 150); }
     $("vacio").hidden = true;
   } catch (e) { toast(e.message); }
 }
@@ -3929,12 +3958,47 @@ addEventListener("paste", e => {
     el.addEventListener("drop", e => { if (!hayArch(e)) return; e.preventDefault(); cuenta = 0; zona.classList.remove("soltar"); importarImagenes(e.dataTransfer.files); });
   }
 }
-// refrescar: vuelve a pedir la página con una marca nueva, para saltarse lo guardado en el navegador
-$("btnRefrescar").onclick = () => { try { const u = new URL(location.href); u.searchParams.set("v", Date.now().toString(36)); location.replace(u.toString()); } catch (e) { location.reload(); } };
+// Actualizar: vuelve a pedir la página con una marca nueva (para saltarse lo guardado en el navegador y traer lo último
+// publicado), pero la vista vuelve como estaba: pestaña, capas, plantas, punto de vista, cortes, documento, zoom…
+// Empezar de cero es pulsar «arrova · visor».
+const CTL3 = ["selCam", "rOjo", "cInstAtraves", "cInstPuntos", "cInstIconos", "rExplota", "cZ", "rZ", "cX", "rX", "cY", "rY", "cInv", "cEstrPuntos"];
+function estadoVisor() {
+  const R = {t: Date.now(), modo: S.modo, cam: S.modelo ? V3.camara() : null, ctl: {}, panel: $("panel").scrollTop, ws: window.scrollY || 0, cerrado: $("panel").classList.contains("cerrado"),
+    d: Docs.estado(), v2: V2.hay() ? V2.vista() : null};
+  for (const id of CTL3) { const e = $(id); if (e) R.ctl[id] = e.type === "checkbox" ? e.checked : e.value; }
+  return R;
+}
+function restaura3d(R) {
+  const c = R.ctl || {};
+  if (c.selCam != null) $("selCam").value = c.selCam;
+  if (R.cam) V3.ponCamara(R.cam);
+  const pon = (id, ev) => { const e = $(id); if (!e || c[id] == null) return; if (e.type === "checkbox") { if (e.checked === c[id]) return; e.checked = c[id]; } else { if (e.value === c[id]) return; e.value = c[id]; } e.dispatchEvent(new Event(ev)); };
+  for (const id of ["cInstAtraves", "cInstPuntos", "cInstIconos", "cEstrPuntos"]) pon(id, "change");
+  for (const id of ["rZ", "rX", "rY"]) pon(id, "input");
+  for (const id of ["cZ", "cX", "cY", "cInv"]) pon(id, "change");
+  pon("rOjo", "input"); pon("rExplota", "input");
+  rotulo();
+}
+function irAUrl(url) { try { location.replace(url); } catch (e) { location.reload(); } }
+$("btnRefrescar").onclick = () => {
+  try { sessionStorage.setItem("visor.refresco", JSON.stringify(estadoVisor())); } catch (e) { /* sin almacenamiento: se actualiza igual, desde el principio */ }
+  try { const u = new URL(location.href); u.searchParams.set("v", Date.now().toString(36)); irAUrl(u.toString()); } catch (e) { location.reload(); }
+};
+// «arrova · visor»: empezar de cero (vista inicial, sin lo recordado de capas, modelo, documento ni estilo; los comentarios y tu nombre se quedan)
+{ const mc = document.querySelector(".marca"); mc.title = "Empezar de cero"; mc.style.cursor = "pointer"; mc.setAttribute("role", "button");
+  mc.onclick = () => {
+    if (S.soloEditor) return;
+    try { sessionStorage.removeItem("visor.refresco"); } catch (e) { /* nada */ }
+    try { for (const k of Object.keys(localStorage)) if (k === "visor.estilo" || /^visor\.(modelo|doc|vis2d)\./.test(k)) localStorage.removeItem(k); } catch (e) { /* nada */ }
+    try { const u = new URL(location.href); u.hash = ""; for (const q of ["camara", "v"]) u.searchParams.delete(q); u.searchParams.set("v", Date.now().toString(36)); irAUrl(u.toString()); } catch (e) { location.reload(); }
+  };
+}
 if (/[?&]v=/.test(location.search)) try { history.replaceState(null, "", location.pathname + location.search.replace(/[?&]v=[^&]*/, "").replace(/^&/, "?") + location.hash); } catch (e) { /* vista previa */ }
 (async function inicio() {
   const mcU = location.search.match(/[?&]camara=([^&]+)/);
   if (mcU) try { S.camaraUrl = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(mcU[1]).replace(/-/g, "+").replace(/_/g, "/"))))); document.body.classList.add("pantallazo"); } catch (e) { S.camaraUrl = null; }
+  try { const r = JSON.parse(sessionStorage.getItem("visor.refresco") || "null"); sessionStorage.removeItem("visor.refresco"); if (r && !mcU && Date.now() - r.t < 30 * 60e3) { S.restaura = r; r.cargado = Date.now(); } } catch (e) { /* nada */ }
+  if (S.restaura) { if (S.restaura.d) Docs.restaura(S.restaura.d); if (S.restaura.cerrado) $("panel").classList.add("cerrado"); }
   const est = ls("visor.estilo"); if (est) { const b = document.querySelector('[data-estilo="' + est + '"]'); if (b) b.click(); }
   await cargarPublicado();
   if (Object.keys(S.proyectos).length) rellenarProyectos(); else $("vacio").hidden = false;
@@ -3947,5 +4011,7 @@ if (/[?&]v=/.test(location.search)) try { history.replaceState(null, "", locatio
   const u = await cap("user");
   if (u && u.canEdit && !u.canEdit()) { S.soloVer = true; $("btnEditor").hidden = true; }
   if (S.soloEditor && !S.soloVer) modo("ed"); else if (hs && hs !== "ed") modo(hs);
+  if (S.restaura && (S.restaura.panel || S.restaura.ws)) { const pa = $("panel"), y = S.restaura.panel || 0, w = S.restaura.ws || 0;
+    const f = () => { if (y && pa.scrollTop < 5) pa.scrollTop = y; if (w && window.scrollY < 5) window.scrollTo(0, w); }; setTimeout(f, 400); setTimeout(f, 1500); }
 })();
 </script>
