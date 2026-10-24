@@ -207,7 +207,7 @@ h3 .adm{color:#7b1d2c}
 details.resueltas{margin-top:8px}details.resueltas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-weight:700}
 details.resueltas button{opacity:.75}details.resueltas button.on{opacity:1}
 .bloque-img{padding:4px 0 6px 10px;border-left:2px solid transparent}
-.cab-img .mins{display:flex;gap:4px;flex:0 0 auto}.cab-img .cab-t{flex:1;min-width:0}
+.cab-img .mins{display:flex;gap:4px;flex:0 0 auto}.plegar-hilo{margin-left:6px;white-space:nowrap}.cab-img .cab-t{flex:1;min-width:0}
 .plegar{flex:0 0 auto;background:none;border:0.5px solid var(--ink);color:var(--ink);font:inherit;font-size:var(--s-s);line-height:1;width:28px;height:28px;cursor:pointer;padding:0}
 .bloque-img.plegado .cab-img{margin:0}.n-msg{white-space:nowrap}
 .adjs{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0}.adjs:empty{display:none}
@@ -3492,13 +3492,18 @@ const Notas = (() => {
     if (e === "curso") return r + (String(n.encargado).trim().toLowerCase() !== autor().trim().toLowerCase() ? L("encargo", "Cambiar persona encargada", "Pasa a tu nombre") : "") + L("corregido", "Corregido") + claude;
     return r + L("ok", "Visto bueno", "Está bien: se agrupa en «Resueltos»") + L("mal", "No está bien", "Vuelve a pendiente; di qué falta en la respuesta") + claude;
   }
+  // plegado se guarda con cuántas respuestas tenía: si llega una nueva, se vuelve a desplegar solo
+  const hiloPlegado = n => { const P = ls("visor.plegado.hilos2") || {}; return P[n.id] != null && (cache || []).filter(x => x.respuesta_a === n.id && !x.borrado).length <= P[n.id]; };
   function htmlLista(lst, conCompositor) {
     const raiz = lst.filter(n => !n.respuesta_a), resp = id => lst.filter(n => n.respuesta_a === id), num = numeros(lst);
     const uno = (n, sub) => '<div class="nota-i' + (sub ? " resp" : "") + (n.id === focoId ? " foco" : "") + '" data-id="' + n.id + '" style="--c:' + colorDe(n.autor) + '">' +
       '<div class="txt">' + (sub ? "" : etiqueta(n)) + (n.para_claude && !n.resuelto_por ? '<span class="pc">A Claude</span> ' : "") + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.imagen && ambito !== "capturas" ? '<img class="mini" src="' + escH(n.url || urlCap(n.imagen)) + '" data-ver="' + n.pagina + '" alt="Imagen ' + n.pagina + '">' : "") + (n.pagina && ambito !== "capturas" ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
       '<div class="meta"><b>' + escH(n.autor) + "</b><br>" + fecha(n.creado) + (n.editado_en ? '<br><span class="editado" title="Editado el ' + fecha(n.editado_en) + '">editado</span>' : "") + (mia(n) ? '<br><button class="lnk" data-editar>Editar</button> <button class="lnk" data-borrar>Borrar</button>' : "") + "</div>" +
-      (sub ? (ambito !== "capturas" && !(lst.find(x => x.id === n.respuesta_a) || {}).resuelto_por ? '<div class="acc"><button class="lnk" data-resp>Responder</button></div>' : "") : '<div class="acc">' + acciones(n) + "</div>") + "</div>" +
-      (sub ? "" : resp(n.id).map(r => uno(r, true)).join(""));
+      (sub ? (ambito !== "capturas" && !(lst.find(x => x.id === n.respuesta_a) || {}).resuelto_por ? '<div class="acc"><button class="lnk" data-resp>Responder</button></div>' : "") : '<div class="acc">' + acciones(n) + plegarHilo(n) + "</div>") + "</div>" +
+      (sub || hiloPlegado(n) ? "" : resp(n.id).map(r => uno(r, true)).join(""));
+    // Enrique 24-oct: cada conversación (comentario con sus respuestas) se pliega, para no tener que bajar tanto; se recuerda en este navegador
+    function plegarHilo(n) { const k = resp(n.id).length; if (!k || ambito === "capturas") return ""; const p = hiloPlegado(n);
+      return ' <button class="lnk plegar-hilo" data-hilo="' + n.id + '" aria-expanded="' + !p + '">' + (p ? "▸ Ver " + (k === 1 ? "la respuesta" : "las " + k + " respuestas") : "▾ Plegar") + "</button>"; }
     if (ambito === "capturas") return bloquesChat(raiz, uno);   /* una conversación: en orden, por imágenes */
     const abiertas = raiz.filter(n => !n.resuelto_por), hechas = raiz.filter(n => n.resuelto_por);
     let h = abiertas.map(n => uno(n)).join("") || '<p class="nota">Sin comentarios todavía.</p>';
@@ -3594,6 +3599,12 @@ const Notas = (() => {
       };
       if (pend && pend.dibujo.t !== "trazos") setTimeout(() => comp.querySelector("textarea").focus(), 0);   /* al dibujar no se abre el teclado del iPad */
     }
+    el.querySelectorAll("[data-hilo]").forEach(b => b.onclick = e => {
+      e.stopPropagation(); const id = b.dataset.hilo, P = ls("visor.plegado.hilos2") || {};
+      if (b.getAttribute("aria-expanded") === "true") P[id] = (cache || []).filter(x => x.respuesta_a === id && !x.borrado).length; else delete P[id];
+      const ks = Object.keys(P); if (ks.length > 500) for (const k of ks.slice(0, ks.length - 500)) delete P[k];
+      ls("visor.plegado.hilos2", P); pinta();
+    });
     el.querySelectorAll(".cab-img").forEach(c => c.onclick = e => {
       const pb = e.target.closest("[data-plegar]");
       if (pb) { e.stopPropagation(); const k = +pb.dataset.plegar, K = "visor.plegado." + docAct, L = (ls(K) || []).filter(x => x !== k); if (pb.getAttribute("aria-expanded") === "true") L.push(k); ls(K, L); pinta(); return; }
