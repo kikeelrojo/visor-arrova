@@ -62,6 +62,7 @@ a.btn{color:var(--ink);text-decoration:none;display:inline-block}
 .sec h3{font-size:var(--s-s);font-weight:700;margin:4px 0 8px;letter-spacing:.02em}
 .fila{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .fila+.fila{margin-top:6px}
+.lista+.fila{margin-top:4px}   /* la casilla que va tras una lista, con el mismo hueco que entre las filas de la lista */
 .chk{display:flex;align-items:center;gap:6px;font-size:var(--s-s);cursor:pointer;min-width:0}
 .chk input{margin:0;accent-color:var(--ink)}
 .lista{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
@@ -396,7 +397,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
         <div class="sec">
           <h3>Capas</h3>
           <div class="lista" id="listaGrupos"></div>
-          <div class="fila"><span class="chk" title="La estructura con sus caras y aristas; el resto del edificio a puntos (como con las instalaciones). Se pueden seleccionar los elementos de estructura"><input type="checkbox" id="cEstrPuntos"> Estructura a la vista (resto a puntos)</span></div>
+          <div class="fila"><span class="chk" title="La estructura con sus caras y aristas; el resto del edificio a puntos (como con las instalaciones). Se pueden seleccionar los elementos de estructura"><input type="checkbox" id="cEstrPuntos"> Estructura</span></div>
         </div>
         <div class="sec">
           <h3>Plantas</h3>
@@ -698,7 +699,7 @@ const V3 = (() => {
   const matCache = {};
   const GRUPOS = {maqueta: "Maqueta", muros: "Muros", forjados: "Forjados", cubiertas: "Cubiertas", carpinterias: "Carpinterías",
     estructura: "Estructura", techos: "Techos y cámaras", barandillas: "Barandillas", mobiliario: "Mobiliario", recintos: "Recintos",
-    piel: "Piel (vista)", revoco: "Revoco de fachada", alfeizares: "Alféizares", entorno: "Entorno", instalaciones: "Instalaciones"};
+    piel: "Piel", revoco: "Revoco de fachada", alfeizares: "Alféizares", entorno: "Entorno", instalaciones: "Instalaciones"};
   const OCULTOS = {recintos: 1, instalaciones: 1};
   const planos = {z: new THREE.Plane(new THREE.Vector3(0, 0, -1), 0), x: new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0), y: new THREE.Plane(new THREE.Vector3(0, -1, 0), 0)};
 
