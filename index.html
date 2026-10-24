@@ -3424,7 +3424,7 @@ const Notas = (() => {
     const uno = (n, sub) => '<div class="nota-i' + (sub ? " resp" : "") + (n.id === focoId ? " foco" : "") + '" data-id="' + n.id + '" style="--c:' + colorDe(n.autor) + '">' +
       '<div class="txt">' + (sub ? "" : etiqueta(n)) + (n.para_claude && !n.resuelto_por ? '<span class="pc">A Claude</span> ' : "") + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.imagen ? '<img class="mini" src="' + escH(n.url || urlCap(n.imagen)) + '" data-ver="' + n.pagina + '" alt="Imagen ' + n.pagina + '">' : "") + (n.pagina > 1 && ambito === "capturas" && !n.imagen ? '<span class="pg-ref">imagen ' + n.pagina + "</span> " : "") + (n.pagina && ambito !== "capturas" ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
       '<div class="meta"><b>' + escH(n.autor) + "</b><br>" + fecha(n.creado) + (n.editado_en ? '<br><span class="editado" title="Editado el ' + fecha(n.editado_en) + '">editado</span>' : "") + (mia(n) ? '<br><button class="lnk" data-editar>Editar</button> <button class="lnk" data-borrar>Borrar</button>' : "") + "</div>" +
-      (sub ? "" : '<div class="acc">' + acciones(n) + "</div>") + "</div>" +
+      (sub ? (ambito !== "capturas" && !(lst.find(x => x.id === n.respuesta_a) || {}).resuelto_por ? '<div class="acc"><button class="lnk" data-resp>Responder</button></div>' : "") : '<div class="acc">' + acciones(n) + "</div>") + "</div>" +
       (sub ? "" : resp(n.id).map(r => uno(r, true)).join(""));
     if (ambito === "capturas") return raiz.map(n => uno(n)).join("") || '<p class="nota">Sin comentarios todavía.</p>';   /* una conversación: en orden */
     const abiertas = raiz.filter(n => !n.resuelto_por), hechas = raiz.filter(n => n.resuelto_por);
@@ -3447,14 +3447,17 @@ const Notas = (() => {
       comp.querySelector("[data-guardar]").onclick = async () => {
         const nom = comp.querySelector("[data-nombre]"), ta = comp.querySelector("textarea");
         if (nom) { if (!nom.value.trim()) { nom.focus(); toast("Escribe tu nombre"); return; } ls("visor.autor", nom.value.trim().slice(0, 60)); }
-        const t = ta.value.trim(); if (!t && !pend) { ta.focus(); return; }
+        const t = ta.value.trim(); if (!t && (!pend || comp.dataset.resp)) { ta.focus(); return; }
         const f = {ambito: amb, doc: doc, texto: t};
         const pcn = comp.querySelector("[data-pcn]"); if (pcn && pcn.checked) f.para_claude = true;
         if (comp.dataset.resp) f.respuesta_a = comp.dataset.resp;
         if (pend && !comp.dataset.resp) { f.pagina = pend.pagina; f.dibujo = pend.dibujo; }
         if (amb === "capturas") delete f.para_claude;       /* en capturas lo que se manda es la captura entera */
         try {
-          const n = await crear(f); if (!comp.dataset.resp) pend = null; focoId = n.id; pinta();
+          const n = await crear(f); if (!comp.dataset.resp) pend = null; focoId = n.id;
+          /* una respuesta mandada a Claude reabre el hilo para Claude (lo que vigila es el comentario principal) */
+          if (f.respuesta_a && f.para_claude) { const raiz = (cache || []).find(x => x.id === f.respuesta_a); if (raiz && !raiz.para_claude) try { await marcar(raiz, true); } catch (e) {} }
+          pinta();
           if (amb === "capturas" && doc) { const d = Docs.actualDoc(); if (d && d.archivo === doc && !d.para_claude) { await marcarCaptura(doc, true); d.alMandar && d.alMandar(); toast("Comentario publicado y captura mandada a Claude", 3000); } }
         } catch (e) { toast(e.message, 4000); }
       };
@@ -3499,8 +3502,10 @@ const Notas = (() => {
         e.stopPropagation();
         el.querySelectorAll(".comp.resp").forEach(x => x.remove());
         const sv = pend; pend = null;
-        const w = document.createElement("div"); w.innerHTML = compositor("compResp", "Respuesta…"); const c = w.firstChild; c.classList.add("resp"); c.dataset.resp = n.id;
-        d.after(c); engancha({querySelector: () => c, querySelectorAll: () => []}, amb, doc); pend = sv; c.querySelector("textarea").focus();
+        const rid = n.respuesta_a || n.id;                 /* los hilos son de un nivel: se contesta siempre al comentario principal */
+        const w = document.createElement("div"); w.innerHTML = compositor("compResp", "Respuesta…"); const c = w.firstChild; c.classList.add("resp"); c.dataset.resp = rid;
+        const hilo = [...el.querySelectorAll(".nota-i")].filter(x => x.dataset.id === rid || ((cache || []).find(y => y.id === x.dataset.id) || {}).respuesta_a === rid);
+        (hilo[hilo.length - 1] || d).after(c); engancha({querySelector: () => c, querySelectorAll: () => []}, amb, doc); pend = sv; c.querySelector("textarea").focus();
       };
       d.onclick = () => { focoId = n.id; if (ambito === "capturas" && n.pagina && n.pagina !== Docs.verActual()) { Docs.verVersion(n.pagina); return; } if (n.pagina) irA(n); pinta(); };
     });
