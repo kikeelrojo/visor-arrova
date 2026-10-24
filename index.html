@@ -691,7 +691,7 @@ const V3 = (() => {
   let ctrl = new THREE.OrbitControls(cam, canvas);
   ctrl.enableDamping = false; ctrl.screenSpacePanning = true;
   ctrl.addEventListener("change", pedir);
-  let root = null, D = null, elems = [], meshes = [], aristas = [], instLineas = [], instIconos = [], instMallas = [], redVis = {}, instAtraves = true, instVerIconos = false, instSelec = [], conGlobal = {}, nivelDe = () => 0, resalta = null, realce = [];
+  let root = null, D = null, elems = [], meshes = [], aristas = [], instLineas = [], instIconos = [], instMallas = [], redVis = {}, instAtraves = true, instVerIconos = false, instSelec = [], conGlobal = {}, conCruz = {}, nivelDe = () => 0, resalta = null, realce = [];
   let estilo = "linea", explota = 0, explotaAnim = 0, caja = new THREE.Box3(), sel = null;
   const grupoVis = {}, plantaVis = {};
   const matCache = {};
@@ -772,7 +772,7 @@ const V3 = (() => {
     const orden = D.plantas.map(p => p.id).filter(p => p !== "entorno");
     nivelDe = p => Math.max(0, orden.indexOf(p));
     const fundidas = Array.isArray(D.aristas) && D.aristas.length > 0;
-    conGlobal = {};
+    conGlobal = {}; conCruz = {};
     D.elementos.forEach((e, i) => {
       const g = new THREE.Group();
       g.userData = {e, i, nivel: Math.max(0, orden.indexOf(e.p)), dir: e.dir || null};
@@ -830,6 +830,9 @@ const V3 = (() => {
       const ls_ = new THREE.LineSegments(geo, lineaMat());
       ls_.userData = {arista: true, g: a.g, p: a.p, m: a.m, global: a.p === "*", nivel: nivelDe(a.p), dir: a.dir || null};
       if (a.p === "*") conGlobal[a.g + "|" + a.m] = true;
+      // Enrique 24-oct: hormigón armado continuo sin juntas entre zapata, muro y zócalo (grupos distintos, mismo material): con
+      // todos sus grupos a la vista y sin explotar, las aristas fundidas de esos grupos a la vez
+      if (a.gs) { ls_.userData.gs = a.gs; ls_.userData.global = true; for (const g of a.gs) conCruz[g + "|" + a.m] = a.gs; }
       root.add(ls_); aristas.push(ls_);
     }
     // capas y plantas
@@ -855,6 +858,7 @@ const V3 = (() => {
     const i = document.createElement("input"); i.type = "checkbox"; i.checked = val; i.onchange = () => fn(i.checked);
     l.appendChild(i); l.appendChild(document.createTextNode(txt)); return l;
   }
+  const cruzOk = (gs, todas) => todas && gs.every(g => grupoVis[g] !== false) && !(modoPuntos() && gs.some(g => g === "piel" || g === "revoco"));
   function visibilidad() {
     for (const g of elems) { const e = g.userData.e; g.visible = grupoVis[e.g] !== false && plantaVis[e.p] !== false && !(e.red && redVis[e.red] === false); }
     for (const ig of instIconos) ig.visible = !ig.userData.conSolido || instVerIconos;
@@ -866,6 +870,8 @@ const V3 = (() => {
       const u = a.userData;
       const sinPiel = modoPuntos() && (u.g === "piel" || u.g === "revoco");     // a puntos, sin tejas ni revoco: solo la obra
       if (u.elem) { a.visible = estilo !== "mapa" && !sinPiel; continue; }
+      if (u.gs) { a.visible = estilo !== "mapa" && cruzOk(u.gs, todas); continue; }
+      const cz = conCruz[u.g + "|" + u.m]; if (cz && cruzOk(cz, todas)) { a.visible = false; continue; }
       const gl = todas && conGlobal[u.g + "|" + u.m];
       const plantaOk = String(u.p).startsWith("fachada:") ? true : plantaVis[u.p] !== false;
       a.visible = estilo !== "mapa" && !sinPiel && grupoVis[u.g] !== false && (u.global ? !!gl : (plantaOk && !gl));
