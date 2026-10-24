@@ -3154,6 +3154,7 @@ const Docs = (() => {
     el.innerHTML = L.map(v => '<button data-v="' + v.k + '" class="' + (v.k === verAct ? "on" : "") + '" title="Imagen ' + v.k + (v.k === 1 ? " (la inicial)" : "") + '"><img src="' + escH(v.url) + '" alt=""><span>' + v.k + "</span></button>").join("");
     el.querySelectorAll("[data-v]").forEach(b => b.onclick = () => verVersion(+b.dataset.v));
   }
+  let escImg = 1;
   function verVersion(k) { verAct = k; z = 0; pintaImg(); tiraVersiones(); }
   function pintaImg() {
     // la captura a lo ancho (y alto) del visor, con su capa de marcas en píxeles de la imagen
@@ -3162,7 +3163,7 @@ const Docs = (() => {
     const v = L[verAct - 1], d = {url: v.url, ancho: v.ancho || d0.ancho, alto: v.alto || d0.alto, titulo: d0.titulo};
     const pag = $("docsPag"); pag.innerHTML = "";
     const ancho = Math.max(200, $("docs").clientWidth - 68 - 2), alto = Math.max(200, $("docs").clientHeight - 60);
-    const esc_ = z ? z : Math.min(ancho / d.ancho, alto / d.alto, 3);
+    const esc_ = z ? z : Math.min(ancho / d.ancho, alto / d.alto, 3); escImg = esc_;
     const w = document.createElement("div"); w.className = "pg";
     const im = new Image(); im.src = d.url; im.alt = d.titulo || "Captura"; im.width = Math.floor(d.ancho * esc_); im.height = Math.floor(d.alto * esc_);
     im.style.display = "block"; im.style.boxShadow = "0 0 0 0.5px var(--ink)"; im.draggable = false;
@@ -3171,8 +3172,19 @@ const Docs = (() => {
   }
   function dibuja(c) { const v = c._p.getViewport({scale: c._esc}); c._p.render({canvasContext: c.getContext("2d"), viewport: v}); }
   function zoom(f) {
+    if (tipo === "capturas") {      /* (antes salía por el «if (!pdf)»: en el Chat no hay PDF y los botones no hacían nada) */
+      const im = $("docsPag").querySelector("img"), dc = $("docs"); if (!im || !actual) return;
+      const w0 = im.width, h0 = im.height, r = im.getBoundingClientRect(), rc = dc.getBoundingClientRect();
+      // el punto del centro de la pantalla se queda en el centro al ampliar o reducir
+      const cx = (rc.left + dc.clientWidth / 2 - r.left) / w0, cy = (rc.top + dc.clientHeight / 2 - r.top) / h0;
+      z = f === 0 ? 0 : Math.max(0.1, Math.min(8, escImg * f)); pintaImg();
+      const im2 = $("docsPag").querySelector("img"); if (!im2) return;
+      const r2 = im2.getBoundingClientRect();
+      dc.scrollLeft += r2.left + cx * im2.width - (rc.left + dc.clientWidth / 2);
+      dc.scrollTop += r2.top + cy * im2.height - (rc.top + dc.clientHeight / 2);
+      return;
+    }
     if (!pdf) return;
-    if (tipo === "capturas") { const im = $("docsPag").querySelector("img"); const e0 = im && actual ? im.width / actual.ancho : 1; z = f === 0 ? 0 : Math.max(0.1, Math.min(8, e0 * f)); pintaImg(); return; }
     const c = $("docsPag").querySelector("canvas"); const actualEsc = c ? c._css : 1;
     z = f === 0 ? 0 : Math.max(0.2, Math.min(8, actualEsc * f)); pinta();
   }
