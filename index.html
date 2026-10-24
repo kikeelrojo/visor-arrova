@@ -840,7 +840,11 @@ const V3 = (() => {
     // capas y plantas
     const grupos = [...new Set(D.elementos.map(e => e.g))];
     $("listaGrupos").innerHTML = "";
-    for (const k of grupos) { if (grupoVis[k] === undefined) grupoVis[k] = !OCULTOS[k]; $("listaGrupos").appendChild(chk(GRUPOS[k] || k, grupoVis[k], v => { grupoVis[k] = v; visibilidad(); })); }
+    for (const k of grupos) {
+      if (grupoVis[k] === undefined) grupoVis[k] = !OCULTOS[k];
+      if (k === "estructura") { grupoVis[k] = true; continue; }   /* Enrique 24-oct: la estructura siempre a la vista; su casilla es la de abajo (estructura con caras, resto a puntos) */
+      $("listaGrupos").appendChild(chk(GRUPOS[k] || k, grupoVis[k], v => { grupoVis[k] = v; visibilidad(); }));
+    }
     $("listaPlantas").innerHTML = "";
     for (const p of D.plantas) { if (!D.elementos.some(e => e.p === p.id)) continue; if (plantaVis[p.id] === undefined) plantaVis[p.id] = true; $("listaPlantas").appendChild(chk(p.nombre, plantaVis[p.id], v => { plantaVis[p.id] = v; visibilidad(); })); }
     leyendaInst();
