@@ -3442,12 +3442,9 @@ const Notas = (() => {
     if (r !== "ok") throw new Error(r ? String(r).charAt(0).toUpperCase() + String(r).slice(1) : "No se ha podido");
     await todas(true);
   }
-  function puedeImagen(d, k) {
-    if (esAdmin) return true;
-    if (k === 1) return !!(d && d.borrable);
-    const n = imagenesDe(d.archivo)[k - 2]; return !!(n && mia(n));
-  }
-  const puedeChat = d => esAdmin || !!(d && d.borrable);
+  // Enrique 25-oct: lo puede hacer cualquiera con el visor (no tiene que estar él de gestor)
+  const puedeImagen = (d, k) => !!d && k >= 1;
+  const puedeChat = d => !!d;
   const quitarImagen = (doc, k) => rpcOk("quitar_imagen", {p_cap: doc, p_k: k});
   async function cambiarImagen(doc, k, blob, meta) { await config(); const {archivo} = await subirArchivo(blob); return rpcOk("cambiar_imagen", {p_cap: doc, p_k: k, p_archivo: archivo, p_w: meta.ancho, p_h: meta.alto}); }
   const unirCapturas = (dest, orig) => rpcOk("unir_capturas", {p_destino: dest, p_origen: orig});
