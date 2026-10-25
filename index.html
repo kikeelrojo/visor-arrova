@@ -214,6 +214,14 @@ details.resueltas button{opacity:.75}details.resueltas button.on{opacity:1}
 .adj{position:relative;display:block}.adj img{display:block;height:56px;max-width:110px;object-fit:cover;border:0.5px solid var(--ink)}
 .adj .lnk{position:absolute;top:-2px;right:2px;font-size:var(--s-s);text-decoration:none;background:var(--paper);line-height:1;padding:0 2px}
 .pg-num{font-size:var(--s-xs);font-weight:700;margin:0 0 4px}
+.img-acc{font-size:var(--s-xs);margin:4px 0 0;display:flex;gap:10px;flex-wrap:wrap}
+.cab-img .juntar{white-space:nowrap;margin-left:4px}.unido{font-style:italic}
+.lote{border:0.5px solid var(--warn);padding:8px 10px;margin:0 0 12px}.lote>summary{cursor:pointer;font-weight:700;color:var(--warn);font-size:var(--s-s)}
+.lote .lote-i{padding:8px 0;background-image:radial-gradient(circle,var(--ink) 0.55px,transparent 0.75px);background-size:4px 3px;background-repeat:repeat-x;background-position:0 0}
+.lote .lote-i:first-of-type{background:none}.lote .lote-t{font-size:var(--s-xs)}.lote .lote-temas{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:var(--s-xs);margin:4px 0}
+.lote .lote-r{font-size:var(--s-xs);margin:6px 0 0 10px;padding-left:8px;border-left:2px solid var(--ink);white-space:pre-wrap}.lote .lote-r b{white-space:normal}
+.destino .temas{display:grid;gap:2px;max-height:42vh;overflow:auto}.destino .temas label{display:flex;gap:6px;align-items:flex-start;font-size:var(--s-xs)}.destino .temas h4{margin:6px 0 2px;font-size:var(--s-xs)}
+.destino .temas .nv{color:var(--warn);font-weight:700}
 .bloque-img+.bloque-img{margin-top:6px;background-image:radial-gradient(circle,var(--ink) 0.55px,transparent 0.75px);background-size:4px 3px;background-repeat:repeat-x;background-position:10px 0;padding-top:10px}
 .bloque-img.on{border-left-color:var(--ink)}
 .cab-img{display:flex;align-items:center;gap:8px;font-size:var(--s-xs);cursor:pointer;margin:0 0 4px}
@@ -507,6 +515,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
             <label class="btn" id="btnImportar" title="Pantallazos de Vectorworks, fotos, lo que sea: se suben como capturas">Importar imagen<input type="file" id="archImportar" accept="image/*" multiple hidden></label>
             <span class="nota">o arrástrala aquí, o pégala (⌘V)</span>
           </div>
+          <details class="lote" id="secLote" hidden><summary>Lote para Claude</summary><div id="loteCuerpo"></div></details>
           <div class="ldocs" id="listaDocs"></div>
         </div>
         <div class="sec">
@@ -523,6 +532,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
           <div class="versiones" id="versiones" hidden></div>
           <button class="btn a-claude" id="btnParaClaude" aria-pressed="false" title="Le llega a Claude la captura con todas sus marcas y comentarios">Mandar a Claude</button>
           <p class="nota" id="notaClaude">Le llega la imagen con todas sus marcas y comentarios. Al publicar un comentario en una captura se manda sola.</p>
+          <button class="lnk" id="btnUnirCap" title="Otra conversación que va sobre lo mismo pasa al final de esta">Unir otra conversación a esta…</button>
           <button class="lnk" id="btnBorrarCap" hidden>Borrar la captura</button>
         </div>
         <div class="sec" id="secNotas" hidden>
@@ -3084,6 +3094,7 @@ const Docs = (() => {
   async function abrir(t) {
     tipo = t; $("docsTit").textContent = {laminas: "Láminas", memorias: "Memorias", capturas: "Chat"}[t];
     const cap = t === "capturas";
+    $("secLote").hidden = !cap; if (cap) Notas.pintaLotes();
     $("btnAbrirPdf").textContent = cap ? "Abrir la imagen" : "Abrir el PDF"; $("btnBorrarCap").hidden = true; $("secClaude").hidden = true; $("filaImportar").hidden = !cap; $("secNotas").classList.remove("cerrada");
     $("notaDocs").textContent = cap ? "Capturas de lo que se ve en 3D o 2D (botón de la cámara, arriba) o imágenes importadas. Marca encima con las herramientas de «Comentarios» y escribe al lado." : "«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.";
     const L = await lista(t), el = $("listaDocs"); el.innerHTML = "";
@@ -3123,6 +3134,18 @@ const Docs = (() => {
       const estado = () => { pcb.hidden = !!d.resuelta_por; $("notaClaude").textContent = d.resuelta_por ? "Definitiva: queda agrupada con sus comentarios y se archivará en un PDF en la carpeta del proyecto." : "Le llega a Claude al publicar lo que dibujes y/o escribas (con todas sus imágenes y marcas). Una imagen nueva sola no se manda."; $("secNotas").classList.toggle("cerrada", !!d.resuelta_por); };
       estado();
       pcb.onclick = async () => { const si = !d.para_claude; try { await Notas.marcarCaptura(d.archivo, si); d.para_claude = si; pon(); toast(si ? "Mandada a Claude" : "Quitada de lo pendiente de Claude", 3500); } catch (e) { toast(e.message, 4000); } };
+      $("btnUnirCap").hidden = !!d.resuelta_por;
+      $("btnUnirCap").onclick = async () => {
+        const L = ((await Notas.capturas()) || []).filter(c => c.archivo !== d.archivo && !c.resuelta_por);
+        if (!L.length) { toast("No hay otra conversación abierta"); return; }
+        const v = await dialogo("<h3>Unir a «" + escH(d.titulo) + "»</h3>" +
+          '<p class="nota">La conversación que elijas pasa al final de esta, con sus imágenes y mensajes (sus imágenes se numeran detrás de las de esta), y desaparece de la lista.</p>' +
+          '<div class="lst">' + L.map(c => '<button class="btn" data-v="' + c.archivo + '">' + escH(c.titulo) + ' <span class="nota">· ' + escH(c.nota) + "</span></button>").join("") + "</div>" +
+          '<button class="lnk" data-no>Cancelar</button>');
+        if (!v) return;
+        try { toast("Uniendo…", 6000); await Notas.unirCapturas(d.archivo, v); toast("Unidas: la otra conversación está ahora al final de esta", 4000); ls("visor.doc." + S.proyecto.id + ".capturas", d.archivo); abrir("capturas"); }
+        catch (e) { toast(e.message, 5000); }
+      };
       $("btnBorrarCap").onclick = async () => {
         const bb = $("btnBorrarCap"); if (!bb.dataset.seguro) { bb.dataset.seguro = 1; bb.textContent = "¿Seguro? Borrar"; setTimeout(() => { delete bb.dataset.seguro; bb.textContent = "Borrar la captura"; }, 4000); return; }
         try { await Notas.borrarCaptura(d.archivo); toast("Captura borrada"); abrir("capturas"); } catch (e) { toast(e.message, 4000); }
@@ -3212,10 +3235,40 @@ const Docs = (() => {
       im.style.display = "block"; im.style.boxShadow = "0 0 0 0.5px var(--ink)"; im.draggable = false;
       w.appendChild(im); pag.appendChild(w);
       Notas.pagina(w, k, d.ancho, d.alto, esc_);
+      if (!d0.resuelta_por && Notas.puedeImagen(d0, k)) {
+        const a = document.createElement("div"); a.className = "img-acc";
+        a.innerHTML = '<button class="lnk" data-sust>Sustituir la imagen ' + k + '</button><button class="lnk" data-quitar>Borrar la imagen ' + k + "</button>";
+        a.querySelector("[data-sust]").onclick = () => sustituirImagen(d0, k);
+        const qb = a.querySelector("[data-quitar]");
+        qb.onclick = async () => {
+          if (!qb.dataset.seguro) { qb.dataset.seguro = 1; qb.textContent = "¿Seguro? Lo escrito se queda; lo dibujado encima se quita"; setTimeout(() => { if (qb.isConnected) { delete qb.dataset.seguro; qb.textContent = "Borrar la imagen " + k; } }, 5000); return; }
+          try { await Notas.quitarImagen(d0.archivo, k); toast("Imagen " + k + " borrada", 3000); pendR = {t: "capturas", a: d0.archivo, v: Math.max(1, k - 1), z: 0, sx: 0, sy: 0}; abrir("capturas"); }
+          catch (e) { toast(e.message, 5000); }
+        };
+        w.appendChild(a);
+      }
       primera = false;
     }
     Notas.marcaBloque(verAct);
     if (ks.length > 1 && ks[0] !== verAct) { const w = pag.querySelector('.pg[data-k="' + verAct + '"]'); if (w) requestAnimationFrame(() => w.scrollIntoView({block: "start"})); }
+  }
+  async function sustituirImagen(d0, k) {
+    const v = await dialogo("<h3>Sustituir la imagen " + k + "</h3>" +
+      '<p class="nota">Lo escrito se queda; las marcas dibujadas sobre esta imagen se quitan (no casarían con la nueva).</p>' +
+      '<button class="btn rojo" data-v="pant">Con un pantallazo nuevo (3D o 2D)</button><button class="btn" data-v="arch">Con un archivo…</button><button class="lnk" data-no>Cancelar</button>');
+    if (v === "pant") {
+      S.sustituir = {doc: d0.archivo, k, tema: d0.titulo};
+      modo(S.ultVista || "3d"); S.sustituir = {doc: d0.archivo, k, tema: d0.titulo};
+      toast("Encuadra y pulsa la cámara: sustituirá la imagen " + k + " de «" + d0.titulo + "». Si cambias de idea, vuelve al Chat.", 9000);
+    } else if (v === "arch") {
+      const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*,.heic,.heif";
+      inp.onchange = async () => {
+        const f = inp.files && inp.files[0]; if (!f) return;
+        try { toast("Subiendo la imagen…", 8000); const r = await prepImagen(f); await Notas.cambiarImagen(d0.archivo, k, r.blob, r); toast("Imagen " + k + " sustituida", 3000); pendR = {t: "capturas", a: d0.archivo, v: k, z: 0, sx: 0, sy: 0}; abrir("capturas"); }
+        catch (e) { toast(e.message || String(e), 5000); }
+      };
+      inp.click();
+    }
   }
   function dibuja(c) { const v = c._p.getViewport({scale: c._esc}); c._p.render({canvasContext: c.getContext("2d"), viewport: v}); }
   function zoom(f) {
@@ -3361,8 +3414,11 @@ const Notas = (() => {
     if (!r.ok) throw new Error("No se ha podido subir la imagen: " + r.status + " " + (await r.text()).slice(0, 120));
     return {id, archivo};
   }
+  // orden en el Chat: «orden» (lo ponen «Unir» y «Juntar») o, si no, la fecha; igual que en la base de datos (_imagenes_chat)
+  const ordK = n => new Date(n.orden || n.creado).getTime();
+  const porOrden = (a, b) => ordK(a) - ordK(b) || (a.creado < b.creado ? -1 : a.creado > b.creado ? 1 : 0) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
   function imagenesDe(doc) {
-    return (cache || []).filter(n => n.ambito === "capturas" && n.doc === doc && n.imagen && !n.borrado).sort((a, b) => a.creado < b.creado ? -1 : 1)
+    return (cache || []).filter(n => n.ambito === "capturas" && n.doc === doc && n.imagen && !n.borrado).sort(porOrden)
       .map(n => Object.assign(n, {url: cfg && cfg.local ? n.datos : urlCap(n.imagen)}));
   }
   async function subirImagenTema(doc, blob, meta) {
@@ -3375,6 +3431,45 @@ const Notas = (() => {
     const f = {ambito: "capturas", doc, texto: meta.texto || "", imagen: archivo, img_w: meta.ancho, img_h: meta.alto, pagina: k};
     if (cfg.local) f.datos = meta.dataURL;
     return crear(f);           /* Enrique 24-oct: no se manda sola; se manda al publicar el comentario (con lo dibujado encima) */
+  }
+  // Enrique 25-oct: borrar o sustituir una imagen del Chat, unir conversaciones y juntar bloques (funciones de la base de datos,
+  // que comprueban que lo hace quien subió la imagen o empezó la conversación, o el administrador)
+  const llaveRpc = () => esAdmin ? ls("visor.admin") : llave;
+  async function rpcOk(f, args) {
+    if (!await config() || cfg.local) throw new Error("Hace falta la base de datos de comentarios");
+    await huellaP;
+    const r = await api("POST", "rpc/" + f, Object.assign({}, args, {p_llave: llaveRpc()}));
+    if (r !== "ok") throw new Error(r ? String(r).charAt(0).toUpperCase() + String(r).slice(1) : "No se ha podido");
+    await todas(true);
+  }
+  function puedeImagen(d, k) {
+    if (esAdmin) return true;
+    if (k === 1) return !!(d && d.borrable);
+    const n = imagenesDe(d.archivo)[k - 2]; return !!(n && mia(n));
+  }
+  const puedeChat = d => esAdmin || !!(d && d.borrable);
+  const quitarImagen = (doc, k) => rpcOk("quitar_imagen", {p_cap: doc, p_k: k});
+  async function cambiarImagen(doc, k, blob, meta) { await config(); const {archivo} = await subirArchivo(blob); return rpcOk("cambiar_imagen", {p_cap: doc, p_k: k, p_archivo: archivo, p_w: meta.ancho, p_h: meta.alto}); }
+  const unirCapturas = (dest, orig) => rpcOk("unir_capturas", {p_destino: dest, p_origen: orig});
+  async function juntarBloques(doc, k1, k2) {
+    // el bloque que va después pasa al que va antes: sus imágenes, justo detrás de las de ese bloque (así se ven juntas);
+    // sus mensajes, detrás de los de ese bloque. Las imágenes se renumeran (y lo dibujado encima sigue con su imagen).
+    await todas(true);
+    const raiz = deDoc("capturas", doc).filter(n => !n.respuesta_a && !n.borrado), G = gruposDe(raiz);
+    let ia = G.findIndex(g => g.ks.includes(k1)), ib = G.findIndex(g => g.ks.includes(k2));
+    if (ia < 0 || ib < 0 || ia === ib) throw new Error("Ya van juntas");
+    if (ia > ib) [ia, ib] = [ib, ia];
+    const A = G[ia], B = G[ib], imgs = g => g.img.filter(Boolean), resto = g => g.notas.filter(n => !g.img.includes(n));
+    const seq = [];
+    G.forEach((g, i) => { if (i === ib) return; if (i === ia) seq.push(...imgs(A), ...imgs(B), ...resto(A), ...resto(B)); else seq.push(...g.notas); });
+    const antes = imagenesDe(doc), mapa = new Map([[1, 1]]);
+    antes.forEach((n, i) => mapa.set(i + 2, seq.filter(x => x.imagen).indexOf(n) + 2));
+    const ks = seq.map(ordK).sort((a, b) => a - b);
+    for (let i = 1; i < ks.length; i++) if (ks[i] <= ks[i - 1]) ks[i] = ks[i - 1] + 1;
+    const filas = seq.map((n, i) => { const f = {id: n.id, orden: new Date(ks[i]).toISOString()}; if (n.pagina != null && mapa.has(n.pagina)) f.pagina = mapa.get(n.pagina); return f; });
+    for (const n of deDoc("capturas", doc).filter(n => n.respuesta_a && n.pagina != null && mapa.has(n.pagina))) filas.push({id: n.id, orden: n.orden || n.creado, pagina: mapa.get(n.pagina)});
+    await rpcOk("ordenar_chat", {p_cap: doc, p_filas: filas});
+    return mapa.get(Math.min(...A.ks));
   }
   async function ponTema(id, t) {
     if (cfg.local) { const L = ls(LKEY + ".cap") || [], x = L.find(c => c.id === id); if (x) x.tema = t; ls(LKEY + ".cap", L); return; }
@@ -3515,7 +3610,7 @@ const Notas = (() => {
   // Enrique 24-oct: varias imágenes seguidas, sin nada escrito ni dibujado entre ellas, van juntas en un mismo bloque
   // (dos ángulos del mismo problema) y se ven juntas, una debajo de otra.
   function gruposDe(raiz) {
-    const L = raiz.slice().sort((a, b) => a.creado < b.creado ? -1 : a.creado > b.creado ? 1 : 0);
+    const L = raiz.slice().sort(porOrden);
     const G = [{ks: [1], notas: [], abierto: true, img: [null]}];
     let k = 1;
     for (const n of L) {
@@ -3544,7 +3639,10 @@ const Notas = (() => {
       });
       const nm = items.filter(Boolean).length, cerrado = pleg.includes(g.ks[0]);
       // Enrique 24-oct: cada bloque se pliega con su flecha (se recuerda en este navegador), para no tener que bajar tanto
+      const unido = g.img.filter(Boolean).map(n => n.unido_de).filter(Boolean);
       const cab = '<div class="cab-img" data-k="' + g.ks[0] + '"><span class="mins">' + miniaturas + "</span><span class=\"cab-t\"><b>" + listaKs(g.ks) + "</b>" + (quien ? " · " + escH(quien) : "") +
+        (unido.length ? ' · <span class="unido">viene de «' + escH(unido[0]) + "»</span>" : "") +
+        (G.length > 1 && puedeChat(d) && !(d && d.resuelta_por) ? ' <button class="lnk juntar" data-juntar="' + g.ks[0] + '" title="Este bloque y otro van sobre lo mismo: juntarlos en uno">Juntar…</button>' : "") +
         (cerrado && nm ? ' · <span class="n-msg">' + nm + (nm === 1 ? " mensaje" : " mensajes") + "</span>" : "") + "</span>" +
         (nm ? '<button class="plegar" data-plegar="' + g.ks[0] + '" aria-expanded="' + !cerrado + '" title="' + (cerrado ? "Desplegar" : "Plegar") + '">' + (cerrado ? "▸" : "▾") + "</button>" : "") + "</div>";
       return '<div class="bloque-img' + (g.ks.includes(va) ? " on" : "") + (cerrado ? " plegado" : "") + '" data-ks="' + g.ks.join(",") + '">' + cab + (cerrado ? "" : items.join("") || (i === 0 && !raiz.length ? '<p class="nota">Sin comentarios todavía.</p>' : "")) + "</div>";
@@ -3560,7 +3658,7 @@ const Notas = (() => {
       (a ? '<p class="nota">Comentas como <b>' + escH(a) + "</b>" + (esAdmin ? " (administrador)" : "") + ' <button class="lnk" data-quien>cambiar</button></p>' : '<input class="filtro" data-nombre placeholder="Tu nombre (se ve con cada comentario)">') +
       '<textarea class="filtro" rows="3" placeholder="' + escH(texto) + '"></textarea>' +
       (ambito === "capturas" && id === "compDoc" ? '<div class="adjs" data-adjs>' + adjuntos.map((a, i) => '<span class="adj"><img src="' + a.url + '" alt=""><button class="lnk" data-quita="' + i + '" aria-label="Quitar">×</button></span>').join("") + "</div>" : "") +
-      '<div class="fila"><button class="btn" data-guardar>Publicar</button>' + (ambito === "capturas" && id === "compDoc" ? '<button class="btn" data-adj title="Una o varias imágenes con el mensaje (también se pueden pegar aquí)">Añadir imagen</button><input type="file" accept="image/*,.heic,.heif" multiple hidden data-adjf>' : "") + '<label class="chk pc-chk" title="Que le llegue a Claude"' + (ambito === "capturas" && id === "compDoc" ? " hidden" : "") + '><input type="checkbox" data-pcn checked> Mandar a Claude</label>' +
+      '<div class="fila"><button class="btn" data-guardar>Publicar</button>' + (ambito === "capturas" && id === "compDoc" ? '<button class="btn" data-adj title="Una o varias imágenes con el mensaje (también se pueden pegar aquí)">Añadir imagen</button><input type="file" accept="image/*,.heic,.heif" multiple hidden data-adjf>' : "") + '<label class="chk pc-chk" title="' + (ambito === "capturas" && id === "compDoc" ? "Que le llegue ya a Claude (quítalo para dejarlo para un lote)" : "Que le llegue a Claude") + '"><input type="checkbox" data-pcn' + " checked" + '> Mandar a Claude' + (ambito === "capturas" && id === "compDoc" ? " ya" : "") + "</label>" +
       (pend ? '<button class="btn" data-cancelar>' + (pend.dibujo.t === "trazos" ? "Quitar el dibujo" : "Quitar la marca") + "</button>" : "") + "</div></div>";
   }
   function engancha(el, amb, doc) {
@@ -3588,13 +3686,14 @@ const Notas = (() => {
         if (pend && !comp.dataset.resp) { f.pagina = pend.pagina; f.dibujo = pend.dibujo; }
         else if (conImg) f.pagina = imagenesDe(doc).length + 1;
         else if (amb === "capturas" && Docs.verActual()) f.pagina = Docs.verActual();
+        const mandarYa = amb !== "capturas" || comp.dataset.resp || !pcn || pcn.checked;
         if (amb === "capturas") delete f.para_claude;       /* en capturas lo que se manda es la captura entera */
         try {
           const n = await crear(f); if (!comp.dataset.resp) pend = null; focoId = n.id;
           /* una respuesta mandada a Claude reabre el hilo para Claude (lo que vigila es el comentario principal) */
           if (f.respuesta_a && f.para_claude) { const raiz = (cache || []).find(x => x.id === f.respuesta_a); if (raiz && !raiz.para_claude) try { await marcar(raiz, true); } catch (e) {} }
           pinta();
-          if (amb === "capturas" && doc) { const d = Docs.actualDoc(); if (d && d.archivo === doc && !d.resuelta_por) { await marcarCaptura(doc, true); d.alMandar && d.alMandar(); toast("Publicado y mandado a Claude", 3000); } }
+          if (amb === "capturas" && doc) { const d = Docs.actualDoc(); if (d && d.archivo === doc && !d.resuelta_por) { if (mandarYa) { await marcarCaptura(doc, true); d.alMandar && d.alMandar(); toast("Publicado y mandado a Claude", 3000); } else toast("Publicado. No se manda aún: para un lote, en «Lote para Claude»", 4000); } }
         } catch (e) { toast(e.message, 4000); }
       };
       if (pend && pend.dibujo.t !== "trazos") setTimeout(() => comp.querySelector("textarea").focus(), 0);   /* al dibujar no se abre el teclado del iPad */
@@ -3606,6 +3705,8 @@ const Notas = (() => {
       ls("visor.plegado.hilos2", P); pinta();
     });
     el.querySelectorAll(".cab-img").forEach(c => c.onclick = e => {
+      const jb = e.target.closest("[data-juntar]");
+      if (jb) { e.stopPropagation(); elegirBloque(doc, +jb.dataset.juntar); return; }
       const pb = e.target.closest("[data-plegar]");
       if (pb) { e.stopPropagation(); const k = +pb.dataset.plegar, K = "visor.plegado." + docAct, L = (ls(K) || []).filter(x => x !== k); if (pb.getAttribute("aria-expanded") === "true") L.push(k); ls(K, L); pinta(); return; }
       const t = e.target.closest("[data-k]"); Docs.verVersion(+(t || c).dataset.k);
@@ -3655,6 +3756,125 @@ const Notas = (() => {
         (hilo[hilo.length - 1] || d).after(c); engancha({querySelector: () => c, querySelectorAll: () => []}, amb, doc); pend = sv; c.querySelector("textarea").focus();
       };
       d.onclick = () => { focoId = n.id; if (ambito === "capturas" && n.pagina && n.pagina !== Docs.verActual()) { Docs.verVersion(n.pagina); return; } if (n.pagina) irA(n); pinta(); };
+    });
+  }
+
+  /* ---------- juntar bloques del Chat (Enrique 25-oct) */
+  async function elegirBloque(doc, k) {
+    const raiz = deDoc("capturas", doc).filter(n => !n.respuesta_a && !n.borrado), G = gruposDe(raiz), d = Docs.actualDoc();
+    const este = G.find(g => g.ks.includes(k)); if (!este) return;
+    const mini = g => g.ks.map((kk, j) => { const n = g.img[j], u = n ? (n.url || urlCap(n.imagen)) : d && d.url; return u ? '<img src="' + escH(u) + '" alt="" style="width:46px;height:32px;object-fit:cover;border:0.5px solid var(--ink);vertical-align:middle;margin-right:4px">' : ""; }).join("");
+    const v = await dialogo("<h3>Juntar " + listaKs(este.ks).toLowerCase() + " con…</h3>" +
+      '<p class="nota">Las imágenes de los dos bloques se verán juntas y sus mensajes irán seguidos, en el bloque que va antes. Las imágenes se vuelven a numerar; lo dibujado sigue con su imagen.</p>' +
+      '<div class="lst">' + G.filter(g => g !== este).map(g => '<button class="btn" data-v="' + g.ks[0] + '">' + mini(g) + listaKs(g.ks) + "</button>").join("") + "</div>" +
+      '<button class="lnk" data-no>Cancelar</button>');
+    if (!v) return;
+    try { toast("Juntando…", 6000); const nk = await juntarBloques(doc, +v, k); toast("Juntados en un bloque", 3000); Docs.verVersion(nk); pinta(); }
+    catch (e) { toast(e.message, 5000); }
+  }
+
+  /* ---------- lotes para Claude (Enrique 25-oct): marcas varios temas y una instrucción general; Claude los va
+     resolviendo uno a uno (contesta en cada tema, como siempre) y deja aquí el resumen: hecho, «decidido por mí» y
+     preguntas. Un lote es una nota con ámbito «lotes» (sus respuestas, el resumen y lo que se le conteste). */
+  let focoPend = null;
+  const AMB = {laminas: "Lámina", memorias: "Memoria", mediciones: "Mediciones"};
+  const novedad = lst => {
+    let h = "", c = "";
+    for (const n of lst) { if (n.borrado) continue; if (n.autor === "Claude") { if (n.creado > c) c = n.creado; } else if (String(n.texto || "").trim() || n.dibujo) { if (n.creado > h) h = n.creado; } }
+    return !!h && h > c;
+  };
+  async function temasLote() {
+    const caps = ((await capturas()) || []).filter(c => !c.resuelta_por), T = [];
+    for (const c of caps) T.push({t: "captura", id: c.archivo, titulo: c.titulo, grupo: "Chat", nuevo: novedad(deDoc("capturas", c.archivo)), mandado: c.para_claude});
+    for (const n of (cache || []).filter(n => AMB[n.ambito] && !n.respuesta_a && !n.resuelto_por && !soloImagen(n) && !n.borrado)) {
+      const hilo = [n].concat((cache || []).filter(x => x.respuesta_a === n.id));
+      T.push({t: "nota", id: n.id, ambito: n.ambito, doc: n.doc || null, pagina: n.pagina || null, grupo: {laminas: "Láminas", memorias: "Memorias", mediciones: "Mediciones"}[n.ambito],
+        titulo: (n.doc ? String(n.doc).replace(/\.pdf$/i, "") : AMB[n.ambito]) + (n.pagina ? " · pág. " + n.pagina : "") + " · " + String(n.texto || "").replace(/\s+/g, " ").slice(0, 70),
+        nuevo: novedad(hilo), mandado: !!n.para_claude});
+    }
+    return T;
+  }
+  async function nuevoLote() {
+    if (!await config()) { toast("Hace falta la base de datos de comentarios"); return; }
+    if (!autor()) { const nm = (prompt("Tu nombre (sale con el lote)") || "").trim(); if (!nm) return; ls("visor.autor", nm.slice(0, 60)); }
+    await todas(true);
+    const T = await temasLote();
+    if (!T.length) { toast("No hay temas abiertos"); return; }
+    let h = "<h3>Lote para Claude</h3>" +
+      '<textarea class="filtro" rows="3" data-txt placeholder="Instrucción general (p. ej. Ve punto por punto resolviendo lo que te he marcado)"></textarea>' +
+      '<p class="nota">Marca los temas que entran. Salen marcados los que tienen algo tuyo nuevo sin contestar. Claude los hace uno a uno y contesta en cada tema; lo que se pueda deshacer y no esté claro lo decide y lo dice; lo gordo se lo salta y te lo pregunta en el resumen, sin parar el resto.</p><div class="temas">';
+    let gr = "";
+    T.forEach((t, i) => {
+      if (t.grupo !== gr) { gr = t.grupo; h += "<h4>" + escH(gr) + "</h4>"; }
+      h += '<label><input type="checkbox" data-i="' + i + '"' + (t.nuevo && !t.mandado ? " checked" : "") + "><span>" + escH(t.titulo) + (t.nuevo ? ' <span class="nv">· nuevo</span>' : "") + (t.mandado ? ' <span class="nota">· ya mandado</span>' : "") + "</span></label>";
+    });
+    h += '</div><button class="btn rojo" data-ok>Mandar lote a Claude</button><button class="lnk" data-no>Cancelar</button>';
+    const r = await dialogo(h, (f, fin) => {
+      f.querySelector("[data-ok]").onclick = () => {
+        const sel = [...f.querySelectorAll("[data-i]:checked")].map(x => T[+x.dataset.i]);
+        if (!sel.length) { toast("Marca al menos un tema"); return; }
+        fin({texto: f.querySelector("[data-txt]").value.trim(), temas: sel.map(t => { const o = {t: t.t, id: t.id, titulo: t.titulo}; if (t.t === "nota") Object.assign(o, {ambito: t.ambito, doc: t.doc, pagina: t.pagina}); return o; })});
+      };
+      setTimeout(() => f.querySelector("[data-txt]").focus(), 0);
+    });
+    if (!r || typeof r !== "object") return;
+    try {
+      await crear({ambito: "lotes", doc: "lotes", texto: r.texto || "Ve punto por punto resolviendo lo que te he marcado.", temas: r.temas, para_claude: true});
+      toast("Lote mandado a Claude: " + r.temas.length + (r.temas.length === 1 ? " tema" : " temas") + ". El resumen saldrá aquí.", 5000);
+      ls("visor.lote.abierto", true); pintaLotes();
+    } catch (e) { toast(e.message, 5000); }
+  }
+  function abrirTema(t) {
+    const P = proy();
+    if (t.t === "captura") { ls("visor.doc." + P + ".capturas", t.id); if (S.modo === "cap") Docs.abrir("capturas"); else modo("cap"); return; }
+    ls("visor.doc." + P + "." + t.ambito, t.doc); focoPend = t.id;
+    const m = {laminas: "lam", memorias: "mem", mediciones: "datos"}[t.ambito]; if (m) modo(m);
+  }
+  async function pintaLotes() {
+    const sec = $("secLote"), el = $("loteCuerpo"); if (!sec || !el) return;
+    if (!await config() || cfg.local) { sec.hidden = true; return; }
+    await todas();
+    const L = (cache || []).filter(n => n.ambito === "lotes" && !n.respuesta_a && !n.borrado).sort((a, b) => a.creado < b.creado ? 1 : -1);
+    const resp = id => (cache || []).filter(x => x.respuesta_a === id && !x.borrado).sort((a, b) => a.creado < b.creado ? -1 : 1);
+    const abiertos = L.filter(n => !n.resuelto_por), porRevisar = abiertos.filter(n => n.corregido_por).length;
+    sec.querySelector("summary").textContent = "Lote para Claude" + (porRevisar ? " · " + porRevisar + " por revisar" : abiertos.length ? " · " + abiertos.length + " en marcha" : "");
+    if (document.activeElement && el.contains(document.activeElement) && document.activeElement.tagName === "TEXTAREA") return;   // no rehacer mientras se escribe
+    const uno = n => '<div class="lote-i" data-id="' + n.id + '">' + etiqueta(n) + '<b class="lote-t">' + escH(n.autor) + " · " + fecha(n.creado) + "</b>" +
+      '<div class="lote-t">' + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
+      '<div class="lote-temas">' + (n.temas || []).map((t, i) => '<button class="lnk" data-tema="' + i + '">' + (i + 1) + ". " + escH(t.titulo || "tema") + "</button>").join("") + "</div>" +
+      resp(n.id).map(r => '<div class="lote-r"><b>' + escH(r.autor) + " · " + fecha(r.creado) + "</b>\n" + escH(r.texto) + "</div>").join("") +
+      '<div class="acc"><button class="lnk" data-resp>Contestar</button>' + (n.corregido_por && !n.resuelto_por ? ' <button class="lnk" data-ok>Visto bueno</button>' : "") +
+      (n.resuelto_por ? ' <button class="lnk" data-reabrir>Reabrir</button>' : "") + (mia(n) ? ' <button class="lnk" data-borrar>Borrar</button>' : "") + "</div></div>";
+    const hechos = L.filter(n => n.resuelto_por);
+    el.innerHTML = '<div class="fila"><button class="btn rojo" data-nuevo>Nuevo lote…</button></div>' +
+      '<p class="nota">Para no tener que estar pendiente: escribe en cada tema sin «Mandar a Claude ya» y luego manda aquí los que quieras, juntos.</p>' +
+      abiertos.map(uno).join("") + (hechos.length ? '<details><summary class="nota">Lotes con visto bueno (' + hechos.length + ")</summary>" + hechos.slice(0, 20).map(uno).join("") + "</details>" : "");
+    sec.open = !!ls("visor.lote.abierto");
+    sec.ontoggle = () => ls("visor.lote.abierto", sec.open);
+    el.querySelector("[data-nuevo]").onclick = nuevoLote;
+    el.querySelectorAll(".lote-i").forEach(d => {
+      const n = L.find(x => x.id === d.dataset.id); if (!n) return;
+      d.querySelectorAll("[data-tema]").forEach(b => b.onclick = () => abrirTema((n.temas || [])[+b.dataset.tema]));
+      const ok = d.querySelector("[data-ok]"); if (ok) ok.onclick = async () => { if (!autor()) { toast("Escribe primero tu nombre"); return; } try { await cambia(n, {resuelto_por: autor()}); pintaLotes(); } catch (e) { toast(e.message, 4000); } };
+      const ra = d.querySelector("[data-reabrir]"); if (ra) ra.onclick = async () => { try { await cambia(n, {resuelto_por: null}); pintaLotes(); } catch (e) { toast(e.message, 4000); } };
+      const bb = d.querySelector("[data-borrar]");
+      if (bb) bb.onclick = async () => { if (!bb.dataset.seguro) { bb.dataset.seguro = 1; bb.textContent = "¿Seguro? Borrar"; setTimeout(() => { if (bb.isConnected) { delete bb.dataset.seguro; bb.textContent = "Borrar"; } }, 4000); return; } try { await borrar(n); pintaLotes(); } catch (e) { toast(e.message, 4000); } };
+      d.querySelector("[data-resp]").onclick = () => {
+        if (d.querySelector(".comp")) return;
+        const c = document.createElement("div"); c.className = "comp resp";
+        c.innerHTML = '<textarea class="filtro" rows="3" placeholder="Contesta a sus preguntas o di qué falta…"></textarea><div class="fila"><button class="btn" data-pub>Publicar</button><label class="chk pc-chk"><input type="checkbox" data-pcn checked> Mandar a Claude</label><button class="lnk" data-no>Cancelar</button></div>';
+        d.appendChild(c); const ta = c.querySelector("textarea"); ta.focus();
+        c.querySelector("[data-no]").onclick = () => c.remove();
+        c.querySelector("[data-pub]").onclick = async () => {
+          const t = ta.value.trim(); if (!t) { ta.focus(); return; }
+          if (!autor()) { const nm = (prompt("Tu nombre") || "").trim(); if (!nm) return; ls("visor.autor", nm.slice(0, 60)); }
+          try {
+            await crear({ambito: "lotes", doc: "lotes", texto: t, respuesta_a: n.id});
+            if (c.querySelector("[data-pcn]").checked) { await marcar(n, true); if (n.resuelto_por) await cambia(n, {resuelto_por: null}); }
+            c.remove(); pintaLotes(); toast("Contestado", 2500);
+          } catch (e) { toast(e.message, 4000); }
+        };
+      };
     });
   }
 
@@ -3791,6 +4011,7 @@ const Notas = (() => {
     pintaEstado();
     if (ambito === "capturas") Docs.tiraVersiones();
     if (cerrada) { pend = null; if (herr !== "ver") herramienta("ver"); el.innerHTML = htmlLista(deDoc(ambito, docAct)).replace('<p class="nota">Sin comentarios todavía.</p>', "").replace(/<details class="hechas">/, '<details class="hechas" open>'); engancha(el, ambito, docAct); for (const n of paginas.keys()) marcas(n); cuentas(); return; }
+    if (ambito === "capturas") pintaLotes();
     el.innerHTML = htmlLista(deDoc(ambito, docAct)) + compositor("compDoc", pend ? "Comentario…" : ambito === "capturas" ? "Qué hay que cambiar: escribe aquí y marca encima de la imagen con las herramientas de arriba…" : "Comentario general del documento, o marca algo en la página con las herramientas de arriba…");
     engancha(el, ambito, docAct);
     for (const n of paginas.keys()) marcas(n);
@@ -3809,7 +4030,7 @@ const Notas = (() => {
       if (!s) { s = document.createElement("i"); s.className = "cnt"; b.prepend(s); } s.textContent = k;
     });
   }
-  function enDoc(t, d) { const nd = d ? d.archivo : null; if (nd !== docAct) quitaAdjuntos(); ambito = t; docAct = nd; pend = null; focoId = null; paginas.clear(); pinta(); }
+  function enDoc(t, d) { const nd = d ? d.archivo : null; if (nd !== docAct) quitaAdjuntos(); ambito = t; docAct = nd; pend = null; focoId = focoPend; focoPend = null; paginas.clear(); pinta(); }
   // imágenes que acompañan al mensaje que se está escribiendo en el Chat (se suben al publicar)
   let adjuntos = [];
   function quitaAdjuntos() { for (const a of adjuntos) URL.revokeObjectURL(a.url); adjuntos = []; }
@@ -3821,7 +4042,7 @@ const Notas = (() => {
     await pinta();
     const t2 = document.querySelector("#notasDoc .comp textarea"); if (t2 && txt && !t2.value) t2.value = txt;
   }
-  function enDatos() { ambito = "mediciones"; pend = null; pinta(); }
+  function enDatos() { ambito = "mediciones"; pend = null; if (focoPend) { focoId = focoPend; focoPend = null; } pinta(); }
   document.querySelectorAll("#notasHerr [data-nh]").forEach(b => b.onclick = () => herramienta(herr === b.dataset.nh && b.dataset.nh !== "ver" ? "ver" : b.dataset.nh));
   setInterval(async () => {                                 // lo que escriban otros aparece solo
     if (document.hidden || !(S.modo === "lam" || S.modo === "mem" || S.modo === "datos" || S.modo === "cap") || !cfg) return;
@@ -3829,6 +4050,7 @@ const Notas = (() => {
     await todas(true);
     const n1 = cache.length + "|" + cache.filter(n => n.resuelto_por).length;
     if (n0 !== n1 && !document.querySelector(".comp textarea:focus")) pinta();
+    else if (S.modo === "cap") pintaLotes();
   }, 20000);
   config();                                 // al abrir: «Modo admin» arriba si este navegador tiene la clave
   // en vertical (panel debajo del dibujo) Editor / Abrir / Modo admin van a la cabeza del panel; si no, en la cabecera
@@ -3842,7 +4064,8 @@ const Notas = (() => {
     try { history.replaceState(null, "", location.pathname + (q ? q + "&" : "?") + "admin=" + k + location.hash); } catch (e) { return; }
     toast("Listo para guardar como app en modo admin: en el iPad, Compartir › Añadir a pantalla de inicio; en el Mac, Archivo › Añadir al Dock. No compartas esta dirección.", 9000);
   };
-  return {enDoc, enDatos, pagina, marcaBloque, grupos, adjuntar, herramienta, capturas, subirCaptura, subirImagenTema, imagenesDe, ponTema, borrarCaptura, marcarCaptura, resolverCaptura};
+  return {enDoc, enDatos, pagina, marcaBloque, grupos, adjuntar, herramienta, capturas, subirCaptura, subirImagenTema, imagenesDe, ponTema, borrarCaptura, marcarCaptura, resolverCaptura,
+    puedeImagen, puedeChat, quitarImagen, cambiarImagen, unirCapturas, pintaLotes, nuevoLote};
 })();
 
 /* ============================================================ interfaz */
@@ -3861,6 +4084,7 @@ function modo(m) {
   if (m === "ed" && S.soloVer) m = "2d";
   if (S.soloEditor && m !== "ed") return;
   S.modo = m;
+  if (m === "3d" || m === "2d") S.ultVista = m; else S.sustituir = null;
   document.body.classList.toggle("editor", m === "ed");
   const plano = m === "2d" || m === "ed", doc = m === "lam" || m === "mem" || m === "cap";
   const tabs = {"3d": "tab3d", "2d": "tab2d", lam: "tabLam", mem: "tabMem", datos: "tabDatos", cap: "tabCap"};
@@ -3989,14 +4213,29 @@ $("btnCaptura").onclick = async () => {
     const so = $("selCam").selectedOptions[0], mo = $("selModelo").selectedOptions[0];
     const vista = S.modo === "3d" ? "3D · " + (so ? so.textContent : "") + (mo ? " · " + mo.textContent : "") : "2D · " + ((S.proyecto && S.proyecto.plano && S.proyecto.plano.doc) || "plano");
     const camara = S.modo === "3d" ? Object.assign(V3.camara(), {m: $("selModelo").value, pr: S.proyecto ? S.proyecto.id : null}) : null;
-    const dest = await elegirDestino(1); if (!dest) return;
-    toast("Subiendo la captura…", 8000);
+    const sust = S.sustituir;
+    const dest = sust ? {sust} : await elegirDestino(1); if (!dest) return;
+    toast(sust ? "Sustituyendo la imagen " + sust.k + "…" : "Subiendo la captura…", 8000);
     const f = await subirImagen(blob, {vista, ancho: c.width, alto: c.height, dataURL: c.toDataURL("image/jpeg", 0.6), camara}, dest);
     ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + ".capturas", f.id);
-    if (S.modo === "cap") Docs.abrir("capturas"); else modo("cap"); toast("Captura guardada. Dibuja encima y/o escribe: le llega a Claude al publicar", 5000);
+    S.sustituir = null;
+    if (S.modo === "cap") Docs.abrir("capturas"); else modo("cap"); toast(sust ? "Imagen " + sust.k + " sustituida" : "Captura guardada. Dibuja encima y/o escribe: le llega a Claude al publicar", 5000);
   } catch (e) { toast(e.message || String(e), 5000); }
   finally { b.disabled = false; }
 };
+// cuadro de diálogo: devuelve el data-v del botón pulsado (o lo que pase alAbrir a fin), o null al cancelar
+function dialogo(html, alAbrir) {
+  return new Promise(ok => {
+    const fondo = document.createElement("div"); fondo.className = "destino";
+    fondo.innerHTML = '<div role="dialog">' + html + "</div>";
+    const fin = v => { fondo.remove(); removeEventListener("keydown", esc_); ok(v); };
+    const esc_ = e => { if (e.key === "Escape") fin(null); };
+    addEventListener("keydown", esc_);
+    fondo.onclick = e => { if (e.target === fondo || e.target.closest("[data-no]")) { fin(null); return; } const b = e.target.closest("[data-v]"); if (b) fin(b.dataset.v); };
+    document.body.appendChild(fondo);
+    if (alAbrir) alAbrir(fondo, fin);
+  });
+}
 // ¿dónde va una imagen nueva? a un tema nuevo o a la conversación de uno abierto
 async function elegirDestino(n) {
   const L = ((await Notas.capturas()) || []).filter(c => !c.resuelta_por);
@@ -4020,6 +4259,7 @@ async function elegirDestino(n) {
   });
 }
 async function subirImagen(blob, meta, dest) {
+  if (dest.sust) { await Notas.cambiarImagen(dest.sust.doc, dest.sust.k, blob, meta); Docs.restaura({t: "capturas", a: dest.sust.doc, v: dest.sust.k, z: 0, sx: 0, sy: 0}); return {id: dest.sust.doc}; }
   if (dest.a) { await Notas.subirImagenTema(dest.a, blob, meta); return {id: dest.a}; }
   return Notas.subirCaptura(blob, Object.assign({}, meta, {tema: dest.tema || null}));
 }
