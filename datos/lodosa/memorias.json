@@ -1,18 +1,18 @@
 {
  "formato": "arrova-memorias",
  "proyecto": "lodosa",
- "fecha": "2026-10-24 00:09",
+ "fecha": "2026-10-26 16:58",
  "pdfs": [
   {
    "archivo": "memorias/00_Hoja_Control_Pendientes.pdf",
    "titulo": "Hoja de control · pendientes y discrepancias",
-   "nota": "14 páginas · 24-10-2026 00:08",
+   "nota": "14 páginas · 26-10-2026 16:37",
    "marcado": true
   },
   {
    "archivo": "memorias/00_Datos_Certificado_Energetico.pdf",
    "titulo": "Datos para el certificado energético",
-   "nota": "11 páginas · 24-10-2026 00:08"
+   "nota": "11 páginas · 26-10-2026 16:37"
   },
   {
    "archivo": "memorias/00_Esquemas_Soleamiento.pdf",
@@ -42,22 +42,22 @@
   {
    "archivo": "memorias/02_Memoria_Habitabilidad.pdf",
    "titulo": "Memoria de habitabilidad",
-   "nota": "02 · 7 páginas · 24-10-2026 00:08"
+   "nota": "02 · 7 páginas · 26-10-2026 16:37"
   },
   {
    "archivo": "memorias/03_Memoria_Descriptiva_y_Constructiva.pdf",
    "titulo": "Memoria descriptiva y constructiva",
-   "nota": "03 · 20 páginas · 24-10-2026 00:08"
+   "nota": "03 · 19 páginas · 26-10-2026 16:37"
   },
   {
    "archivo": "memorias/04_1_Memoria_Cumplimiento_CTE.pdf",
    "titulo": "Memoria de cumplimiento del CTE",
-   "nota": "04_1 · 40 páginas · 24-10-2026 00:08"
+   "nota": "04_1 · 37 páginas · 26-10-2026 16:37"
   },
   {
    "archivo": "memorias/04_2_Anejo_Justificacion_DB-HE.pdf",
    "titulo": "Anejo · justificación DB-HE",
-   "nota": "04_2 · 15 páginas · 24-10-2026 00:08"
+   "nota": "04_2 · 15 páginas · 26-10-2026 16:37"
   },
   {
    "archivo": "memorias/04_3_Memoria_Estructural.pdf",
