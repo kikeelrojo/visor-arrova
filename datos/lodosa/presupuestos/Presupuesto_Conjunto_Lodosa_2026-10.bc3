@@ -1,6 +1,6 @@
 ~V|ARROVA|FIEBDC-3/2016|Claude|\|ANSI||||||
 ~K|\2\2\3\2\2\2\2\EUR\|0|
-~C|LODOSA##||VIVIENDA UNIFAMILIAR EN LODOSA · C. ANCHA 34|400925.35|27102026|0|
+~C|LODOSA##||VIVIENDA UNIFAMILIAR EN LODOSA · C. ANCHA 34|401272.30|27102026|0|
 ~D|LODOSA##|D#\1\1\ON#\1\1\|
 ~C|D#||DERRIBO|21339.28|27102026|0|
 ~D|D#|D01#\1\1\D02#\1\1\D03#\1\1\D04#\1\1\|
@@ -81,7 +81,7 @@
 ~C|D04.05|ud|HIGIENE, BOTIQUÍN Y FORMACIÓN|178.00|27102026|0|
 ~T|D04.05|Instalaciones de higiene (aseo químico o local habilitado), botiquín y formación e información de los trabajadores. Según el Estudio Básico de Seguridad y Salud del Proyecto de Derribo (anexo 4).|
 ~M|D04#\D04.05||1|\Partida alzada\1\\\\|
-~C|ON#||OBRA NUEVA|379586.07|27102026|0|
+~C|ON#||OBRA NUEVA|379933.02|27102026|0|
 ~D|ON#|01#\1\1\02#\1\1\03#\1\1\04#\1\1\05#\1\1\06#\1\1\07#\1\1\08#\1\1\09#\1\1\10#\1\1\11#\1\1\12#\1\1\13#\1\1\14#\1\1\15#\1\1\16#\1\1\18#\1\1\19#\1\1\20#\1\1\|
 ~C|01#||CONSIDERACIONES PREVIAS|1530.90|27102026|0|
 ~D|01#|01.01\1\1\01.02\1\1\01.03\1\1\01.04\1\1\01.05\1\1\01.06\1\1\|
@@ -287,8 +287,8 @@
 ~C|07.13|m2|BARRERA DE VAPOR BAJO EL AISLAMIENTO EN CUBIERTA PLANA, PATIO Y PORCHE|3.80|27102026|0|
 ~T|07.13|Barrera de vapor de film de polietileno de baja densidad de 0,2 mm sobre el forjado, bajo el XPS, con solapes de 10 cm sellados con cinta y entrega en los perímetros hasta la cara superior del aislamiento, en la cubierta plana y en el patio y el porche de planta primera (Enrique, 14-oct).|
 ~M|07#\07.13||59.06|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\59.06\\\|
-~C|08#||AISLAMIENTOS, IMPERMEABILIZACIÓN Y SELLADOS|7522.95|27102026|0|
-~D|08#|08.01\1\59.65\08.02\1\190.46\08.03\1\219.91\08.04\1\69.7\08.05\1\20\08.06\1\140.2\08.07\1\6\08.08\1\70.14\|
+~C|08#||AISLAMIENTOS, IMPERMEABILIZACIÓN Y SELLADOS|7524.45|27102026|0|
+~D|08#|08.01\1\59.65\08.02\1\190.46\08.03\1\219.91\08.04\1\69.7\08.05\1\20\08.06\1\140.42\08.07\1\6\08.08\1\70.14\|
 ~C|08.01|m2|AISLAMIENTO XPS 10 CM SOBRE FORJADO SANITARIO|16.50|27102026|0|
 ~T|08.01|Aislamiento de poliestireno extruido de 10 cm (lambda  0,034), con juntas a tope, sobre el forjado sanitario de las zonas calefactadas, incluso franja de 3,5 cm bajo umbrales.|
 ~M|08#\08.01||59.65|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\59.65\\\|
@@ -306,7 +306,7 @@
 ~M|08#\08.05||20|\Alféizares\1\20\\\|
 ~C|08.06|m|SELLADO HERMÉTICO DE CARPINTERÍAS|6.80|27102026|0|
 ~T|08.06|Sellado del perímetro de las carpinterías con cinta expansiva y láminas de estanqueidad interior/exterior para la hermeticidad (n50).|
-~M|08#\08.06||140.2|\Perímetro de huecos: 145 m de la propuesta - 13,40 m del lucernario de la propuesta + 8,60 m del V12 (lucernario escalera–terraza, opción 3)\1\140.2\\\|
+~M|08#\08.06||140.42|\Perímetro de huecos: 145 m de la propuesta - 13,40 m del lucernario de la propuesta + 8,82 m del V12 (lucernario escalera–terraza, opción 3)\1\140.42\\\|
 ~C|08.07|m2|IMPERMEABILIZACIÓN Y DRENAJE DE JARDINERA|32.00|27102026|0|
 ~T|08.07|Lámina antirraíz, capa drenante y geotextil en la jardinera integrada en la viga de borde.|
 ~M|08#\08.07||6|\Jardinera\1\6\\\|
@@ -384,7 +384,7 @@
 ~C|12.04|ud|SUMINISTRO PREMARCO MADERA|59.18|27102026|0|
 ~T|12.04|Suministro de premarcos de madera para puertas interiores. Igual a medición P01                                                                    5,00 =12/12.05.CanPres Igual a medcion P02                                                                     2,00 =12/12.22.CanPres|
 ~M|12#\12.04||8|\Puertas de paso\8\\\\|
-~C|13#||CARPINTERÍA EXTERIOR|52569.01|27102026|0|
+~C|13#||CARPINTERÍA EXTERIOR|52914.46|27102026|0|
 ~D|13#|13.01\1\4\13.02\1\3\13.03\1\1\13.04\1\2\13.05\1\1\13.06\1\2\13.07\1\1\13.08\1\1\13.09\1\1\13.10\1\1\13.11\1\1\13.12\1\1\13.13\1\1\13.14\1\1\13.15\1\1\13.16\1\21\|
 ~C|13.01|ud|CARPINTERÍA V1 · 1,15 × 2,28, FACHADA C. ANCHA|1809.53|27102026|0|
 ~T|13.01|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 690 €/m² (2.62 m²).|
@@ -428,9 +428,9 @@
 ~C|13.14|ud|PG · PUERTA BASCULANTE DE GARAJE 5,40 × 2,45 MOTORIZADA|6900.00|27102026|0|
 ~T|13.14|Puerta basculante no desbordante de una pieza de 5,40 × 2,45 m revestida en 4 paños verticales, con contrapesos en cajones laterales, carriles colgados, motor lateral, rejillas de ventilación >= 480 cm² y montaje, según la ficha LO-G2.|
 ~M|13#\13.14||1|\PG\1\\\\|
-~C|13.15|ud|CARPINTERÍA V12 · LUCERNARIO ESCALERA–TERRAZA · 2,87 × 1,80/0,94, FIJO + PRACTICABLE, VIDRIO DE CONTROL SOLAR|2888.55|27102026|0|
-~T|13.15|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. V12, lucernario de la escalera a la terraza en cubierta, en el frente este del faldón que cubre la escalera: 2,87 m de largo, alféizar a +9,84 y cabeza en el plano del faldón (de 1,80 a 0,94 m de alto), con travesaño a +10,41; fijos y hoja practicable de 0,60 m. Acristalamiento 44.1 / 16 argón / 44.1 con capa de control solar (g <= 0,35, tipo SGG Cool-Lite) en lugar de estor. Precio unitario = superficie × 690 €/m² (3,93 m²) + suplemento del vidrio de control solar (45 €/m²).|
-~M|13#\13.15||1|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\\\\|
+~C|13.15|ud|CARPINTERÍA V12 · LUCERNARIO ESCALERA–TERRAZA · 2,74 × 2,02/1,20, FIJO + PRACTICABLE, VIDRIO DE CONTROL SOLAR|3234.00|27102026|0|
+~T|13.15|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. V12, lucernario de la escalera a la terraza en cubierta, en el frente este del faldón que cubre la escalera: 2,74 m de largo, alféizar a +9,60, a nivel de la terraza, y cabeza en el plano del faldón (de 2,02 a 1,20 m de alto), con travesaño a +10,17; fijos y hoja practicable de 0,60 m. Acristalamiento 44.1 / 16 argón / 44.1 con capa de control solar (g <= 0,35, tipo SGG Cool-Lite) en lugar de estor. Precio unitario = superficie × 690 €/m² (4,40 m²) + suplemento del vidrio de control solar (45 €/m²).|
+~M|13#\13.15||1|\Medición del IFC de Vectorworks con las cotas definitivas (27-oct-2026)\1\\\\|
 ~C|13.16|m|VIERTEAGUAS DE ZINC / ALUMINIO|59.37|27102026|0|
 ~T|13.16|Ml. Vierteaguas de chapa de aluminio anodizado o lacado en su color de 2 mm de espesor, mismas especificaciones que la carpintería exteriory/o panel composite de 4 mm idem fachada y 60 cm. De desarrollo, según detalle, colocado sobre tablero de dm hidrófugo de 19 mm incluido en el precio, i/patillas de sujeción soldadas, sellado de juntas con silicona incolora y limpieza, medido en su longitud. VOLUMEN 1 Fachada norte|
 ~M|13#\13.16||21|\Ventanas de fachada\1\12\\\\Ventanas a patio\1\9\\\|
