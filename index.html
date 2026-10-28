@@ -3094,7 +3094,7 @@ const Docs = (() => {
   async function abrir(t) {
     tipo = t; $("docsTit").textContent = {laminas: "Láminas", memorias: "Memorias", capturas: "Chat"}[t];
     const cap = t === "capturas";
-    $("secLote").hidden = !cap; if (cap) Notas.pintaLotes();
+    $("secLote").hidden = false; Notas.pintaLotes();   // lotes también desde Láminas y Memorias (Enrique 28-oct)
     $("btnAbrirPdf").textContent = cap ? "Abrir la imagen" : "Abrir el PDF"; $("btnBorrarCap").hidden = true; $("secClaude").hidden = true; $("filaImportar").hidden = !cap; $("secNotas").classList.remove("cerrada");
     $("notaDocs").textContent = cap ? "Capturas de lo que se ve en 3D o 2D (botón de la cámara, arriba) o imágenes importadas. Marca encima con las herramientas de «Comentarios» y escribe al lado." : "«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.";
     const L = await lista(t), el = $("listaDocs"); el.innerHTML = "";
@@ -4011,7 +4011,7 @@ const Notas = (() => {
     pintaEstado();
     if (ambito === "capturas") Docs.tiraVersiones();
     if (cerrada) { pend = null; if (herr !== "ver") herramienta("ver"); el.innerHTML = htmlLista(deDoc(ambito, docAct)).replace('<p class="nota">Sin comentarios todavía.</p>', "").replace(/<details class="hechas">/, '<details class="hechas" open>'); engancha(el, ambito, docAct); for (const n of paginas.keys()) marcas(n); cuentas(); return; }
-    if (ambito === "capturas") pintaLotes();
+    if (ambito === "capturas" || ambito === "laminas" || ambito === "memorias") pintaLotes();
     el.innerHTML = htmlLista(deDoc(ambito, docAct)) + compositor("compDoc", pend ? "Comentario…" : ambito === "capturas" ? "Qué hay que cambiar: escribe aquí y marca encima de la imagen con las herramientas de arriba…" : "Comentario general del documento, o marca algo en la página con las herramientas de arriba…");
     engancha(el, ambito, docAct);
     for (const n of paginas.keys()) marcas(n);
@@ -4050,7 +4050,7 @@ const Notas = (() => {
     await todas(true);
     const n1 = cache.length + "|" + cache.filter(n => n.resuelto_por).length;
     if (n0 !== n1 && !document.querySelector(".comp textarea:focus")) pinta();
-    else if (S.modo === "cap") pintaLotes();
+    else if (S.modo === "cap" || S.modo === "lam" || S.modo === "mem") pintaLotes();
   }, 20000);
   config();                                 // al abrir: «Modo admin» arriba si este navegador tiene la clave
   // en vertical (panel debajo del dibujo) Editor / Abrir / Modo admin van a la cabeza del panel; si no, en la cabecera
