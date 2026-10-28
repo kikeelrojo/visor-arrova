@@ -212,10 +212,6 @@ details.resueltas button{opacity:.75}details.resueltas button.on{opacity:1}
 .bloque-img.plegado .cab-img{margin:0}.n-msg{white-space:nowrap}
 .adjs{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0}.adjs:empty{display:none}
 .adj{position:relative;display:block}.adj img{display:block;height:56px;max-width:110px;object-fit:cover;border:0.5px solid var(--ink)}
-.adj-pdf .adj-n{display:block;max-width:180px;padding:4px 18px 4px 6px;border:0.5px solid var(--ink);font-size:var(--s-xs);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.comp.soltar{outline:1.5px dashed var(--ink);outline-offset:3px}
-.adjs-n{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}.adjs-n img{display:block;height:64px;max-width:140px;object-fit:cover;border:0.5px solid var(--ink)}
-.adjs-n a.adj-pdf{display:inline-block;max-width:220px;padding:4px 6px;border:0.5px solid var(--ink);font-size:var(--s-xs);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:inherit}
 .adj .lnk{position:absolute;top:-2px;right:2px;font-size:var(--s-s);text-decoration:none;background:var(--paper);line-height:1;padding:0 2px}
 .pg-num{font-size:var(--s-xs);font-weight:700;margin:0 0 4px}
 .img-acc{font-size:var(--s-xs);margin:4px 0 0;display:flex;gap:10px;flex-wrap:wrap}
@@ -3098,7 +3094,7 @@ const Docs = (() => {
   async function abrir(t) {
     tipo = t; $("docsTit").textContent = {laminas: "Láminas", memorias: "Memorias", capturas: "Chat"}[t];
     const cap = t === "capturas";
-    $("secLote").hidden = false; Notas.pintaLotes();   // lotes también desde Láminas y Memorias (Enrique 28-oct)
+    $("secLote").hidden = !cap; if (cap) Notas.pintaLotes();
     $("btnAbrirPdf").textContent = cap ? "Abrir la imagen" : "Abrir el PDF"; $("btnBorrarCap").hidden = true; $("secClaude").hidden = true; $("filaImportar").hidden = !cap; $("secNotas").classList.remove("cerrada");
     $("notaDocs").textContent = cap ? "Capturas de lo que se ve en 3D o 2D (botón de la cámara, arriba) o imágenes importadas. Marca encima con las herramientas de «Comentarios» y escribe al lado." : "«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.";
     const L = await lista(t), el = $("listaDocs"); el.innerHTML = "";
@@ -3407,15 +3403,15 @@ const Notas = (() => {
     await todas(true);
     return L.map(c => ({archivo: c.id, titulo: c.tema || c.vista || "Captura", tema: c.tema || "", vista: c.vista || "", camara: c.camara || null, nota: c.autor + " · " + fecha(c.creado) + (c.para_claude ? " · mandada a Claude" : ""), para_claude: !!c.para_claude, resuelta_por: c.resuelta_por || null, resuelta_en: c.resuelta_en || null, url: cfg.local ? c.datos : urlCap(c.archivo), ancho: c.ancho, alto: c.alto, autor: c.autor, borrable: mia(c)}));
   }
-  async function subirArchivo(blob, ext = "jpg", mime = "image/jpeg") {
-    // la imagen (o el PDF adjunto) al almacén público de capturas; devuelve su ruta
+  async function subirArchivo(blob) {
+    // la imagen al almacén público de capturas; devuelve su ruta
     const id = (crypto.randomUUID ? crypto.randomUUID() : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)));
-    const archivo = proy().toLowerCase().replace(/[^a-z0-9_-]/g, "") + "/" + id + "." + ext;
+    const archivo = proy().toLowerCase().replace(/[^a-z0-9_-]/g, "") + "/" + id + ".jpg";
     if (cfg.local) return {id, archivo};
-    const k = cfg.anon || cfg.clave, h = {apikey: k, "Content-Type": mime, "x-upsert": "false"};
+    const k = cfg.anon || cfg.clave, h = {apikey: k, "Content-Type": "image/jpeg", "x-upsert": "false"};
     if (!/^sb_/.test(k)) h.Authorization = "Bearer " + k;
     const r = await fetch(cfg.url.replace(/\/$/, "") + "/storage/v1/object/capturas/" + archivo, {method: "POST", headers: h, body: blob});
-    if (!r.ok) throw new Error("No se ha podido subir " + (ext === "pdf" ? "el PDF" : "la imagen") + ": " + r.status + " " + (await r.text()).slice(0, 120));
+    if (!r.ok) throw new Error("No se ha podido subir la imagen: " + r.status + " " + (await r.text()).slice(0, 120));
     return {id, archivo};
   }
   // orden en el Chat: «orden» (lo ponen «Unir» y «Juntar») o, si no, la fecha; igual que en la base de datos (_imagenes_chat)
@@ -3596,7 +3592,7 @@ const Notas = (() => {
   function htmlLista(lst, conCompositor) {
     const raiz = lst.filter(n => !n.respuesta_a), resp = id => lst.filter(n => n.respuesta_a === id), num = numeros(lst);
     const uno = (n, sub) => '<div class="nota-i' + (sub ? " resp" : "") + (n.id === focoId ? " foco" : "") + '" data-id="' + n.id + '" style="--c:' + colorDe(n.autor) + '">' +
-      '<div class="txt">' + (sub ? "" : etiqueta(n)) + (n.para_claude && !n.resuelto_por ? '<span class="pc">A Claude</span> ' : "") + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.imagen && ambito !== "capturas" ? '<img class="mini" src="' + escH(n.url || urlCap(n.imagen)) + '" data-ver="' + n.pagina + '" alt="Imagen ' + n.pagina + '">' : "") + (n.pagina && ambito !== "capturas" ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + adjsDe(n) + "</div>" +
+      '<div class="txt">' + (sub ? "" : etiqueta(n)) + (n.para_claude && !n.resuelto_por ? '<span class="pc">A Claude</span> ' : "") + (num.has(n.id) ? '<span class="ped">' + num.get(n.id) + "</span> " : "") + (n.imagen && ambito !== "capturas" ? '<img class="mini" src="' + escH(n.url || urlCap(n.imagen)) + '" data-ver="' + n.pagina + '" alt="Imagen ' + n.pagina + '">' : "") + (n.pagina && ambito !== "capturas" ? '<span class="pg-ref">pág. ' + n.pagina + "</span> " : "") + escH(n.texto).replace(/\n/g, "<br>") + "</div>" +
       '<div class="meta"><b>' + escH(n.autor) + "</b><br>" + fecha(n.creado) + (n.editado_en ? '<br><span class="editado" title="Editado el ' + fecha(n.editado_en) + '">editado</span>' : "") + (mia(n) ? '<br><button class="lnk" data-editar>Editar</button> <button class="lnk" data-borrar>Borrar</button>' : "") + "</div>" +
       (sub ? (ambito !== "capturas" && !(lst.find(x => x.id === n.respuesta_a) || {}).resuelto_por ? '<div class="acc"><button class="lnk" data-resp>Responder</button></div>' : "") : '<div class="acc">' + acciones(n) + plegarHilo(n) + "</div>") + "</div>" +
       (sub || hiloPlegado(n) ? "" : resp(n.id).map(r => uno(r, true)).join(""));
@@ -3662,8 +3658,7 @@ const Notas = (() => {
       (a ? '<p class="nota">Comentas como <b>' + escH(a) + "</b>" + (esAdmin ? " (administrador)" : "") + ' <button class="lnk" data-quien>cambiar</button></p>' : '<input class="filtro" data-nombre placeholder="Tu nombre (se ve con cada comentario)">') +
       '<textarea class="filtro" rows="3" placeholder="' + escH(texto) + '"></textarea>' +
       (ambito === "capturas" && id === "compDoc" ? '<div class="adjs" data-adjs>' + adjuntos.map((a, i) => '<span class="adj"><img src="' + a.url + '" alt=""><button class="lnk" data-quita="' + i + '" aria-label="Quitar">×</button></span>').join("") + "</div>" : "") +
-      '<div class="adjs" data-anx>' + htmlAnx(id) + "</div>" +
-      '<div class="fila"><button class="btn" data-guardar>Publicar</button><button class="btn" data-adj title="Imágenes (JPG, PNG…) o PDF con el mensaje; también se pueden arrastrar o pegar en el cuadro de texto">Adjuntar</button><input type="file" accept="image/*,.heic,.heif,application/pdf,.pdf" multiple hidden data-adjf>' + '<label class="chk pc-chk" title="' + (ambito === "capturas" && id === "compDoc" ? "Que le llegue ya a Claude (quítalo para dejarlo para un lote)" : "Que le llegue a Claude") + '"><input type="checkbox" data-pcn' + " checked" + '> Mandar a Claude' + (ambito === "capturas" && id === "compDoc" ? " ya" : "") + "</label>" +
+      '<div class="fila"><button class="btn" data-guardar>Publicar</button>' + (ambito === "capturas" && id === "compDoc" ? '<button class="btn" data-adj title="Una o varias imágenes con el mensaje (también se pueden pegar aquí)">Añadir imagen</button><input type="file" accept="image/*,.heic,.heif" multiple hidden data-adjf>' : "") + '<label class="chk pc-chk" title="' + (ambito === "capturas" && id === "compDoc" ? "Que le llegue ya a Claude (quítalo para dejarlo para un lote)" : "Que le llegue a Claude") + '"><input type="checkbox" data-pcn' + " checked" + '> Mandar a Claude' + (ambito === "capturas" && id === "compDoc" ? " ya" : "") + "</label>" +
       (pend ? '<button class="btn" data-cancelar>' + (pend.dibujo.t === "trazos" ? "Quitar el dibujo" : "Quitar la marca") + "</button>" : "") + "</div></div>";
   }
   function engancha(el, amb, doc) {
@@ -3672,35 +3667,20 @@ const Notas = (() => {
       const q = comp.querySelector("[data-quien]"); if (q) q.onclick = () => { ls("visor.autor", ""); pinta(); };
       const c = comp.querySelector("[data-cancelar]"); if (c) c.onclick = () => { pend = null; pinta(); };
       const ab = comp.querySelector("[data-adj]"), af = comp.querySelector("[data-adjf]");
-      if (ab && af) { ab.onclick = () => af.click(); af.onchange = () => { const f = af.files; if (f && f.length) adjuntarA(comp, amb, [...f]); af.value = ""; }; }
-      // Enrique 28-oct: arrastrar un JPG o un PDF al cuadro de texto (o pegarlo) lo adjunta al mensaje, en cualquier sitio
-      const conArch = e => e.dataTransfer && [...e.dataTransfer.types].includes("Files");
-      comp.addEventListener("dragenter", e => { if (!conArch(e)) return; e.preventDefault(); e.stopPropagation(); comp.classList.add("soltar"); });
-      comp.addEventListener("dragover", e => { if (!conArch(e)) return; e.preventDefault(); e.stopPropagation(); });
-      comp.addEventListener("dragleave", e => { if (!comp.contains(e.relatedTarget)) comp.classList.remove("soltar"); });
-      comp.addEventListener("drop", e => { if (!conArch(e)) return; e.preventDefault(); e.stopPropagation(); comp.classList.remove("soltar"); const z = $("docs"); if (z) z.classList.remove("soltar"); adjuntarA(comp, amb, [...e.dataTransfer.files]); });
-      comp.addEventListener("paste", e => { const f = [...((e.clipboardData && e.clipboardData.files) || [])]; if (!f.length) return; e.preventDefault(); e.stopPropagation(); adjuntarA(comp, amb, f); });
-      enganchaAnx(comp);
+      if (ab && af) { ab.onclick = () => af.click(); af.onchange = () => { const f = af.files; if (f && f.length) adjuntar([...f]); af.value = ""; }; }
       comp.querySelectorAll("[data-quita]").forEach(x => x.onclick = () => { const a = adjuntos.splice(+x.dataset.quita, 1)[0]; if (a) URL.revokeObjectURL(a.url); const ta = comp.querySelector("textarea"), v = ta.value; pinta().then(() => { const t2 = document.querySelector("#notasDoc .comp textarea"); if (t2 && v && !t2.value) t2.value = v; }); });
       comp.querySelector("[data-guardar]").onclick = async () => {
         const nom = comp.querySelector("[data-nombre]"), ta = comp.querySelector("textarea");
         if (nom) { if (!nom.value.trim()) { nom.focus(); toast("Escribe tu nombre"); return; } ls("visor.autor", nom.value.trim().slice(0, 60)); }
-        const t = ta.value.trim(), conImg = amb === "capturas" && doc && !comp.dataset.resp && adjuntos.length, anx = anexos[comp.id] || [];
-        if (!t && !conImg && !anx.length && (!pend || comp.dataset.resp)) { ta.focus(); return; }
+        const t = ta.value.trim(), conImg = amb === "capturas" && doc && !comp.dataset.resp && adjuntos.length;
+        if (!t && !conImg && (!pend || comp.dataset.resp)) { ta.focus(); return; }
         if (conImg) {          // primero las imágenes (abren su bloque en la conversación) y luego lo escrito, que va con ellas
           const L = adjuntos.slice(); let i = 0;
           try { for (const a of L) { toast("Subiendo " + (L.length > 1 ? "la imagen " + (++i) + " de " + L.length : "la imagen") + "…", 8000); await subirImagenTema(doc, a.blob, a.meta); adjuntos.shift(); URL.revokeObjectURL(a.url); } }
           catch (e) { toast(e.message || String(e), 5000); pinta(); return; }
-          if (!t && !pend && !anx.length) { ta.value = ""; await pinta(); Docs.tiraVersiones(); toast((L.length > 1 ? "Imágenes añadidas" : "Imagen añadida") + ". Dibuja encima y/o escribe: le llega a Claude al publicar", 5000); return; }
+          if (!t && !pend) { ta.value = ""; await pinta(); Docs.tiraVersiones(); toast((L.length > 1 ? "Imágenes añadidas" : "Imagen añadida") + ". Dibuja encima y/o escribe: le llega a Claude al publicar", 5000); return; }
         }
         const f = {ambito: amb, doc: doc, texto: t};
-        if (anx.length) {      // los adjuntos (imágenes y PDF) van con el comentario
-          if (!await config() || cfg.local) { toast("Los adjuntos necesitan la base de datos de comentarios", 5000); return; }
-          const A = []; let i = 0;
-          try { for (const a of anx) { toast("Subiendo " + (anx.length > 1 ? "el adjunto " + (++i) + " de " + anx.length : a.tipo === "pdf" ? "el PDF" : "la imagen") + "…", 15000); const {archivo} = await subirArchivo(a.blob, a.tipo === "pdf" ? "pdf" : "jpg", a.tipo === "pdf" ? "application/pdf" : "image/jpeg"); A.push(Object.assign({archivo, tipo: a.tipo, nombre: a.nombre}, a.tipo === "img" ? {w: a.w, h: a.h} : {})); } }
-          catch (e) { toast(e.message || String(e), 6000); return; }
-          f.adjuntos = A;
-        }
         const pcn = comp.querySelector("[data-pcn]"); if (pcn && pcn.checked) f.para_claude = true;
         if (comp.dataset.resp) f.respuesta_a = comp.dataset.resp;
         if (pend && !comp.dataset.resp) { f.pagina = pend.pagina; f.dibujo = pend.dibujo; }
@@ -3709,7 +3689,7 @@ const Notas = (() => {
         const mandarYa = amb !== "capturas" || comp.dataset.resp || !pcn || pcn.checked;
         if (amb === "capturas") delete f.para_claude;       /* en capturas lo que se manda es la captura entera */
         try {
-          const n = await crear(f); if (!comp.dataset.resp) pend = null; focoId = n.id; quitaAnx(comp.id);
+          const n = await crear(f); if (!comp.dataset.resp) pend = null; focoId = n.id;
           /* una respuesta mandada a Claude reabre el hilo para Claude (lo que vigila es el comentario principal) */
           if (f.respuesta_a && f.para_claude) { const raiz = (cache || []).find(x => x.id === f.respuesta_a); if (raiz && !raiz.para_claude) try { await marcar(raiz, true); } catch (e) {} }
           pinta();
@@ -3768,7 +3748,7 @@ const Notas = (() => {
       const rb = d.querySelector("[data-resp]");
       if (rb) rb.onclick = e => {
         e.stopPropagation();
-        el.querySelectorAll(".comp.resp").forEach(x => x.remove()); quitaAnx("compResp");
+        el.querySelectorAll(".comp.resp").forEach(x => x.remove());
         const sv = pend; pend = null;
         const rid = n.respuesta_a || n.id;                 /* los hilos son de un nivel: se contesta siempre al comentario principal */
         const w = document.createElement("div"); w.innerHTML = compositor("compResp", "Respuesta…"); const c = w.firstChild; c.classList.add("resp"); c.dataset.resp = rid;
@@ -4031,7 +4011,7 @@ const Notas = (() => {
     pintaEstado();
     if (ambito === "capturas") Docs.tiraVersiones();
     if (cerrada) { pend = null; if (herr !== "ver") herramienta("ver"); el.innerHTML = htmlLista(deDoc(ambito, docAct)).replace('<p class="nota">Sin comentarios todavía.</p>', "").replace(/<details class="hechas">/, '<details class="hechas" open>'); engancha(el, ambito, docAct); for (const n of paginas.keys()) marcas(n); cuentas(); return; }
-    if (ambito === "capturas" || ambito === "laminas" || ambito === "memorias") pintaLotes();
+    if (ambito === "capturas") pintaLotes();
     el.innerHTML = htmlLista(deDoc(ambito, docAct)) + compositor("compDoc", pend ? "Comentario…" : ambito === "capturas" ? "Qué hay que cambiar: escribe aquí y marca encima de la imagen con las herramientas de arriba…" : "Comentario general del documento, o marca algo en la página con las herramientas de arriba…");
     engancha(el, ambito, docAct);
     for (const n of paginas.keys()) marcas(n);
@@ -4050,7 +4030,7 @@ const Notas = (() => {
       if (!s) { s = document.createElement("i"); s.className = "cnt"; b.prepend(s); } s.textContent = k;
     });
   }
-  function enDoc(t, d) { const nd = d ? d.archivo : null; if (nd !== docAct) { quitaAdjuntos(); quitaAnx("compDoc"); } ambito = t; docAct = nd; pend = null; focoId = focoPend; focoPend = null; paginas.clear(); pinta(); }
+  function enDoc(t, d) { const nd = d ? d.archivo : null; if (nd !== docAct) quitaAdjuntos(); ambito = t; docAct = nd; pend = null; focoId = focoPend; focoPend = null; paginas.clear(); pinta(); }
   // imágenes que acompañan al mensaje que se está escribiendo en el Chat (se suben al publicar)
   let adjuntos = [];
   function quitaAdjuntos() { for (const a of adjuntos) URL.revokeObjectURL(a.url); adjuntos = []; }
@@ -4062,41 +4042,6 @@ const Notas = (() => {
     await pinta();
     const t2 = document.querySelector("#notasDoc .comp textarea"); if (t2 && txt && !t2.value) t2.value = txt;
   }
-  /* ---------- adjuntos de cualquier comentario o respuesta (Enrique 28-oct): imágenes y PDF; se suben al publicar y van en
-     notas.adjuntos = [{archivo, tipo: "img"|"pdf", nombre, w, h}] (bucket público «capturas»). En el Chat, las imágenes del
-     mensaje principal siguen abriendo su bloque en la conversación (como antes); los PDF van como adjuntos. */
-  const anexos = {};
-  const PDF_MAX = 25 * 1024 * 1024;
-  const esPdf = f => f.type === "application/pdf" || /\.pdf$/i.test(f.name || "");
-  const esImg = f => /^image\//.test(f.type) || /\.(jpe?g|png|heic|heif|webp|gif|tiff?)$/i.test(f.name || "");
-  function quitaAnx(id) { for (const a of anexos[id] || []) if (a.url) URL.revokeObjectURL(a.url); anexos[id] = []; }
-  function htmlAnx(id) {
-    return (anexos[id] || []).map((a, i) => '<span class="adj' + (a.tipo === "pdf" ? " adj-pdf" : "") + '">' + (a.tipo === "pdf" ? '<span class="adj-n" title="' + escH(a.nombre) + '">PDF · ' + escH(a.nombre) + "</span>" : '<img src="' + a.url + '" alt="">') +
-      '<button class="lnk" data-quitax="' + i + '" aria-label="Quitar">×</button></span>').join("");
-  }
-  function enganchaAnx(comp) {
-    const d = comp.querySelector("[data-anx]"); if (!d) return;
-    d.innerHTML = htmlAnx(comp.id);
-    d.querySelectorAll("[data-quitax]").forEach(x => x.onclick = () => { const a = (anexos[comp.id] || []).splice(+x.dataset.quitax, 1)[0]; if (a && a.url) URL.revokeObjectURL(a.url); enganchaAnx(comp); });
-  }
-  async function adjuntarA(comp, amb, files) {
-    const L = [...files], img = L.filter(esImg), pdf = L.filter(f => esPdf(f));
-    if (!img.length && !pdf.length) { toast("Solo se pueden adjuntar imágenes (JPG, PNG…) o PDF"); return; }
-    if (img.length + pdf.length < L.length) toast("Algún archivo no es imagen ni PDF: no se adjunta", 4000);
-    const chatPrincipal = amb === "capturas" && comp.id === "compDoc" && !comp.dataset.resp;
-    const A = anexos[comp.id] || (anexos[comp.id] = []);
-    for (const f of pdf) { if (f.size > PDF_MAX) { toast("El PDF " + (f.name || "") + " pasa de 25 MB", 5000); continue; } A.push({tipo: "pdf", blob: f, nombre: (f.name || "documento.pdf").slice(0, 120)}); }
-    if (chatPrincipal && img.length) { enganchaAnx(comp); await adjuntar(img); return; }      // en el Chat: bloque de imágenes, como antes
-    for (const f of img) { try { const r = await prepImagen(f); A.push({tipo: "img", blob: r.blob, w: r.ancho, h: r.alto, nombre: (f.name || "imagen").slice(0, 120), url: URL.createObjectURL(r.blob)}); } catch (e) { toast(e.message || String(e), 5000); } }
-    enganchaAnx(comp);
-    const ta = comp.querySelector("textarea"); if (ta) ta.focus();
-  }
-  function adjsDe(n) {
-    const L = Array.isArray(n.adjuntos) ? n.adjuntos : []; if (!L.length || !cfg) return "";
-    return '<div class="adjs-n">' + L.map(a => { const u = escH(urlCap(a.archivo)), nm = escH(a.nombre || "");
-      return a.tipo === "pdf" ? '<a class="adj-pdf" href="' + u + '" target="_blank" rel="noopener" title="' + nm + '">PDF · ' + nm + "</a>"
-        : '<a href="' + u + '" target="_blank" rel="noopener" title="' + nm + '"><img src="' + u + '" alt="' + nm + '" loading="lazy"></a>'; }).join("") + "</div>";
-  }
   function enDatos() { ambito = "mediciones"; pend = null; if (focoPend) { focoId = focoPend; focoPend = null; } pinta(); }
   document.querySelectorAll("#notasHerr [data-nh]").forEach(b => b.onclick = () => herramienta(herr === b.dataset.nh && b.dataset.nh !== "ver" ? "ver" : b.dataset.nh));
   setInterval(async () => {                                 // lo que escriban otros aparece solo
@@ -4105,7 +4050,7 @@ const Notas = (() => {
     await todas(true);
     const n1 = cache.length + "|" + cache.filter(n => n.resuelto_por).length;
     if (n0 !== n1 && !document.querySelector(".comp textarea:focus")) pinta();
-    else if (S.modo === "cap" || S.modo === "lam" || S.modo === "mem") pintaLotes();
+    else if (S.modo === "cap") pintaLotes();
   }, 20000);
   config();                                 // al abrir: «Modo admin» arriba si este navegador tiene la clave
   // en vertical (panel debajo del dibujo) Editor / Abrir / Modo admin van a la cabeza del panel; si no, en la cabecera
