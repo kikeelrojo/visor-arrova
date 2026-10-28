@@ -159,6 +159,16 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 .ldocs button.marcado{font-weight:700;border-left:2px solid var(--warn);padding-left:6px}
 .ldocs button.marcado span{color:var(--warn)}
 .pg{position:relative}
+/* zoom de cada lámina (Enrique 28-oct): −, Ajustar y + dentro de la lámina, arriba a la izquierda de lo que se ve; salen al pasar el ratón */
+.pg-zoom{position:sticky;top:8px;left:8px;width:0;height:0;z-index:4}
+.pg-zoom>div{position:absolute;top:8px;left:8px;display:flex;opacity:0;transition:opacity .15s;pointer-events:none}
+.pg-zoom .btn{background:var(--paper);min-width:30px;padding:4px 8px;line-height:16px;font-size:var(--s-s)}
+.pg-zoom .btn+.btn{border-left:0}
+.pg:hover .pg-zoom>div,.pg-zoom>div:focus-within{opacity:1;pointer-events:auto}
+@media (hover:none){.pg-zoom>div{opacity:1;pointer-events:auto}.pg-zoom .btn{min-width:36px;padding:6px 9px}}
+/* lo que llega solo (respuestas de Claude, cambios de estado): se marca un momento */
+.nota-i.llega{animation:llega 4s ease-out}
+@keyframes llega{0%,30%{box-shadow:inset 3px 0 0 var(--warn)}100%{box-shadow:inset 3px 0 0 transparent}}
 body.pantallazo header,body.pantallazo .panel,body.pantallazo #rotulo,body.pantallazo .toast{display:none!important}
 body.pantallazo{margin:0}body.pantallazo .app{grid-template-rows:1fr}body.pantallazo .vista{margin:0;padding:0}body.pantallazo .main{grid-template-columns:1fr}
 .versiones{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.versiones button{border:0.5px solid var(--ink);background:none;padding:0;cursor:pointer;position:relative;line-height:0}
@@ -524,9 +534,9 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
         </div>
         <div class="sec">
           <div class="fila">
-            <button class="btn" id="btnZm" aria-label="Alejar">−</button>
-            <button class="btn" id="btnZ0">Ajustar</button>
-            <button class="btn" id="btnZp" aria-label="Acercar">+</button>
+            <button class="btn" id="btnZm" aria-label="Alejar" hidden>−</button>
+            <button class="btn" id="btnZ0" hidden>Ajustar</button>
+            <button class="btn" id="btnZp" aria-label="Acercar" hidden>+</button>
             <a class="btn" id="btnAbrirPdf" target="_blank" rel="noopener">Abrir el PDF</a>
           </div>
           <p class="nota" id="notaDocs">«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.</p>
@@ -3080,6 +3090,8 @@ const Datos = (() => {
 const PDFJS = window.PDFJS_BASE || "lib/pdfjs/";
 const Docs = (() => {
   let lib = null, tipo = null, actual = null, pdf = null, z = 0, obs = null;
+  // Enrique 28-oct: el zoom es de cada lámina (o imagen del Chat), no de todas a la vez. n → escala en pantalla (sin entrada = ajustada al ancho)
+  const zp = new Map();
   function script(src) { return new Promise((ok, mal) => { const e = document.createElement("script"); e.src = src; e.onload = ok; e.onerror = () => mal(new Error("No se pudo cargar " + src)); document.head.appendChild(e); }); }
   async function pdfjs() {
     if (lib) return lib;
@@ -3158,7 +3170,7 @@ const Docs = (() => {
       };
       const it = $("inTema"); it.value = d.tema || ""; it.onchange = async () => { const t = it.value.trim().slice(0, 120); try { await Notas.ponTema(d.archivo, t); d.tema = t; d.titulo = t || d.vista || "Captura"; const bb = $("listaDocs").querySelector('[data-arch="' + d.archivo + '"]'); const tn = bb && [...bb.childNodes].find(x => x.nodeType === 3); if (tn) tn.textContent = d.titulo; toast("Tema guardado"); } catch (e) { toast(e.message, 4000); } };
       verAct = 0; nVers = 0; $("versiones").hidden = true; pendCap = pr || (pendCap && pendCap.a === d.archivo ? pendCap : null);
-      Notas.enDoc(tipo, d); pdf = null; z = 0; pintaImg(); return;
+      Notas.enDoc(tipo, d); pdf = null; z = 0; zp.clear(); pintaImg(); return;
     }
     const url = "datos/" + S.proyecto.id + "/" + d.archivo + (d.nota ? "?v=" + encodeURIComponent(d.nota).slice(0, 60) : "");   // la nota lleva la fecha del archivo: si cambia, se baja de nuevo
     $("btnAbrirPdf").hidden = false; $("btnAbrirPdf").href = url;
@@ -3168,31 +3180,92 @@ const Docs = (() => {
       const L = await pdfjs();
       pdf = await L.getDocument(url).promise;
       if (actual !== d) return;
+      zp.clear();
       if (pr) z = pr.z || 0;
       await pinta();
       if (pr) ponScroll(pr);
     } catch (e) { pag.innerHTML = '<div class="vacio-doc"><b>No se puede mostrar aquí</b>' + escH(e.message) + '<br><a href="' + url + '" target="_blank" rel="noopener">Abrir el PDF</a></div>'; }
   }
   let genPinta = 0;
-  async function pinta() {
+  const anchoUtil = () => Math.max(200, $("docs").clientWidth - 68 - 2);
+  const dprC = () => Math.min(window.devicePixelRatio || 1, 2);
+  function lienzo(p, v, esc_) {
+    const px = Math.min(esc_ * dprC(), Math.sqrt(16e6 / (v.width * v.height)));   // tope de iOS para un canvas
+    const c = document.createElement("canvas"); c.width = Math.round(v.width * px); c.height = Math.round(v.height * px);
+    c.style.width = Math.floor(v.width * esc_) + "px"; c.style.height = Math.floor(v.height * esc_) + "px";
+    c._p = p; c._esc = px; c._css = esc_;
+    return c;
+  }
+  async function pinta(suave) {
     // si se vuelve a pintar mientras tanto (al abrir llegan dos avisos seguidos), solo vale la última: las páginas no se repiten
+    // suave (lámina vuelta a publicar): se dibujan antes las páginas que están a la vista y se cambian de golpe, sin pantalla en blanco
     const g = ++genPinta;
-    const pag = $("docsPag"); pag.innerHTML = "";
+    const pag = $("docsPag"), dc = $("docs");
+    const vistas = new Set();
+    if (suave) { const rc = dc.getBoundingClientRect(); pag.querySelectorAll(".pg").forEach((w, i) => { const r = w.getBoundingClientRect(); if (r.bottom > rc.top - 200 && r.top < rc.bottom + 200) vistas.add(i + 1); }); }
+    else pag.innerHTML = "";
     if (obs) obs.disconnect();
     // ancho útil: el del visor de documentos menos sus márgenes (la barra de desplazamiento ya está siempre puesta: no lo cambia al aparecer)
-    const ancho = Math.max(200, $("docs").clientWidth - 68 - 2), dpr = Math.min(window.devicePixelRatio || 1, 2);
-    obs = new IntersectionObserver(es => { for (const e of es) if (e.isIntersecting && !e.target.dataset.hecho) { e.target.dataset.hecho = 1; dibuja(e.target); } }, {root: $("docs"), rootMargin: "600px"});
+    const ancho = anchoUtil();
+    obs = new IntersectionObserver(es => { for (const e of es) if (e.isIntersecting && !e.target.dataset.hecho) { e.target.dataset.hecho = 1; dibuja(e.target); } }, {root: dc, rootMargin: "600px"});
+    const ws = [], antes = [];
     for (let n = 1; n <= pdf.numPages; n++) {
       const p = await pdf.getPage(n), v = p.getViewport({scale: 1});
       if (g !== genPinta) return;
-      const esc_ = z ? z : Math.min(ancho / v.width, 3);
-      const px = Math.min(esc_ * dpr, Math.sqrt(16e6 / (v.width * v.height)));   // tope de iOS para un canvas
-      const c = document.createElement("canvas"); c.width = Math.round(v.width * px); c.height = Math.round(v.height * px);
-      c.style.width = Math.floor(v.width * esc_) + "px"; c.style.height = Math.floor(v.height * esc_) + "px";
-      c._p = p; c._esc = px; c._css = esc_;
-      const w = document.createElement("div"); w.className = "pg"; w.appendChild(c); pag.appendChild(w); obs.observe(c);
+      const esc_ = zp.get(n) || (z ? z : Math.min(ancho / v.width, 3));
+      const c = lienzo(p, v, esc_);
+      const w = document.createElement("div"); w.className = "pg"; w.dataset.n = n; ponZoom(w); w.appendChild(c);
+      if (suave) { ws.push(w); if (vistas.has(n)) { c.dataset.hecho = 1; antes.push(dibuja(c)); } }
+      else { pag.appendChild(w); obs.observe(c); }
       Notas.pagina(w, n, v.width, v.height, esc_);
     }
+    if (suave) {
+      try { await Promise.all(antes); } catch (e) { /* se vuelven a pintar al verse */ }
+      if (g !== genPinta) return;
+      const sx = dc.scrollLeft, sy = dc.scrollTop;
+      pag.replaceChildren(...ws); dc.scrollLeft = sx; dc.scrollTop = sy;
+      for (const w of ws) { const c = w.querySelector("canvas"); if (c && !c.dataset.hecho) obs.observe(c); }
+    }
+  }
+  // los botones −, Ajustar y + van dentro de cada lámina (o imagen): salen al pasar el ratón; en el iPad están siempre
+  function ponZoom(w) {
+    const zb = document.createElement("div"); zb.className = "pg-zoom";
+    zb.innerHTML = '<div><button class="btn" data-zf="-" aria-label="Alejar" title="Alejar">−</button><button class="btn" data-zf="0" title="Ajustar a la pantalla">Ajustar</button><button class="btn" data-zf="+" aria-label="Acercar" title="Acercar">+</button></div>';
+    zb.addEventListener("pointerdown", e => e.stopPropagation());
+    zb.onclick = e => { const b = e.target.closest("[data-zf]"); if (!b) return; e.stopPropagation(); zoomPg(w, b.dataset.zf === "+" ? 1.25 : b.dataset.zf === "-" ? 1 / 1.25 : 0); };
+    w.prepend(zb);
+  }
+  // amplía o reduce solo esa lámina; el punto que estaba en el centro de la pantalla se queda donde estaba
+  async function zoomPg(w, f) {
+    const dc = $("docs"), rc = dc.getBoundingClientRect();
+    const el = w.querySelector("canvas, img"); if (!el) return;
+    const r = el.getBoundingClientRect();
+    const vx = Math.min(Math.max(rc.left + dc.clientWidth / 2, r.left), r.right), vy = Math.min(Math.max(rc.top + dc.clientHeight / 2, r.top), r.bottom);
+    const fx = (vx - r.left) / (r.width || 1), fy = (vy - r.top) / (r.height || 1);
+    const n = +(w.dataset.n || w.dataset.k);
+    let el2;
+    if (el.tagName === "IMG") {
+      const W = +el.dataset.w, H = +el.dataset.h, cur = el.width / W;
+      const ajuste = +el.dataset.fit;
+      const esc_ = f === 0 ? ajuste : Math.max(0.1, Math.min(8, cur * f));
+      if (f === 0) zp.delete(n); else zp.set(n, esc_);
+      el.width = Math.floor(W * esc_); el.height = Math.floor(H * esc_); el2 = el;
+      Notas.escala(n, esc_);
+    } else {
+      const p = el._p, v = p.getViewport({scale: 1});
+      const esc_ = f === 0 ? Math.min(anchoUtil() / v.width, 3) : Math.max(0.2, Math.min(8, (zp.get(n) || el._css) * f));
+      if (f === 0) zp.delete(n); else zp.set(n, esc_);
+      const gen = w._gen = (w._gen || 0) + 1;
+      el2 = lienzo(p, v, esc_); el2.dataset.hecho = 1;
+      try { await dibuja(el2); } catch (e) { return; }
+      if (gen !== w._gen || !el.isConnected) return;          // se ha vuelto a pulsar entretanto: vale la última
+      if (obs) obs.unobserve(el);
+      el.replaceWith(el2);
+      Notas.escala(n, esc_);
+    }
+    const r2 = el2.getBoundingClientRect();
+    dc.scrollLeft += r2.left + fx * r2.width - vx;
+    dc.scrollTop += r2.top + fy * r2.height - vy;
   }
   const actualDoc = () => actual;
   let verAct = 0, nVers = 0;
@@ -3234,10 +3307,13 @@ const Docs = (() => {
     let primera = true;
     for (const k of ks) {
       const v = L[k - 1], d = {url: v.url, ancho: v.ancho || d0.ancho, alto: v.alto || d0.alto, titulo: d0.titulo};
-      const esc_ = z ? z : Math.min(ancho / d.ancho, (ks.length > 1 ? alto * 0.8 : alto) / d.alto, 3); if (primera) escImg = esc_;
+      const ajuste = Math.min(ancho / d.ancho, (ks.length > 1 ? alto * 0.8 : alto) / d.alto, 3);
+      const esc_ = zp.get(k) || (z ? z : ajuste); if (primera) escImg = esc_;
       const w = document.createElement("div"); w.className = "pg"; w.dataset.k = k;
       if (ks.length > 1) { const r = document.createElement("div"); r.className = "pg-num"; r.textContent = "Imagen " + k; w.appendChild(r); }
+      ponZoom(w);
       const im = new Image(); im.src = d.url; im.alt = (d.titulo || "Captura") + " · imagen " + k; im.width = Math.floor(d.ancho * esc_); im.height = Math.floor(d.alto * esc_);
+      im.dataset.w = d.ancho; im.dataset.h = d.alto; im.dataset.fit = ajuste;
       im.style.display = "block"; im.style.boxShadow = "0 0 0 0.5px var(--ink)"; im.draggable = false;
       w.appendChild(im); pag.appendChild(w);
       Notas.pagina(w, k, d.ancho, d.alto, esc_);
@@ -3276,7 +3352,7 @@ const Docs = (() => {
       inp.click();
     }
   }
-  function dibuja(c) { const v = c._p.getViewport({scale: c._esc}); c._p.render({canvasContext: c.getContext("2d"), viewport: v}); }
+  function dibuja(c) { const v = c._p.getViewport({scale: c._esc}); const t = c._p.render({canvasContext: c.getContext("2d"), viewport: v}); return t && t.promise ? t.promise : Promise.resolve(); }
   function zoom(f) {
     if (tipo === "capturas") {      /* (antes salía por el «if (!pdf)»: en el Chat no hay PDF y los botones no hacían nada) */
       const im = $("docsPag").querySelector("img"), dc = $("docs"); if (!im || !actual) return;
@@ -3294,6 +3370,34 @@ const Docs = (() => {
     const c = $("docsPag").querySelector("canvas"); const actualEsc = c ? c._css : 1;
     z = f === 0 ? 0 : Math.max(0.2, Math.min(8, actualEsc * f)); pinta();
   }
+  // Enrique 28-oct: si se vuelve a publicar el PDF que tienes abierto (Claude corrige una lámina), se cambia solo por el nuevo,
+  // sin pantalla en blanco y sin perder por dónde ibas ni el zoom de cada lámina
+  let mirandoPdf = false;
+  async function vigilaPdf() {
+    if (mirandoPdf || document.hidden || !(S.modo === "lam" || S.modo === "mem") || !(tipo === "laminas" || tipo === "memorias") || !actual || !pdf || !S.proyecto) return;
+    mirandoPdf = true;
+    try {
+      const P = S.proyecto, f = (P.indice || {})[tipo] || (tipo + ".json");
+      const r = await fetch("datos/" + P.id + "/" + f + "?_=" + Date.now(), {cache: "no-store"}); if (!r.ok) return;
+      const L = (await r.json()).pdfs || []; if (!L.length) return;
+      P.docs = P.docs || {}; P.docs[tipo] = L;
+      document.querySelectorAll("#listaDocs button[data-arch]").forEach(b => {
+        const x = L.find(y => y.archivo === b.dataset.arch); if (!x || (x.nota || "") === b.dataset.ver) return;
+        b.dataset.ver = x.nota || ""; const sp = b.querySelector("span"); if (sp) sp.textContent = x.nota || "";
+      });
+      const d = L.find(x => x.archivo === actual.archivo);
+      if (!d || (d.nota || "") === (actual.nota || "")) return;
+      const url = "datos/" + P.id + "/" + d.archivo + (d.nota ? "?v=" + encodeURIComponent(d.nota).slice(0, 60) : "");
+      const nuevo = await (await pdfjs()).getDocument(url).promise;
+      if (!actual || actual.archivo !== d.archivo) return;
+      actual = d; pdf = nuevo; $("btnAbrirPdf").href = url;
+      await pinta(true);
+      toast("Al día: " + (d.titulo || d.archivo) + (d.nota ? " · " + d.nota : ""), 4000);
+    } catch (e) { /* se vuelve a mirar */ }
+    finally { mirandoPdf = false; }
+  }
+  setInterval(vigilaPdf, 30000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) vigilaPdf(); });
   addEventListener("resize", () => { if (z) return; if (S.modo === "cap" && actual) pintaImg(); else if ((S.modo === "lam" || S.modo === "mem") && pdf) pinta(); });
   return {abrir, zoom, actualDoc, estado, restaura: r => { pendR = r; }, tiraVersiones, verVersion, verActual: () => verAct, recargar: t => { if (S.proyecto && S.proyecto.docs) delete S.proyecto.docs[t]; }};
 })();
@@ -3956,12 +4060,13 @@ const Notas = (() => {
     const s = document.createElementNS(NS, "svg"); s.setAttribute("viewBox", "0 0 " + W + " " + H); s.setAttribute("class", "marcas");
     const g = document.createElementNS(NS, "g"); s.appendChild(g); cont.appendChild(s);
     paginas.set(n, {g, W, H, esc, s}); marcas(n);
+    const P_ = paginas.get(n);                    // la escala puede cambiar luego (zoom de esta lámina): se lee siempre de aquí
     let cur = null;
     const pt = e => { const b = s.getBoundingClientRect(); return [+((e.clientX - b.left) / b.width * W).toFixed(1), +((e.clientY - b.top) / b.height * H).toFixed(1)]; };
     const trazo = c => {
       if (c.k === "rect") { const [a, b] = [c.a, c.b]; return [[a, [b[0], a[1]], b, [a[0], b[1]], a]]; }
       if (c.k === "flecha") {
-        const [a, b] = [c.a, c.b], an = Math.atan2(b[1] - a[1], b[0] - a[0]), L = Math.max(10 / esc, c.w * 4);
+        const [a, b] = [c.a, c.b], an = Math.atan2(b[1] - a[1], b[0] - a[0]), L = Math.max(10 / P_.esc, c.w * 4);
         const c1 = [+(b[0] - L * Math.cos(an - 0.45)).toFixed(1), +(b[1] - L * Math.sin(an - 0.45)).toFixed(1)], c2 = [+(b[0] - L * Math.cos(an + 0.45)).toFixed(1), +(b[1] - L * Math.sin(an + 0.45)).toFixed(1)];
         return [[a, b], [c1, b, c2]];
       }
@@ -3969,7 +4074,7 @@ const Notas = (() => {
     };
     const enCurso = () => pend && pend.pagina === n && pend.dibujo.t === "trazos" ? pend.dibujo : null;
     const borraEn = p => {
-      const d = enCurso(); if (!d) return false; const rr = 10 / esc; let cambia = false;
+      const d = enCurso(); if (!d) return false; const rr = 10 / P_.esc; let cambia = false;
       d.s = d.s.filter(t => { const toca = t.q.some(l => l.some((q, i) => i && dSeg(p, l[i - 1], q) <= rr + t.w / 2) || (l.length === 1 && Math.hypot(l[0][0] - p[0], l[0][1] - p[1]) <= rr)); if (toca) cambia = true; return !toca; });
       return cambia;
     };
@@ -3981,24 +4086,25 @@ const Notas = (() => {
       if (herr === "goma") { cur = {goma: true}; if (borraEn(p)) { marcas(n); cuentaPend() || pinta(); } return; }
       if (pend && pend.pagina !== n && pend.dibujo.t === "trazos" && pend.dibujo.s.length) { toast("Publica o quita antes el dibujo de " + (ambito === "capturas" ? "la otra captura" : "la página " + pend.pagina)); return; }
       if (!enCurso()) pend = {pagina: n, dibujo: {t: "trazos", s: []}};
-      cur = {k: herr, a: p, b: p, pts: [p], w: +(grosor / esc).toFixed(2), l: linea};
+      cur = {k: herr, a: p, b: p, pts: [p], w: +(grosor / P_.esc).toFixed(2), l: linea};
       cur.t = {q: trazo(cur), w: cur.w, l: cur.l}; pend.dibujo.s.push(cur.t); marcas(n);
     });
     s.addEventListener("pointermove", e => {
       if (!cur) return; const p = pt(e);
       if (cur.goma) { if (borraEn(p)) { marcas(n); cuentaPend() || pinta(); } return; }
-      if (cur.k === "lapiz") { const u = cur.pts[cur.pts.length - 1]; if (Math.hypot(p[0] - u[0], p[1] - u[1]) > 1.2 / esc) cur.pts.push(p); } else cur.b = p;
+      if (cur.k === "lapiz") { const u = cur.pts[cur.pts.length - 1]; if (Math.hypot(p[0] - u[0], p[1] - u[1]) > 1.2 / P_.esc) cur.pts.push(p); } else cur.b = p;
       cur.t.q = trazo(cur); marcas(n);
     });
     const fin = () => {
       if (!cur) return; const c = cur; cur = null;
       if (c.goma) { const d = enCurso(); if (d && !d.s.length) { pend = null; pinta(); } return; }
-      if (c.k !== "lapiz" && Math.hypot(c.b[0] - c.a[0], c.b[1] - c.a[1]) < 3 / esc) { const d = enCurso(); if (d) d.s = d.s.filter(t => t !== c.t); if (d && !d.s.length) { pend = null; pinta(); } else marcas(n); return; }
+      if (c.k !== "lapiz" && Math.hypot(c.b[0] - c.a[0], c.b[1] - c.a[1]) < 3 / P_.esc) { const d = enCurso(); if (d) d.s = d.s.filter(t => t !== c.t); if (d && !d.s.length) { pend = null; pinta(); } else marcas(n); return; }
       c.t.q = trazo(c); marcas(n);
       if (!cuentaPend()) pinta();                             // el primer trazo abre la caja del comentario; los siguientes solo cuentan
     };
     s.addEventListener("pointerup", fin); s.addEventListener("pointercancel", fin);
   }
+  function escala(n, e) { const P = paginas.get(n); if (P) { P.esc = e; marcas(n); } }
   function irA(n) {
     const P = paginas.get(n.pagina); if (!P) return;
     const q = primerPunto(n.dibujo), el = $("docs"), b = P.s.getBoundingClientRect(), e = el.getBoundingClientRect();
@@ -4022,7 +4128,7 @@ const Notas = (() => {
       await todas();
       const el = $("comentariosDatos"); if (!el) return;        // se busca después de esperar: la tabla se rehace a menudo
       el.innerHTML = "<h3>Comentarios" + (esAdmin ? ' <span class="adm">· administrador</span>' : "") + "</h3>" + '<div class="notas notas-datos">' + htmlLista(deDoc("mediciones", null)) + compositor("compDatos", "Comentario sobre las mediciones o el presupuesto…") + "</div>";
-      engancha(el, "mediciones", null); return;
+      engancha(el, "mediciones", null); apuntaVistos(); return;
     }
     $("secNotas").hidden = !ok; if (!ok || !docAct) return;
     $("secNotas").querySelector("h3").innerHTML = "Comentarios" + (esAdmin ? ' <span class="adm">· administrador</span>' : "");
@@ -4032,13 +4138,13 @@ const Notas = (() => {
     el.classList.toggle("chat", cerrada);
     pintaEstado();
     if (ambito === "capturas") Docs.tiraVersiones();
-    if (cerrada) { pend = null; if (herr !== "ver") herramienta("ver"); el.innerHTML = htmlLista(deDoc(ambito, docAct)).replace('<p class="nota">Sin comentarios todavía.</p>', "").replace(/<details class="hechas">/, '<details class="hechas" open>'); engancha(el, ambito, docAct); for (const n of paginas.keys()) marcas(n); cuentas(); return; }
+    if (cerrada) { pend = null; if (herr !== "ver") herramienta("ver"); el.innerHTML = htmlLista(deDoc(ambito, docAct)).replace('<p class="nota">Sin comentarios todavía.</p>', "").replace(/<details class="hechas">/, '<details class="hechas" open>'); engancha(el, ambito, docAct); for (const n of paginas.keys()) marcas(n); cuentas(); apuntaVistos(); return; }
     if (ambito === "capturas" || ambito === "laminas" || ambito === "memorias") pintaLotes();
     el.innerHTML = htmlLista(deDoc(ambito, docAct)) + compositor("compDoc", pend ? "Comentario…" : ambito === "capturas" ? "Qué hay que cambiar: escribe aquí y marca encima de la imagen con las herramientas de arriba…" : "Comentario general del documento, o marca algo en la página con las herramientas de arriba…");
     engancha(el, ambito, docAct);
     for (const n of paginas.keys()) marcas(n);
     const f = el.querySelector(".nota-i.foco"); if (f && f.scrollIntoView) f.scrollIntoView({block: "nearest"});
-    cuentas();
+    cuentas(); apuntaVistos();
   }
   function cuentas() {
     // cuántos comentarios abiertos tiene cada documento, en la lista de la izquierda del panel
@@ -4101,14 +4207,71 @@ const Notas = (() => {
   }
   function enDatos() { ambito = "mediciones"; pend = null; if (focoPend) { focoId = focoPend; focoPend = null; } pinta(); }
   document.querySelectorAll("#notasHerr [data-nh]").forEach(b => b.onclick = () => herramienta(herr === b.dataset.nh && b.dataset.nh !== "ver" ? "ver" : b.dataset.nh));
-  setInterval(async () => {                                 // lo que escriban otros aparece solo
-    if (document.hidden || !(S.modo === "lam" || S.modo === "mem" || S.modo === "datos" || S.modo === "cap") || !cfg) return;
-    const n0 = cache ? cache.length + "|" + cache.filter(n => n.resuelto_por).length : "";
-    await todas(true);
-    const n1 = cache.length + "|" + cache.filter(n => n.resuelto_por).length;
-    if (n0 !== n1 && !document.querySelector(".comp textarea:focus")) pinta();
-    else if (S.modo === "cap" || S.modo === "lam" || S.modo === "mem") pintaLotes();
-  }, 20000);
+  /* ---------- lo que escriban otros (y las respuestas de Claude) aparece solo (Enrique 28-oct): sin recargar la página, sin
+     perder por dónde ibas ni lo que estás escribiendo; lo nuevo se marca un momento. Cada 5 s se mira una lista ligera
+     (id y estados); solo si ha cambiado algo se bajan los comentarios y se rehace la lista. */
+  const firmaDe = L => (L || []).map(n => [n.id, n.encargado || "", n.corregido_por || "", n.resuelto_por || "", n.para_claude ? 1 : 0, n.editado_en || "", n.imagen || ""].join("~")).join("|");
+  const firmaEst = () => (estados || []).map(e => JSON.stringify(e)).join("|");
+  let repintaPend = false, mirando = false, vueltasViva = 0;
+  const enVivo = () => !document.hidden && (S.modo === "lam" || S.modo === "mem" || S.modo === "datos" || S.modo === "cap") && cfg && !cfg.local;
+  const escribiendo = () => {
+    const a = document.activeElement;
+    if (a && (a.tagName === "TEXTAREA" || a.tagName === "INPUT") && a.closest("#panel, #comentariosDatos, .destino")) return true;
+    return !!document.querySelector(".nota-i .txt textarea");            // editando un comentario
+  };
+  async function vivo() {
+    if (mirando || !enVivo()) return; mirando = true;
+    try {
+      const completa = ++vueltasViva % 6 === 0;                       // cada 30 s, todo (también los estados de los documentos)
+      let cambia = false;
+      if (completa) {
+        const f0 = firmaDe(cache) + "#" + firmaEst() + "#" + (cache || []).map(n => (n.texto || "").length).join(",");
+        await todas(true);
+        cambia = f0 !== firmaDe(cache) + "#" + firmaEst() + "#" + (cache || []).map(n => (n.texto || "").length).join(",");
+      } else {
+        const L = await api("GET", "notas?select=id,encargado,corregido_por,resuelto_por,para_claude,editado_en,imagen&proyecto=eq." + encodeURIComponent(proy()) + "&borrado=eq.false&order=creado.asc");
+        if (firmaDe(L) !== firmaDe(cache)) { await todas(true); cambia = true; }
+      }
+      if (cambia) await refresca();
+      else if (S.modo === "cap" || S.modo === "lam" || S.modo === "mem") pintaLotes();
+    } catch (e) { /* sin red: se vuelve a intentar */ }
+    mirando = false;
+  }
+  let vistos = null;                                                 // id → firma de cada comentario ya en pantalla
+  const firmaUna = n => firmaDe([n]) + "~" + (n.texto || "").length;
+  function apuntaVistos() { vistos = new Map((cache || []).map(n => [n.id, firmaUna(n)])); }
+  async function refresca() {
+    if (escribiendo()) { repintaPend = true; return; }               // no se toca nada mientras escribes: al terminar
+    repintaPend = false;
+    const antes = vistos;
+    // por dónde ibas: el desplazamiento del panel (y de lo que lo contenga) y una respuesta a medio escribir
+    const el = ambito === "mediciones" ? $("comentariosDatos") : $("notasDoc");
+    const scr = []; for (let x = el; x; x = x.parentElement) if (x.scrollHeight > x.clientHeight || x.scrollTop) scr.push([x, x.scrollTop, x.scrollLeft]);
+    const rc = document.querySelector(".comp.resp"), rv = rc ? {id: rc.dataset.resp, v: (rc.querySelector("textarea") || {}).value || ""} : null;
+    const cd = document.querySelector("#compDoc textarea, #compDatos textarea"), cv = cd ? cd.value : "";
+    const det = [...document.querySelectorAll("#notasDoc details, #comentariosDatos details")].map(d => d.open);
+    await pinta();
+    document.querySelectorAll("#notasDoc details, #comentariosDatos details").forEach((d, i) => { if (det[i] != null) d.open = det[i]; });
+    const cd2 = document.querySelector("#compDoc textarea, #compDatos textarea"); if (cd2 && cv && !cd2.value) cd2.value = cv;
+    if (rv) { const b = document.querySelector('.nota-i[data-id="' + rv.id + '"] [data-resp]'); if (b) { b.click(); const t = document.querySelector(".comp.resp textarea"); if (t) { t.value = rv.v; t.blur(); } } }
+    for (const [x, t, l] of scr) { x.scrollTop = t; x.scrollLeft = l; }
+    // lo nuevo o lo que ha cambiado, marcado un momento; si es de otro y no se ve, un aviso
+    if (antes) {
+      const nuevas = (cache || []).filter(n => antes.get(n.id) !== firmaUna(n));
+      let fuera = null;
+      for (const n of nuevas) {
+        const d = document.querySelector('.nota-i[data-id="' + n.id + '"]'); if (!d) continue;
+        d.classList.remove("llega"); void d.offsetWidth; d.classList.add("llega");
+        if (!antes.has(n.id) && n.autor !== autor()) { const b = d.getBoundingClientRect(), p = $("panel").getBoundingClientRect(); if (b.bottom < p.top || b.top > p.bottom) fuera = n; }
+      }
+      if (fuera) toast("Nuevo de " + (fuera.autor || "alguien") + ": " + String(fuera.texto || "").replace(/\s+/g, " ").slice(0, 80), 5000);
+    }
+    apuntaVistos();
+  }
+  // al dejar de escribir, lo que haya llegado mientras tanto
+  document.addEventListener("focusout", () => setTimeout(() => { if (repintaPend && !escribiendo()) refresca(); }, 300));
+  setInterval(vivo, 5000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) vivo(); });
   config();                                 // al abrir: «Modo admin» arriba si este navegador tiene la clave
   // en vertical (panel debajo del dibujo) Editor / Abrir / Modo admin van a la cabeza del panel; si no, en la cabecera
   const mqV = matchMedia("(max-width:820px)"), acc = document.querySelector(".acciones");
@@ -4121,7 +4284,7 @@ const Notas = (() => {
     try { history.replaceState(null, "", location.pathname + (q ? q + "&" : "?") + "admin=" + k + location.hash); } catch (e) { return; }
     toast("Listo para guardar como app en modo admin: en el iPad, Compartir › Añadir a pantalla de inicio; en el Mac, Archivo › Añadir al Dock. No compartas esta dirección.", 9000);
   };
-  return {enDoc, enDatos, pagina, marcaBloque, grupos, adjuntar, herramienta, capturas, subirCaptura, subirImagenTema, imagenesDe, ponTema, borrarCaptura, marcarCaptura, resolverCaptura,
+  return {enDoc, enDatos, pagina, escala, marcaBloque, grupos, adjuntar, herramienta, capturas, subirCaptura, subirImagenTema, imagenesDe, ponTema, borrarCaptura, marcarCaptura, resolverCaptura,
     puedeImagen, puedeChat, quitarImagen, cambiarImagen, unirCapturas, pintaLotes, nuevoLote};
 })();
 
