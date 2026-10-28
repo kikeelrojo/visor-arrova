@@ -711,6 +711,8 @@ const V3 = (() => {
   const canvas = $("c3d");
   const renderer = new THREE.WebGLRenderer({canvas, antialias: true, preserveDrawingBuffer: false});
   renderer.localClippingEnabled = false;
+  // (28-oct) si la GPU pierde el contexto WebGL (Mac en reposo, poca memoria), three lo recupera pero con el fondo en negro: se vuelve a aplicar el estilo
+  canvas.addEventListener("webglcontextrestored", () => { try { if (D) aplicaEstilo(estilo); else pedir(); } catch (e) { pedir(); } });
   const scene = new THREE.Scene();
   const hemi = new THREE.HemisphereLight(0xffffff, 0x888888, 0.75); hemi.position.set(0, 0, 1); scene.add(hemi);
   const sol = new THREE.DirectionalLight(0xffffff, 0.55); sol.position.set(-0.5, -1, 1.6); scene.add(sol);
