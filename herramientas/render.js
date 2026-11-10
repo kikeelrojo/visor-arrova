@@ -7,10 +7,12 @@
 // --publicado: con los materiales de ajustes.json tal cual (sin los cambios locales que traía la petición; úsalo cuando ya
 // los hayas pasado a ajustes.json). Sirve este repositorio en local: no hace falta haber publicado.
 // En el Mac usa la GPU (Chrome o Chromium con Metal). Escribe el JPEG y, en la última línea, {"ancho":…,"alto":…,"archivo":…}.
-const http = require("http"), fs = require("fs"), path = require("path");
+const http = require("http"), fs = require("fs"), path = require("path"), {execSync} = require("child_process");
 const A = {}; for (let i = 2; i < process.argv.length; i++) { const k = process.argv[i].replace(/^--/, ""), v = process.argv[i + 1]; if (v === undefined || v.startsWith("--")) A[k] = true; else { A[k] = v; i++; } }
 const RAIZ = path.resolve(A.raiz || path.join(__dirname, ".."));
 const SUPA = "https://ehzfnxqmvaejuxzqkofd.supabase.co/rest/v1", CLAVE = "sb_publishable_TVb184-vZ9594nBMSyynyw_GG5j_1zt";
+// (10-nov) con la cuenta de Claude del Mac se leen también las capturas privadas (lo que cada uno habla con Claude)
+const cabeceras = () => { const h = {apikey: CLAVE}; try { const f = path.join(require("os").homedir(), "Claude/Vworks/visor_claude/token.sh"); if (fs.existsSync(f)) { const t = execSync(JSON.stringify(f), {encoding: "utf8", timeout: 25000}).trim(); if (t) h.Authorization = "Bearer " + t; } } catch (e) {} return h; };
 const TIPOS = {".html": "text/html; charset=utf-8", ".js": "text/javascript", ".mjs": "text/javascript", ".json": "application/json", ".png": "image/png", ".jpg": "image/jpeg", ".wasm": "application/wasm", ".svg": "image/svg+xml", ".css": "text/css"};
 function navegador() {
   const L = [process.env.CHROME, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/Applications/Chromium.app/Contents/MacOS/Chromium", "/usr/bin/google-chrome"];
@@ -22,7 +24,7 @@ function navegador() {
 (async () => {
   let E = A.estado ? JSON.parse(A.estado) : null;
   if (A.captura) {
-    const r = await fetch(SUPA + "/capturas?select=camara&id=eq." + A.captura, {headers: {apikey: CLAVE}});
+    const r = await fetch(SUPA + "/capturas?select=camara&id=eq." + A.captura, {headers: cabeceras()});
     const f = (await r.json())[0];
     if (!f || !f.camara || !f.camara.render) throw new Error("Esa captura no es una petición de la pestaña Render (no trae camara.render)");
     E = f.camara.render;

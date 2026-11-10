@@ -184,7 +184,7 @@ body.pantallazo{margin:0}body.pantallazo .app{grid-template-rows:1fr}body.pantal
 .destino{position:fixed;inset:0;background:rgba(0,0,0,.25);display:grid;place-items:center;z-index:50}
 .destino>div{background:var(--paper);border:0.5px solid var(--ink);padding:16px;width:min(420px,92vw);max-height:80vh;overflow:auto;display:grid;gap:8px}
 .pared{position:fixed;inset:0;background:var(--paper);z-index:60;display:grid;place-items:center}.pared form{display:grid;gap:8px;width:min(320px,88vw)}.pared h2{margin:0 0 6px;font-size:inherit}
-.usrs{display:grid;gap:10px}.usr{display:grid;gap:4px;padding-bottom:8px;border-bottom:0.5px dotted var(--ink)}.usr .fila{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
+.usrs{display:grid;gap:10px}table.uso{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:8px}table.uso td,table.uso th{padding:3px 4px;border-bottom:0.5px dotted var(--ink);text-align:left;font-weight:normal}table.uso th{opacity:.7}table.uso .n{text-align:right;font-variant-numeric:tabular-nums}table.uso tr.tot td{font-weight:600}.usr{display:grid;gap:4px;padding-bottom:8px;border-bottom:0.5px dotted var(--ink)}.usr .fila{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
 .destino h3{margin:0}.destino .lst{display:grid;gap:4px}.destino .lst button{text-align:left}
 .marcas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 .docs.anotando .marcas{pointer-events:auto;touch-action:none;cursor:crosshair}
@@ -218,7 +218,7 @@ h3 .adm{color:#7b1d2c}
 .estado-doc [data-ed="definitivo"].on{background:var(--ink);color:var(--paper);font-weight:700}
 #notaEstado{margin:0 0 10px}
 .est{font-size:var(--s-xs);font-weight:700;white-space:nowrap;padding:0 3px;border:0.5px solid currentColor}
-.est-p{color:var(--warn)}.est-c{color:var(--ink)}.est-h{color:#1f4a2c}
+.est-p{color:var(--warn)}.est-priv{color:#5b4a8a}.est-c{color:var(--ink)}.est-h{color:#1f4a2c}
 .ldocs button .estl{float:right;font-style:normal;font-size:var(--s-xs);font-weight:700;margin-left:6px;clear:right}
 .ldocs button .estl.rev{color:var(--warn)}.ldocs button .estl.def{color:var(--ink)}
 details.resueltas{margin-top:8px}details.resueltas summary{cursor:pointer;font-size:var(--s-xs);padding:7px 0;font-weight:700}
@@ -3496,7 +3496,7 @@ const Cuenta = (() => {
   // el administrador: lista de usuarios, permisos y altas
   async function usuarios() {
     let L; try { L = await rpc("usuarios_lista"); } catch (e) { toast(e.message, 5000); return; }
-    const fila = u => '<div class="usr" data-id="' + u.id + '"><div><b>' + escH(u.nombre) + '</b> <span class="nota">· usuario «' + escH(u.usuario) + "»" + (u.admin ? " · administrador" : "") + (u.cambiar ? " · aún no ha puesto su contraseña" : "") + "</span></div>" +
+    const fila = u => '<div class="usr" data-id="' + u.id + '"><div><b>' + escH(u.nombre) + '</b> <span class="nota">· usuario «' + escH(u.usuario) + "»" + (u.admin ? " · administrador" : "") + (u.es_claude_de ? " · es la cuenta de Claude (lee lo privado que se le manda)" : /^claude(-|$)/.test(u.usuario) ? " · cuenta de Claude: falta conectarla en el Mac" : u.cambiar ? " · aún no ha puesto su contraseña" : "") + "</span></div>" +
       '<div class="fila"><label class="chk"><input type="checkbox" data-ok' + (u.ok ? " checked" : "") + (u.usuario === yo.usuario ? " disabled" : "") + '> Puede entrar</label>' +
       '<label class="chk"><input type="checkbox" data-pc' + (u.puede_claude ? " checked" : "") + '> Puede mandar a Claude</label></div>' +
       '<div class="fila"><select data-cl title="Qué Claude hace lo que mande"><option value="' + escH(yo.usuario) + '">Trabaja el Claude de ' + escH(yo.nombre) + '</option>' + (u.usuario === yo.usuario ? "" : '<option value="' + escH(u.usuario) + '"' + (u.claude === u.usuario ? " selected" : "") + '>Trabaja su propio Claude</option>') + "</select>" +
@@ -3504,7 +3504,7 @@ const Cuenta = (() => {
     await dialogo("<h3>Usuarios del visor</h3>" + '<div class="usrs">' + L.map(fila).join("") + "</div>" +
       '<h3>Nuevo usuario</h3><input class="filtro" data-n placeholder="Nombre (sale en sus comentarios), p. ej. Koldo" maxlength="60"><input class="filtro" data-u placeholder="Usuario para entrar (sin espacios), p. ej. koldo" autocapitalize="none" maxlength="40">' +
       '<input class="filtro" data-c placeholder="Contraseña provisional" value="' + claveNueva() + '"><label class="chk"><input type="checkbox" data-npc> Puede mandar a Claude</label>' +
-      '<p class="nota" data-msg>Pásale el usuario y la contraseña provisional: al entrar pondrá la suya. «Su propio Claude» necesita que tenga instalado el vigilante en su ordenador.</p>' +
+      '<p class="nota" data-msg>Pásale el usuario y la contraseña provisional: al entrar pondrá la suya. «Su propio Claude» necesita que tenga instalado el vigilante en su ordenador. Para la cuenta del Claude del Mac: nombre «Claude», usuario «claude» y sin «Puede mandar a Claude».</p>' +
       '<button class="btn rojo" data-crear>Crear usuario</button><button class="lnk" data-no>Cerrar</button>', (fondo, fin) => {
       const msg = fondo.querySelector("[data-msg]");
       const pon = async (id, args) => { try { const r = await rpc("usuario_pon", Object.assign({p_id: id}, args)); if (r !== "ok") throw new Error(r || "No se ha podido"); toast("Guardado", 1500); return true; } catch (e) { toast(e.message, 5000); return false; } };
@@ -3525,6 +3525,26 @@ const Cuenta = (() => {
         } catch (e) { msg.textContent = e.message; }
       };
     });
+  }
+  // (10-nov) el administrador ve cuánto trabaja Claude para cada uno (no lo que le escriben: eso es privado)
+  async function trabajoClaude() {
+    let R, L = [];
+    try { [R, L] = await Promise.all([rpc("claude_uso_resumen"), rpc("usuarios_lista").catch(() => [])]); } catch (e) { toast(e.message, 5000); return; }
+    const nom = q => { const u = (L || []).find(x => x.usuario === q || x.nombre === q); return u ? u.nombre : q === "¿?" ? "Sin saber de quién" : q; };
+    const num = (x, d) => Number(x || 0).toLocaleString("es-ES", {minimumFractionDigits: d, maximumFractionDigits: d});
+    const meses = [...new Set((R || []).map(r => r.mes))];
+    const tabla = meses.map(m => {
+      const F = R.filter(r => r.mes === m), t = F.reduce((a, r) => [a[0] + +r.vueltas, a[1] + +r.horas, a[2] + +r.coste_usd], [0, 0, 0]);
+      const fila = (a, b, c, d, neg) => "<tr" + (neg ? ' class="tot"' : "") + "><td>" + a + '</td><td class="n">' + b + '</td><td class="n">' + c + '</td><td class="n">' + d + "</td></tr>";
+      return "<h4>" + new Date(m + "-01T12:00").toLocaleDateString("es-ES", {month: "long", year: "numeric"}) + "</h4>" +
+        '<table class="uso"><tr><th>Para</th><th class="n">Vueltas</th><th class="n">Horas</th><th class="n">Equivale por API</th></tr>' +
+        F.map(r => fila(escH(nom(r.quien)), r.vueltas, num(r.horas, 1), num(r.coste_usd, 2) + " $")).join("") +
+        (F.length > 1 ? fila("Total", t[0], num(t[1], 1), num(t[2], 2) + " $", 1) : "") + "</table>";
+    }).join("");
+    await dialogo("<h3>Trabajo de Claude</h3>" +
+      '<p class="nota">Cuánto ha trabajado Claude para cada uno, por meses. Lo que le escriben es privado y aquí no sale. «Equivale por API» es lo que costaría pagando aparte; con el plan Max no se paga más, pero cuenta para sus límites.</p>' +
+      (tabla || '<p class="nota">Aún no hay nada apuntado: se apunta desde que el Claude del Mac tiene su cuenta.</p>') +
+      '<button class="lnk" data-no>Cerrar</button>');
   }
   // la primera cuenta (la del administrador) se crea desde un navegador en modo administrador
   async function primerAdmin() {
@@ -3558,6 +3578,7 @@ const Cuenta = (() => {
     b.onclick = async () => {
       const o = [];
       if (yo && yo.admin) o.push('<button class="btn rojo" data-v="usr">Usuarios y permisos de Claude</button>');
+      if (yo && yo.admin) o.push('<button class="btn" data-v="uso">Trabajo de Claude</button>');
       if (poner) o.push('<button class="btn rojo" data-v="primer">Poner usuarios y contraseñas…</button>');
       if (yo) o.push('<button class="btn" data-v="clave">Cambiar la contraseña</button>');
       if (A.es && A.guardarApp) o.push('<button class="btn" data-v="app">Guardar el visor como app de administrador</button>');
@@ -3565,7 +3586,7 @@ const Cuenta = (() => {
       const v = await dialogo("<h3>" + escH(nombre) + (admin ? " (admin)" : "") + "</h3>" +
         (A.es ? '<p class="nota">Este navegador es de administrador: puede borrar cualquier comentario y autorizar quién manda a Claude.</p>' : "") +
         o.join("") + '<button class="lnk" data-no>Cerrar</button>');
-      if (v === "usr") usuarios(); else if (v === "primer") primerAdmin(); else if (v === "clave") pideClave(false); else if (v === "app") A.guardarApp(); else if (v === "salir") salir();
+      if (v === "usr") usuarios(); else if (v === "uso") trabajoClaude(); else if (v === "primer") primerAdmin(); else if (v === "clave") pideClave(false); else if (v === "app") A.guardarApp(); else if (v === "salir") salir();
     };
   }
   // al arrancar: si el visor ya va con cuentas, no se pasa de aquí sin entrar
@@ -3655,6 +3676,7 @@ const Notas = (() => {
       L.push(fila); ls(LKEY, L); cache.push(fila); return fila;
     }
     const pc = !!fila.para_claude; delete fila.para_claude;      // se manda después, con mandar(): la base de datos no lo acepta al crear
+    if (pc) fila.privada = true;     // (10-nov) lo que cada uno habla con Claude es privado: solo esa persona y su Claude
     const r = await api("POST", "notas", fila, {Prefer: "return=representation"});
     cache.push(r[0]);
     if (pc) try { await mandar("notas", r[0].id); r[0].para_claude = true; } catch (e) { toast(e.message, 10000); }
@@ -3708,7 +3730,7 @@ const Notas = (() => {
     try { L = cfg.local ? (ls(LKEY + ".cap") || []).filter(c => c.proyecto === proy() && !c.archivada_en) : await api("GET", "capturas?select=*&proyecto=eq." + encodeURIComponent(proy()) + "&borrado=eq.false&archivada_en=is.null&order=creado.desc"); }
     catch (e) { toast(e.message, 4000); return []; }
     await todas(true);
-    return ultCaps = L.map(c => ({archivo: c.id, titulo: c.tema || c.vista || "Captura", tema: c.tema || "", vista: c.vista || "", camara: c.camara || null, nota: c.autor + " · " + fecha(c.creado) + (c.para_claude ? " · mandada a Claude" : ""), para_claude: !!c.para_claude, resuelta_por: c.resuelta_por || null, resuelta_en: c.resuelta_en || null, url: cfg.local ? c.datos : urlCap(c.archivo), ancho: c.ancho, alto: c.alto, autor: c.autor, borrable: mia(c), des: c.tipo === "des"}));
+    return ultCaps = L.map(c => ({archivo: c.id, titulo: c.tema || c.vista || "Captura", tema: c.tema || "", vista: c.vista || "", camara: c.camara || null, nota: c.autor + " · " + fecha(c.creado) + (c.para_claude ? " · mandada a Claude" : "") + (c.privada_de ? " · privada" : ""), privada: !!c.privada_de, para_claude: !!c.para_claude, resuelta_por: c.resuelta_por || null, resuelta_en: c.resuelta_en || null, url: cfg.local ? c.datos : urlCap(c.archivo), ancho: c.ancho, alto: c.alto, autor: c.autor, borrable: mia(c), des: c.tipo === "des"}));
   }
   async function subirArchivo(blob, ext = "jpg", mime = "image/jpeg") {
     // la imagen (o el PDF adjunto) al almacén público de capturas; devuelve su ruta
@@ -3789,6 +3811,7 @@ const Notas = (() => {
     await huellaP;
     const {id, archivo} = await subirArchivo(blob);
     const fila = {id, proyecto: proy(), autor: autor(), vista: meta.vista, archivo, ancho: meta.ancho, alto: meta.alto, llave_hash: huella || null, tema: meta.tema || null, camara: meta.camara || null, tipo: meta.tipo === "des" ? "des" : "chat"};
+    if (meta.privada && !cfg.local) fila.privada = true;
     if (cfg.local) { const L = ls(LKEY + ".cap") || []; L.unshift(Object.assign({creado: new Date().toISOString(), datos: meta.dataURL}, fila)); ls(LKEY + ".cap", L); return fila; }
     await api("POST", "capturas", fila, {Prefer: "return=minimal"});
     return fila;
@@ -3797,10 +3820,10 @@ const Notas = (() => {
   // las referencias como imágenes 2, 3… de la conversación, el texto y mandada a Claude
   async function pedidoRender(o) {
     if (!await config() || cfg.local) throw new Error("Hace falta la base de datos de comentarios");
-    const fila = await subirCaptura(o.render.blob, {vista: o.vista, ancho: o.render.ancho, alto: o.render.alto, dataURL: o.render.dataURL, tema: "Render · " + o.texto.replace(/\s+/g, " ").slice(0, 70), camara: {render: o.estado}, tipo: "chat"});
+    const fila = await subirCaptura(o.render.blob, {vista: o.vista, ancho: o.render.ancho, alto: o.render.alto, dataURL: o.render.dataURL, tema: "Render · " + o.texto.replace(/\s+/g, " ").slice(0, 70), camara: {render: o.estado}, tipo: "chat", privada: true});
     await todas(true);
     for (const r of o.refs || []) await subirImagenTema(fila.id, r.blob, {ancho: r.ancho, alto: r.alto, dataURL: r.dataURL, texto: r.nombre ? "Referencia · " + r.nombre : "Referencia"});
-    await crear({ambito: "capturas", doc: fila.id, texto: o.texto, pagina: 1});
+    await crear({ambito: "capturas", doc: fila.id, texto: o.texto, pagina: 1, privada: true});
     await marcarCaptura(fila.id, true);
     return fila.id;
   }
@@ -3890,6 +3913,10 @@ const Notas = (() => {
   /* ---------- lista (panel de láminas y memorias, y bloque de mediciones) */
   function etiqueta(n) {
     if (soloImagen(n)) return "";
+    if (n.privada_de) return '<span class="est est-priv" title="Lo que cada uno habla con Claude es privado: solo lo ven quien lo escribió y su Claude">Privado</span> ' + etiquetaE(n);
+    return etiquetaE(n);
+  }
+  function etiquetaE(n) {
     const e = estadoN(n);
     if (e === "pendiente") return '<span class="est est-p">Pendiente</span> ';
     if (e === "curso") return '<span class="est est-c">En revisión · ' + escH(n.encargado) + "</span> ";
@@ -3947,7 +3974,7 @@ const Notas = (() => {
     const G = gruposDe(raiz), pleg = ls("visor.plegado." + docAct) || [];
     if (!raiz.length) G[0].notas = [];
     return G.map((g, i) => {
-      const quien = g.img[0] ? (g.img[0].autor || "") + " · " + fecha(g.img[0].creado) : d ? String(d.nota || d.autor || "").replace(/ · mandada a Claude$/, "") : "";
+      const quien = g.img[0] ? (g.img[0].autor || "") + " · " + fecha(g.img[0].creado) : d ? String(d.nota || d.autor || "").replace(/ · mandada a Claude( · privada)?$/, "$1") : "";
       const miniaturas = g.ks.map((k, j) => { const n = g.img[j], u = n ? (n.url || urlCap(n.imagen)) : d && d.url; return u ? '<img src="' + escH(u) + '" alt="Imagen ' + k + '" data-k="' + k + '" title="Ver la imagen ' + k + '">' : ""; }).join("");
       const items = g.notas.map(n => {
         if (n.imagen && !String(n.texto || "").trim() && !n.dibujo && !mia(n)) return "";      // la imagen sola ya está en la cabecera
@@ -4022,7 +4049,7 @@ const Notas = (() => {
         else if (conImg) f.pagina = imagenesDe(doc).length + 1;
         else if (amb === "capturas" && Docs.verActual()) f.pagina = Docs.verActual();
         const mandarYa = amb === "capturas" && S.des ? !!(pcn && pcn.checked) : (amb !== "capturas" || comp.dataset.resp || !pcn || pcn.checked);
-        if (amb === "capturas") delete f.para_claude;       /* en capturas lo que se manda es la captura entera */
+        if (amb === "capturas") { delete f.para_claude; if (mandarYa && puedoClaude() && !S.des) f.privada = true; }      /* en capturas lo que se manda es la captura entera */
         try {
           const n = await crear(f); if (!comp.dataset.resp) pend = null; focoId = n.id; quitaAnx(comp.id);
           /* una respuesta mandada a Claude reabre el hilo para Claude (lo que vigila es el comentario principal) */

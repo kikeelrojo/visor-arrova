@@ -8,6 +8,8 @@ const http = require("http"), fs = require("fs"), path = require("path"), {execS
 const A = {}; for (let i = 2; i < process.argv.length; i += 2) A[process.argv[i].replace(/^--/, "")] = process.argv[i + 1];
 const RAIZ = path.resolve(A.raiz || path.join(__dirname, ".."));
 const SUPA = "https://ehzfnxqmvaejuxzqkofd.supabase.co/rest/v1", CLAVE = "sb_publishable_TVb184-vZ9594nBMSyynyw_GG5j_1zt";
+// (10-nov) con la cuenta de Claude del Mac se leen también las capturas privadas (lo que cada uno habla con Claude)
+const cabeceras = () => { const h = {apikey: CLAVE}; try { const f = path.join(require("os").homedir(), "Claude/Vworks/visor_claude/token.sh"); if (fs.existsSync(f)) { const t = execSync(JSON.stringify(f), {encoding: "utf8", timeout: 25000}).trim(); if (t) h.Authorization = "Bearer " + t; } } catch (e) {} return h; };
 const TIPOS = {".html": "text/html; charset=utf-8", ".js": "text/javascript", ".json": "application/json", ".png": "image/png", ".svg": "image/svg+xml", ".webmanifest": "application/json", ".mjs": "text/javascript", ".css": "text/css"};
 function navegador() {
   for (const p of ["/opt/pw-browsers"]) {
@@ -21,7 +23,7 @@ function navegador() {
 (async () => {
   let cam = A.camara ? JSON.parse(A.camara) : null, ancho = +A.ancho || 0;
   if (A.captura) {
-    const r = await fetch(SUPA + "/capturas?select=camara,ancho,alto&id=eq." + A.captura, {headers: {apikey: CLAVE}});
+    const r = await fetch(SUPA + "/capturas?select=camara,ancho,alto&id=eq." + A.captura, {headers: cabeceras()});
     const f = (await r.json())[0]; if (!f || !f.camara) throw new Error("Esa captura no tiene el punto de vista guardado (es del 2D, importada o anterior al 23-oct)");
     cam = f.camara; ancho = ancho || f.ancho;
   }
