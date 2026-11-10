@@ -54,6 +54,7 @@ a.btn{color:var(--ink);text-decoration:none;display:inline-block}
 .btn.on,.btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .btn:focus-visible,.tabs button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .main{display:grid;grid-template-columns:1fr var(--panel);min-height:0}
+.render-frame{grid-column:1/-1;grid-row:1/-1;border:0;width:100%;height:100%;min-height:0;display:block;background:var(--paper)}
 .vista{position:relative;min-width:0;min-height:0;touch-action:none;overflow:hidden}
 .vista canvas{display:block;width:100%;height:100%}
 .panel{border-left:0.5px solid var(--rule);overflow-y:auto;padding:12px 16px 32px;min-width:0}
@@ -309,6 +310,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
     <div class="tabs" role="group" aria-label="Modo">
       <button id="tab3d" aria-pressed="true">3D</button>
       <button id="tab2d" aria-pressed="false">2D</button>
+      <button id="tabRen" aria-pressed="false" title="Render fotográfico: punto de vista con su focal, verticales rectas, materiales y luz; los cambios de material se piden a Claude">Render</button>
       <button id="tabLam" aria-pressed="false">Láminas</button>
       <button id="tabMem" aria-pressed="false">Memorias</button>
       <button id="tabDatos" aria-pressed="false">Mediciones</button>
@@ -388,6 +390,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
       <div class="vacio" id="vacio" hidden><div><b>Sin modelo cargado</b>Abre los archivos que deja Vectorworks en <i>iCloud Drive › arrova visor › proyecto</i> (indice.json, modelo_*.json y plano.json), o arrástralos aquí.</div></div>
       <div class="toast" id="toast" hidden></div>
     </div>
+    <iframe class="render-frame" id="fRender" title="Render" hidden></iframe>
     <aside class="panel" id="panel">
       <div id="p3d">
         <div class="sec">
@@ -3766,6 +3769,17 @@ const Notas = (() => {
     await api("POST", "capturas", fila, {Prefer: "return=minimal"});
     return fila;
   }
+  // desde la pestaña Render: captura con la vista (y en «camara» el estado del render: encuadre, luz, materiales cambiados),
+  // las referencias como imágenes 2, 3… de la conversación, el texto y mandada a Claude
+  async function pedidoRender(o) {
+    if (!await config() || cfg.local) throw new Error("Hace falta la base de datos de comentarios");
+    const fila = await subirCaptura(o.render.blob, {vista: o.vista, ancho: o.render.ancho, alto: o.render.alto, dataURL: o.render.dataURL, tema: "Render · " + o.texto.replace(/\s+/g, " ").slice(0, 70), camara: {render: o.estado}, tipo: "chat"});
+    await todas(true);
+    for (const r of o.refs || []) await subirImagenTema(fila.id, r.blob, {ancho: r.ancho, alto: r.alto, dataURL: r.dataURL, texto: r.nombre ? "Referencia · " + r.nombre : "Referencia"});
+    await crear({ambito: "capturas", doc: fila.id, texto: o.texto, pagina: 1});
+    await marcarCaptura(fila.id, true);
+    return fila.id;
+  }
   async function borrarCaptura(id) {
     if (cfg.local) { ls(LKEY + ".cap", (ls(LKEY + ".cap") || []).filter(c => c.id !== id)); return; }
     if (!await api("POST", "rpc/borrar_captura", {p_id: id, p_llave: esAdmin ? ls("visor.admin") : llave})) throw new Error("No se ha podido borrar (solo se borra desde el navegador con el que se hizo)");
@@ -4456,7 +4470,7 @@ const Notas = (() => {
     toast("Listo para guardar como app en modo admin: en el iPad, Compartir › Añadir a pantalla de inicio; en el Mac, Archivo › Añadir al Dock. No compartas esta dirección.", 9000);
   };
   return {enDoc, enDatos, pagina, escala, marcaBloque, grupos, adjuntar, herramienta, capturas, subirCaptura, subirImagenTema, imagenesDe, ponTema, borrarCaptura, marcarCaptura, resolverCaptura,
-    puedeImagen, puedeChat, quitarImagen, cambiarImagen, unirCapturas, pintaLotes, nuevoLote};
+    puedeImagen, puedeChat, quitarImagen, cambiarImagen, unirCapturas, pintaLotes, nuevoLote, pedidoRender};
 })();
 
 /* ============================================================ interfaz */
@@ -4478,7 +4492,9 @@ function modo(m) {
   if (m === "3d" || m === "2d") S.ultVista = m; else S.sustituir = null;
   document.body.classList.toggle("editor", m === "ed");
   const plano = m === "2d" || m === "ed", doc = m === "lam" || m === "mem" || m === "cap";
-  const tabs = {"3d": "tab3d", "2d": "tab2d", lam: "tabLam", mem: "tabMem", datos: "tabDatos", cap: "tabCap"};
+  const tabs = {"3d": "tab3d", "2d": "tab2d", ren: "tabRen", lam: "tabLam", mem: "tabMem", datos: "tabDatos", cap: "tabCap"};
+  const ren = m === "ren";
+  $("vista").hidden = ren; $("panel").hidden = ren; $("fRender").hidden = !ren; document.body.classList.toggle("modo-ren", ren);
   $("btnCaptura").hidden = !(m === "3d" || m === "2d");
   for (const [k_, id] of Object.entries(tabs)) $(id).setAttribute("aria-pressed", m === k_);
   $("tabCap").setAttribute("aria-pressed", m === "cap" && !S.des); $("tabDes").setAttribute("aria-pressed", m === "cap" && !!S.des);
@@ -4491,13 +4507,22 @@ function modo(m) {
   $("selModelo").hidden = m !== "3d" && m !== "datos";
   $("rotulo").hidden = m !== "3d";
   document.querySelectorAll(".aspa,.esq").forEach(x => x.hidden = m === "datos" || doc);
-  const h = {"3d": "", "2d": "#2d", ed: "", lam: "#laminas", mem: "#memorias", datos: "#datos", cap: S.des ? "#desarrollo" : "#capturas"}[m];
+  const h = {"3d": "", "2d": "#2d", ed: "", ren: "#render", lam: "#laminas", mem: "#memorias", datos: "#datos", cap: S.des ? "#desarrollo" : "#capturas"}[m];
   if (!S.soloEditor) try { history.replaceState(null, "", h || location.pathname + location.search); } catch (e) { /* vista previa */ }
+  if (ren) { abrirRender(); return; }
   if (m === "datos") { Datos.refrescar(); return; }
   if (doc) { $("vacio").hidden = true; Docs.abrir({lam: "laminas", mem: "memorias", cap: "capturas"}[m]); return; }
   if (plano) { V2.setEditable(m === "ed"); abrir2d(); requestAnimationFrame(() => V2.redim()); } else { requestAnimationFrame(() => V3.redim()); if (!S.modelo) $("vacio").hidden = false; }
 }
-$("tab3d").onclick = () => modo("3d"); $("tab2d").onclick = () => modo("2d");
+$("tab3d").onclick = () => modo("3d"); $("tab2d").onclick = () => modo("2d"); $("tabRen").onclick = () => modo("ren");
+// Render (10-nov): página aparte (render.html, con su propio three.js y el trazado de rayos) dentro del visor; se carga la primera vez
+function abrirRender() {
+  const f = $("fRender"), p = S.proyecto ? S.proyecto.id : "";
+  const src = "render.html?p=" + encodeURIComponent(p);
+  if (f.dataset.src !== src) { f.dataset.src = src; f.src = src; }
+}
+// lo que el render manda a Claude: la vista, lo escrito y las imágenes de referencia, como una conversación nueva del Chat
+window.visorRender = {pedir: o => Notas.pedidoRender(o), proyecto: () => S.proyecto ? S.proyecto.id : null};
 // el editor va aparte: en la web, en otra pestaña del navegador; dentro de Claude, en la misma página con «Visor» para volver
 $("btnEditor").onclick = e => { if (window.claude) { e.preventDefault(); S.volverA = S.modo; modo("ed"); } };
 $("btnVolver").onclick = () => modo(S.volverA || "2d");
@@ -4778,7 +4803,7 @@ if (/[?&]v=/.test(location.search)) try { history.replaceState(null, "", locatio
   await cargarPublicado();
   if (Object.keys(S.proyectos).length) rellenarProyectos(); else $("vacio").hidden = false;
   rotulo();
-  const hs = {"#2d": "2d", "#plano": "2d", "#editor": "ed", "#laminas": "lam", "#memorias": "mem", "#datos": "datos", "#capturas": "cap", "#desarrollo": "cap"}[location.hash];
+  const hs = {"#2d": "2d", "#plano": "2d", "#render": "ren", "#editor": "ed", "#laminas": "lam", "#memorias": "mem", "#datos": "datos", "#capturas": "cap", "#desarrollo": "cap"}[location.hash];
   if (location.hash === "#desarrollo") S.des = true;
   S.soloEditor = /(^|[?&])editor\b/.test(location.search) || hs === "ed";
   if (S.soloEditor) { document.body.classList.add("solo-editor"); document.title = "Editor arrova"; $("marcaSub").textContent = "· editor"; }

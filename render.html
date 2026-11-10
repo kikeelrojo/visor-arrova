@@ -1,0 +1,1007 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Render · visor arrova</title>
+<link rel="icon" href="icono-32.png" sizes="32x32">
+<script type="importmap">
+{"imports": {
+  "three": "./lib/render/three/build/three.module.js",
+  "three/addons/": "./lib/render/three/examples/jsm/",
+  "three/examples/jsm/": "./lib/render/three/examples/jsm/",
+  "three-mesh-bvh": "./lib/render/three-mesh-bvh.module.js",
+  "three-gpu-pathtracer": "./lib/render/three-gpu-pathtracer.module.js"
+}}
+</script>
+<style>
+/* Render del visor: la misma hoja que el visor (Helvetica, blanco y negro, aspa arriba a la derecha y dos escuadras,
+   panel a la derecha separado por línea de puntos). La foto va dentro de la caja, con el formato elegido. */
+:root{
+  --paper:#ffffff; --ink:#000000; --rule:#000000; --accent:#0040ff; --accent-soft:#dfe6ff; --warn:#c8102e;
+  --f:"Helvetica Neue",Helvetica,Arial,sans-serif; --s-xs:10px; --s-s:11px; --s-m:12px; --s-l:15px; --panel:300px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#0c0c0c;--ink:#f4f4f4;--rule:#f4f4f4;--accent:#7f9cff;--accent-soft:#1c2440;--warn:#ff6b7f;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0c0c0c;--ink:#f4f4f4;--rule:#f4f4f4;--accent:#7f9cff;--accent-soft:#1c2440;--warn:#ff6b7f;color-scheme:dark}
+html,body{height:100%;margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--f);font-size:var(--s-m);overflow:hidden}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+button,select,input,textarea{font-family:var(--f);font-size:var(--s-s);color:var(--ink)}
+.main{display:grid;grid-template-columns:1fr var(--panel);height:100%}
+.vista{position:relative;min-width:0;min-height:0;touch-action:none;overflow:hidden;user-select:none;-webkit-user-select:none}
+#c{position:absolute;display:block;cursor:grab;outline:0.5px solid var(--ink)}
+#c:active{cursor:grabbing}
+#grano{position:absolute;pointer-events:none;mix-blend-mode:overlay}
+.aspa{position:absolute;top:10px;right:10px;width:14px;height:14px;pointer-events:none}
+.esq{position:absolute;width:14px;height:14px;pointer-events:none}
+.esq.a{top:30px;right:30px;border-top:0.5px solid var(--ink);border-right:0.5px solid var(--ink)}
+.esq.b{bottom:14px;left:14px;border-bottom:0.5px solid var(--ink);border-left:0.5px solid var(--ink)}
+.rotulo{position:absolute;left:24px;top:12px;font-size:var(--s-xs);font-weight:700;pointer-events:none;white-space:nowrap}
+.rotulo span{font-weight:400;margin-left:8px}
+.ayuda{position:absolute;left:24px;bottom:2px;font-size:var(--s-xs);pointer-events:none;white-space:nowrap;overflow:hidden;max-width:calc(100% - 48px)}
+.panel{border-left:0.5px solid var(--rule);overflow-y:auto;padding:12px 16px 32px;min-width:0}
+.sec{padding-block:10px}
+.sec+.sec{background-image:radial-gradient(circle,var(--ink) 0.55px,transparent 0.75px);background-size:4px 3px;background-repeat:repeat-x;background-position:0 0}
+.sec h3{font-size:var(--s-s);font-weight:700;margin:4px 0 8px;letter-spacing:.02em}
+.fila{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.fila+.fila,.fila+label.campo,label.campo+.fila,label.campo+label.campo{margin-top:6px}
+.btn{border:0.5px solid var(--ink);background:transparent;padding:5px 10px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--accent-soft)}
+.btn.on,.btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.btn.rojo{color:var(--warn);border-color:var(--warn);font-weight:700}
+.btn.rojo:hover{background:transparent;outline:0.5px solid var(--warn)}
+.btn:disabled{opacity:.4;cursor:default}
+.grupo{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;width:100%}
+.grupo .btn{padding:5px 2px;text-align:center}
+.grupo .btn+.btn{border-left:0}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%}
+.dos .btn,.dos select{width:100%}
+select{max-width:100%}
+.ancho{width:100%}
+label.campo{display:grid;grid-template-columns:76px 1fr 46px;align-items:center;gap:8px;font-size:var(--s-s)}
+label.campo input[type=range]{width:100%;accent-color:var(--ink)}
+label.campo output{font-variant-numeric:tabular-nums;text-align:right}
+.chk{display:flex;align-items:center;gap:6px;font-size:var(--s-s);cursor:pointer}
+.chk input{margin:0;accent-color:var(--ink)}
+.lista{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+.nota{font-size:var(--s-xs);line-height:1.4;margin:6px 0 0}
+.prog{height:3px;margin-top:8px;background-image:radial-gradient(circle,var(--ink) 0.55px,transparent 0.75px);background-size:4px 3px;background-repeat:repeat-x;background-position:0 50%}
+.prog i{display:block;height:100%;background:var(--ink);width:0}
+.mats{display:grid;grid-template-columns:1fr;gap:0;max-height:220px;overflow-y:auto;margin:0 -4px}
+.mats button{display:grid;grid-template-columns:14px 1fr auto;gap:8px;align-items:center;text-align:left;border:0;background:transparent;padding:3px 4px;cursor:pointer;min-width:0}
+.mats button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mats button.on{background:var(--ink);color:var(--paper)}
+.mats i{display:block;width:14px;height:14px;border:0.5px solid var(--ink)}
+.mats b{font-weight:400;font-size:var(--s-xs)}
+.edit{margin-top:10px;padding-top:10px;background-image:radial-gradient(circle,var(--ink) 0.55px,transparent 0.75px);background-size:4px 3px;background-repeat:repeat-x;background-position:0 0}
+.edit .titulo{font-weight:700;margin-bottom:6px;word-break:break-word}
+.edit input[type=color]{width:100%;height:24px;border:0.5px solid var(--ink);padding:0;background:transparent}
+textarea{width:100%;min-height:76px;border:0.5px solid var(--ink);background:transparent;padding:6px;resize:vertical;line-height:1.35}
+.refs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+.refs div{position:relative;aspect-ratio:1;border:0.5px solid var(--ink);background-size:cover;background-position:center}
+.refs button{position:absolute;top:-1px;right:-1px;border:0;background:var(--paper);width:16px;height:16px;line-height:14px;padding:0;cursor:pointer}
+.toast{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:7px 12px;font-size:var(--s-s);max-width:80%;z-index:5}
+.drop::after{content:"Suelta aquí el modelo (Rhino .3dm, Vectorworks .glb/.obj/.fbx/.3ds/.dae)";position:absolute;inset:40px;display:grid;place-items:center;border:0.5px dashed var(--ink);background:var(--paper);font-weight:700}
+.cargando{position:absolute;inset:0;display:grid;place-items:center;font-weight:700;pointer-events:none}
+@media (max-width:820px){
+  .main{grid-template-columns:1fr;grid-template-rows:62vh auto;height:auto;min-height:100%}
+  body{overflow:auto}
+  .panel{border-left:0;border-top:0.5px solid var(--rule)}
+}
+</style>
+</head>
+<body>
+<div class="main">
+  <div class="vista" id="vista">
+    <canvas id="c"></canvas>
+    <div id="grano"></div>
+    <svg class="aspa" viewBox="0 0 14 14" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="0.6" fill="none"/></svg>
+    <div class="esq a"></div><div class="esq b"></div>
+    <div class="rotulo" id="rotulo"></div>
+    <div class="ayuda" id="ayuda">Arrastra: mirar · rueda o pellizco: avanzar · botón derecho o dos dedos: desplazarse · doble clic: ir ahí · toca una superficie: su material</div>
+    <div class="cargando" id="cargando">Cargando…</div>
+    <div class="toast" id="toast" hidden></div>
+  </div>
+  <aside class="panel" id="panel">
+    <div class="sec">
+      <h3>Render</h3>
+      <div class="dos">
+        <button class="btn rojo" id="bRender">Renderizar imagen</button>
+        <select id="selTam" aria-label="Tamaño">
+          <option value="1600">1600 px</option><option value="2400">2400 px</option><option value="3600" selected>3600 px</option><option value="5000">5000 px</option>
+        </select>
+      </div>
+      <label class="campo">Calidad<input type="range" id="rCal" min="100" max="4000" step="100" value="1000"><output id="oCal"></output></label>
+      <div class="prog" id="prog" hidden><i></i></div>
+      <p class="nota" id="nRender"></p>
+      <div class="dos" style="margin-top:6px">
+        <button class="btn" id="bPausa" aria-pressed="false">Pausar la vista</button>
+        <button class="btn" id="bMapa" title="Un color plano por material, mismo encuadre y tamaño: para Visoid">Mapa de materiales</button>
+      </div>
+    </div>
+    <div class="sec">
+      <h3>Cámara</h3>
+      <div class="grupo" role="group" aria-label="Objetivo">
+        <button class="btn" data-f="20">20</button><button class="btn" data-f="24">24</button><button class="btn" data-f="28">28</button><button class="btn" data-f="35">35</button><button class="btn" data-f="50">50</button>
+      </div>
+      <label class="campo">Focal<input type="range" id="rFocal" min="12" max="85" step="1" value="24"><output id="oFocal"></output></label>
+      <div class="dos" style="margin-top:6px">
+        <select id="selPlanta" aria-label="Planta"></select>
+        <select id="selFormato" aria-label="Formato">
+          <option value="1.5">3:2 apaisado</option><option value="0.6667">2:3 vertical</option><option value="0.8">4:5 vertical</option><option value="1.25">5:4 apaisado</option><option value="1.7778">16:9</option><option value="1">1:1</option>
+        </select>
+      </div>
+      <label class="campo">Ojo<input type="range" id="rOjo" min="0" max="6000" step="10" value="1600"><output id="oOjo"></output></label>
+      <div class="fila"><span class="chk" title="La cámara siempre horizontal (dos puntos de fuga): para encuadrar más alto o más bajo se descentra, como un objetivo de descentramiento"><input type="checkbox" id="cVert" checked> Verticales rectas</span></div>
+      <label class="campo">Descentrar<input type="range" id="rShift" min="-60" max="60" step="1" value="0"><output id="oShift"></output></label>
+      <div class="dos" style="margin-top:6px">
+        <select id="selEnc" aria-label="Encuadres guardados"><option value="">Encuadres…</option></select>
+        <button class="btn" id="bGuardaEnc">Guardar encuadre</button>
+      </div>
+    </div>
+    <div class="sec">
+      <h3>Pedir a Claude</h3>
+      <textarea id="tPide" placeholder="Qué cambiar: «el zócalo, hormigón de tablilla más cálido, como en la foto»…"></textarea>
+      <div class="refs" id="refs"></div>
+      <div class="dos" style="margin-top:6px">
+        <button class="btn" id="bRef">Añadir referencia</button>
+        <button class="btn" id="bPide">Mandar a Claude</button>
+      </div>
+      <input type="file" id="fRef" accept="image/*" multiple hidden>
+      <p class="nota" id="nPide">Va al Chat con la imagen de la vista, el encuadre y tus ajustes; Claude cambia los materiales y contesta allí con un render nuevo.</p>
+    </div>
+    <div class="sec">
+      <h3>Materiales</h3>
+      <div class="mats" id="mats"></div>
+      <div class="edit" id="edit" hidden>
+        <div class="titulo" id="eTit"></div>
+        <div class="dos">
+          <select id="eTipo" aria-label="Tipo">
+            <option value="liso">Liso</option><option value="revoco">Revoco</option><option value="hormigon">Hormigón</option><option value="tablilla">Hormigón de tablilla</option>
+            <option value="microcemento">Microcemento</option><option value="madera">Madera</option><option value="teja">Teja</option><option value="pavimento">Pavimento</option>
+            <option value="metal">Metal</option><option value="vidrio">Vidrio</option><option value="imagen">Imagen (textura)</option>
+          </select>
+          <input type="color" id="eColor" aria-label="Color">
+        </div>
+        <label class="campo">Rugosidad<input type="range" id="eRug" min="0" max="1" step="0.01"><output></output></label>
+        <label class="campo">Metal<input type="range" id="eMet" min="0" max="1" step="0.01"><output></output></label>
+        <label class="campo">Relieve<input type="range" id="eRel" min="0" max="2" step="0.05"><output></output></label>
+        <label class="campo">Escala<input type="range" id="eEsc" min="0.1" max="8" step="0.1"><output></output></label>
+        <label class="campo">Variación<input type="range" id="eVar" min="0" max="0.4" step="0.01"><output></output></label>
+        <label class="campo">Transparencia<input type="range" id="eTra" min="0" max="1" step="0.01"><output></output></label>
+        <div class="dos" style="margin-top:6px">
+          <button class="btn" id="eQuita" title="Quitar tus cambios en este material y volver a lo publicado">Deshacer mis cambios</button>
+          <button class="btn" id="eOcultar" aria-pressed="false">Ocultar</button>
+        </div>
+      </div>
+      <p class="nota">Toca una superficie en la vista para elegir su material. Tus cambios se ven al momento y se guardan en este navegador; al mandar a Claude, los deja para todos.</p>
+    </div>
+    <div class="sec">
+      <h3>Luz</h3>
+      <div class="grupo" role="group" aria-label="Cielo">
+        <button class="btn" data-cielo="nublado">Nublado</button><button class="btn" data-cielo="sol">Sol bajo</button><button class="btn" data-cielo="amanecer">Amanecer</button><button class="btn" data-cielo="atardecer">Atardecer</button>
+      </div>
+      <label class="campo">Sol<input type="range" id="rSol" min="0" max="360" step="1"><output id="oSol"></output></label>
+      <label class="campo">Intensidad<input type="range" id="rInt" min="0.2" max="3" step="0.05"><output id="oInt"></output></label>
+      <label class="campo">Exposición<input type="range" id="rExp" min="0.2" max="3" step="0.05"><output id="oExp"></output></label>
+    </div>
+    <div class="sec">
+      <h3>Revelado</h3>
+      <label class="campo">Contraste<input type="range" id="rCon" min="0.7" max="1.4" step="0.01"><output id="oCon"></output></label>
+      <label class="campo">Saturación<input type="range" id="rSat" min="0" max="1.5" step="0.01"><output id="oSat"></output></label>
+      <label class="campo">Grano<input type="range" id="rGra" min="0" max="1" step="0.05"><output id="oGra"></output></label>
+    </div>
+    <div class="sec">
+      <h3>Modelo</h3>
+      <div class="dos">
+        <select id="selModelo" aria-label="Modelo"></select>
+        <button class="btn" id="bAbrir" title="Rhino (.3dm), Vectorworks (exportado a .glb, .obj, .fbx, .3ds o .dae) o .stl">Abrir archivo…</button>
+      </div>
+      <div class="dos" id="impOpts" hidden style="margin-top:6px">
+        <select id="selUd" aria-label="Unidades"><option value="auto">Unidades: auto</option><option value="0.001">mm</option><option value="0.01">cm</option><option value="1">m</option><option value="0.0254">pulgadas</option></select>
+        <select id="selEje" aria-label="Eje vertical"><option value="z">Z arriba</option><option value="y">Y arriba</option></select>
+      </div>
+      <input type="file" id="fModelo" accept=".3dm,.glb,.gltf,.obj,.mtl,.fbx,.3ds,.dae,.stl" multiple hidden>
+      <div class="lista" id="capas" style="margin-top:8px"></div>
+      <p class="nota">De Rhino: guardado con mallas de render (no «guardar pequeño»); el material sale por capa. De Vectorworks: Exportar › glTF u OBJ.</p>
+    </div>
+  </aside>
+</div>
+<script type="module">
+import * as THREE from "three";
+import {WebGLPathTracer} from "three-gpu-pathtracer";
+import {HDRLoader} from "three/addons/loaders/HDRLoader.js";
+
+const $ = id => document.getElementById(id);
+const Q = new URLSearchParams(location.search);
+const PROY = (Q.get("p") || "lodosa").replace(/[^a-z0-9_-]/gi, "");
+const BASE = "datos/" + PROY + "/";
+const HEADLESS = Q.has("auto");
+const ls = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
+const LKEY = "render." + PROY;
+let toastT = 0;
+function toast(t, ms = 3000) { const el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => el.hidden = true, ms); }
+const fmt = (n, d = 2) => (+n).toFixed(d).replace(".", ",");
+
+/* ---------------------------------------------------------------- ajustes: lo publicado (ajustes.json, lo cambia Claude) + lo de este navegador */
+let AJ = {materiales: {}, luz: {}, revelado: {}, encuadres: []}, AJtexto = "";
+const LOC = Object.assign({materiales: {}, ocultos: {}, encuadres: [], luz: null, revelado: null, cam: {}}, ls(LKEY) || {});
+let noGuardar = false;
+const guardaLoc = () => { if (!noGuardar) ls(LKEY, LOC); };
+const LUZ0 = {cielo: "nublado", sol: 210, intensidad: 1, exposicion: 1}, REV0 = {contraste: 1.04, saturacion: 0.92, grano: 0.25};
+const luz = () => Object.assign({}, LUZ0, AJ.luz, LOC.luz);
+const rev = () => Object.assign({}, REV0, AJ.revelado, LOC.revelado);
+async function leerAjustes(primera) {
+  let t;
+  try { const r = await fetch(BASE + "render/ajustes.json?t=" + Date.now(), {cache: "no-store"}); if (!r.ok) return; t = await r.text(); } catch (e) { return; }
+  if (t === AJtexto) return;
+  let N; try { N = JSON.parse(t); } catch (e) { return; }
+  const antes = AJ.materiales || {};
+  AJ = Object.assign({materiales: {}, luz: {}, revelado: {}, encuadres: []}, N); AJtexto = t;
+  if (primera) return;
+  // lo que ha cambiado en lo publicado manda sobre lo de este navegador (Claude ya lo ha hecho suyo)
+  const cambiados = Object.keys(AJ.materiales).filter(k => JSON.stringify(AJ.materiales[k]) !== JSON.stringify(antes[k]));
+  for (const k of cambiados) delete LOC.materiales[k];
+  guardaLoc();
+  for (const k of Object.keys(MATS)) aplicaMaterial(k);
+  ponLuz(); ponRevelado(); pintaMats(); pintaEncuadres();
+  if (pt) pt.updateMaterials();
+  toast(cambiados.length ? "Materiales actualizados: " + cambiados.map(nombreMat).join(", ") : "Ajustes del render actualizados", 5000);
+}
+
+/* ---------------------------------------------------------------- texturas procedurales (sin descargas): revoco, hormigón, tablilla… */
+const TS = 1024;
+function rnd(seed) { let s = seed >>> 0 || 1; return () => { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return ((s >>> 0) % 1e6) / 1e6; }; }
+// ruido de valores periódico (se repite sin juntas) y su fbm
+function capaRuido(Px, Py, seed) {
+  const r = rnd(seed), g = new Float32Array(Px * Py); for (let i = 0; i < g.length; i++) g[i] = r();
+  return (x, y) => {
+    const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy);
+    const x0 = ((xi % Px) + Px) % Px, y0 = ((yi % Py) + Py) % Py, x1 = (x0 + 1) % Px, y1 = (y0 + 1) % Py;
+    const a = g[y0 * Px + x0], b = g[y0 * Px + x1], c = g[y1 * Px + x0], d = g[y1 * Px + x1];
+    return a + (b - a) * ux + (c - a) * uy + (a - b - c + d) * ux * uy;
+  };
+}
+function fbm(N, base, oct, seed, sx = 1, sy = 1) {
+  const out = new Float32Array(N * N); let amp = 1, tot = 0;
+  for (let o = 0; o < oct; o++) {
+    const Px = Math.max(2, Math.round(base * sx * 2 ** o)), Py = Math.max(2, Math.round(base * sy * 2 ** o));
+    const f = capaRuido(Px, Py, seed + o * 7919), kx = Px / N, ky = Py / N;
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) out[y * N + x] += amp * f(x * kx, y * ky);
+    tot += amp; amp *= 0.5;
+  }
+  for (let i = 0; i < out.length; i++) out[i] /= tot;
+  return out;
+}
+function aCanvas(N, fn) {
+  const c = document.createElement("canvas"); c.width = c.height = N;
+  const x = c.getContext("2d"), im = x.createImageData(N, N), d = im.data;
+  for (let i = 0, j = 0; i < N * N; i++, j += 4) { const [r, g, b] = fn(i); d[j] = r; d[j + 1] = g; d[j + 2] = b; d[j + 3] = 255; }
+  x.putImageData(im, 0, 0); return c;
+}
+function normales(N, H, fuerza) {
+  return aCanvas(N, i => {
+    const x = i % N, y = (i / N) | 0, h = (xx, yy) => H[((yy + N) % N) * N + ((xx + N) % N)];
+    const dx = (h(x + 1, y) - h(x - 1, y)) * fuerza, dy = (h(x, y + 1) - h(x, y - 1)) * fuerza;
+    const l = Math.hypot(dx, dy, 1);
+    return [(-dx / l * 0.5 + 0.5) * 255, (dy / l * 0.5 + 0.5) * 255, (1 / l * 0.5 + 0.5) * 255];
+  });
+}
+const TEX = {};
+function texturas(tipo) {
+  if (TEX[tipo] !== undefined) return TEX[tipo];
+  const N = TS; let A, R, H, fN = 6;     // albedo (0..1, multiplica al color), rugosidad (0..1, multiplica) y altura
+  const n1 = (b, o, s, sx, sy) => fbm(N, b, o, s, sx, sy);
+  if (tipo === "revoco") {
+    const f = n1(64, 4, 11), g = n1(6, 4, 12); A = new Float32Array(N * N); R = new Float32Array(N * N); H = new Float32Array(N * N);
+    for (let i = 0; i < A.length; i++) { A[i] = 0.5 + (g[i] - 0.5) * 1.2; H[i] = f[i] * 0.8 + g[i] * 0.2; R[i] = 0.9 + (f[i] - 0.5) * 0.2; }
+    fN = 9;
+  } else if (tipo === "hormigon") {
+    const g = n1(5, 5, 21), f = n1(96, 3, 22), p = rnd(23); A = new Float32Array(N * N); R = new Float32Array(N * N); H = new Float32Array(N * N);
+    for (let i = 0; i < A.length; i++) { A[i] = 0.5 + (g[i] - 0.5) * 1.6 + (f[i] - 0.5) * 0.3; H[i] = f[i] * 0.3 + g[i] * 0.2; R[i] = 0.85 + (g[i] - 0.5) * 0.3; }
+    for (let k = 0; k < 2600; k++) { const cx = (p() * N) | 0, cy = (p() * N) | 0, rr = 1 + p() * 2.5; for (let y = -3; y <= 3; y++) for (let x = -3; x <= 3; x++) if (x * x + y * y <= rr * rr) { const i = ((cy + y + N) % N) * N + ((cx + x + N) % N); H[i] -= 0.35; A[i] -= 0.12; } }
+    fN = 5;
+  } else if (tipo === "tablilla") {
+    const filas = 16, veta = n1(4, 5, 31, 1, 10), g = n1(4, 4, 32), p = rnd(33), tono = [], des = [];
+    for (let k = 0; k < filas; k++) { tono.push((p() - 0.5) * 0.25); des.push(p()); }
+    A = new Float32Array(N * N); R = new Float32Array(N * N); H = new Float32Array(N * N);
+    for (let y = 0; y < N; y++) { const fy = y / N * filas, k = Math.floor(fy), t = fy - k, junta = Math.min(t, 1 - t) < 0.025;
+      for (let x = 0; x < N; x++) { const i = y * N + x, v = veta[((y + ((des[k] * N) | 0)) % N) * N + x];
+        A[i] = 0.5 + tono[k] + (v - 0.5) * 0.9 + (g[i] - 0.5) * 0.4 - (junta ? 0.12 : 0); H[i] = v * 0.6 + (junta ? -0.6 : 0); R[i] = 0.85 + (v - 0.5) * 0.2; } }
+    fN = 7;
+  } else if (tipo === "microcemento") {
+    const g = n1(3, 5, 41), f = n1(8, 4, 42, 3, 1), m = n1(128, 2, 43); A = new Float32Array(N * N); R = new Float32Array(N * N); H = new Float32Array(N * N);
+    for (let i = 0; i < A.length; i++) { A[i] = 0.5 + (g[i] - 0.5) * 1.4 + (f[i] - 0.5) * 0.6; H[i] = m[i] * 0.4 + f[i] * 0.3; R[i] = 0.75 + (f[i] - 0.5) * 0.6; }
+    fN = 3;
+  } else if (tipo === "madera") {
+    const w = n1(4, 4, 51, 1, 6), v = n1(32, 3, 52, 1, 12); A = new Float32Array(N * N); R = new Float32Array(N * N); H = new Float32Array(N * N);
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const i = y * N + x, s = Math.sin((y / N * 38 + w[i] * 9) * Math.PI) * 0.5 + 0.5, a = Math.pow(s, 3);
+      A[i] = 0.62 - a * 0.45 + (v[i] - 0.5) * 0.4; H[i] = -a * 0.5 + v[i] * 0.3; R[i] = 0.8 + a * 0.3; }
+    fN = 4;
+  } else if (tipo === "teja") {
+    const filas = 8, cols = 12, g = n1(32, 3, 61), p = rnd(62), tono = {}; A = new Float32Array(N * N); R = new Float32Array(N * N); H = new Float32Array(N * N);
+    for (let y = 0; y < N; y++) { const fy = y / N * filas, r = Math.floor(fy), ty = fy - r;
+      for (let x = 0; x < N; x++) { const fx = x / N * cols + (r % 2) * 0.5, c = Math.floor(fx) % cols, tx = fx - Math.floor(fx), k = r * cols + c;
+        if (tono[k] === undefined) tono[k] = (p() - 0.5);
+        const i = y * N + x, onda = Math.sin(tx * Math.PI), borde = ty > 0.93 ? -0.7 : 0;
+        A[i] = 0.5 + tono[k] * 1.0 + (g[i] - 0.5) * 0.5 - (ty > 0.9 ? 0.25 : 0) + ty * 0.1; H[i] = onda * 0.8 + borde + (g[i] - 0.5) * 0.2; R[i] = 0.85 + (g[i] - 0.5) * 0.3; } }
+    fN = 5;
+  } else if (tipo === "pavimento") {
+    const g = n1(6, 5, 71), f = n1(160, 2, 72); A = new Float32Array(N * N); R = new Float32Array(N * N); H = new Float32Array(N * N);
+    for (let i = 0; i < A.length; i++) { A[i] = 0.5 + (g[i] - 0.5) * 1.2 + (f[i] - 0.5) * 0.9; H[i] = f[i]; R[i] = 0.9 + (f[i] - 0.5) * 0.2; }
+    fN = 6;
+  } else return (TEX[tipo] = null);
+  const sRGB = THREE.SRGBColorSpace;
+  const tex = (c, cs) => { const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = cs || THREE.NoColorSpace; t.anisotropy = 4; return t; };
+  const map = tex(aCanvas(N, i => { const v = Math.max(0, Math.min(1, A[i])) * 255; return [v, v, v]; }), sRGB);
+  const rough = tex(aCanvas(N, i => { const v = Math.max(0, Math.min(1, R[i])) * 255; return [0, v, 0]; }));
+  const nor = tex(normales(N, H, fN));
+  return (TEX[tipo] = {map, rough, nor, A});
+}
+
+/* ---------------------------------------------------------------- materiales */
+const MATS = {};          // clave → {mat, nombre, mapa:[r,g,b], base:{…del modelo}}
+const NOMBRES = {suelo: "Suelo exterior (calle)", entorno_tejado: "Tejados del entorno"};
+const nombreMat = k => (MATS[k] && MATS[k].nombre) || NOMBRES[k] || k;
+const hex = c => "#" + c.map(v => Math.round(v).toString(16).padStart(2, "0")).join("");
+function ajusteDe(k) {
+  const M = MATS[k] || {}, b = M.base || {};
+  const def = {tipo: b.tipo || "liso", color: b.color || "#dcdcdc", rugosidad: b.rugosidad ?? 0.8, metal: b.metal ?? 0, relieve: 0.6, escala: 1.5, variacion: 0.1, transmision: b.transmision ?? 0, ior: 1.5};
+  const a = Object.assign(def, AJ.materiales[k], LOC.materiales[k]);
+  if (a.tipo === "vidrio" && AJ.materiales[k] === undefined && LOC.materiales[k] === undefined) a.transmision = a.transmision || 1;
+  return a;
+}
+const texImg = {};
+function texDeImagen(url, cs) {
+  const k = url + "|" + cs; if (texImg[k]) return texImg[k];
+  const t = new THREE.TextureLoader().load(url, () => { if (pt) pt.updateMaterials(); });
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = cs; t.anisotropy = 4; return (texImg[k] = t);
+}
+function aplicaMaterial(k) {
+  const M = MATS[k]; if (!M) return;
+  const a = ajusteDe(k), m = M.mat;
+  const T = a.tipo === "imagen" ? null : texturas(a.tipo);
+  const v = Math.max(0, Math.min(0.6, a.variacion ?? 0.1));
+  m.color.set(a.color);
+  if (T && v > 0.001) m.color.multiplyScalar(1 / Math.max(0.4, 1 - v));  // el mapa de variación oscurece de media (1 - variación): se compensa
+  m.roughness = Math.max(0, Math.min(1, a.rugosidad));
+  m.metalness = Math.max(0, Math.min(1, a.metal || (a.tipo === "metal" ? 1 : 0)));
+  m.transmission = a.tipo === "vidrio" ? Math.max(0, Math.min(1, a.transmision ?? 1)) : Math.max(0, Math.min(1, a.transmision || 0));
+  m.ior = a.ior || 1.5; m.thickness = 0;
+  const rep = 1 / Math.max(0.05, a.escala || 1.5);
+  let map = null, rough = null, nor = null;
+  if (T) {
+    // variación: el mapa de albedo es gris 0..1 alrededor de 0,5; se aprieta hacia el blanco según la variación
+    if (!T.vars) T.vars = {};
+    const kv = Math.round(v * 100);
+    if (!T.vars[kv]) { const A = T.A, N = TS; const c = aCanvas(N, i => { const x = 1 - (1 - Math.max(0, Math.min(1, A[i]))) * v * 2; const y = Math.max(0, Math.min(1, x)) * 255; return [y, y, y]; }); const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; T.vars[kv] = t; }
+    map = v > 0.001 ? T.vars[kv] : null; rough = T.rough; nor = T.nor;
+  } else if (a.tipo === "imagen" && a.textura) {
+    map = texDeImagen(a.textura, THREE.SRGBColorSpace);
+    if (a.textura_relieve) nor = texDeImagen(a.textura_relieve, THREE.NoColorSpace);
+    if (a.textura_rugosidad) rough = texDeImagen(a.textura_rugosidad, THREE.NoColorSpace);
+  } else if (M.mapaOriginal) map = M.mapaOriginal;
+  M.clones = M.clones || {};
+  for (const [p, t0] of [["map", map], ["roughnessMap", rough], ["normalMap", nor]]) {
+    let t = t0;
+    if (t0 && t0 !== M.mapaOriginal) { t = M.clones[t0.uuid] || (M.clones[t0.uuid] = t0.clone()); t.repeat.set(rep, rep); t.updateMatrix(); t.needsUpdate = true; }
+    m[p] = t;
+  }
+  const rel = a.relieve ?? 0.6; m.normalScale.set(rel, rel);
+  m.side = THREE.DoubleSide;
+  m.needsUpdate = true;
+}
+function material(k, base, nombre, mapa) {
+  if (!MATS[k]) { MATS[k] = {mat: new THREE.MeshPhysicalMaterial({side: THREE.DoubleSide}), nombre: nombre || k, mapa: mapa || colorClave(k), base: base || {}}; MATS[k].mat.name = k; }
+  else { if (nombre) MATS[k].nombre = nombre; if (base) MATS[k].base = base; if (mapa) MATS[k].mapa = mapa; }
+  aplicaMaterial(k); return MATS[k].mat;
+}
+function colorClave(k) { let h = 2166136261; for (const ch of k) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); const c = new THREE.Color().setHSL(((h >>> 0) % 360) / 360, 0.75, 0.5); return [c.r * 255, c.g * 255, c.b * 255].map(Math.round); }
+
+/* ---------------------------------------------------------------- escena */
+const canvas = $("c");
+const renderer = new THREE.WebGLRenderer({canvas, antialias: true, preserveDrawingBuffer: true, powerPreference: "high-performance"});
+renderer.toneMapping = THREE.AgXToneMapping;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+const cam = new THREE.PerspectiveCamera(50, 1.5, 0.05, 5000);
+cam.filmGauge = 36; cam.rotation.order = "YXZ";
+const modelo = new THREE.Group(), apartado = new THREE.Group();   // lo oculto se aparta de la escena (así el render no lo cuenta)
+scene.add(modelo);
+let suelo = null, pt = null, cajaEdif = new THREE.Box3(), PLANTAS = [{id: "suelo", nombre: "Suelo", y: 0}];
+const GRUPOS = {muros: "Muros", forjados: "Forjados", cubiertas: "Cubiertas", carpinterias: "Carpinterías", estructura: "Estructura", techos: "Techos", barandillas: "Barandillas",
+  mobiliario: "Mobiliario", recintos: "Recintos", piel: "Piel", revoco: "Revoco de fachada", alfeizares: "Alféizares", entorno: "Entorno", instalaciones: "Instalaciones", maqueta: "Maqueta"};
+const OCULTOS0 = {recintos: 1, instalaciones: 1};
+const gruposVis = {};
+
+// geometría: triángulos sueltos en metros (Y arriba) con su normal de cara y coordenadas de textura en metros (proyección por caja)
+function acumula(dst, P, Nn, UV) {
+  // P: Float32Array posiciones (no indexadas); Nn: normales o null (se calculan planas)
+  const n = P.length / 3;
+  const nor = Nn || new Float32Array(P.length), uv = new Float32Array(n * 2);
+  const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), f = new THREE.Vector3();
+  for (let t = 0; t < n; t += 3) {
+    a.fromArray(P, t * 3); b.fromArray(P, t * 3 + 3); c.fromArray(P, t * 3 + 6);
+    f.subVectors(c, b).cross(a.clone().sub(b)).normalize();
+    if (!Nn) for (let k = 0; k < 3; k++) f.toArray(nor, (t + k) * 3);
+    const ax = Math.abs(f.x), ay = Math.abs(f.y), az = Math.abs(f.z);
+    for (let k = 0; k < 3; k++) {
+      const x = P[(t + k) * 3], y = P[(t + k) * 3 + 1], z = P[(t + k) * 3 + 2];
+      let u, v;
+      if (ay >= ax && ay >= az) { u = x; v = z; } else if (ax >= az) { u = z; v = y; } else { u = x; v = y; }
+      uv[(t + k) * 2] = u; uv[(t + k) * 2 + 1] = v;
+    }
+  }
+  dst.push({P, N: nor, UV: UV || uv});
+}
+function malla(trozos, mat) {
+  let n = 0; for (const t of trozos) n += t.P.length;
+  const P = new Float32Array(n), N = new Float32Array(n), U = new Float32Array(n / 3 * 2);
+  let o = 0, ou = 0; for (const t of trozos) { P.set(t.P, o); N.set(t.N, o); U.set(t.UV, ou); o += t.P.length; ou += t.UV.length; }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(P, 3)); g.setAttribute("normal", new THREE.BufferAttribute(N, 3)); g.setAttribute("uv", new THREE.BufferAttribute(U, 2));
+  g.computeBoundingBox(); g.computeBoundingSphere();
+  return new THREE.Mesh(g, mat);
+}
+function vacia() {
+  for (const g of [modelo, apartado]) { for (const m of [...g.children]) { g.remove(m); m.traverse(o => o.geometry && o.geometry.dispose()); } }
+  for (const k of Object.keys(gruposVis)) delete gruposVis[k];
+}
+// modelo del visor (BIM, impresión): mm, Z arriba → metros, Y arriba (x este, y arriba, z sur)
+function construyeVisor(D) {
+  vacia();
+  const porGM = new Map();
+  for (const [k, M] of Object.entries(D.materiales || {})) material(k, {tipo: M.opacidad != null && M.opacidad < 60 ? "vidrio" : "liso", color: M.color ? hex(M.color) : "#dcdcdc"}, M.nombre, M.mapa || M.color);
+  for (const e of D.elementos) {
+    if (!e.partes) continue;
+    for (const p of e.partes) {
+      if (!p.f || !p.f.length) continue;
+      const P = new Float32Array(p.f.length * 3);
+      for (let i = 0; i < p.f.length; i++) { const j = p.f[i] * 3; P[i * 3] = p.v[j] / 1000; P[i * 3 + 1] = p.v[j + 2] / 1000; P[i * 3 + 2] = -p.v[j + 1] / 1000; }
+      // los tejados del entorno, con teja (en el modelo van con el mismo material que sus fachadas)
+      const mk = e.g === "entorno" && p.m === "entorno" && /tejado/i.test(e.n || "") ? "entorno_tejado" : p.m;
+      const key = e.g + "|" + mk;
+      if (!porGM.has(key)) porGM.set(key, []);
+      acumula(porGM.get(key), P, null);
+    }
+  }
+  for (const [key, tr] of porGM) {
+    const [g, m] = key.split("|");
+    if (!MATS[m]) material(m, m === "entorno_tejado" ? {tipo: "teja", color: "#9a5a42"} : null, NOMBRES[m] || m, m === "entorno_tejado" ? [200, 120, 90] : null);
+    const me = malla(tr, MATS[m].mat); me.userData = {g, m};
+    if (gruposVis[g] === undefined) gruposVis[g] = !(LOC.cam.capas && g in LOC.cam.capas ? !LOC.cam.capas[g] : OCULTOS0[g]);
+    (gruposVis[g] ? modelo : apartado).add(me);
+  }
+  PLANTAS = [{id: "calle", nombre: "Calle", y: 0}].concat((D.plantas || []).filter(p => p.id !== "entorno" && p.id !== "baja").map(p => ({id: p.id, nombre: p.nombre, y: p.z / 1000})));
+  if (PLANTAS.length > 1) PLANTAS[0].nombre = "Calle / planta baja";
+  cajaEdif.makeEmpty();
+  for (const m of [...modelo.children, ...apartado.children]) if (m.userData.g !== "entorno" && m.userData.g !== "recintos" && m.userData.g !== "instalaciones") cajaEdif.union(m.geometry.boundingBox);
+  ponSuelo(-0.012);
+}
+// archivos de Rhino o Vectorworks
+async function construyeArchivo(obj, opts) {
+  vacia();
+  obj.updateMatrixWorld(true);
+  const esc = opts.escala, rot = new THREE.Matrix4();
+  if (opts.eje === "z") rot.makeRotationX(-Math.PI / 2);
+  const T = new THREE.Matrix4().makeScale(esc, esc, esc).premultiply(rot);
+  const porM = new Map(), caja = new THREE.Box3();
+  const capas = (obj.userData && obj.userData.layers) || null;
+  obj.traverse(o => {
+    if (!o.isMesh || !o.geometry || !o.geometry.attributes.position) return;
+    let vis = true; for (let x = o; x; x = x.parent) if (x.visible === false) vis = false; if (!vis) return;
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    const L = capas && o.userData && o.userData.attributes ? capas[o.userData.attributes.layerIndex] : null, capa = L ? L.name : null;
+    let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone();
+    const M = new THREE.Matrix4().multiplyMatrices(T, o.matrixWorld); g.applyMatrix4(M);
+    const grupos = g.groups && g.groups.length ? g.groups : [{start: 0, count: g.attributes.position.count, materialIndex: 0}];
+    for (const gr of grupos) {
+      const om = mats[gr.materialIndex] || mats[0] || {};
+      const porDefecto = !om.name || /^_*(default|material)_*$/i.test(om.name);       // sin material propio: va por capa (como se trabaja en Rhino)
+      const k = (capa && porDefecto ? capa : (porDefecto ? "Material " + (gr.materialIndex + 1) : om.name)).slice(0, 80);
+      const P = g.attributes.position.array.slice(gr.start * 3, (gr.start + gr.count) * 3);
+      const N = g.attributes.normal ? g.attributes.normal.array.slice(gr.start * 3, (gr.start + gr.count) * 3) : null;
+      const conMapa = om.map && g.attributes.uv;
+      const UV = conMapa ? g.attributes.uv.array.slice(gr.start * 2, (gr.start + gr.count) * 2) : null;
+      if (!porM.has(k)) {
+        const lc = porDefecto && L && L.color ? L.color : null;
+        const col = lc ? hex([lc.r, lc.g, lc.b]) : om.color ? "#" + om.color.getHexString() : "#dcdcdc";
+        const vid = (om.transparent && om.opacity < 0.6) || om.transmission > 0.5 || /vidrio|glass|cristal/i.test(k);
+        material(k, {tipo: vid ? "vidrio" : "liso", color: col, rugosidad: porDefecto ? 0.8 : om.roughness ?? 0.8, metal: porDefecto ? 0 : om.metalness ?? 0}, k);
+        if (conMapa) { MATS[k].mapaOriginal = om.map; aplicaMaterial(k); }
+        porM.set(k, []);
+      }
+      acumula(porM.get(k), P, N, UV);
+    }
+    g.dispose();
+  });
+  for (const tr of porM.values()) for (const t of tr) for (let i = 0; i < t.P.length; i += 3) caja.expandByPoint(new THREE.Vector3(t.P[i], t.P[i + 1], t.P[i + 2]));
+  if (caja.isEmpty()) throw new Error("El archivo no tiene mallas (en Rhino, guárdalo con las mallas de render)");
+  // centrado en planta y apoyado en el suelo
+  const c = caja.getCenter(new THREE.Vector3()), dx = -c.x, dy = -caja.min.y, dz = -c.z;
+  for (const tr of porM.values()) for (const t of tr) for (let i = 0; i < t.P.length; i += 3) { t.P[i] += dx; t.P[i + 1] += dy; t.P[i + 2] += dz; }
+  for (const [k, tr] of porM) {
+    // las coordenadas de textura por caja se calcularon antes de centrar: vuelven a calcularse con las posiciones finales
+    const re = []; for (const t of tr) { if (MATS[k].mapaOriginal) re.push(t); else acumula(re, t.P, t.N); }
+    const me = malla(re, MATS[k].mat); me.userData = {g: "modelo", m: k}; modelo.add(me);
+  }
+  gruposVis.modelo = true;
+  cajaEdif = new THREE.Box3().setFromObject(modelo);
+  PLANTAS = [{id: "suelo", nombre: "Suelo", y: 0}];
+  ponSuelo(-0.005);
+}
+function ponSuelo(y) {
+  if (suelo) { suelo.parent && suelo.parent.remove(suelo); suelo.geometry.dispose(); }
+  const L = 3000, g = new THREE.PlaneGeometry(L, L); g.rotateX(-Math.PI / 2); g.translate(0, y, 0);
+  const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) - 0.5) * L, (uv.getY(i) - 0.5) * L);
+  suelo = new THREE.Mesh(g, material("suelo", {tipo: "pavimento", color: "#9d988f"}, NOMBRES.suelo, [128, 128, 128]));
+  suelo.userData = {g: "suelo", m: "suelo"};
+  if (!LOC.ocultos.suelo) modelo.add(suelo); else apartado.add(suelo);
+}
+
+/* ---------------------------------------------------------------- cielo */
+const CIELOS = {nublado: "aristea_wreck_puresky_2k.hdr", sol: "quarry_01_1k.hdr", amanecer: "blouberg_sunrise_2_1k.hdr", atardecer: "venice_sunset_1k.hdr"};
+const hdrs = {};
+async function ponLuz() {
+  const L = luz(), f = CIELOS[L.cielo] || CIELOS.nublado;
+  if (!hdrs[f]) hdrs[f] = new HDRLoader().loadAsync("lib/render/hdri/" + f).then(t => { t.mapping = THREE.EquirectangularReflectionMapping; return t; });
+  const t = await hdrs[f];
+  scene.environment = t; scene.background = t;
+  const r = THREE.MathUtils.degToRad(L.sol);
+  scene.environmentRotation.set(0, r, 0); scene.backgroundRotation.set(0, r, 0);
+  scene.environmentIntensity = L.intensidad; scene.backgroundIntensity = L.intensidad;
+  renderer.toneMappingExposure = L.exposicion;
+  document.querySelectorAll("[data-cielo]").forEach(b => b.classList.toggle("on", b.dataset.cielo === L.cielo));
+  $("rSol").value = L.sol; $("oSol").textContent = Math.round(L.sol) + "°";
+  $("rInt").value = L.intensidad; $("oInt").textContent = fmt(L.intensidad);
+  $("rExp").value = L.exposicion; $("oExp").textContent = fmt(L.exposicion);
+  if (pt) pt.updateEnvironment();
+}
+function cambiaLuz(campos) { LOC.luz = Object.assign({}, LOC.luz, campos); guardaLoc(); ponLuz(); }
+
+/* ---------------------------------------------------------------- cámara de fotógrafo */
+const C = Object.assign({pos: null, yaw: 0, pitch: 0, f: 24, shift: 0, aspect: 1.5, vert: true, planta: null}, LOC.cam.c || {});
+function aplicaCam(sinReset) {
+  if (!C.pos) { pintaCam(); return; }
+  cam.position.fromArray(C.pos);
+  cam.rotation.set(C.vert ? 0 : C.pitch, C.yaw, 0);
+  cam.aspect = C.aspect; cam.setFocalLength(C.f);
+  const w = 1000, h = Math.round(1000 / C.aspect), s = C.vert ? C.shift : 0;
+  if (Math.abs(s) > 1e-4) cam.setViewOffset(w, h, 0, -s * h, w, h); else cam.clearViewOffset();
+  cam.updateProjectionMatrix(); cam.updateMatrixWorld();
+  if (pt && !sinReset) pt.updateCamera();
+  pintaCam();
+  LOC.cam.c = C; guardaLocT();
+}
+let glT = 0; function guardaLocT() { clearTimeout(glT); glT = setTimeout(guardaLoc, 400); }
+function plantaY() { const p = PLANTAS.find(x => x.id === C.planta) || PLANTAS[0]; return p ? p.y : 0; }
+function pintaCam() {
+  $("rFocal").value = C.f; $("oFocal").textContent = Math.round(C.f) + " mm";
+  document.querySelectorAll("[data-f]").forEach(b => b.classList.toggle("on", +b.dataset.f === Math.round(C.f)));
+  const ojo = C.pos ? C.pos[1] - plantaY() : 1.6; $("rOjo").value = Math.round(ojo * 1000); $("oOjo").textContent = fmt(ojo) + " m";
+  $("cVert").checked = C.vert; $("rShift").value = Math.round(C.shift * 100); $("oShift").textContent = Math.round(C.shift * 100) + " %"; $("rShift").disabled = !C.vert;
+  $("selFormato").value = String(C.aspect);
+  const fov = 2 * Math.atan(21.63 / C.f) * 180 / Math.PI;   // campo en la diagonal, como en los objetivos
+  $("rotulo").innerHTML = (modeloTitulo || "") + "<span>" + Math.round(C.f) + " mm · " + (C.vert ? "verticales rectas" + (Math.abs(C.shift) > 0.005 ? " · descentrado " + Math.round(C.shift * 100) + " %" : "") : "inclinada") + " · campo " + Math.round(fov) + "°</span>";
+}
+function encuadreInicial() {
+  const b = cajaEdif.isEmpty() ? new THREE.Box3().setFromObject(modelo) : cajaEdif, c = b.getCenter(new THREE.Vector3()), s = b.getSize(new THREE.Vector3());
+  const d = Math.max(s.x, s.z, s.y) * 1.3 + 4, dir = new THREE.Vector3(0.55, 0, 0.83).normalize();   // desde el sur-sureste, como una foto desde la calle
+  C.pos = [c.x + dir.x * d, Math.max(b.min.y, 0) + 1.6, c.z + dir.z * d];
+  C.yaw = Math.atan2(C.pos[0] - c.x, C.pos[2] - c.z); C.pitch = 0;
+  const vfov = 2 * Math.atan(36 / Math.max(C.aspect, 1) / 2 / C.f), alto = Math.tan(vfov / 2) * d * 2;
+  C.shift = Math.max(-0.6, Math.min(0.6, ((b.max.y + b.min.y) / 2 - C.pos[1]) / alto));
+  C.planta = PLANTAS[0].id;
+}
+// el lienzo, dentro de la caja de las escuadras, con el formato de la foto
+function encaja() {
+  const v = $("vista").getBoundingClientRect(), L = 24, T = 40, R = 40, B = 24;
+  const aw = Math.max(50, v.width - L - R), ah = Math.max(50, v.height - T - B);
+  let w = aw, h = aw / C.aspect; if (h > ah) { h = ah; w = ah * C.aspect; }
+  w = Math.floor(w); h = Math.floor(h);
+  const x = L + Math.floor((aw - w) / 2), y = T + Math.floor((ah - h) / 2);
+  for (const el of [canvas, $("grano")]) Object.assign(el.style, {left: x + "px", top: y + "px", width: w + "px", height: h + "px"});
+  if (!exportando) { renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2)); renderer.setSize(w, h, false); }
+  cam.aspect = C.aspect; aplicaCam(true);
+  if (pt) pt.updateCamera();
+}
+new ResizeObserver(() => encaja()).observe($("vista"));
+
+// mirar, avanzar, desplazarse (ratón, trackpad, iPad) y teclado (WASD / flechas, Q/E)
+const punteros = new Map(); let arr = null, movio = 0;
+canvas.addEventListener("contextmenu", e => e.preventDefault());
+canvas.addEventListener("pointerdown", e => { canvas.setPointerCapture(e.pointerId); punteros.set(e.pointerId, {x: e.clientX, y: e.clientY}); arr = {b: e.button, shift: e.shiftKey, x: e.clientX, y: e.clientY}; movio = 0; });
+canvas.addEventListener("pointerup", e => {
+  punteros.delete(e.pointerId);
+  if (arr && movio < 4 && e.button === 0 && punteros.size === 0) elige(e);
+  if (!punteros.size) arr = null; pinch = null;
+});
+canvas.addEventListener("pointercancel", e => { punteros.delete(e.pointerId); arr = null; pinch = null; });
+let pinch = null;
+canvas.addEventListener("pointermove", e => {
+  if (!punteros.has(e.pointerId) || !C.pos) return;
+  const p = punteros.get(e.pointerId), dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+  movio += Math.abs(dx) + Math.abs(dy);
+  const h = canvas.clientHeight, vfov = THREE.MathUtils.degToRad(cam.fov), k = vfov / h;
+  if (punteros.size >= 2) {        // dos dedos: pellizco = avanzar; arrastre = desplazarse
+    const [a, b] = [...punteros.values()], d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    if (pinch) { avanza((d - pinch.d) * 0.02 * paso()); desplaza((mx - pinch.mx) / 2, (my - pinch.my) / 2); }
+    pinch = {d, mx, my}; return;
+  }
+  if (arr && (arr.b === 2 || arr.b === 1 || arr.shift)) { desplaza(dx, dy); return; }
+  C.yaw += dx * k;
+  if (C.vert) C.shift = Math.max(-0.6, Math.min(0.6, C.shift + dy / h)); else C.pitch = Math.max(-1.4, Math.min(1.4, C.pitch + dy * k));
+  aplicaCam();
+});
+function paso() { const s = cajaEdif.isEmpty() ? new THREE.Vector3(20, 10, 20) : cajaEdif.getSize(new THREE.Vector3()); return Math.max(0.5, Math.max(s.x, s.z) / 25); }
+function avanza(m) { C.pos[0] -= Math.sin(C.yaw) * m; C.pos[2] -= Math.cos(C.yaw) * m; aplicaCam(); }
+function desplaza(dx, dy) { const k = paso() * 0.02; C.pos[0] -= Math.cos(C.yaw) * dx * k; C.pos[2] += Math.sin(C.yaw) * dx * k; C.pos[1] += dy * k; aplicaCam(); }
+canvas.addEventListener("wheel", e => { e.preventDefault(); if (!C.pos) return; if (e.ctrlKey) { avanza(-e.deltaY * 0.03 * paso()); return; } avanza(-e.deltaY * 0.004 * paso() * (e.shiftKey ? 4 : 1)); }, {passive: false});
+canvas.addEventListener("dblclick", e => {
+  const hit = rayo(e); if (!hit) return;
+  const d = Math.max(0, hit.distance - 1.5);
+  const dir = new THREE.Vector3().subVectors(hit.point, cam.position); dir.y = 0; const l = dir.length(); if (l < 0.01) return;
+  dir.multiplyScalar(Math.min(d, l - 1.2) / l); C.pos[0] += dir.x; C.pos[2] += dir.z; aplicaCam();
+});
+const teclas = new Set();
+addEventListener("keydown", e => { if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return; const k = e.key.toLowerCase(); if ("wasdqe".includes(k) || k.startsWith("arrow")) { teclas.add(k); e.preventDefault(); } });
+addEventListener("keyup", e => teclas.delete(e.key.toLowerCase()));
+addEventListener("blur", () => teclas.clear());
+let tPrev = performance.now();
+function mueveTeclas(dt) {
+  if (!teclas.size || !C.pos) return;
+  const v = paso() * 4 * dt * (teclas.has("shift") ? 3 : 1);
+  let f = 0, s = 0, u = 0;
+  if (teclas.has("w") || teclas.has("arrowup")) f += v; if (teclas.has("s") || teclas.has("arrowdown")) f -= v;
+  if (teclas.has("d")) s += v; if (teclas.has("a")) s -= v;
+  if (teclas.has("arrowleft")) C.yaw += 1.2 * dt; if (teclas.has("arrowright")) C.yaw -= 1.2 * dt;
+  if (teclas.has("e")) u += v * 0.5; if (teclas.has("q")) u -= v * 0.5;
+  C.pos[0] += -Math.sin(C.yaw) * f + Math.cos(C.yaw) * s; C.pos[2] += -Math.cos(C.yaw) * f - Math.sin(C.yaw) * s; C.pos[1] += u;
+  aplicaCam();
+}
+const ray = new THREE.Raycaster();
+function rayo(e) {
+  const r = canvas.getBoundingClientRect(), p = new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(p, cam); return ray.intersectObjects(modelo.children, false)[0] || null;
+}
+function elige(e) { const h = rayo(e); if (h && h.object.userData.m) { selMat = h.object.userData.m; pintaMats(); pintaEdit(); const b = document.querySelector('.mats button.on'); if (b) b.scrollIntoView({block: "nearest"}); toast(nombreMat(selMat), 1600); } }
+
+/* ---------------------------------------------------------------- render */
+let exportando = null, pausa = false, objetivoVista = 1000, modeloTitulo = "";
+function nuevoPT() {
+  if (pt) return pt;
+  pt = new WebGLPathTracer(renderer);
+  pt.tiles.set(2, 2); pt.minSamples = 1; pt.renderDelay = 60; pt.fadeDuration = 250; pt.dynamicLowRes = true; pt.lowResScale = 0.35;
+  pt.filterGlossyFactor = 0.5; pt.bounces = 6; pt.transmissiveBounces = 6; pt.multipleImportanceSampling = true;
+  pt.textureSize.set(TS, TS);
+  return pt;
+}
+let escenaPend = false;
+async function rehaceEscena() {
+  nuevoPT(); escenaPend = true; $("cargando").hidden = false; $("cargando").textContent = "Preparando el render…";
+  await new Promise(r => setTimeout(r, 30));
+  pt.setScene(scene, cam); escenaPend = false; $("cargando").hidden = true;
+}
+function bucle(t) {
+  requestAnimationFrame(bucle);
+  const dt = Math.min(0.1, (t - tPrev) / 1000); tPrev = t;
+  if (!pt || escenaPend || canvas.clientWidth === 0) return;
+  mueveTeclas(dt);
+  if (exportando) {
+    pt.renderSample();
+    const k = Math.min(1, pt.samples / exportando.n); $("prog").firstElementChild.style.width = (k * 100) + "%";
+    $("nRender").textContent = (exportando.mapa ? "" : "Renderizando " + exportando.w + " × " + exportando.h + " px · " + Math.floor(pt.samples) + " / " + exportando.n + " muestras");
+    if (pt.samples >= exportando.n) terminaExport();
+    return;
+  }
+  if (!pausa && pt.samples < objetivoVista) pt.renderSample();
+  $("nRender").textContent = pausa ? "Vista en pausa · " + Math.floor(pt.samples) + " muestras" : pt.samples < objetivoVista ? "Vista: " + Math.floor(pt.samples) + " muestras" : "Vista terminada (" + objetivoVista + " muestras)";
+}
+requestAnimationFrame(bucle);
+
+function tamExport() { const L = +$("selTam").value; return C.aspect >= 1 ? {w: L, h: Math.round(L / C.aspect)} : {w: Math.round(L * C.aspect), h: L}; }
+function empiezaExport(opc = {}) {
+  if (exportando || !pt) return null;
+  return new Promise(ok => {
+    const {w, h} = opc.w ? opc : tamExport();
+    exportando = {w, h, n: opc.n || +$("rCal").value, ok, baja: opc.baja};
+    renderer.setPixelRatio(1); renderer.setSize(w, h, false);
+    cam.aspect = w / h; cam.updateProjectionMatrix(); pt.updateCamera(); pt.reset();
+    $("prog").hidden = false; $("bRender").textContent = "Cancelar"; document.body.classList.add("exportando");
+  });
+}
+function terminaExport(cancelado) {
+  const E = exportando; exportando = null;
+  let data = null;
+  if (!cancelado) data = revela(canvas, E.w, E.h);
+  $("prog").hidden = true; $("bRender").textContent = "Renderizar imagen"; document.body.classList.remove("exportando");
+  encaja(); pt.reset();
+  E.ok(data);
+}
+// revelado (contraste, saturación, grano) sobre los píxeles, igual que se ve en pantalla
+function revela(src, w, h) {
+  const R = rev(), c = document.createElement("canvas"); c.width = w; c.height = h;
+  const x = c.getContext("2d"); x.drawImage(src, 0, 0, w, h);
+  const im = x.getImageData(0, 0, w, h), d = im.data, ct = R.contraste, sa = R.saturacion, gr = R.grano * 14;
+  let s = 12345;
+  for (let i = 0; i < d.length; i += 4) {
+    let r = d[i], g = d[i + 1], b = d[i + 2]; const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    r = l + (r - l) * sa; g = l + (g - l) * sa; b = l + (b - l) * sa;
+    r = (r - 128) * ct + 128; g = (g - 128) * ct + 128; b = (b - 128) * ct + 128;
+    if (gr) { s = (s * 1103515245 + 12345) & 0x7fffffff; const n = ((s >> 8) / 8388608 - 0.5) * gr; r += n; g += n; b += n; }
+    d[i] = r; d[i + 1] = g; d[i + 2] = b;
+  }
+  x.putImageData(im, 0, 0); return c;
+}
+function nombreArchivo(suf) { const t = new Date(), p = n => String(n).padStart(2, "0"); return PROY + "_render_" + t.getFullYear() + p(t.getMonth() + 1) + p(t.getDate()) + "-" + p(t.getHours()) + p(t.getMinutes()) + (suf || "") + ".jpg"; }
+function descarga(c, nombre) { c.toBlob(b => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = nombre; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }, "image/jpeg", 0.93); }
+let ultimoRender = null;
+$("bRender").onclick = async () => {
+  if (exportando) { terminaExport(true); toast("Render cancelado"); return; }
+  const c = await empiezaExport(); if (!c) return;
+  ultimoRender = c; descarga(c, nombreArchivo()); toast("Render descargado", 3000);
+};
+$("bMapa").onclick = () => {
+  if (exportando) return;
+  const {w, h} = tamExport(), prev = new Map(), tm = renderer.toneMapping, bg = scene.background;
+  modelo.traverse(o => { if (o.isMesh) { prev.set(o, o.material); const M = MATS[o.userData.m]; const c = M ? M.mapa : [255, 255, 255]; o.material = new THREE.MeshBasicMaterial({color: new THREE.Color().setRGB(c[0] / 255, c[1] / 255, c[2] / 255, THREE.SRGBColorSpace), side: THREE.DoubleSide}); } });
+  renderer.toneMapping = THREE.NoToneMapping; scene.background = new THREE.Color(1, 1, 1);
+  renderer.setPixelRatio(1); renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
+  renderer.render(scene, cam);
+  const c = document.createElement("canvas"); c.width = w; c.height = h; c.getContext("2d").drawImage(canvas, 0, 0);
+  for (const [o, m] of prev) { o.material.dispose(); o.material = m; }
+  renderer.toneMapping = tm; scene.background = bg; encaja(); pt && pt.reset();
+  descarga(c, nombreArchivo("_mapa")); toast("Mapa de materiales descargado (mismo encuadre y tamaño que el render)", 4000);
+};
+$("bPausa").onclick = () => { pausa = !pausa; $("bPausa").setAttribute("aria-pressed", pausa); $("bPausa").textContent = pausa ? "Seguir la vista" : "Pausar la vista"; };
+$("rCal").oninput = e => { $("oCal").textContent = e.target.value; ls("render.calidad", +e.target.value); };
+$("rCal").value = ls("render.calidad") || 1000; $("oCal").textContent = $("rCal").value;
+$("selTam").value = ls("render.tam") || "3600"; $("selTam").onchange = e => ls("render.tam", e.target.value);
+
+/* ---------------------------------------------------------------- panel: cámara */
+document.querySelectorAll("[data-f]").forEach(b => b.onclick = () => { C.f = +b.dataset.f; aplicaCam(); });
+$("rFocal").oninput = e => { C.f = +e.target.value; aplicaCam(); };
+$("rOjo").oninput = e => { C.pos[1] = plantaY() + e.target.value / 1000; aplicaCam(); };
+$("selPlanta").onchange = e => { const ojo = C.pos[1] - plantaY(); C.planta = e.target.value; C.pos[1] = plantaY() + Math.min(Math.max(ojo, 0), 6); aplicaCam(); };
+$("cVert").onchange = e => { C.vert = e.target.checked; if (C.vert) { C.shift = Math.max(-0.6, Math.min(0.6, Math.tan(C.pitch) * 0.9)); C.pitch = 0; } else { C.pitch = Math.atan(C.shift); C.shift = 0; } aplicaCam(); };
+$("rShift").oninput = e => { C.shift = e.target.value / 100; aplicaCam(); };
+$("selFormato").onchange = e => { C.aspect = +e.target.value; encaja(); };
+function encuadres() { return [...(AJ.encuadres || []).map(x => Object.assign({de: "todos"}, x)), ...LOC.encuadres.filter(x => x.modelo === fuenteId())]; }
+function pintaEncuadres() {
+  const s = $("selEnc"); s.innerHTML = '<option value="">Encuadres…</option>';
+  encuadres().filter(x => !x.modelo || x.modelo === fuenteId()).forEach((x, i) => { const o = document.createElement("option"); o.value = i; o.textContent = x.nombre + (x.de === "todos" ? "" : " · mío"); s.appendChild(o); });
+}
+$("selEnc").onchange = e => { const x = encuadres().filter(x => !x.modelo || x.modelo === fuenteId())[+e.target.value]; e.target.value = ""; if (!x) return; Object.assign(C, JSON.parse(JSON.stringify(x.c))); encaja(); };
+$("bGuardaEnc").onclick = () => { const n = (prompt("Nombre del encuadre", "Vista " + (LOC.encuadres.length + 1)) || "").trim(); if (!n) return; LOC.encuadres.push({nombre: n.slice(0, 60), modelo: fuenteId(), c: JSON.parse(JSON.stringify(C))}); guardaLoc(); pintaEncuadres(); toast("Encuadre guardado"); };
+
+/* ---------------------------------------------------------------- panel: luz y revelado */
+document.querySelectorAll("[data-cielo]").forEach(b => b.onclick = () => cambiaLuz({cielo: b.dataset.cielo}));
+$("rSol").oninput = e => cambiaLuz({sol: +e.target.value});
+$("rInt").oninput = e => cambiaLuz({intensidad: +e.target.value});
+$("rExp").oninput = e => cambiaLuz({exposicion: +e.target.value});
+function ponRevelado() {
+  const R = rev();
+  canvas.style.filter = "contrast(" + R.contraste + ") saturate(" + R.saturacion + ")";
+  $("grano").style.opacity = R.grano * 0.35;
+  $("rCon").value = R.contraste; $("oCon").textContent = fmt(R.contraste); $("rSat").value = R.saturacion; $("oSat").textContent = fmt(R.saturacion); $("rGra").value = R.grano; $("oGra").textContent = fmt(R.grano);
+}
+for (const [id, k] of [["rCon", "contraste"], ["rSat", "saturacion"], ["rGra", "grano"]]) $(id).oninput = e => { LOC.revelado = Object.assign({}, LOC.revelado, {[k]: +e.target.value}); guardaLoc(); ponRevelado(); };
+{ // grano: una tesela de ruido gris
+  const c = document.createElement("canvas"); c.width = c.height = 128; const x = c.getContext("2d"), im = x.createImageData(128, 128);
+  for (let i = 0; i < im.data.length; i += 4) { const v = 128 + (Math.random() - 0.5) * 255; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; }
+  x.putImageData(im, 0, 0); $("grano").style.backgroundImage = "url(" + c.toDataURL() + ")"; $("grano").style.backgroundSize = "64px 64px";
+}
+
+/* ---------------------------------------------------------------- panel: materiales */
+let selMat = null;
+function usados() { const s = new Set(); for (const g of [modelo, apartado]) g.traverse(o => o.isMesh && o.userData.m && s.add(o.userData.m)); return [...s]; }
+function pintaMats() {
+  const el = $("mats"), U = usados();
+  el.innerHTML = "";
+  for (const k of U.sort((a, b) => nombreMat(a).localeCompare(nombreMat(b), "es"))) {
+    const a = ajusteDe(k), b = document.createElement("button");
+    b.className = k === selMat ? "on" : "";
+    b.innerHTML = '<i style="background:' + a.color + '"></i><span></span><b>' + (LOC.materiales[k] ? "cambiado" : "") + (LOC.ocultos[k] ? " oculto" : "") + "</b>";
+    b.querySelector("span").textContent = nombreMat(k); b.title = k;
+    b.onclick = () => { selMat = k; pintaMats(); pintaEdit(); };
+    el.appendChild(b);
+  }
+}
+function pintaEdit() {
+  const k = selMat; $("edit").hidden = !k; if (!k) return;
+  const a = ajusteDe(k);
+  $("eTit").textContent = nombreMat(k);
+  $("eTipo").value = a.tipo; $("eColor").value = a.color;
+  const pon = (id, v, d = 2) => { $(id).value = v; $(id).nextElementSibling.textContent = fmt(v, d); };
+  pon("eRug", a.rugosidad); pon("eMet", a.metal || 0); pon("eRel", a.relieve ?? 0.6); pon("eEsc", a.escala ?? 1.5, 1); pon("eVar", a.variacion ?? 0.1); pon("eTra", a.transmision || 0);
+  $("eEsc").nextElementSibling.textContent = fmt(a.escala ?? 1.5, 1) + " m";
+  $("eOcultar").setAttribute("aria-pressed", !!LOC.ocultos[k]); $("eOcultar").textContent = LOC.ocultos[k] ? "Mostrar" : "Ocultar";
+}
+let matT = 0;
+function cambiaMat(campo, v) {
+  const k = selMat; if (!k) return;
+  LOC.materiales[k] = Object.assign({}, LOC.materiales[k], {[campo]: v}); guardaLoc();
+  aplicaMaterial(k); pintaEdit();
+  clearTimeout(matT); matT = setTimeout(() => { if (pt) pt.updateMaterials(); pintaMats(); }, 120);
+}
+$("eTipo").onchange = e => cambiaMat("tipo", e.target.value);
+$("eColor").oninput = e => cambiaMat("color", e.target.value);
+for (const [id, c] of [["eRug", "rugosidad"], ["eMet", "metal"], ["eRel", "relieve"], ["eEsc", "escala"], ["eVar", "variacion"], ["eTra", "transmision"]]) $(id).oninput = e => cambiaMat(c, +e.target.value);
+$("eQuita").onclick = () => { if (!selMat) return; delete LOC.materiales[selMat]; guardaLoc(); aplicaMaterial(selMat); pintaEdit(); pintaMats(); pt && pt.updateMaterials(); };
+$("eOcultar").onclick = async () => {
+  const k = selMat; if (!k) return; LOC.ocultos[k] = !LOC.ocultos[k]; if (!LOC.ocultos[k]) delete LOC.ocultos[k]; guardaLoc();
+  visibilidad(); pintaEdit(); pintaMats(); await rehaceEscena();
+};
+function visibilidad() {
+  for (const m of [...modelo.children, ...apartado.children]) {
+    const g = m.userData.g, ver = gruposVis[g] !== false && !LOC.ocultos[m.userData.m];
+    if (ver && m.parent !== modelo) modelo.add(m); else if (!ver && m.parent !== apartado) apartado.add(m);
+  }
+}
+function pintaCapas() {
+  const el = $("capas"); el.innerHTML = "";
+  for (const g of Object.keys(gruposVis).sort()) {
+    if (g === "modelo") continue;
+    const l = document.createElement("label"); l.className = "chk"; l.innerHTML = '<input type="checkbox"> <span></span>';
+    l.querySelector("span").textContent = GRUPOS[g] || g; const c = l.querySelector("input"); c.checked = gruposVis[g];
+    c.onchange = async () => { gruposVis[g] = c.checked; LOC.cam.capas = Object.assign({}, LOC.cam.capas, {[g]: c.checked}); guardaLoc(); visibilidad(); await rehaceEscena(); pintaMats(); };
+    el.appendChild(l);
+  }
+}
+
+/* ---------------------------------------------------------------- modelos: los del visor y archivos abiertos */
+let fuente = null, indice = null;
+const archivos = {};     // id → {nombre, obj, opts}
+const fuenteId = () => fuente ? fuente.id : "";
+async function cargaFuente(id) {
+  $("cargando").hidden = false; $("cargando").textContent = "Cargando el modelo…";
+  try {
+    if (archivos[id]) { const A = archivos[id]; $("impOpts").hidden = false; $("selUd").value = A.opts.ud; $("selEje").value = A.opts.eje; await construyeArchivo(A.obj, {escala: A.opts.ud === "auto" ? A.escalaAuto : +A.opts.ud, eje: A.opts.eje}); modeloTitulo = A.nombre; }
+    else {
+      $("impOpts").hidden = true;
+      const m = (indice.modelos || []).find(x => x.id === id) || indice.modelos[0];
+      const r = await fetch(BASE + m.archivo + "?t=" + Date.now()); if (!r.ok) throw new Error("No se encuentra " + m.archivo);
+      construyeVisor(await r.json()); modeloTitulo = PROY + " · " + m.titulo;
+    }
+    fuente = {id}; ls("render." + PROY + ".modelo", id);
+    const pc = LOC.cam.porModelo && LOC.cam.porModelo[id];
+    if (pc && pc.pos) Object.assign(C, pc); else encuadreInicial();
+    $("selPlanta").innerHTML = PLANTAS.map(p => '<option value="' + p.id + '">' + p.nombre + "</option>").join("");
+    if (!PLANTAS.some(p => p.id === C.planta)) C.planta = PLANTAS[0].id; $("selPlanta").value = C.planta;
+    if (selMat && !usados().includes(selMat)) selMat = null;
+    visibilidad(); pintaCapas(); pintaMats(); pintaEdit(); pintaEncuadres(); encaja();
+    await rehaceEscena();
+  } catch (e) { $("cargando").textContent = e.message; throw e; }
+}
+setInterval(() => { if (fuente && C.pos) { LOC.cam.porModelo = Object.assign({}, LOC.cam.porModelo, {[fuente.id]: JSON.parse(JSON.stringify(C))}); guardaLoc(); } }, 3000);
+function pintaModelos() {
+  const s = $("selModelo"); s.innerHTML = "";
+  for (const m of (indice && indice.modelos) || []) s.add(new Option(m.titulo, m.id));
+  for (const [id, A] of Object.entries(archivos)) s.add(new Option(A.nombre, id));
+  s.value = fuenteId();
+}
+$("selModelo").onchange = e => cargaFuente(e.target.value);
+$("bAbrir").onclick = () => $("fModelo").click();
+$("fModelo").onchange = e => { abreArchivos([...e.target.files]); e.target.value = ""; };
+const vistaEl = $("vista");
+vistaEl.addEventListener("dragover", e => { e.preventDefault(); vistaEl.classList.add("drop"); });
+vistaEl.addEventListener("dragleave", () => vistaEl.classList.remove("drop"));
+vistaEl.addEventListener("drop", e => { e.preventDefault(); vistaEl.classList.remove("drop"); abreArchivos([...e.dataTransfer.files]); });
+async function abreArchivos(L) {
+  const mtl = L.find(f => /\.mtl$/i.test(f.name)), f = L.find(f => /\.(3dm|glb|gltf|obj|fbx|3ds|dae|stl)$/i.test(f.name));
+  if (!f) { toast("Abre un .3dm (Rhino) o un .glb, .obj, .fbx, .3ds, .dae o .stl (Vectorworks)", 5000); return; }
+  $("cargando").hidden = false; $("cargando").textContent = "Leyendo " + f.name + "…";
+  try {
+    const ext = f.name.split(".").pop().toLowerCase(), buf = await f.arrayBuffer();
+    let obj, eje = "y";
+    if (ext === "3dm") {
+      const {Rhino3dmLoader} = await import("three/addons/loaders/3DMLoader.js");
+      const ld = new Rhino3dmLoader(); ld.setLibraryPath(new URL("lib/render/rhino3dm/", location.href).href);
+      obj = await new Promise((ok, ko) => ld.parse(buf, ok, ko)); eje = "z";
+    } else if (ext === "glb" || ext === "gltf") {
+      const {GLTFLoader} = await import("three/addons/loaders/GLTFLoader.js");
+      obj = (await new GLTFLoader().parseAsync(buf, "")).scene;
+    } else if (ext === "obj") {
+      const {OBJLoader} = await import("three/addons/loaders/OBJLoader.js"); const ld = new OBJLoader();
+      if (mtl) { const {MTLLoader} = await import("three/addons/loaders/MTLLoader.js"); const M = new MTLLoader().parse(await mtl.text(), ""); M.preload(); ld.setMaterials(M); }
+      obj = ld.parse(new TextDecoder().decode(buf));
+    } else if (ext === "fbx") { const {FBXLoader} = await import("three/addons/loaders/FBXLoader.js"); obj = new FBXLoader().parse(buf, ""); }
+    else if (ext === "3ds") { const {TDSLoader} = await import("three/addons/loaders/TDSLoader.js"); obj = new TDSLoader().parse(buf, ""); eje = "z"; }
+    else if (ext === "dae") { const {ColladaLoader} = await import("three/addons/loaders/ColladaLoader.js"); obj = new ColladaLoader().parse(new TextDecoder().decode(buf), "").scene; }
+    else if (ext === "stl") { const {STLLoader} = await import("three/addons/loaders/STLLoader.js"); const g = new STLLoader().parse(buf); obj = new THREE.Mesh(g, new THREE.MeshStandardMaterial({name: f.name.replace(/\.stl$/i, "")})); eje = "z"; }
+    // unidades: las del archivo de Rhino; si no, por el tamaño
+    obj.updateMatrixWorld(true);
+    let esc = null; const st = obj.userData && obj.userData.settings;
+    if (st && st.modelUnitSystem) { const t = JSON.stringify(st.modelUnitSystem); esc = /Milli/.test(t) ? 0.001 : /Centi/.test(t) ? 0.01 : /"Meters"|_Meters|Meters"/.test(t) ? 1 : /Inch/.test(t) ? 0.0254 : /Feet|Foot/.test(t) ? 0.3048 : null; }
+    if (!esc) { const s = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3()), L_ = Math.max(s.x, s.y, s.z); esc = L_ > 2000 ? 0.001 : L_ > 300 ? 0.01 : 1; }
+    const id = "archivo:" + f.name;
+    archivos[id] = {nombre: f.name, obj, escalaAuto: esc, opts: {ud: "auto", eje}};
+    pintaModelos(); $("selModelo").value = id;
+    await cargaFuente(id);
+    toast(f.name + " abierto (" + (esc === 0.001 ? "mm" : esc === 0.01 ? "cm" : esc === 1 ? "m" : "") + ", " + eje.toUpperCase() + " arriba)", 4000);
+  } catch (e) { console.error(e); $("cargando").hidden = true; toast("No se ha podido abrir " + f.name + ": " + (e.message || e), 7000); }
+}
+for (const id of ["selUd", "selEje"]) $(id).onchange = () => { const A = archivos[fuenteId()]; if (!A) return; A.opts = {ud: $("selUd").value, eje: $("selEje").value}; delete (LOC.cam.porModelo || {})[fuenteId()]; cargaFuente(fuenteId()); };
+
+/* ---------------------------------------------------------------- pedir a Claude: la vista, el texto y las referencias, al Chat */
+const refs = [];
+function pintaRefs() {
+  const el = $("refs"); el.innerHTML = "";
+  refs.forEach((r, i) => { const d = document.createElement("div"); d.style.backgroundImage = "url(" + r.url + ")"; d.title = r.nombre; const b = document.createElement("button"); b.textContent = "×"; b.title = "Quitar"; b.onclick = () => { URL.revokeObjectURL(r.url); refs.splice(i, 1); pintaRefs(); }; d.appendChild(b); el.appendChild(d); });
+}
+async function prepImg(blobOrCanvas, max = 2400) {
+  let src = blobOrCanvas, w, h;
+  if (!(src instanceof HTMLCanvasElement)) { const im = new Image(), u = URL.createObjectURL(src); await new Promise((ok, ko) => { im.onload = ok; im.onerror = () => ko(new Error("No se puede leer la imagen")); im.src = u; }); URL.revokeObjectURL(u); src = im; w = im.naturalWidth; h = im.naturalHeight; }
+  else { w = src.width; h = src.height; }
+  const k = Math.min(1, max / Math.max(w, h)), c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+  const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(src, 0, 0, c.width, c.height);
+  const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.9));
+  return {blob, ancho: c.width, alto: c.height, dataURL: c.toDataURL("image/jpeg", 0.5)};
+}
+$("bRef").onclick = () => $("fRef").click();
+$("fRef").onchange = e => { for (const f of e.target.files) refs.push({file: f, nombre: f.name, url: URL.createObjectURL(f)}); e.target.value = ""; pintaRefs(); };
+$("tPide").addEventListener("paste", e => { const F = [...((e.clipboardData && e.clipboardData.files) || [])].filter(f => /^image\//.test(f.type)); if (!F.length) return; e.preventDefault(); for (const f of F) refs.push({file: f, nombre: f.name || "pegada", url: URL.createObjectURL(f)}); pintaRefs(); });
+function estado() {
+  return {para_claude: "Petición de la pestaña Render: ver herramientas/RENDER.md del visor", proyecto: PROY, modelo: fuenteId(), archivo: archivos[fuenteId()] ? archivos[fuenteId()].nombre : null, c: JSON.parse(JSON.stringify(C)),
+    luz: luz(), revelado: rev(), materiales_cambiados: LOC.materiales, ocultos: LOC.ocultos, capas: Object.fromEntries(Object.entries(gruposVis)),
+    seleccionado: selMat, calidad: +$("rCal").value};
+}
+$("bPide").onclick = async () => {
+  const t = $("tPide").value.trim();
+  if (!t) { $("tPide").focus(); toast("Escribe qué quieres cambiar"); return; }
+  const V = parent !== window && parent.visorRender;
+  if (!V) { toast("Para mandarlo a Claude, abre el render desde la pestaña Render del visor", 5000); return; }
+  $("bPide").disabled = true;
+  try {
+    toast("Preparando la imagen…", 8000);
+    const vista = revela(canvas, canvas.width, canvas.height);
+    const img = await prepImg(vista, 2400), R = [];
+    for (const r of refs) R.push(Object.assign(await prepImg(r.file, 2000), {nombre: r.nombre}));
+    const id = await V.pedir({texto: t, render: img, refs: R, estado: estado(), vista: "Render · " + modeloTitulo + " · " + Math.round(C.f) + " mm"});
+    $("tPide").value = ""; refs.splice(0).forEach(r => URL.revokeObjectURL(r.url)); pintaRefs();
+    toast("Mandado a Claude: la conversación está en el Chat", 5000);
+  } catch (e) { toast(e.message || String(e), 9000); }
+  finally { $("bPide").disabled = false; }
+};
+if (parent === window) $("nPide").textContent = "Para mandar a Claude, abre el render desde la pestaña Render del visor.";
+
+/* ---------------------------------------------------------------- para Claude: render sin pantalla (herramientas/render.js) */
+window.__render = {
+  estado,
+  async renderizar(opc = {}) { const c = await empiezaExport({w: opc.w || 2400, h: opc.h || Math.round((opc.w || 2400) / C.aspect), n: opc.n || 400}); return c.toDataURL("image/jpeg", 0.9); },
+};
+function leeEstadoUrl() {
+  const e = Q.get("e"); if (!e) return null;
+  try { return JSON.parse(decodeURIComponent(escape(atob(e.replace(/-/g, "+").replace(/_/g, "/"))))); } catch (err) { return null; }
+}
+
+/* ---------------------------------------------------------------- arranque */
+(async () => {
+  await leerAjustes(true);
+  const E = leeEstadoUrl();
+  if (E) { // estado de una petición: encuadre, luz, revelado y materiales de quien la hizo (sin tocar lo guardado en este navegador)
+    Object.assign(C, E.c || {}); LOC.luz = E.luz || null; LOC.revelado = E.revelado || null; LOC.materiales = E.materiales_cambiados || {}; LOC.ocultos = E.ocultos || {}; LOC.cam = {capas: E.capas || {}, c: E.c};
+    if (Q.has("publicado")) LOC.materiales = {};
+    noGuardar = true;
+  }
+  ponRevelado();
+  try { const r = await fetch(BASE + "indice.json?t=" + Date.now()); indice = await r.json(); } catch (e) { indice = {modelos: []}; }
+  pintaModelos();
+  const pedido = (E && E.modelo && !String(E.modelo).startsWith("archivo:") && E.modelo) || Q.get("m") || ls("render." + PROY + ".modelo") || indice.preferido || (indice.modelos[0] || {}).id;
+  await ponLuz();
+  if (indice.modelos.length) {
+    const keep = E && E.c && E.c.pos ? JSON.parse(JSON.stringify(E.c)) : null;
+    await cargaFuente((indice.modelos.find(m => m.id === pedido) || indice.modelos[0]).id);
+    if (keep) { Object.assign(C, keep); encaja(); }
+  } else { $("cargando").textContent = "Este proyecto aún no tiene modelo 3D: abre un archivo de Rhino o Vectorworks"; }
+  if (HEADLESS) {
+    const n = +Q.get("muestras") || 300, w = +Q.get("ancho") || 2400;
+    const c = await empiezaExport({w, h: Math.round(w / C.aspect), n});
+    window.__tam = {w: c.width, h: c.height}; window.__resultado = c.toDataURL("image/jpeg", 0.9); document.body.dataset.listo = "1";
+  } else setInterval(() => leerAjustes(false), 20000);
+})();
+</script>
+</body>
+</html>
