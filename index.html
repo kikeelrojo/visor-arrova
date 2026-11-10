@@ -178,6 +178,8 @@ body.pantallazo{margin:0}body.pantallazo .app{grid-template-rows:1fr}body.pantal
 .nota-i img.mini{display:block;max-width:140px;max-height:100px;margin:4px 0;border:0.5px solid var(--ink);cursor:pointer}
 .destino{position:fixed;inset:0;background:rgba(0,0,0,.25);display:grid;place-items:center;z-index:50}
 .destino>div{background:var(--paper);border:0.5px solid var(--ink);padding:16px;width:min(420px,92vw);max-height:80vh;overflow:auto;display:grid;gap:8px}
+.pared{position:fixed;inset:0;background:var(--paper);z-index:60;display:grid;place-items:center}.pared form{display:grid;gap:8px;width:min(320px,88vw)}.pared h2{margin:0 0 6px;font-size:inherit}
+.usrs{display:grid;gap:10px}.usr{display:grid;gap:4px;padding-bottom:8px;border-bottom:0.5px dotted var(--ink)}.usr .fila{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
 .destino h3{margin:0}.destino .lst{display:grid;gap:4px}.destino .lst button{text-align:left}
 .marcas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 .docs.anotando .marcas{pointer-events:auto;touch-action:none;cursor:crosshair}
@@ -326,6 +328,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
     <button class="btn" id="btnVolver" hidden title="Volver al visor">Visor</button>
     <button class="btn" id="btnAbrir" title="Abrir los archivos del visor desde iCloud o del ordenador">Abrir…</button>
     <button class="btn" id="marcaAdmin" hidden title="Este navegador puede borrar cualquier comentario. Tócalo para guardar el visor como app ya en modo admin">Modo admin</button>
+    <button class="btn" id="btnCuenta" hidden title="Tu cuenta en el visor"></button>
     </div>
     <input type="file" id="ficheros" multiple accept=".json,application/json">
   </header>
@@ -3408,6 +3411,149 @@ const Docs = (() => {
   return {abrir, pdfjs, zoom, actualDoc, estado, restaura: r => { pendR = r; }, tiraVersiones, verVersion, verActual: () => verAct, recargar: t => { if (S.proyecto && S.proyecto.docs) delete S.proyecto.docs[t]; }};
 })();
 
+/* ============================================================ cuentas (usuario y contraseña) */
+// Enrique 10-nov: el visor se da a quien él quiera, con usuario y contraseña; sin cuenta no se comenta ni se manda nada a Claude.
+// Las cuentas las crea el administrador aquí mismo («Usuarios»). Por dentro es Supabase Auth con un correo interno por usuario.
+// El visor empieza a pedir cuenta cuando el administrador ha creado la suya y ha entrado (visor_cuentas() en la base de datos).
+const Cuenta = (() => {
+  let cfg, ses = ls("visor.sesion"), yo = null, activa = false, refP = null;
+  const sinPared = /[?&]notas=local/.test(location.search) || /[?&]camara=/.test(location.search);
+  async function conf() { if (cfg !== undefined) return cfg; try { const r = await fetch("notas.json", {cache: "no-store"}); cfg = r.ok ? await r.json() : null; } catch (e) { cfg = null; } if (cfg && !(cfg.url && cfg.clave)) cfg = null; return cfg; }
+  const base = () => cfg.url.replace(/\/$/, "");
+  const correo = u => { u = String(u || "").trim().toLowerCase(); return u.includes("@") ? u : u.replace(/[^a-z0-9._-]/g, "") + "@usuarios.visor-arrova.app"; };
+  async function pide(url, metodo, cuerpo, tk) {
+    const h = {apikey: cfg.clave, "Content-Type": "application/json"}; if (tk) h.Authorization = "Bearer " + tk; else if (!/^sb_/.test(cfg.clave)) h.Authorization = "Bearer " + cfg.clave;
+    const r = await fetch(base() + url, {method: metodo, headers: h, body: cuerpo ? JSON.stringify(cuerpo) : undefined}), t = await r.text();
+    let j = null; try { j = t.trim() ? JSON.parse(t) : null; } catch (e) { /* nada */ }
+    if (!r.ok) throw Object.assign(new Error((j && (j.msg || j.error_description || j.message)) || ("Error " + r.status)), {status: r.status, code: j && j.error_code});
+    return j;
+  }
+  function guarda(j) { ses = j && j.access_token ? {a: j.access_token, r: j.refresh_token, e: Date.now() + (j.expires_in || 3600) * 1000} : null; ls("visor.sesion", ses); }
+  async function token() {
+    if (!ses) return null;
+    if (Date.now() < ses.e - 90000) return ses.a;
+    if (!refP) refP = (async () => {
+      const otra = ls("visor.sesion"); if (otra && otra.e > ses.e && Date.now() < otra.e - 90000) { ses = otra; return; }     // otra ventana ya la ha renovado
+      try { guarda(await pide("/auth/v1/token?grant_type=refresh_token", "POST", {refresh_token: ses.r})); }
+      catch (e) { if (e.status >= 400 && e.status < 500) { guarda(null); yo = null; if (activa && !sinPared) setTimeout(() => pared("La sesión ha caducado: vuelve a entrar"), 0); } }
+    })().finally(() => { refP = null; });
+    await refP; return ses ? ses.a : null;
+  }
+  const rpc = async (f, args) => pide("/rest/v1/rpc/" + f, "POST", args || {}, await token());
+  async function cargaYo() { yo = null; if (!ses) return null; try { yo = await rpc("mi_usuario"); } catch (e) { yo = null; } if (yo) ls("visor.autor", yo.nombre); pintaBoton(); return yo; }
+  async function entrar(usuario, clave) {
+    try { guarda(await pide("/auth/v1/token?grant_type=password", "POST", {email: correo(usuario), password: clave})); }
+    catch (e) { throw new Error(e.status === 400 ? "Usuario o contraseña incorrectos" : e.message); }
+    if (!await cargaYo()) { guarda(null); throw new Error("Esta cuenta no tiene acceso al visor"); }
+    return yo;
+  }
+  async function salir() { const tk = ses && ses.a; guarda(null); yo = null; if (tk) try { await pide("/auth/v1/logout", "POST", {}, tk); } catch (e) { /* da igual */ } location.reload(); }
+  async function cambiaClave(nueva) { await pide("/auth/v1/user", "PUT", {password: nueva}, await token()); try { await rpc("clave_cambiada"); } catch (e) { /* nada */ } if (yo) yo.cambiar = false; }
+  // la pantalla de entrada: tapa el visor hasta que se entra
+  function pared(aviso) {
+    if (document.querySelector(".pared")) return Promise.resolve();
+    return new Promise(ok => {
+      const el = document.createElement("div"); el.className = "pared";
+      el.innerHTML = '<form><h2>arrova · visor</h2><input class="filtro" name="u" placeholder="Usuario" autocomplete="username" autocapitalize="none" spellcheck="false" required>' +
+        '<input class="filtro" name="c" type="password" placeholder="Contraseña" autocomplete="current-password" required><button class="btn rojo" type="submit">Entrar</button>' +
+        '<p class="nota" data-msg>' + escH(aviso || "") + '</p><p class="nota">Las cuentas las da Enrique. Si has olvidado la contraseña, pídele una nueva.</p></form>';
+      const f = el.querySelector("form"), msg = el.querySelector("[data-msg]");
+      f.onsubmit = async e => {
+        e.preventDefault(); const b = f.querySelector("button"); b.disabled = true; msg.textContent = "Entrando…";
+        try { await entrar(f.u.value, f.c.value); el.remove(); if (yo.cambiar) await pideClave(true); ok(); }
+        catch (er) { msg.textContent = er.message; b.disabled = false; }
+      };
+      document.body.appendChild(el); f.u.focus();
+    });
+  }
+  function pideClave(obligado) {
+    return dialogo("<h3>" + (obligado ? "Pon tu contraseña" : "Cambiar la contraseña") + "</h3>" + (obligado ? '<p class="nota">La que te han dado era provisional: elige la tuya (8 caracteres o más).</p>' : "") +
+      '<input class="filtro" type="password" data-c1 placeholder="Contraseña nueva" autocomplete="new-password"><input class="filtro" type="password" data-c2 placeholder="Otra vez" autocomplete="new-password">' +
+      '<p class="nota" data-msg></p><button class="btn rojo" data-ok>Guardar</button>' + (obligado ? "" : '<button class="lnk" data-no>Cancelar</button>'), (fondo, fin) => {
+      const msg = fondo.querySelector("[data-msg]"); if (obligado) fondo.onclick = null;
+      fondo.querySelector("[data-ok]").onclick = async () => {
+        const a = fondo.querySelector("[data-c1]").value, b = fondo.querySelector("[data-c2]").value;
+        if (a.length < 8) { msg.textContent = "Tiene que tener al menos 8 caracteres"; return; }
+        if (a !== b) { msg.textContent = "No coinciden"; return; }
+        try { msg.textContent = "Guardando…"; await cambiaClave(a); toast("Contraseña guardada", 3000); fin("ok"); } catch (e) { msg.textContent = e.message; }
+      };
+      fondo.querySelector("[data-c1]").focus();
+    });
+  }
+  const claveNueva = () => { const a = new Uint8Array(10); crypto.getRandomValues(a); return [...a].map(x => "abcdefghjkmnpqrstuvwxyz23456789"[x % 31]).join(""); };
+  // el administrador: lista de usuarios, permisos y altas
+  async function usuarios() {
+    let L; try { L = await rpc("usuarios_lista"); } catch (e) { toast(e.message, 5000); return; }
+    const fila = u => '<div class="usr" data-id="' + u.id + '"><div><b>' + escH(u.nombre) + '</b> <span class="nota">· usuario «' + escH(u.usuario) + "»" + (u.admin ? " · administrador" : "") + (u.cambiar ? " · aún no ha puesto su contraseña" : "") + "</span></div>" +
+      '<div class="fila"><label class="chk"><input type="checkbox" data-ok' + (u.ok ? " checked" : "") + (u.usuario === yo.usuario ? " disabled" : "") + '> Puede entrar</label>' +
+      '<label class="chk"><input type="checkbox" data-pc' + (u.puede_claude ? " checked" : "") + '> Puede mandar a Claude</label></div>' +
+      '<div class="fila"><select data-cl title="Qué Claude hace lo que mande"><option value="' + escH(yo.usuario) + '">Trabaja el Claude de ' + escH(yo.nombre) + '</option>' + (u.usuario === yo.usuario ? "" : '<option value="' + escH(u.usuario) + '"' + (u.claude === u.usuario ? " selected" : "") + '>Trabaja su propio Claude</option>') + "</select>" +
+      '<button class="lnk" data-clave>Darle una contraseña nueva</button></div></div>';
+    await dialogo("<h3>Usuarios del visor</h3>" + '<div class="usrs">' + L.map(fila).join("") + "</div>" +
+      '<h3>Nuevo usuario</h3><input class="filtro" data-n placeholder="Nombre (sale en sus comentarios), p. ej. Koldo" maxlength="60"><input class="filtro" data-u placeholder="Usuario para entrar (sin espacios), p. ej. koldo" autocapitalize="none" maxlength="40">' +
+      '<input class="filtro" data-c placeholder="Contraseña provisional" value="' + claveNueva() + '"><label class="chk"><input type="checkbox" data-npc> Puede mandar a Claude</label>' +
+      '<p class="nota" data-msg>Pásale el usuario y la contraseña provisional: al entrar pondrá la suya. «Su propio Claude» necesita que tenga instalado el vigilante en su ordenador.</p>' +
+      '<button class="btn rojo" data-crear>Crear usuario</button><button class="lnk" data-no>Cerrar</button>', (fondo, fin) => {
+      const msg = fondo.querySelector("[data-msg]");
+      const pon = async (id, args) => { try { const r = await rpc("usuario_pon", Object.assign({p_id: id}, args)); if (r !== "ok") throw new Error(r || "No se ha podido"); toast("Guardado", 1500); return true; } catch (e) { toast(e.message, 5000); return false; } };
+      fondo.querySelectorAll(".usr").forEach(d => {
+        const id = d.dataset.id;
+        d.querySelector("[data-ok]").onchange = e => pon(id, {p_ok: e.target.checked});
+        d.querySelector("[data-pc]").onchange = e => pon(id, {p_puede_claude: e.target.checked});
+        d.querySelector("[data-cl]").onchange = e => pon(id, {p_claude: e.target.value});
+        d.querySelector("[data-clave]").onclick = async () => { const c = claveNueva(); if (await pon(id, {p_clave: c})) prompt("Contraseña provisional (cópiala y pásasela; al entrar pondrá la suya):", c); };
+      });
+      const n = fondo.querySelector("[data-n]"), u = fondo.querySelector("[data-u]");
+      n.oninput = () => { if (!u.dataset.tocado) u.value = n.value.trim().toLowerCase().normalize("NFD").replace(/[^a-z0-9._-]/g, ""); }; u.oninput = () => { u.dataset.tocado = 1; };
+      fondo.querySelector("[data-crear]").onclick = async () => {
+        try {
+          const c = fondo.querySelector("[data-c]").value, r = await rpc("usuario_crea", {p_usuario: u.value, p_nombre: n.value, p_clave: c, p_puede_claude: fondo.querySelector("[data-npc]").checked, p_claude: yo.usuario});
+          if (r !== "ok") { msg.textContent = r || "No se ha podido crear"; return; }
+          fin(null); prompt("Usuario creado. Pásale esto (al entrar pondrá su contraseña):", "Visor: " + location.origin + location.pathname + "  ·  usuario: " + u.value.trim().toLowerCase() + "  ·  contraseña: " + c); usuarios();
+        } catch (e) { msg.textContent = e.message; }
+      };
+    });
+  }
+  // la primera cuenta (la del administrador) se crea desde un navegador en modo administrador
+  async function primerAdmin() {
+    await dialogo("<h3>Poner usuarios al visor</h3>" + '<p class="nota">Crea tu cuenta de administrador. En cuanto entres con ella, el visor pedirá usuario y contraseña a todo el mundo, y desde «Usuarios» das de alta a los demás.</p>' +
+      '<input class="filtro" data-n placeholder="Tu nombre" value="' + escH(ls("visor.autor") || "") + '" maxlength="60"><input class="filtro" data-u placeholder="Usuario (sin espacios)" autocapitalize="none" maxlength="40">' +
+      '<input class="filtro" type="password" data-c placeholder="Contraseña (8 caracteres o más)" autocomplete="new-password"><p class="nota" data-msg></p>' +
+      '<button class="btn rojo" data-crear>Crear mi cuenta</button><button class="lnk" data-no>Cancelar</button>', (fondo, fin) => {
+      const msg = fondo.querySelector("[data-msg]"), n = fondo.querySelector("[data-n]"), u = fondo.querySelector("[data-u]"), c = fondo.querySelector("[data-c]");
+      u.value = n.value.trim().toLowerCase().normalize("NFD").replace(/[^a-z0-9._-]/g, "");
+      fondo.querySelector("[data-crear]").onclick = async () => {
+        try {
+          msg.textContent = "Creando…";
+          const r = await rpc("primer_admin", {p_admin: ls("visor.admin"), p_usuario: u.value, p_nombre: n.value, p_clave: c.value});
+          if (r !== "ok") { msg.textContent = r || "No se ha podido crear"; return; }
+          try { await entrar(u.value, c.value); } catch (e) { msg.textContent = "La cuenta está creada, pero no deja entrar con ella (" + e.message + "). El visor sigue como estaba: díselo a Claude."; return; }
+          fin(null); toast("Cuenta creada. Desde ahora el visor pide usuario y contraseña; da de alta a los demás en «" + yo.nombre + "» › Usuarios", 9000);
+        } catch (e) { msg.textContent = e.message; }
+      };
+    });
+  }
+  function pintaBoton() {
+    const b = $("btnCuenta"); if (!b) return;
+    if (yo) { b.hidden = false; b.textContent = yo.nombre; b.onclick = async () => {
+      const v = await dialogo("<h3>" + escH(yo.nombre) + "</h3>" + (yo.admin ? '<button class="btn rojo" data-v="usr">Usuarios</button>' : "") + '<button class="btn" data-v="clave">Cambiar la contraseña</button><button class="btn" data-v="salir">Salir</button><button class="lnk" data-no>Cerrar</button>');
+      if (v === "usr") usuarios(); else if (v === "clave") pideClave(false); else if (v === "salir") salir();
+    }; }
+    else if (!activa && cfg && ls("visor.admin") && !sinPared) { b.hidden = false; b.textContent = "Usuarios…"; b.title = "Poner usuario y contraseña al visor"; b.onclick = primerAdmin; }
+    else b.hidden = true;
+  }
+  // al arrancar: si el visor ya va con cuentas, no se pasa de aquí sin entrar
+  async function exigir() {
+    if (!await conf()) return;
+    if (sinPared) return;
+    try { activa = !!await pide("/rest/v1/rpc/visor_cuentas", "POST", {}); } catch (e) { activa = false; }
+    if (ses) await cargaYo();
+    if (activa && !yo) await pared(); else if (yo && yo.cambiar) await pideClave(true);
+    pintaBoton();
+  }
+  return {exigir, token, yo: () => yo, activa: () => activa};
+})();
+
 /* ============================================================ comentarios y anotaciones (Supabase) */
 // Una fila por comentario: proyecto, ámbito (mediciones / memorias / laminas), documento, página, texto, autor y fecha;
 // si lleva marca, «dibujo» en puntos del PDF (vectorial, no depende del zoom). Se puede resolver (queda quién y cuándo);
@@ -3432,7 +3578,8 @@ const Notas = (() => {
     return h;
   }
   async function api(metodo, ruta, cuerpo, extra) {
-    const r = await fetch(cfg.url.replace(/\/$/, "") + "/rest/v1/" + ruta, {method: metodo, headers: cab(extra), body: cuerpo ? JSON.stringify(cuerpo) : undefined});
+    const h = cab(extra), tk = await Cuenta.token(); if (tk) h.Authorization = "Bearer " + tk;      // con cuenta, como ese usuario
+    const r = await fetch(cfg.url.replace(/\/$/, "") + "/rest/v1/" + ruta, {method: metodo, headers: h, body: cuerpo ? JSON.stringify(cuerpo) : undefined});
     const txt = await r.text();
     if (!r.ok) throw new Error("Comentarios: " + r.status + " " + txt.slice(0, 160));
     return txt.trim() ? JSON.parse(txt) : null;          // 201/204 sin cuerpo: Safari no deja leerlo como JSON
@@ -3453,7 +3600,6 @@ const Notas = (() => {
     try { esAdmin = !!await api("POST", "rpc/es_admin", {p_llave: k}); } catch (e) { esAdmin = false; }
     $("marcaAdmin").hidden = !esAdmin;
     if (esAdmin && mA) toast("Modo administrador en este navegador: puedes borrar cualquier comentario", 4500);
-    if (esAdmin) setTimeout(revisaPermisos, 2500);
   }
   let estados = [];
   async function todas(forzar) {
@@ -3487,30 +3633,17 @@ const Notas = (() => {
     if (pc) try { await mandar("notas", r[0].id); r[0].para_claude = true; } catch (e) { toast(e.message, 10000); }
     return r[0];
   }
-  // Mandar a Claude solo desde navegadores autorizados (10-nov): lo que se le manda lo ejecuta en el Mac de Enrique, y a la base
-  // de datos puede escribir cualquiera que tenga la dirección del visor. La primera vez que alguien nuevo lo intenta queda pedido,
-  // y Enrique (en un navegador en modo administrador) lo autoriza.
+  // Mandar a Claude pasa por la base de datos (10-nov): lo que se le manda lo ejecuta en el Mac de Enrique. Con cuentas en marcha,
+  // solo los usuarios con permiso; mientras no las haya, solo los navegadores autorizados (los de Enrique y cris).
   async function mandar(tabla, id) {
     await huellaP;
     const r = await api("POST", "rpc/mandar_claude", {p_tabla: tabla, p_id: id, p_llave: llave, p_quien: autor(), p_admin: esAdmin ? ls("visor.admin") : null});
     if (r === "ok") return;
+    if (r === "sin permiso") throw new Error("Tu usuario no tiene permiso para mandar cosas a Claude: pídeselo a Enrique.");
+    if (r === "sin cuenta") throw new Error("Para mandar cosas a Claude hay que entrar con usuario y contraseña: pulsa Actualizar.");
     if (r === "pendiente") throw new Error("Este navegador aún no puede mandar cosas a Claude: se le ha pedido permiso a Enrique. Cuando lo autorice, vuelve a pulsar «Mandar a Claude».");
     throw new Error("No se ha podido mandar a Claude");
   }
-  let permT = 0;
-  async function revisaPermisos() {
-    if (!esAdmin || !cfg || cfg.local || Date.now() - permT < 60000 || document.querySelector(".destino")) return;
-    permT = Date.now();
-    let L; try { L = await api("POST", "rpc/permisos_claude", {p_admin: ls("visor.admin")}); } catch (e) { return; }
-    for (const p of (L || []).filter(x => !x.ok)) {
-      const v = await dialogo("<h3>Permiso para mandar a Claude</h3>" +
-        '<p class="nota">«' + escH(p.quien || "Alguien sin nombre") + "» quiere poder mandar cosas a Claude desde su navegador (lo pidió el " + fecha(p.creado) + "). Lo que se manda a Claude lo ejecuta en tu Mac: autoriza solo a quien conozcas.</p>" +
-        '<button class="btn rojo" data-v="si">Autorizar</button><button class="btn" data-v="no">No autorizar</button><button class="lnk" data-no>Ahora no</button>');
-      if (v !== "si" && v !== "no") continue;
-      try { await api("POST", "rpc/autorizar_claude", {p_admin: ls("visor.admin"), p_hash: p.hash, p_si: v === "si"}); toast(v === "si" ? "Autorizado: ya puede mandar a Claude" : "No autorizado", 4000); } catch (e) { toast(e.message, 5000); }
-    }
-  }
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) revisaPermisos(); });
   async function marcar(n, si) {
     // «Para Claude»: lo puede poner o quitar cualquiera
     if (cfg.local) { const L = ls(LKEY) || [], x = L.find(y => y.id === n.id); if (x) x.para_claude = si; ls(LKEY, L); n.para_claude = si; return; }
@@ -3557,6 +3690,7 @@ const Notas = (() => {
     if (cfg.local) return {id, archivo};
     const k = cfg.anon || cfg.clave, h = {apikey: k, "Content-Type": mime, "x-upsert": "false"};
     if (!/^sb_/.test(k)) h.Authorization = "Bearer " + k;
+    const tk = await Cuenta.token(); if (tk) h.Authorization = "Bearer " + tk;
     const r = await fetch(cfg.url.replace(/\/$/, "") + "/storage/v1/object/capturas/" + archivo, {method: "POST", headers: h, body: blob});
     if (!r.ok) throw new Error("No se ha podido subir " + (ext === "pdf" ? "el PDF" : "la imagen") + ": " + r.status + " " + (await r.text()).slice(0, 120));
     return {id, archivo};
@@ -3702,7 +3836,7 @@ const Notas = (() => {
     Object.assign(n, r[0]);
   }
   // quién: se escribe una vez y lo recuerda este navegador
-  const autor = () => ls("visor.autor") || "";
+  const autor = () => (Cuenta.yo() && Cuenta.yo().nombre) || ls("visor.autor") || "";
   function fecha(t) { const d = new Date(t); const p = x => String(x).padStart(2, "0"); return p(d.getDate()) + "-" + p(d.getMonth() + 1) + "-" + d.getFullYear() + " " + p(d.getHours()) + ":" + p(d.getMinutes()); }
   const COL = ["#7b1d2c", "#1c2f66", "#1f4a2c", "#7a5410"];
   function colorDe(a) {
@@ -3802,7 +3936,7 @@ const Notas = (() => {
   function compositor(id, texto) {
     const a = autor();
     return '<div class="comp" id="' + id + '">' + (pend ? '<p class="nota" data-pend>' + textoPend() + "</p>" : "") +
-      (a ? '<p class="nota">Comentas como <b>' + escH(a) + "</b>" + (esAdmin ? " (administrador)" : "") + ' <button class="lnk" data-quien>cambiar</button></p>' : '<input class="filtro" data-nombre placeholder="Tu nombre (se ve con cada comentario)">') +
+      (a ? '<p class="nota">Comentas como <b>' + escH(a) + "</b>" + (esAdmin ? " (administrador)" : "") + (Cuenta.yo() ? "" : ' <button class="lnk" data-quien>cambiar</button>') + "</p>" : '<input class="filtro" data-nombre placeholder="Tu nombre (se ve con cada comentario)">') +
       '<textarea class="filtro" rows="3" placeholder="' + escH(texto) + '"></textarea>' +
       (ambito === "capturas" && id === "compDoc" ? '<div class="adjs" data-adjs>' + adjuntos.map((a, i) => '<span class="adj"><img src="' + a.url + '" alt=""><button class="lnk" data-quita="' + i + '" aria-label="Quitar">×</button></span>').join("") + "</div>" : "") +
       '<div class="adjs" data-anx>' + htmlAnx(id) + "</div>" +
@@ -4640,6 +4774,7 @@ if (/[?&]v=/.test(location.search)) try { history.replaceState(null, "", locatio
   try { const r = JSON.parse(sessionStorage.getItem("visor.refresco") || "null"); sessionStorage.removeItem("visor.refresco"); if (r && !mcU && Date.now() - r.t < 30 * 60e3) { S.restaura = r; r.cargado = Date.now(); } } catch (e) { /* nada */ }
   if (S.restaura) { if (S.restaura.d) Docs.restaura(S.restaura.d); if (S.restaura.cerrado) $("panel").classList.add("cerrado"); }
   const est = ls("visor.estilo"); if (est) { const b = document.querySelector('[data-estilo="' + est + '"]'); if (b) b.click(); }
+  await Cuenta.exigir();
   await cargarPublicado();
   if (Object.keys(S.proyectos).length) rellenarProyectos(); else $("vacio").hidden = false;
   rotulo();
