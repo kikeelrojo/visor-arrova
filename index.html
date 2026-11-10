@@ -414,7 +414,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
       <div class="llamada" id="llamada" hidden>
         <div class="llam-tiles" id="llamTiles"></div>
         <div class="llam-est" id="llamEst" hidden></div>
-        <div class="llam-ctl"><button class="btn" id="llamMic" aria-pressed="true">Micro</button><button class="btn" id="llamCam" aria-pressed="true">Cámara</button><button class="btn" id="llamVer" aria-pressed="true" title="Ocultar o enseñar los vídeos (la voz sigue)">Vídeos</button><button class="btn" id="llamTx" aria-pressed="true" title="Lo que dices se pasa a texto en tu dispositivo para el resumen al colgar (no se graba audio)">Texto</button><button class="btn rojo" id="llamSalir">Colgar</button></div>
+        <div class="llam-ctl"><button class="btn" id="llamMic" aria-pressed="true">Micro</button><button class="btn" id="llamCam" aria-pressed="true">Cámara</button><button class="btn" id="llamVer" aria-pressed="true" title="Ocultar o enseñar los vídeos (la voz sigue)">Vídeos</button><button class="btn" id="llamTx" aria-pressed="true" title="Lo que dices se pasa a texto en tu dispositivo para el resumen al colgar (no se graba audio)">Texto</button><button class="btn" id="llamInv" title="Enlace para que entre alguien sin cuenta (un solo uso, caduca)">Invitar</button><button class="btn rojo" id="llamSalir">Colgar</button></div>
       </div>
     </div>
     <iframe class="render-frame" id="fRender" title="Render" hidden></iframe>
@@ -707,7 +707,10 @@ function leerArchivos(files) {
 
 function rellenarProyectos(sel) {
   const s = $("selProyecto"); s.innerHTML = "";
+  const yo = Cuenta.yo(), solo = yo && yo.invitado ? yo.solo_proyecto : null;      // un invitado solo ve su proyecto
+  if (solo) sel = solo; s.disabled = !!solo;
   for (const id of Object.keys(S.proyectos)) {
+    if (solo && id !== solo) continue;
     const o = document.createElement("option"); o.value = id;
     o.textContent = id + (S.proyectos[id].origen === "archivo" ? " (archivos)" : ""); s.appendChild(o);
   }
@@ -3666,10 +3669,35 @@ const Cuenta = (() => {
     };
   }
   // al arrancar: si el visor ya va con cuentas, no se pasa de aquí sin entrar
+  /* invitado sin cuenta (Enrique 10-nov): entra con un enlace ?invitado=<clave> de un solo uso que caduca; se le crea una
+     cuenta de invitado que solo vale para ese proyecto y caduca a la vez que el enlace */
+  async function invitado(clave) {
+    try { history.replaceState(null, "", location.pathname + location.search.replace(/[?&]invitado=[0-9a-f]+/, "").replace(/^&/, "?") + location.hash); } catch (e) { /* nada */ }
+    if (ses && await cargaYo()) return null;                      // ya ha entrado (este navegador): sigue con su sesión
+    const pidele = (aviso, conNombre) => new Promise(ok => {
+      const el = document.createElement("div"); el.className = "pared";
+      el.innerHTML = '<form><h2>arrova · visor</h2><p class="nota">Te han invitado a una llamada del visor.</p>' + (conNombre ? '<input class="filtro" name="n" placeholder="Tu nombre" required maxlength="50">' : "") +
+        '<button class="btn rojo" type="submit">' + (conNombre ? "Entrar" : "Volver a intentarlo") + '</button><p class="nota" data-msg>' + escH(aviso || "") + "</p></form>";
+      const f = el.querySelector("form");
+      f.onsubmit = e => { e.preventDefault(); const n = f.n ? f.n.value.trim() : ""; if (conNombre && !n) return; el.remove(); ok(n); };
+      document.body.appendChild(el); const i = f.querySelector("input"); if (i) i.focus();
+    });
+    let nombre = null;
+    for (let i = 0; i < 4; i++) {
+      try {
+        const r = await pide("/rest/v1/rpc/invitado_entra", "POST", {p_clave: clave, p_nombre: nombre});
+        if (r && r.falta_nombre) { nombre = await pidele("", true); continue; }
+        await entrar(r.usuario, r.clave); ls("visor.invitado.proyecto", r.proyecto); return r;
+      } catch (e) { return pared(e.message || "No se ha podido entrar con la invitación"); }
+    }
+    return null;
+  }
   async function exigir() {
     if (!await conf()) return;
     if (sinPared) return;
     try { activa = !!await pide("/rest/v1/rpc/visor_cuentas", "POST", {}); } catch (e) { activa = false; }
+    const mInv = location.search.match(/[?&]invitado=([0-9a-f]{20,80})/);
+    if (mInv && activa) await invitado(mInv[1]);
     if (ses) await cargaYo();
     if (activa && !yo) await pared(); else if (yo && yo.cambiar) await pideClave(true);
     pintaBoton();
@@ -5056,6 +5084,7 @@ const Llamada = (() => {
     const b = (id, on, si, no) => { const x = $(id); x.setAttribute("aria-pressed", on); x.textContent = on ? si : no; };
     b("llamMic", mic, "Micro", "Micro apagado"); b("llamCam", cam, "Cámara", "Cámara apagada"); b("llamVer", verVid, "Ocultar vídeos", "Ver vídeos"); b("llamTx", tx, "Texto", "Sin texto");
     $("llamCam").disabled = !(local && local.getVideoTracks().length);
+    $("llamInv").hidden = !!(Cuenta.yo() && Cuenta.yo().invitado);
   }
   function ponMic(si) { mic = si; if (local) for (const t of local.getAudioTracks()) t.enabled = si; ponBotones(); pintaTile(yo()); D().presencia(meta()); }
   function ponCam(si) { cam = si; if (local) for (const t of local.getVideoTracks()) t.enabled = si; ponBotones(); pintaTile(yo()); D().presencia(meta()); }
@@ -5063,6 +5092,26 @@ const Llamada = (() => {
   $("llamSalir").onclick = salir;
   $("llamMic").onclick = () => ponMic(!mic);
   $("llamCam").onclick = () => ponCam(!cam);
+  // invitar a alguien sin cuenta: enlace de un solo uso que caduca; entra solo a este proyecto, sin Claude
+  async function invitar() {
+    const v = await dialogo('<h3>Invitar a la llamada</h3><p class="nota">Enlace para alguien sin cuenta (p. ej. un cliente). Sirve una sola vez y caduca; con él solo entra en este proyecto, no puede mandar nada a Claude ni ve lo privado de nadie.</p>' +
+      '<input class="filtro" data-n placeholder="Nombre (si lo dejas vacío, lo pone él)" maxlength="50"><label class="nota">Caduca en <select data-h><option value="1">1 hora</option><option value="3" selected>3 horas</option><option value="8">8 horas</option><option value="24">24 horas</option></select></label>' +
+      '<p class="nota" data-msg></p><button class="btn rojo" data-ok>Crear enlace</button><button class="lnk" data-no>Cerrar</button>', (fondo, fin) => {
+      fondo.querySelector("[data-ok]").onclick = async () => {
+        const msg = fondo.querySelector("[data-msg]"); msg.textContent = "Creando…";
+        try {
+          const t = await rpc("invitacion_crea", {p_proyecto: S.proyecto ? S.proyecto.id : "", p_nombre: fondo.querySelector("[data-n]").value, p_horas: +fondo.querySelector("[data-h]").value});
+          const url = location.origin + location.pathname + "?invitado=" + t + (location.hash || "");
+          msg.innerHTML = '<input class="filtro" readonly data-url value="' + escH(url) + '">Mándaselo por donde quieras. Al abrirlo entra directamente.';
+          const i = fondo.querySelector("[data-url]"); i.select();
+          try { await navigator.clipboard.writeText(url); msg.insertAdjacentHTML("beforeend", " <b>Copiado.</b>"); } catch (e) { /* que lo copie a mano */ }
+          fondo.querySelector("[data-ok]").hidden = true;
+        } catch (e) { msg.textContent = e.message || String(e); }
+      };
+    });
+    return v;
+  }
+  $("llamInv").onclick = invitar;
   $("llamTx").onclick = () => { tx = !tx; if (dentro) { if (tx && !Texto.activo()) Texto.empieza(local, lid, pintaEst); else Texto.pon(tx); D().presencia(meta()); } pintaEst(); };
   $("llamVer").onclick = () => { verVid = !verVid; ponBotones(); $("llamTiles").hidden = !verVid; };
   // que se vea quién está en la llamada aunque no hayas entrado
