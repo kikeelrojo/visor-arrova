@@ -974,16 +974,20 @@ function pase(tipo, w, h) {
   modelo.traverse(o => {
     if (!o.isMesh) return; prev.set(o, o.material);
     if (tipo === "mapa") { const M = MATS[o.userData.m]; const c = M ? M.mapa : colorClave(o.userData.obj || "objeto"); o.material = new THREE.MeshBasicMaterial({color: new THREE.Color().setRGB(c[0] / 255, c[1] / 255, c[2] / 255, THREE.SRGBColorSpace), side: THREE.DoubleSide}); }
+    // (11-nov) albedo con la textura de cada material y normales con su relieve: guías del limpiador de ruido (OIDN). Con un
+    // albedo plano el limpiador tomaba el grano del revoco y del árido por ruido y lo borraba.
+    else if (tipo === "albedo") { const m0 = o.material; o.material = new THREE.MeshBasicMaterial({color: m0.color ? m0.color.clone() : new THREE.Color(0.8, 0.8, 0.8), map: m0.map || null, side: THREE.DoubleSide}); }
+    else if (tipo === "relieve") { const m0 = o.material; o.material = new THREE.MeshNormalMaterial({normalMap: m0.normalMap || null, normalScale: m0.normalScale ? m0.normalScale.clone() : new THREE.Vector2(1, 1), side: THREE.DoubleSide}); }
     else if (tipo === "mascara") { let obj = false; for (let x = o; x; x = x.parent) if (x === objetos) obj = true; const edif = !obj && o !== suelo && o.userData.g !== "entorno"; o.material = edif ? MAT_BLANCO : MAT_NEGRO; }
     else o.material = tipo === "profundidad" ? MAT_PROF : MAT_NOR;
   });
   renderer.toneMapping = THREE.NoToneMapping; niebla.visible = false;
-  scene.background = tipo === "mapa" ? new THREE.Color(1, 1, 1) : tipo === "profundidad" || tipo === "mascara" ? new THREE.Color(0, 0, 0) : new THREE.Color(0.5, 0.5, 1);
-  if (tipo !== "mapa") renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+  scene.background = tipo === "mapa" || tipo === "albedo" ? new THREE.Color(1, 1, 1) : tipo === "profundidad" || tipo === "mascara" ? new THREE.Color(0, 0, 0) : new THREE.Color(0.5, 0.5, 1);
+  if (tipo !== "mapa" && tipo !== "albedo") renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
   renderer.setPixelRatio(1); renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
   renderer.render(scene, cam);
   const c = document.createElement("canvas"); c.width = w; c.height = h; c.getContext("2d").drawImage(canvas, 0, 0);
-  for (const [o, m] of prev) { if (tipo === "mapa") o.material.dispose(); o.material = m; }
+  for (const [o, m] of prev) { if (tipo === "mapa" || tipo === "albedo" || tipo === "relieve") o.material.dispose(); o.material = m; }
   renderer.toneMapping = tm; renderer.outputColorSpace = cs; scene.background = bg; niebla.visible = true;
   return c;
 }
@@ -1378,7 +1382,7 @@ async function visor() {
 window.__render = {
   estado,
   async renderizar(opc = {}) { const c = await empiezaExport({w: opc.w || 2400, h: opc.h || Math.round((opc.w || 2400) / C.aspect), n: opc.n || 400}); return c.toDataURL("image/jpeg", 0.9); },
-  pases(w, h) { const r = {}; for (const t of ["mapa", "profundidad", "normales", "mascara"]) r[t] = pase(t, w, h).toDataURL("image/png"); encaja(); return r; },
+  pases(w, h) { const r = {}; for (const t of ["mapa", "profundidad", "normales", "mascara", "albedo", "relieve"]) r[t] = pase(t, w, h).toDataURL("image/png"); encaja(); return r; },
 };
 function leeEstadoUrl() {
   const e = Q.get("e"); if (!e) return null;
