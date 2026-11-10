@@ -258,7 +258,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
 .estilo-nota{display:grid;grid-template-columns:auto repeat(3,1fr);gap:4px;align-items:center}.estilo-nota[hidden]{display:none}.estilo-nota .nota{margin:0 4px 0 0}.estilo-nota .btn{width:100%;margin:0}
 .estilo-nota .btn{padding:3px 4px;line-height:0}.estilo-nota svg{width:24px;height:12px;fill:none;stroke:currentColor}
 .estilo-nota .btn.on{background:var(--ink);color:var(--paper)}
-.marcas .tz{fill:none;stroke-linecap:round;stroke-linejoin:round}.marcas .tz.prov{opacity:.85}
+.marcas .tz{fill:none;stroke-linecap:round;stroke-linejoin:round}.marcas .tz.prov{opacity:.85}.marcas .quien{font-weight:700;pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:.25em}
 #notasHerr{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}#notasHerr .btn{width:100%;margin:0}
 #notasHerr .btn.on{background:var(--ink);color:var(--paper)}
 .ppto input{width:84px;border:0.5px solid var(--ink);background:var(--paper);padding:2px 4px;text-align:right;font-variant-numeric:tabular-nums}
@@ -3181,11 +3181,36 @@ const Docs = (() => {
       b.onclick = () => ver(d, b); (d.resuelta_por ? grupo : el).appendChild(b); botones.set(d, b);
     }
     if (grupo) el.appendChild(grupo);
+    if (cap) firmaLista = firmaDe(L);
     if (!abiertas.length && !res.length) return;
     const pre = ls(claveDoc(t));
     const d0 = L.find(d => d.archivo === pre) || abiertas[0] || res[0];
     if (d0.resuelta_por && grupo) grupo.open = true;
     ver(d0, botones.get(d0));
+  }
+  /* (10-nov, en directo) la lista de conversaciones del Chat al día cuando otro crea, renombra, une o resuelve una, sin tocar la
+     que tienes abierta (ni su zoom ni lo que estés dibujando o escribiendo) */
+  let firmaLista = "";
+  const firmaDe = L => L.map(d => [d.archivo, d.titulo, d.nota, d.resuelta_por || ""].join("~")).join("|");
+  async function refrescaLista() {
+    if (tipo !== "capturas") return;
+    const L = await lista("capturas"), el = $("listaDocs");
+    if (tipo !== "capturas" || !L.length || !el || firmaDe(L) === firmaLista) return;
+    firmaLista = firmaDe(L);
+    const g0 = el.querySelector("details.resueltas"), abierto = !!(g0 && g0.open), top = el.scrollTop;
+    const res = L.filter(d => d.resuelta_por), abiertas = L.filter(d => !d.resuelta_por);
+    el.innerHTML = "";
+    let grupo = null;
+    if (res.length) { grupo = document.createElement("details"); grupo.className = "resueltas"; grupo.open = abierto; grupo.innerHTML = "<summary>Resueltas (" + res.length + ") · se archivan en PDF cada 15 días</summary>"; }
+    for (const d of abiertas.concat(res)) {
+      const b = document.createElement("button"); b.innerHTML = escH(d.titulo || d.archivo) + (d.nota ? "<span>" + escH(d.nota) + "</span>" : "");
+      b.dataset.arch = d.archivo; b.dataset.ver = d.nota || ""; if (d.resuelta_por) b.dataset.def = "1";
+      if (d.marcado) b.classList.add("marcado");
+      if (actual && actual.archivo === d.archivo) { b.classList.add("on"); for (const k of ["titulo", "tema", "nota", "para_claude", "resuelta_por", "resuelta_en"]) actual[k] = d[k]; }
+      b.onclick = () => ver(d, b); (d.resuelta_por ? grupo : el).appendChild(b);
+    }
+    if (grupo) el.appendChild(grupo);
+    el.scrollTop = top;
   }
   async function ver(d, b) {
     let pr = pendR && pendR.t === tipo && pendR.a === d.archivo ? pendR : null; if (pendR && pendR.t === tipo) pendR = null;
@@ -3449,7 +3474,7 @@ const Docs = (() => {
   setInterval(vigilaPdf, 30000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) vigilaPdf(); });
   addEventListener("resize", () => { if (z) return; if (S.modo === "cap" && actual) pintaImg(); else if ((S.modo === "lam" || S.modo === "mem") && pdf) pinta(); });
-  return {abrir, pdfjs, zoom, actualDoc, estado, restaura: r => { pendR = r; }, tiraVersiones, verVersion, verActual: () => verAct, recargar: t => { if (S.proyecto && S.proyecto.docs) delete S.proyecto.docs[t]; }};
+  return {abrir, refrescaLista, pdfjs, zoom, actualDoc, estado, restaura: r => { pendR = r; }, tiraVersiones, verVersion, verActual: () => verAct, recargar: t => { if (S.proyecto && S.proyecto.docs) delete S.proyecto.docs[t]; }};
 })();
 
 /* ============================================================ cuentas (usuario y contraseña) */
@@ -4311,14 +4336,24 @@ const Notas = (() => {
       if (id) c.onclick = e => { e.stopPropagation(); focoId = id; pinta(); }; g.appendChild(c);
     };
     for (const x of lst) if (x.dibujo && x.pagina === n && !x.respuesta_a && !x.resuelto_por) pon(x.dibujo, x.id, num.get(x.id), false, colorDe(x.autor));
+    // lo que otros están dibujando ahora mismo aquí (en directo, aún sin publicar), con su nombre
+    let aj = []; try { aj = Directo.deAqui(n); } catch (e) { /* aún arrancando */ }
+    for (const a of aj) {
+      const col = colorDe(a.autor); pon({t: "trazos", s: a.s}, null, "", true, col);
+      const q = ((a.s[0] || {}).q || [[[0, 0]]])[0][0], tx = document.createElementNS(NS, "text");
+      tx.setAttribute("class", "quien"); tx.setAttribute("x", q[0] + r * 0.8); tx.setAttribute("y", q[1] - r * 0.8); tx.setAttribute("font-size", r * 1.2);
+      tx.style.fill = col; tx.textContent = (a.autor || "Alguien") + " dibujando…"; g.appendChild(tx);
+    }
     if (pend && pend.pagina === n) pon(pend.dibujo, null, "", true, colorDe(autor()));
+    try { Directo.emite(); } catch (e) { /* aún arrancando */ }
   }
   function cuentaPend() {
     // el aviso del comentario en curso, sin rehacer la caja (así no se pierde lo que se esté escribiendo)
     const el = document.querySelector("#compDoc [data-pend]"); if (!el || !pend) return false;
     el.innerHTML = textoPend(); return true;
   }
-  const textoPend = () => pend.dibujo.t === "trazos" ? "<b>Dibujo en " + (ambito === "capturas" ? "la captura" : "la página " + pend.pagina) + "</b> (" + pend.dibujo.s.length + " trazo" + (pend.dibujo.s.length === 1 ? "" : "s") + "): sigue dibujando o escribe el comentario y «Publicar»."
+  const privPend = () => { const p = document.querySelector("#compDoc [data-pcn]"); return !!(p && p.checked && Cuenta.yo()); };
+  const textoPend = () => pend.dibujo.t === "trazos" ? "<b>Dibujo en " + (ambito === "capturas" ? "la captura" : "la página " + pend.pagina) + "</b> (" + pend.dibujo.s.length + " trazo" + (pend.dibujo.s.length === 1 ? "" : "s") + "): sigue dibujando o escribe el comentario y «Publicar»." + (privPend() ? " Con «Mandar a Claude» es privado: los demás no lo ven. Quítalo si quieres que lo vean mientras dibujas." : "")
     : "<b>" + (ambito === "capturas" ? "Marca en la captura" : "Marca en la página " + pend.pagina) + "</b>: escribe el comentario.";
   function pagina(cont, n, W, H, esc) {
     // la capa de marcas de una página (o captura), en sus propias unidades: puntos del PDF o píxeles de la imagen
@@ -4485,9 +4520,12 @@ const Notas = (() => {
     return !!document.querySelector(".nota-i .txt textarea");            // editando un comentario
   };
   async function vivo() {
-    if (mirando || !enVivo()) return; mirando = true;
+    Directo.asegura();
+    if (mirando || !enVivo()) return;
+    const completa = ++vueltasViva % 6 === 0;                         // cada 30 s, todo (también los estados de los documentos)
+    if (!completa && Directo.ok()) return;                           // en directo no hace falta mirar cada 5 s: solo el repaso de cada 30 s
+    mirando = true;
     try {
-      const completa = ++vueltasViva % 6 === 0;                       // cada 30 s, todo (también los estados de los documentos)
       let cambia = false;
       if (completa) {
         const f0 = firmaDe(cache) + "#" + firmaEst() + "#" + (cache || []).map(n => (n.texto || "").length).join(",");
@@ -4533,6 +4571,119 @@ const Notas = (() => {
     }
     apuntaVistos();
   }
+  /* ---------- en directo (Enrique 10-nov): lo que otro escribe o publica aparece al momento, y lo que otro está dibujando se ve
+     mientras lo dibuja (antes de publicarlo). Supabase Realtime por un WebSocket: «postgres_changes» de notas y capturas (respeta
+     las políticas de lectura: lo privado con Claude no le llega a nadie más) y «broadcast» para los trazos en curso. Lo dibujado en
+     curso NO se emite si va a ser privado (marcado «Mandar a Claude») ni en una conversación privada. Si el directo se cae, vuelve el
+     sondeo de cada 5 s. */
+  const Directo = (() => {
+    let ws = null, ref = 0, tema = null, unido = false, joinRef = null, latido = null, espera = 1000, tkEnv = null, reintento = null;
+    const quien = Math.random().toString(36).slice(2, 10);        // esta ventana
+    const ajenos = new Map();                                      // quien → {autor, ambito, doc, pagina, s, t}
+    const apagado = () => !cfg || cfg.local || /[?&]camara=/.test(location.search) || typeof WebSocket === "undefined";
+    const manda = (event, payload, topic) => { if (!ws || ws.readyState !== 1) return null; const r = String(++ref); ws.send(JSON.stringify({topic: topic || tema, event, payload, ref: r})); return r; };
+    const tk = async () => { try { return (await Cuenta.token()) || cfg.anon || cfg.clave; } catch (e) { return cfg.anon || cfg.clave; } };
+    async function une() {
+      const p = proy(); if (!p) return;
+      if (tema && unido) manda("phx_leave", {}, tema);
+      tema = "realtime:visor-" + p; unido = false; ajenos.clear();
+      const t = await tk(); tkEnv = t;
+      joinRef = manda("phx_join", {config: {broadcast: {self: false}, presence: {key: ""}, private: false,
+        postgres_changes: [{event: "*", schema: "public", table: "notas", filter: "proyecto=eq." + p}, {event: "*", schema: "public", table: "capturas", filter: "proyecto=eq." + p}]}, access_token: t});
+    }
+    function conecta() {
+      if (apagado() || ws) return;
+      try { ws = new WebSocket(cfg.url.replace(/^http/, "ws").replace(/\/$/, "") + "/realtime/v1/websocket?apikey=" + encodeURIComponent(cfg.clave) + "&vsn=1.0.0"); }
+      catch (e) { ws = null; return; }
+      ws.onopen = () => { espera = 1000; une(); clearInterval(latido); latido = setInterval(late, 25000); };
+      ws.onmessage = m => { let x; try { x = JSON.parse(m.data); } catch (e) { return; } recibe(x); };
+      ws.onclose = () => { ws = null; unido = false; tema = null; clearInterval(latido); clearTimeout(reintento); reintento = setTimeout(conecta, espera); espera = Math.min(espera * 2, 30000); };
+      ws.onerror = () => { /* lo resuelve onclose */ };
+    }
+    async function late() {
+      manda("heartbeat", {}, "phoenix");
+      const t = await tk(); if (unido && t !== tkEnv) { tkEnv = t; manda("access_token", {access_token: t}); }     // la sesión se renueva sola
+      emite(true);                                                 // lo que sigo teniendo a medias, para que no caduque en los demás
+    }
+    function recibe(x) {
+      if (x.topic !== tema) return;
+      if (x.event === "phx_reply" && x.ref === joinRef) { unido = x.payload && x.payload.status === "ok"; if (unido) { ultimaCarga = 0; alCambio(); emite(true); } return; }
+      if (x.event === "phx_error" || x.event === "phx_close") { unido = false; return; }
+      if (x.event === "system" && x.payload && x.payload.status === "error") { unido = false; return; }     // sin cambios de la base de datos: vuelve el sondeo
+      if (x.event === "postgres_changes") { const d = x.payload && x.payload.data; if (d) cambio(d); return; }
+      if (x.event === "broadcast" && x.payload && x.payload.event === "trazo") trazoAjeno(x.payload.payload || {});
+    }
+    // un cambio en la base de datos: se agrupan los que lleguen seguidos
+    let tCambio = null, capsCambian = false;
+    function cambio(d) {
+      ultimaCarga = 0;
+      if (d.table === "capturas") {
+        capsCambian = true;
+        const r = d.record || {};
+        if (d.type === "INSERT" && r.autor && r.autor !== autor() && S.modo === "cap") toast("Nueva conversación de " + r.autor + (r.tema ? ": «" + String(r.tema).slice(0, 60) + "»" : ""), 5000);
+      }
+      clearTimeout(tCambio); tCambio = setTimeout(alCambio, 250);
+    }
+    let otraVez = false;
+    async function alCambio() {
+      if (!enVivo()) return;
+      if (mirando) { otraVez = true; return; }
+      mirando = true;
+      try {
+        if (capsCambian && S.modo === "cap") { capsCambian = false; await Docs.refrescaLista(); }
+        await todas(true); await refresca();
+      } catch (e) { /* se vuelve a mirar en el repaso */ }
+      mirando = false;
+      if (otraVez) { otraVez = false; alCambio(); }
+    }
+    // lo que estoy dibujando (aún sin publicar), a los demás que miran lo mismo
+    let tEmite = null, ultEnv = 0, ultTxt = "";
+    function seraPrivado() {
+      const pcn = document.querySelector("#compDoc [data-pcn]");
+      if (pcn && pcn.checked && Cuenta.yo()) return true;           // «Mandar a Claude» con cuenta: lo que se habla con Claude es privado
+      if (ambito === "capturas") { const c = (ultCaps || []).find(x => x.archivo === docAct); if (!c || c.privada) return true; }
+      return false;
+    }
+    function payload() {
+      const d = pend && pend.dibujo && pend.dibujo.t === "trazos" && pend.dibujo.s.length && !seraPrivado() ? pend : null;
+      return d ? {quien, autor: autor(), ambito, doc: docAct, pagina: d.pagina, s: d.dibujo.s} : {quien, nada: true};
+    }
+    function emite(forzar) {
+      if (!unido || !ws) return;
+      if (tEmite && !forzar) return;
+      const va = () => {
+        tEmite = null; ultEnv = Date.now();
+        const p = payload(), txt = JSON.stringify(p);
+        if (txt === ultTxt && !forzar) return;
+        if (p.nada && ultTxt === "") return;                        // no hay nada mío en los demás: no hace falta borrar
+        ultTxt = p.nada ? "" : txt;
+        manda("broadcast", {type: "broadcast", event: "trazo", payload: p});
+      };
+      if (forzar) { clearTimeout(tEmite); va(); return; }
+      tEmite = setTimeout(va, Math.max(0, 90 - (Date.now() - ultEnv)));
+    }
+    function trazoAjeno(p) {
+      if (!p.quien || p.quien === quien) return;
+      const antes = ajenos.get(p.quien);
+      if (p.nada) ajenos.delete(p.quien); else ajenos.set(p.quien, {autor: p.autor || "", ambito: p.ambito, doc: p.doc, pagina: p.pagina, s: Array.isArray(p.s) ? p.s : [], t: Date.now()});
+      const ahora = ajenos.get(p.quien);
+      for (const a of [antes, ahora]) if (a && a.ambito === ambito && a.doc === docAct && paginas.has(a.pagina)) marcas(a.pagina);
+    }
+    setInterval(() => {                                             // lo de alguien que se ha ido sin despedirse (cerrar la pestaña, sin red)
+      for (const [k, a] of ajenos) if (Date.now() - a.t > 60000) { ajenos.delete(k); if (a.ambito === ambito && a.doc === docAct && paginas.has(a.pagina)) marcas(a.pagina); }
+    }, 15000);
+    addEventListener("pagehide", () => { if (ultTxt) manda("broadcast", {type: "broadcast", event: "trazo", payload: {quien, nada: true}}); });
+    document.addEventListener("change", e => { if (e.target && e.target.matches && e.target.matches("[data-pcn]")) { emite(true); cuentaPend(); } });
+    function asegura() {
+      if (apagado()) return;
+      if (!ws) { clearTimeout(reintento); conecta(); return; }
+      if (ws.readyState === 1 && proy() && tema !== "realtime:visor-" + proy()) une();          // ha cambiado de proyecto
+    }
+    const deAqui = n => [...ajenos.values()].filter(a => a.ambito === ambito && a.doc === docAct && a.pagina === n && a.s.length);
+    return {asegura, ok: () => !!(ws && ws.readyState === 1 && unido), emite, deAqui, seraPrivado};
+  })();
+  config().then(() => Directo.asegura());
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) Directo.asegura(); });
   // al dejar de escribir, lo que haya llegado mientras tanto
   document.addEventListener("focusout", () => setTimeout(() => { if (repintaPend && !escribiendo()) refresca(); }, 300));
   setInterval(vivo, 5000);
