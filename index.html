@@ -310,7 +310,6 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
     <div class="tabs" role="group" aria-label="Modo">
       <button id="tab3d" aria-pressed="true">3D</button>
       <button id="tab2d" aria-pressed="false">2D</button>
-      <button id="tabRen" aria-pressed="false" title="Render fotográfico: punto de vista con su focal, verticales rectas, materiales y luz; los cambios de material se piden a Claude">Render</button>
       <button id="tabLam" aria-pressed="false">Láminas</button>
       <button id="tabMem" aria-pressed="false">Memorias</button>
       <button id="tabDatos" aria-pressed="false">Mediciones</button>
@@ -327,6 +326,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
     </div>
     <div class="acciones">
     <a class="btn rojo" id="btnEditor" href="?editor" target="_blank" rel="noopener" title="El editor de planos, aparte del visor">Editor ↗</a>
+    <a class="btn" id="btnRender" href="render.html" target="arrova-render" title="Render fotográfico, aparte del visor: punto de vista con su focal, verticales rectas, materiales y luz; los cambios se piden a Claude">Render ↗</a>
     <button class="btn" id="btnVolver" hidden title="Volver al visor">Visor</button>
     <button class="btn" id="btnAbrir" title="Abrir los archivos del visor desde iCloud o del ordenador">Abrir…</button>
     <button class="btn" id="marcaAdmin" hidden title="Este navegador puede borrar cualquier comentario. Tócalo para guardar el visor como app ya en modo admin">Modo admin</button>
@@ -4492,7 +4492,7 @@ function modo(m) {
   if (m === "3d" || m === "2d") S.ultVista = m; else S.sustituir = null;
   document.body.classList.toggle("editor", m === "ed");
   const plano = m === "2d" || m === "ed", doc = m === "lam" || m === "mem" || m === "cap";
-  const tabs = {"3d": "tab3d", "2d": "tab2d", ren: "tabRen", lam: "tabLam", mem: "tabMem", datos: "tabDatos", cap: "tabCap"};
+  const tabs = {"3d": "tab3d", "2d": "tab2d", lam: "tabLam", mem: "tabMem", datos: "tabDatos", cap: "tabCap"};
   const ren = m === "ren";
   $("vista").hidden = ren; $("panel").hidden = ren; $("fRender").hidden = !ren; document.body.classList.toggle("modo-ren", ren);
   $("btnCaptura").hidden = !(m === "3d" || m === "2d");
@@ -4509,13 +4509,25 @@ function modo(m) {
   document.querySelectorAll(".aspa,.esq").forEach(x => x.hidden = m === "datos" || doc);
   const h = {"3d": "", "2d": "#2d", ed: "", ren: "#render", lam: "#laminas", mem: "#memorias", datos: "#datos", cap: S.des ? "#desarrollo" : "#capturas"}[m];
   if (!S.soloEditor) try { history.replaceState(null, "", h || location.pathname + location.search); } catch (e) { /* vista previa */ }
+  $("btnVolver").hidden = !ren;     /* en el editor lo enseña el CSS */
   if (ren) { abrirRender(); return; }
   if (m === "datos") { Datos.refrescar(); return; }
   if (doc) { $("vacio").hidden = true; Docs.abrir({lam: "laminas", mem: "memorias", cap: "capturas"}[m]); return; }
   if (plano) { V2.setEditable(m === "ed"); abrir2d(); requestAnimationFrame(() => V2.redim()); } else { requestAnimationFrame(() => V3.redim()); if (!S.modelo) $("vacio").hidden = false; }
 }
-$("tab3d").onclick = () => modo("3d"); $("tab2d").onclick = () => modo("2d"); $("tabRen").onclick = () => modo("ren");
-// Render (10-nov): página aparte (render.html, con su propio three.js y el trazado de rayos) dentro del visor; se carga la primera vez
+$("tab3d").onclick = () => modo("3d"); $("tab2d").onclick = () => modo("2d");
+// Render (10-nov): página aparte (render.html, con su propio three.js y el trazado de rayos). Como el editor: en la web, en otra
+// ventana del navegador (la misma cada vez, con el visor como «opener» para mandar a Claude); dentro de Claude, en esta página
+let ventanaRender = null;
+$("btnRender").onclick = e => {
+  e.preventDefault();
+  const url = "render.html?p=" + encodeURIComponent(S.proyecto ? S.proyecto.id : "");
+  if (window.claude) { S.volverA = S.modo; modo("ren"); return; }
+  try { if (ventanaRender && !ventanaRender.closed && ventanaRender.location.href.endsWith(url)) { ventanaRender.focus(); return; } } catch (err) { /* cerrada */ }
+  ventanaRender = window.open(url, "arrova-render");
+  if (!ventanaRender) { S.volverA = S.modo; modo("ren"); }        // ventanas emergentes bloqueadas: dentro del visor
+};
+// en esta página (dentro de Claude, o con #render en la dirección): se carga la primera vez
 function abrirRender() {
   const f = $("fRender"), p = S.proyecto ? S.proyecto.id : "";
   const src = "render.html?p=" + encodeURIComponent(p);

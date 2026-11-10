@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Render · visor arrova</title>
+<title>Render · arrova</title>
 <link rel="icon" href="icono-32.png" sizes="32x32">
 <script type="importmap">
 {"imports": {
@@ -96,6 +96,7 @@ textarea{width:100%;min-height:76px;border:0.5px solid var(--ink);background:tra
 <div class="main">
   <div class="vista" id="vista">
     <canvas id="c"></canvas>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="fRev" color-interpolation-filters="sRGB"><feColorMatrix id="fSat" type="saturate" values="1"/><feComponentTransfer><feFuncR id="fR" type="linear" slope="1" intercept="0"/><feFuncG id="fG" type="linear" slope="1" intercept="0"/><feFuncB id="fB" type="linear" slope="1" intercept="0"/></feComponentTransfer></filter></svg>
     <div id="grano"></div>
     <svg class="aspa" viewBox="0 0 14 14" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="0.6" fill="none"/></svg>
     <div class="esq a"></div><div class="esq b"></div>
@@ -124,7 +125,7 @@ textarea{width:100%;min-height:76px;border:0.5px solid var(--ink);background:tra
     <div class="sec">
       <h3>Cámara</h3>
       <div class="grupo" role="group" aria-label="Objetivo">
-        <button class="btn" data-f="20">20</button><button class="btn" data-f="24">24</button><button class="btn" data-f="28">28</button><button class="btn" data-f="35">35</button><button class="btn" data-f="50">50</button>
+        <button class="btn" data-f="16">16</button><button class="btn" data-f="18">18</button><button class="btn" data-f="20">20</button><button class="btn" data-f="24">24</button><button class="btn" data-f="28">28</button><button class="btn" data-f="35">35</button><button class="btn" data-f="50">50</button>
       </div>
       <label class="campo">Focal<input type="range" id="rFocal" min="12" max="85" step="1" value="24"><output id="oFocal"></output></label>
       <div class="dos" style="margin-top:6px">
@@ -140,6 +141,11 @@ textarea{width:100%;min-height:76px;border:0.5px solid var(--ink);background:tra
         <select id="selEnc" aria-label="Encuadres guardados"><option value="">Encuadres…</option></select>
         <button class="btn" id="bGuardaEnc">Guardar encuadre</button>
       </div>
+    </div>
+    <div class="sec">
+      <h3>Referencia</h3>
+      <select id="selEstilo" class="ancho" aria-label="Referencia"></select>
+      <p class="nota" id="nEstilo"></p>
     </div>
     <div class="sec">
       <h3>Pedir a Claude</h3>
@@ -186,11 +192,13 @@ textarea{width:100%;min-height:76px;border:0.5px solid var(--ink);background:tra
       <label class="campo">Sol<input type="range" id="rSol" min="0" max="360" step="1"><output id="oSol"></output></label>
       <label class="campo">Intensidad<input type="range" id="rInt" min="0.2" max="3" step="0.05"><output id="oInt"></output></label>
       <label class="campo">Exposición<input type="range" id="rExp" min="0.2" max="3" step="0.05"><output id="oExp"></output></label>
+      <label class="campo">Niebla<input type="range" id="rNie" min="0" max="1" step="0.05"><output id="oNie"></output></label>
     </div>
     <div class="sec">
       <h3>Revelado</h3>
       <label class="campo">Contraste<input type="range" id="rCon" min="0.7" max="1.4" step="0.01"><output id="oCon"></output></label>
       <label class="campo">Saturación<input type="range" id="rSat" min="0" max="1.5" step="0.01"><output id="oSat"></output></label>
+      <label class="campo">Temperatura<input type="range" id="rTem" min="-1" max="1" step="0.05"><output id="oTem"></output></label>
       <label class="campo">Grano<input type="range" id="rGra" min="0" max="1" step="0.05"><output id="oGra"></output></label>
     </div>
     <div class="sec">
@@ -211,7 +219,7 @@ textarea{width:100%;min-height:76px;border:0.5px solid var(--ink);background:tra
 </div>
 <script type="module">
 import * as THREE from "three";
-import {WebGLPathTracer} from "three-gpu-pathtracer";
+import {WebGLPathTracer, FogVolumeMaterial} from "three-gpu-pathtracer";
 import {HDRLoader} from "three/addons/loaders/HDRLoader.js";
 
 const $ = id => document.getElementById(id);
@@ -230,7 +238,7 @@ let AJ = {materiales: {}, luz: {}, revelado: {}, encuadres: []}, AJtexto = "";
 const LOC = Object.assign({materiales: {}, ocultos: {}, encuadres: [], luz: null, revelado: null, cam: {}}, ls(LKEY) || {});
 let noGuardar = false;
 const guardaLoc = () => { if (!noGuardar) ls(LKEY, LOC); };
-const LUZ0 = {cielo: "nublado", sol: 210, intensidad: 1, exposicion: 1}, REV0 = {contraste: 1.04, saturacion: 0.92, grano: 0.25};
+const LUZ0 = {cielo: "nublado", sol: 210, intensidad: 1, exposicion: 1, niebla: 0}, REV0 = {contraste: 1.04, saturacion: 0.92, grano: 0.25, temperatura: 0};
 const luz = () => Object.assign({}, LUZ0, AJ.luz, LOC.luz);
 const rev = () => Object.assign({}, REV0, AJ.revelado, LOC.revelado);
 async function leerAjustes(primera) {
@@ -544,6 +552,11 @@ function ponSuelo(y) {
 /* ---------------------------------------------------------------- cielo */
 const CIELOS = {nublado: "aristea_wreck_puresky_2k.hdr", sol: "quarry_01_1k.hdr", amanecer: "blouberg_sunrise_2_1k.hdr", atardecer: "venice_sunset_1k.hdr"};
 const hdrs = {};
+// niebla: una caja grande de niebla alrededor del edificio (la luz se dispersa dentro: aire, lejanía, rayos de sol)
+// (no muy alta: hacia el cielo sale pronto y el cielo se queda claro; alrededor llega lo justo para que lo lejano se aclare)
+const niebla = new THREE.Mesh(new THREE.BoxGeometry(160, 40, 160), new FogVolumeMaterial({color: 0xf2f3f3, density: 0}));
+niebla.position.y = 19.9; niebla.userData = {niebla: true};
+function colocaNiebla() { const c = (cajaEdif.isEmpty() ? new THREE.Box3().setFromObject(modelo) : cajaEdif).getCenter(new THREE.Vector3()); niebla.position.set(c.x, 19.9, c.z); }
 async function ponLuz() {
   const L = luz(), f = CIELOS[L.cielo] || CIELOS.nublado;
   if (!hdrs[f]) hdrs[f] = new HDRLoader().loadAsync("lib/render/hdri/" + f).then(t => { t.mapping = THREE.EquirectangularReflectionMapping; return t; });
@@ -557,7 +570,11 @@ async function ponLuz() {
   $("rSol").value = L.sol; $("oSol").textContent = Math.round(L.sol) + "°";
   $("rInt").value = L.intensidad; $("oInt").textContent = fmt(L.intensidad);
   $("rExp").value = L.exposicion; $("oExp").textContent = fmt(L.exposicion);
-  if (pt) pt.updateEnvironment();
+  $("rNie").value = L.niebla || 0; $("oNie").textContent = fmt(L.niebla || 0);
+  const habia = !!niebla.parent;
+  niebla.material.density = 0.04 * Math.pow(Math.max(0, L.niebla || 0), 1.5);
+  if (L.niebla > 0 && !habia) scene.add(niebla); else if (!(L.niebla > 0) && habia) scene.remove(niebla);
+  if (pt) { if (habia !== !!niebla.parent) rehaceEscena(); else { pt.updateMaterials(); pt.updateEnvironment(); } }
 }
 function cambiaLuz(campos) { LOC.luz = Object.assign({}, LOC.luz, campos); guardaLoc(); ponLuz(); }
 
@@ -676,6 +693,7 @@ function nuevoPT() {
   pt.tiles.set(2, 2); pt.minSamples = 1; pt.renderDelay = 60; pt.fadeDuration = 250; pt.dynamicLowRes = true; pt.lowResScale = 0.35;
   pt.filterGlossyFactor = 0.5; pt.bounces = 6; pt.transmissiveBounces = 6; pt.multipleImportanceSampling = true;
   pt.textureSize.set(TS, TS);
+  pt.rasterizeSceneCallback = (sc, ca) => { const v = niebla.visible; niebla.visible = false; renderer.render(sc, ca); niebla.visible = v; };
   return pt;
 }
 let escenaPend = false;
@@ -724,12 +742,12 @@ function terminaExport(cancelado) {
 function revela(src, w, h) {
   const R = rev(), c = document.createElement("canvas"); c.width = w; c.height = h;
   const x = c.getContext("2d"); x.drawImage(src, 0, 0, w, h);
-  const im = x.getImageData(0, 0, w, h), d = im.data, ct = R.contraste, sa = R.saturacion, gr = R.grano * 14;
+  const im = x.getImageData(0, 0, w, h), d = im.data, ct = R.contraste, sa = R.saturacion, gr = R.grano * 14, [kr, kg, kb] = tempK(R.temperatura || 0);
   let s = 12345;
   for (let i = 0; i < d.length; i += 4) {
     let r = d[i], g = d[i + 1], b = d[i + 2]; const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
     r = l + (r - l) * sa; g = l + (g - l) * sa; b = l + (b - l) * sa;
-    r = (r - 128) * ct + 128; g = (g - 128) * ct + 128; b = (b - 128) * ct + 128;
+    r = ((r - 128) * ct + 128) * kr; g = ((g - 128) * ct + 128) * kg; b = ((b - 128) * ct + 128) * kb;
     if (gr) { s = (s * 1103515245 + 12345) & 0x7fffffff; const n = ((s >> 8) / 8388608 - 0.5) * gr; r += n; g += n; b += n; }
     d[i] = r; d[i + 1] = g; d[i + 2] = b;
   }
@@ -747,12 +765,12 @@ $("bMapa").onclick = () => {
   if (exportando) return;
   const {w, h} = tamExport(), prev = new Map(), tm = renderer.toneMapping, bg = scene.background;
   modelo.traverse(o => { if (o.isMesh) { prev.set(o, o.material); const M = MATS[o.userData.m]; const c = M ? M.mapa : [255, 255, 255]; o.material = new THREE.MeshBasicMaterial({color: new THREE.Color().setRGB(c[0] / 255, c[1] / 255, c[2] / 255, THREE.SRGBColorSpace), side: THREE.DoubleSide}); } });
-  renderer.toneMapping = THREE.NoToneMapping; scene.background = new THREE.Color(1, 1, 1);
+  renderer.toneMapping = THREE.NoToneMapping; scene.background = new THREE.Color(1, 1, 1); niebla.visible = false;
   renderer.setPixelRatio(1); renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
   renderer.render(scene, cam);
   const c = document.createElement("canvas"); c.width = w; c.height = h; c.getContext("2d").drawImage(canvas, 0, 0);
   for (const [o, m] of prev) { o.material.dispose(); o.material = m; }
-  renderer.toneMapping = tm; scene.background = bg; encaja(); pt && pt.reset();
+  renderer.toneMapping = tm; scene.background = bg; niebla.visible = true; encaja(); pt && pt.reset();
   descarga(c, nombreArchivo("_mapa")); toast("Mapa de materiales descargado (mismo encuadre y tamaño que el render)", 4000);
 };
 $("bPausa").onclick = () => { pausa = !pausa; $("bPausa").setAttribute("aria-pressed", pausa); $("bPausa").textContent = pausa ? "Seguir la vista" : "Pausar la vista"; };
@@ -781,18 +799,56 @@ document.querySelectorAll("[data-cielo]").forEach(b => b.onclick = () => cambiaL
 $("rSol").oninput = e => cambiaLuz({sol: +e.target.value});
 $("rInt").oninput = e => cambiaLuz({intensidad: +e.target.value});
 $("rExp").oninput = e => cambiaLuz({exposicion: +e.target.value});
+let nieT = 0; $("rNie").oninput = e => { $("oNie").textContent = fmt(e.target.value); clearTimeout(nieT); nieT = setTimeout(() => cambiaLuz({niebla: +e.target.value}), 150); };
+const tempK = t => [1 + 0.09 * t, 1 + 0.015 * t, 1 - 0.09 * t];     // temperatura: + cálido, − frío
 function ponRevelado() {
-  const R = rev();
-  canvas.style.filter = "contrast(" + R.contraste + ") saturate(" + R.saturacion + ")";
+  const R = rev(), ct = R.contraste, k = tempK(R.temperatura || 0);
+  $("fSat").setAttribute("values", R.saturacion);
+  ["fR", "fG", "fB"].forEach((id, i) => { $(id).setAttribute("slope", ct * k[i]); $(id).setAttribute("intercept", (0.5 - 0.5 * ct) * k[i]); });
+  canvas.style.filter = "url(#fRev)";
+  $("rTem").value = R.temperatura || 0; $("oTem").textContent = fmt(R.temperatura || 0);
   $("grano").style.opacity = R.grano * 0.35;
   $("rCon").value = R.contraste; $("oCon").textContent = fmt(R.contraste); $("rSat").value = R.saturacion; $("oSat").textContent = fmt(R.saturacion); $("rGra").value = R.grano; $("oGra").textContent = fmt(R.grano);
 }
-for (const [id, k] of [["rCon", "contraste"], ["rSat", "saturacion"], ["rGra", "grano"]]) $(id).oninput = e => { LOC.revelado = Object.assign({}, LOC.revelado, {[k]: +e.target.value}); guardaLoc(); ponRevelado(); };
+for (const [id, k] of [["rCon", "contraste"], ["rSat", "saturacion"], ["rGra", "grano"], ["rTem", "temperatura"]]) $(id).oninput = e => { LOC.revelado = Object.assign({}, LOC.revelado, {[k]: +e.target.value}); guardaLoc(); ponRevelado(); };
 { // grano: una tesela de ruido gris
   const c = document.createElement("canvas"); c.width = c.height = 128; const x = c.getContext("2d"), im = x.createImageData(128, 128);
   for (let i = 0; i < im.data.length; i += 4) { const v = 128 + (Math.random() - 0.5) * 255; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; }
   x.putImageData(im, 0, 0); $("grano").style.backgroundImage = "url(" + c.toDataURL() + ")"; $("grano").style.backgroundSize = "64px 64px";
 }
+
+/* ---------------------------------------------------------------- referencias: luz y revelado al modo de… (punto de partida; luego se afina) */
+const ESTILOS = {
+  campagne: {nombre: "Olivier Campagne", nota: "Sus imágenes para Baukunst, Bruther y Arrhov Frick: día gris, aire con algo de niebla, paleta apagada y grano; parecen fotos de un sitio corriente.",
+    luz: {cielo: "nublado", sol: 230, intensidad: 0.95, exposicion: 1.15, niebla: 0.35}, revelado: {contraste: 0.94, saturacion: 0.7, grano: 0.45, temperatura: -0.05}},
+  baukunst: {nombre: "Baukunst", nota: "Luz blanda y clara, sombras suaves, colores contenidos; hormigón, madera y metal en bruto.",
+    luz: {cielo: "nublado", sol: 200, intensidad: 1, exposicion: 1.2, niebla: 0.2}, revelado: {contraste: 0.97, saturacion: 0.8, grano: 0.35, temperatura: 0}},
+  bruther: {nombre: "Bruther", nota: "Imagen limpia, clara y algo fría; acero, vidrio, aluminio y la estructura a la vista.",
+    luz: {cielo: "nublado", sol: 180, intensidad: 1.05, exposicion: 1.25, niebla: 0.05}, revelado: {contraste: 1.05, saturacion: 0.85, grano: 0.15, temperatura: -0.15}},
+  arrhovfrick: {nombre: "Arrhov Frick", nota: "Luz nórdica baja y suave, tonos templados y apagados; ladrillo, madera y hormigón prefabricado.",
+    luz: {cielo: "amanecer", sol: 240, intensidad: 1, exposicion: 1.1, niebla: 0.25}, revelado: {contraste: 0.95, saturacion: 0.72, grano: 0.3, temperatura: 0.05}},
+  banchini: {nombre: "Leopold Banchini", nota: "Sol fuerte y cálido sobre materiales del lugar: tierra, madera reutilizada, chapa, cal.",
+    luz: {cielo: "sol", sol: 150, intensidad: 1.05, exposicion: 1.05, niebla: 0}, revelado: {contraste: 1.1, saturacion: 1, grano: 0.3, temperatura: 0.2}},
+  kerez: {nombre: "Christian Kerez", nota: "Hormigón gris en bruto y la estructura como tema; luz neutra y fría, casi sin color.",
+    luz: {cielo: "nublado", sol: 200, intensidad: 1, exposicion: 1.1, niebla: 0}, revelado: {contraste: 1.08, saturacion: 0.6, grano: 0.2, temperatura: -0.1}},
+  volgiati: {nombre: "Valerio Olgiati", nota: "Hormigón visto monolítico (a veces pigmentado); sol duro, sombras muy oscuras y cielo profundo.",
+    luz: {cielo: "sol", sol: 120, intensidad: 1.1, exposicion: 0.95, niebla: 0}, revelado: {contraste: 1.18, saturacion: 0.9, grano: 0.15, temperatura: 0.05}},
+  rolgiati: {nombre: "Rudolf Olgiati", nota: "Casas de Flims: muros gruesos de cal blanca, huecos hondos, sol alpino nítido.",
+    luz: {cielo: "sol", sol: 160, intensidad: 1.05, exposicion: 1, niebla: 0}, revelado: {contraste: 1.12, saturacion: 0.9, grano: 0.2, temperatura: 0}},
+  zumthor: {nombre: "Peter Zumthor", nota: "Piedra, madera y hormigón apisonado; penumbra y luz rasante. Con saturación 0, el blanco y negro de las fotos de Hélène Binet.",
+    luz: {cielo: "atardecer", sol: 250, intensidad: 0.9, exposicion: 0.85, niebla: 0.1}, revelado: {contraste: 1.1, saturacion: 0.75, grano: 0.45, temperatura: 0.15}},
+};
+function pintaEstilos() {
+  const s = $("selEstilo"), e = LOC.estilo || AJ.estilo || "";
+  s.innerHTML = '<option value="">Sin referencia</option>' + Object.entries(ESTILOS).map(([k, x]) => '<option value="' + k + '">' + x.nombre + "</option>").join("");
+  s.value = ESTILOS[e] ? e : "";
+  $("nEstilo").textContent = ESTILOS[e] ? ESTILOS[e].nota + " Punto de partida: luego se afina con Luz y Revelado." : "Elige una referencia para empezar con su luz y su revelado.";
+}
+$("selEstilo").onchange = e => {
+  const k = e.target.value, E = ESTILOS[k];
+  LOC.estilo = k || null; LOC.luz = E ? Object.assign({}, E.luz) : null; LOC.revelado = E ? Object.assign({}, E.revelado) : null;
+  guardaLoc(); pintaEstilos(); ponLuz(); ponRevelado();
+};
 
 /* ---------------------------------------------------------------- panel: materiales */
 let selMat = null;
@@ -871,6 +927,7 @@ async function cargaFuente(id) {
     $("selPlanta").innerHTML = PLANTAS.map(p => '<option value="' + p.id + '">' + p.nombre + "</option>").join("");
     if (!PLANTAS.some(p => p.id === C.planta)) C.planta = PLANTAS[0].id; $("selPlanta").value = C.planta;
     if (selMat && !usados().includes(selMat)) selMat = null;
+    colocaNiebla();
     visibilidad(); pintaCapas(); pintaMats(); pintaEdit(); pintaEncuadres(); encaja();
     await rehaceEscena();
   } catch (e) { $("cargando").textContent = e.message; throw e; }
@@ -946,15 +1003,14 @@ $("tPide").addEventListener("paste", e => { const F = [...((e.clipboardData && e
 function estado() {
   return {para_claude: "Petición de la pestaña Render: ver herramientas/RENDER.md del visor", proyecto: PROY, modelo: fuenteId(), archivo: archivos[fuenteId()] ? archivos[fuenteId()].nombre : null, c: JSON.parse(JSON.stringify(C)),
     luz: luz(), revelado: rev(), materiales_cambiados: LOC.materiales, ocultos: LOC.ocultos, capas: Object.fromEntries(Object.entries(gruposVis)),
-    seleccionado: selMat, calidad: +$("rCal").value};
+    seleccionado: selMat, calidad: +$("rCal").value, referencia: LOC.estilo ? ESTILOS[LOC.estilo].nombre : null};
 }
 $("bPide").onclick = async () => {
   const t = $("tPide").value.trim();
   if (!t) { $("tPide").focus(); toast("Escribe qué quieres cambiar"); return; }
-  const V = parent !== window && parent.visorRender;
-  if (!V) { toast("Para mandarlo a Claude, abre el render desde la pestaña Render del visor", 5000); return; }
   $("bPide").disabled = true;
   try {
+    const V = await visor();
     toast("Preparando la imagen…", 8000);
     const vista = revela(canvas, canvas.width, canvas.height);
     const img = await prepImg(vista, 2400), R = [];
@@ -965,7 +1021,21 @@ $("bPide").onclick = async () => {
   } catch (e) { toast(e.message || String(e), 9000); }
   finally { $("bPide").disabled = false; }
 };
-if (parent === window) $("nPide").textContent = "Para mandar a Claude, abre el render desde la pestaña Render del visor.";
+// quien manda a Claude es el visor (su cuenta, su permiso): el de la página que contiene el render, el de la ventana que lo
+// abrió o, si no hay ninguno (render abierto suelto), un visor oculto en esta misma página
+let visorOculto = null;
+async function visor() {
+  try { if (parent !== window && parent.visorRender) return parent.visorRender; } catch (e) { /* otro origen */ }
+  try { if (window.opener && !window.opener.closed && window.opener.visorRender) return window.opener.visorRender; } catch (e) { /* otro origen */ }
+  if (!visorOculto) {
+    visorOculto = document.createElement("iframe"); visorOculto.hidden = true; visorOculto.src = "index.html#capturas"; document.body.appendChild(visorOculto);
+  }
+  for (let i = 0; i < 120; i++) {
+    try { const V = visorOculto.contentWindow.visorRender; if (V) { await new Promise(r => setTimeout(r, 1500)); return V; } } catch (e) { /* cargando */ }
+    await new Promise(r => setTimeout(r, 500));
+  }
+  throw new Error("No se ha podido abrir el visor para mandarlo a Claude: ábrelo con el botón «Render» del visor");
+}
 
 /* ---------------------------------------------------------------- para Claude: render sin pantalla (herramientas/render.js) */
 window.__render = {
@@ -982,11 +1052,11 @@ function leeEstadoUrl() {
   await leerAjustes(true);
   const E = leeEstadoUrl();
   if (E) { // estado de una petición: encuadre, luz, revelado y materiales de quien la hizo (sin tocar lo guardado en este navegador)
-    Object.assign(C, E.c || {}); LOC.luz = E.luz || null; LOC.revelado = E.revelado || null; LOC.materiales = E.materiales_cambiados || {}; LOC.ocultos = E.ocultos || {}; LOC.cam = {capas: E.capas || {}, c: E.c};
+    Object.assign(C, E.c || {}); LOC.estilo = null; LOC.luz = E.luz || null; LOC.revelado = E.revelado || null; LOC.materiales = E.materiales_cambiados || {}; LOC.ocultos = E.ocultos || {}; LOC.cam = {capas: E.capas || {}, c: E.c};
     if (Q.has("publicado")) LOC.materiales = {};
     noGuardar = true;
   }
-  ponRevelado();
+  ponRevelado(); pintaEstilos();
   try { const r = await fetch(BASE + "indice.json?t=" + Date.now()); indice = await r.json(); } catch (e) { indice = {modelos: []}; }
   pintaModelos();
   const pedido = (E && E.modelo && !String(E.modelo).startsWith("archivo:") && E.modelo) || Q.get("m") || ls("render." + PROY + ".modelo") || indice.preferido || (indice.modelos[0] || {}).id;
