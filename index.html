@@ -311,6 +311,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
       <button id="tabMem" aria-pressed="false">Memorias</button>
       <button id="tabDatos" aria-pressed="false">Mediciones</button>
       <button id="tabCap" aria-pressed="false">Chat</button>
+      <button id="tabDes" aria-pressed="false" title="Planos e imágenes aún en desarrollo: se suben aquí para comentarlos y dibujar encima entre todos">En desarrollo</button>
     </div>
     <button class="btn ico" id="btnRefrescar" title="Actualizar: carga la última versión publicada" aria-label="Actualizar"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16.2 10.6A6.2 6.2 0 1 1 14.4 5.6M14.9 2.6v3.4h-3.4"/></svg></button>
     <button class="btn ico" id="btnCaptura" title="Captura de lo que se ve, para marcar encima y comentar" aria-label="Captura"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 6.5h3l1.5-2h6l1.5 2h3v9h-15z"/><circle cx="10" cy="11" r="3"/></svg></button>
@@ -526,8 +527,8 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
         <div class="sec">
           <h3 id="docsTit">Láminas</h3>
           <div class="fila importar" id="filaImportar" hidden>
-            <label class="btn" id="btnImportar" title="Pantallazos de Vectorworks, fotos, lo que sea: se suben como capturas">Importar imagen<input type="file" id="archImportar" accept="image/*" multiple hidden></label>
-            <span class="nota">o arrástrala aquí, o pégala (⌘V)</span>
+            <label class="btn" id="btnImportar" title="Pantallazos de Vectorworks, fotos, lo que sea: se suben como capturas"><span id="txtImportar">Importar imagen</span><input type="file" id="archImportar" accept="image/*,.heic,.heif,application/pdf,.pdf" multiple hidden></label>
+            <span class="nota" id="notaImportar">o arrástrala aquí, o pégala (⌘V)</span>
           </div>
           <details class="lote" id="secLote" hidden><summary>Lote para Claude</summary><div id="loteCuerpo"></div></details>
           <div class="ldocs" id="listaDocs"></div>
@@ -592,6 +593,10 @@ const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).
 const fmt = (x, d = 2) => (Math.round(x * 10 ** d) / 10 ** d).toLocaleString("es-ES", {minimumFractionDigits: d, maximumFractionDigits: d});
 let toastT = 0;
 function toast(t, ms = 2600) { const el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => el.hidden = true, ms); }
+// qué documento estaba abierto en cada pestaña (el Chat y «En desarrollo» comparten mecanismo, pero cada uno recuerda el suyo)
+function claveDoc(t) { return "visor.doc." + (S.proyecto ? S.proyecto.id : "") + "." + (t === "capturas" && S.des ? "desarrollo" : t); }
+const enDes = () => S.modo === "cap" && !!S.des;
+const pieSubida = () => enDes() ? ". Dibuja encima y/o escribe para comentarlo" : ". Dibuja encima y/o escribe: le llega a Claude al publicar";
 function ls(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }
 const capP = {};
 function cap(n) { if (!capP[n]) capP[n] = (window.claude && window.claude.use) ? window.claude.use(n).catch(() => null) : Promise.resolve(null); return capP[n]; }
@@ -3110,15 +3115,16 @@ const Docs = (() => {
     return P.docs[t];
   }
   async function abrir(t) {
-    tipo = t; $("docsTit").textContent = {laminas: "Láminas", memorias: "Memorias", capturas: "Chat"}[t];
-    const cap = t === "capturas";
+    tipo = t; $("docsTit").textContent = {laminas: "Láminas", memorias: "Memorias", capturas: S.des ? "En desarrollo" : "Chat"}[t];
+    const cap = t === "capturas", des = cap && !!S.des;
+    $("txtImportar").textContent = des ? "Subir plano o imagen" : "Importar imagen"; $("notaImportar").textContent = des ? "PDF o imagen; o arrástralo aquí, o pégalo (⌘V)" : "imagen o PDF; o arrástrala aquí, o pégala (⌘V)";
     $("secLote").hidden = false; Notas.pintaLotes();   // lotes también desde Láminas y Memorias (Enrique 28-oct)
     $("btnAbrirPdf").textContent = cap ? "Abrir la imagen" : "Abrir el PDF"; $("btnBorrarCap").hidden = true; $("secClaude").hidden = true; $("filaImportar").hidden = !cap; $("secNotas").classList.remove("cerrada");
-    $("notaDocs").textContent = cap ? "Capturas de lo que se ve en 3D o 2D (botón de la cámara, arriba) o imágenes importadas. Marca encima con las herramientas de «Comentarios» y escribe al lado." : "«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.";
-    const L = await lista(t), el = $("listaDocs"); el.innerHTML = "";
+    $("notaDocs").textContent = des ? "Planos e imágenes que aún están en desarrollo. Súbelos (PDF o imagen) y cualquiera con el visor puede dibujar encima con las herramientas de «Comentarios» y escribir al lado. No se mandan a Claude salvo que lo pidas." : cap ? "Capturas de lo que se ve en 3D o 2D (botón de la cámara, arriba) o imágenes importadas. Marca encima con las herramientas de «Comentarios» y escribe al lado." : "«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.";
+    const L0 = await lista(t), L = cap ? L0.filter(d => !!d.des === des) : L0, el = $("listaDocs"); el.innerHTML = "";
     if (!L.length) {
-      el.innerHTML = '<span class="nota">' + ({laminas: "Aún no hay láminas: se publican desde Vectorworks (las hojas del archivo, en PDF).", memorias: "Aún no hay memorias publicadas.", capturas: "Aún no hay conversaciones: en 3D o 2D pulsa el botón de la cámara, o importa una imagen."}[t]) + "</span>";
-      $("docsPag").innerHTML = '<div class="vacio-doc"><b>' + ({laminas: "Sin láminas", memorias: "Sin memorias", capturas: "Sin conversaciones"}[t]) + "</b></div>"; $("btnAbrirPdf").hidden = true; return;
+      el.innerHTML = '<span class="nota">' + ({laminas: "Aún no hay láminas: se publican desde Vectorworks (las hojas del archivo, en PDF).", memorias: "Aún no hay memorias publicadas.", capturas: des ? "Aún no hay nada en desarrollo: sube un plano (PDF) o una imagen." : "Aún no hay conversaciones: en 3D o 2D pulsa el botón de la cámara, o importa una imagen."}[t]) + "</span>";
+      $("docsPag").innerHTML = '<div class="vacio-doc"><b>' + ({laminas: "Sin láminas", memorias: "Sin memorias", capturas: des ? "Nada en desarrollo todavía" : "Sin conversaciones"}[t]) + "</b></div>"; $("btnAbrirPdf").hidden = true; return;
     }
     const res = cap ? L.filter(d => d.resuelta_por) : [], abiertas = L.filter(d => !res.includes(d));
     let grupo = null;
@@ -3132,7 +3138,7 @@ const Docs = (() => {
     }
     if (grupo) el.appendChild(grupo);
     if (!abiertas.length && !res.length) return;
-    const pre = ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + "." + t);
+    const pre = ls(claveDoc(t));
     const d0 = L.find(d => d.archivo === pre) || abiertas[0] || res[0];
     if (d0.resuelta_por && grupo) grupo.open = true;
     ver(d0, botones.get(d0));
@@ -3142,26 +3148,26 @@ const Docs = (() => {
     if (pr) reDoc = Object.assign({}, pr, {hasta: Date.now() + 8000});
     else if (reDoc && reDoc.t === tipo && reDoc.a === d.archivo && Date.now() < reDoc.hasta) pr = reDoc;
     actual = d; $("listaDocs").querySelectorAll("button[data-arch]").forEach(x => x.classList.toggle("on", x === b));
-    ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + "." + tipo, d.archivo);
+    ls(claveDoc(tipo), d.archivo);
     if (tipo === "capturas") {
       $("btnAbrirPdf").hidden = false; $("btnAbrirPdf").href = d.url;
       $("btnBorrarCap").hidden = !d.borrable;
       const pcb = $("btnParaClaude"); $("secClaude").hidden = false;
       const pon = () => { pcb.setAttribute("aria-pressed", !!d.para_claude); pcb.textContent = d.para_claude ? "Mandada a Claude ✓" : "Mandar a Claude"; pcb.title = d.para_claude ? "Pulsa para quitarla de lo pendiente de Claude" : "Le llega a Claude la captura con todas sus marcas y comentarios"; };
       pon(); d.alMandar = () => { d.para_claude = true; pon(); };
-      const estado = () => { pcb.hidden = !!d.resuelta_por; $("notaClaude").textContent = d.resuelta_por ? "Definitiva: queda agrupada con sus comentarios y se archivará en un PDF en la carpeta del proyecto." : "Le llega a Claude al publicar lo que dibujes y/o escribas (con todas sus imágenes y marcas). Una imagen nueva sola no se manda."; $("secNotas").classList.toggle("cerrada", !!d.resuelta_por); };
+      const estado = () => { pcb.hidden = !!d.resuelta_por; $("notaClaude").textContent = d.resuelta_por ? "Definitiva: queda agrupada con sus comentarios y se archivará en un PDF en la carpeta del proyecto." : d.des ? "Aquí nada se manda a Claude solo: marca «Mandar a Claude» al publicar, o pulsa este botón, si quieres que lo haga él." : "Le llega a Claude al publicar lo que dibujes y/o escribas (con todas sus imágenes y marcas). Una imagen nueva sola no se manda."; $("secNotas").classList.toggle("cerrada", !!d.resuelta_por); };
       estado();
-      pcb.onclick = async () => { const si = !d.para_claude; try { await Notas.marcarCaptura(d.archivo, si); d.para_claude = si; pon(); toast(si ? "Mandada a Claude" : "Quitada de lo pendiente de Claude", 3500); } catch (e) { toast(e.message, 4000); } };
+      pcb.onclick = async () => { const si = !d.para_claude; try { await Notas.marcarCaptura(d.archivo, si); d.para_claude = si; pon(); toast(si ? "Mandada a Claude" : "Quitada de lo pendiente de Claude", 3500); } catch (e) { toast(e.message, 10000); } };
       $("btnUnirCap").hidden = !!d.resuelta_por;
       $("btnUnirCap").onclick = async () => {
-        const L = ((await Notas.capturas()) || []).filter(c => c.archivo !== d.archivo && !c.resuelta_por);
+        const L = ((await Notas.capturas()) || []).filter(c => c.archivo !== d.archivo && !c.resuelta_por && !!c.des === !!d.des);
         if (!L.length) { toast("No hay otra conversación abierta"); return; }
         const v = await dialogo("<h3>Unir a «" + escH(d.titulo) + "»</h3>" +
           '<p class="nota">La conversación que elijas pasa al final de esta, con sus imágenes y mensajes (sus imágenes se numeran detrás de las de esta), y desaparece de la lista.</p>' +
           '<div class="lst">' + L.map(c => '<button class="btn" data-v="' + c.archivo + '">' + escH(c.titulo) + ' <span class="nota">· ' + escH(c.nota) + "</span></button>").join("") + "</div>" +
           '<button class="lnk" data-no>Cancelar</button>');
         if (!v) return;
-        try { toast("Uniendo…", 6000); await Notas.unirCapturas(d.archivo, v); toast("Unidas: la otra conversación está ahora al final de esta", 4000); ls("visor.doc." + S.proyecto.id + ".capturas", d.archivo); abrir("capturas"); }
+        try { toast("Uniendo…", 6000); await Notas.unirCapturas(d.archivo, v); toast("Unidas: la otra conversación está ahora al final de esta", 4000); ls(claveDoc("capturas"), d.archivo); abrir("capturas"); }
         catch (e) { toast(e.message, 5000); }
       };
       $("btnBorrarCap").onclick = async () => {
@@ -3399,7 +3405,7 @@ const Docs = (() => {
   setInterval(vigilaPdf, 30000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) vigilaPdf(); });
   addEventListener("resize", () => { if (z) return; if (S.modo === "cap" && actual) pintaImg(); else if ((S.modo === "lam" || S.modo === "mem") && pdf) pinta(); });
-  return {abrir, zoom, actualDoc, estado, restaura: r => { pendR = r; }, tiraVersiones, verVersion, verActual: () => verAct, recargar: t => { if (S.proyecto && S.proyecto.docs) delete S.proyecto.docs[t]; }};
+  return {abrir, pdfjs, zoom, actualDoc, estado, restaura: r => { pendR = r; }, tiraVersiones, verVersion, verActual: () => verAct, recargar: t => { if (S.proyecto && S.proyecto.docs) delete S.proyecto.docs[t]; }};
 })();
 
 /* ============================================================ comentarios y anotaciones (Supabase) */
@@ -3447,6 +3453,7 @@ const Notas = (() => {
     try { esAdmin = !!await api("POST", "rpc/es_admin", {p_llave: k}); } catch (e) { esAdmin = false; }
     $("marcaAdmin").hidden = !esAdmin;
     if (esAdmin && mA) toast("Modo administrador en este navegador: puedes borrar cualquier comentario", 4500);
+    if (esAdmin) setTimeout(revisaPermisos, 2500);
   }
   let estados = [];
   async function todas(forzar) {
@@ -3474,12 +3481,40 @@ const Notas = (() => {
       const L = ls(LKEY) || []; Object.assign(fila, {id: "l" + Date.now() + Math.random().toString(36).slice(2, 6), creado: new Date().toISOString(), borrado: false});
       L.push(fila); ls(LKEY, L); cache.push(fila); return fila;
     }
+    const pc = !!fila.para_claude; delete fila.para_claude;      // se manda después, con mandar(): la base de datos no lo acepta al crear
     const r = await api("POST", "notas", fila, {Prefer: "return=representation"});
-    cache.push(r[0]); return r[0];
+    cache.push(r[0]);
+    if (pc) try { await mandar("notas", r[0].id); r[0].para_claude = true; } catch (e) { toast(e.message, 10000); }
+    return r[0];
   }
+  // Mandar a Claude solo desde navegadores autorizados (10-nov): lo que se le manda lo ejecuta en el Mac de Enrique, y a la base
+  // de datos puede escribir cualquiera que tenga la dirección del visor. La primera vez que alguien nuevo lo intenta queda pedido,
+  // y Enrique (en un navegador en modo administrador) lo autoriza.
+  async function mandar(tabla, id) {
+    await huellaP;
+    const r = await api("POST", "rpc/mandar_claude", {p_tabla: tabla, p_id: id, p_llave: llave, p_quien: autor(), p_admin: esAdmin ? ls("visor.admin") : null});
+    if (r === "ok") return;
+    if (r === "pendiente") throw new Error("Este navegador aún no puede mandar cosas a Claude: se le ha pedido permiso a Enrique. Cuando lo autorice, vuelve a pulsar «Mandar a Claude».");
+    throw new Error("No se ha podido mandar a Claude");
+  }
+  let permT = 0;
+  async function revisaPermisos() {
+    if (!esAdmin || !cfg || cfg.local || Date.now() - permT < 60000 || document.querySelector(".destino")) return;
+    permT = Date.now();
+    let L; try { L = await api("POST", "rpc/permisos_claude", {p_admin: ls("visor.admin")}); } catch (e) { return; }
+    for (const p of (L || []).filter(x => !x.ok)) {
+      const v = await dialogo("<h3>Permiso para mandar a Claude</h3>" +
+        '<p class="nota">«' + escH(p.quien || "Alguien sin nombre") + "» quiere poder mandar cosas a Claude desde su navegador (lo pidió el " + fecha(p.creado) + "). Lo que se manda a Claude lo ejecuta en tu Mac: autoriza solo a quien conozcas.</p>" +
+        '<button class="btn rojo" data-v="si">Autorizar</button><button class="btn" data-v="no">No autorizar</button><button class="lnk" data-no>Ahora no</button>');
+      if (v !== "si" && v !== "no") continue;
+      try { await api("POST", "rpc/autorizar_claude", {p_admin: ls("visor.admin"), p_hash: p.hash, p_si: v === "si"}); toast(v === "si" ? "Autorizado: ya puede mandar a Claude" : "No autorizado", 4000); } catch (e) { toast(e.message, 5000); }
+    }
+  }
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) revisaPermisos(); });
   async function marcar(n, si) {
     // «Para Claude»: lo puede poner o quitar cualquiera
     if (cfg.local) { const L = ls(LKEY) || [], x = L.find(y => y.id === n.id); if (x) x.para_claude = si; ls(LKEY, L); n.para_claude = si; return; }
+    if (si) { await mandar("notas", n.id); n.para_claude = true; return; }
     const r = await api("PATCH", "notas?id=eq." + n.id, {para_claude: si}, {Prefer: "return=representation"}); if (r && r[0]) Object.assign(n, r[0]);
   }
   async function resolverCaptura(id, si) {
@@ -3490,6 +3525,7 @@ const Notas = (() => {
   }
   async function marcarCaptura(id, si) {
     if (cfg.local) { const L = ls(LKEY + ".cap") || [], x = L.find(c => c.id === id); if (x) x.para_claude = si; ls(LKEY + ".cap", L); return; }
+    if (si) { await mandar("capturas", id); return; }
     await api("PATCH", "capturas?id=eq." + id, {para_claude: si}, {Prefer: "return=minimal"});
   }
   async function editar(n, t) {
@@ -3504,6 +3540,7 @@ const Notas = (() => {
     else if (!await api("POST", "rpc/borrar_nota", {p_id: n.id, p_llave: esAdmin ? ls("visor.admin") : llave})) throw new Error("No se ha podido borrar (solo se borra desde el navegador con el que se escribió)");
     cache = cache.filter(y => y.id !== n.id && y.respuesta_a !== n.id);
   }
+  let ultCaps = null;
   const urlCap = a => cfg.url.replace(/\/$/, "") + "/storage/v1/object/public/capturas/" + a;
   async function capturas() {
     if (!await config()) return null;
@@ -3511,7 +3548,7 @@ const Notas = (() => {
     try { L = cfg.local ? (ls(LKEY + ".cap") || []).filter(c => c.proyecto === proy() && !c.archivada_en) : await api("GET", "capturas?select=*&proyecto=eq." + encodeURIComponent(proy()) + "&borrado=eq.false&archivada_en=is.null&order=creado.desc"); }
     catch (e) { toast(e.message, 4000); return []; }
     await todas(true);
-    return L.map(c => ({archivo: c.id, titulo: c.tema || c.vista || "Captura", tema: c.tema || "", vista: c.vista || "", camara: c.camara || null, nota: c.autor + " · " + fecha(c.creado) + (c.para_claude ? " · mandada a Claude" : ""), para_claude: !!c.para_claude, resuelta_por: c.resuelta_por || null, resuelta_en: c.resuelta_en || null, url: cfg.local ? c.datos : urlCap(c.archivo), ancho: c.ancho, alto: c.alto, autor: c.autor, borrable: mia(c)}));
+    return ultCaps = L.map(c => ({archivo: c.id, titulo: c.tema || c.vista || "Captura", tema: c.tema || "", vista: c.vista || "", camara: c.camara || null, nota: c.autor + " · " + fecha(c.creado) + (c.para_claude ? " · mandada a Claude" : ""), para_claude: !!c.para_claude, resuelta_por: c.resuelta_por || null, resuelta_en: c.resuelta_en || null, url: cfg.local ? c.datos : urlCap(c.archivo), ancho: c.ancho, alto: c.alto, autor: c.autor, borrable: mia(c), des: c.tipo === "des"}));
   }
   async function subirArchivo(blob, ext = "jpg", mime = "image/jpeg") {
     // la imagen (o el PDF adjunto) al almacén público de capturas; devuelve su ruta
@@ -3590,7 +3627,7 @@ const Notas = (() => {
     if (!autor()) { const nm = (prompt("Tu nombre (sale con la captura y sus comentarios)") || "").trim(); if (!nm) throw new Error("Hace falta un nombre"); ls("visor.autor", nm.slice(0, 60)); }
     await huellaP;
     const {id, archivo} = await subirArchivo(blob);
-    const fila = {id, proyecto: proy(), autor: autor(), vista: meta.vista, archivo, ancho: meta.ancho, alto: meta.alto, llave_hash: huella || null, tema: meta.tema || null, camara: meta.camara || null};
+    const fila = {id, proyecto: proy(), autor: autor(), vista: meta.vista, archivo, ancho: meta.ancho, alto: meta.alto, llave_hash: huella || null, tema: meta.tema || null, camara: meta.camara || null, tipo: meta.tipo === "des" ? "des" : "chat"};
     if (cfg.local) { const L = ls(LKEY + ".cap") || []; L.unshift(Object.assign({creado: new Date().toISOString(), datos: meta.dataURL}, fila)); ls(LKEY + ".cap", L); return fila; }
     await api("POST", "capturas", fila, {Prefer: "return=minimal"});
     return fila;
@@ -3769,7 +3806,7 @@ const Notas = (() => {
       '<textarea class="filtro" rows="3" placeholder="' + escH(texto) + '"></textarea>' +
       (ambito === "capturas" && id === "compDoc" ? '<div class="adjs" data-adjs>' + adjuntos.map((a, i) => '<span class="adj"><img src="' + a.url + '" alt=""><button class="lnk" data-quita="' + i + '" aria-label="Quitar">×</button></span>').join("") + "</div>" : "") +
       '<div class="adjs" data-anx>' + htmlAnx(id) + "</div>" +
-      '<div class="fila"><button class="btn" data-guardar>Publicar</button><button class="btn" data-adj title="Imágenes (JPG, PNG…) o PDF con el mensaje; también se pueden arrastrar o pegar en el cuadro de texto">Adjuntar</button><input type="file" accept="image/*,.heic,.heif,application/pdf,.pdf" multiple hidden data-adjf>' + '<label class="chk pc-chk" title="' + (ambito === "capturas" && id === "compDoc" ? "Que le llegue ya a Claude (quítalo para dejarlo para un lote)" : "Que le llegue a Claude") + '"><input type="checkbox" data-pcn' + " checked" + '> Mandar a Claude' + (ambito === "capturas" && id === "compDoc" ? " ya" : "") + "</label>" +
+      '<div class="fila"><button class="btn" data-guardar>Publicar</button><button class="btn" data-adj title="Imágenes (JPG, PNG…) o PDF con el mensaje; también se pueden arrastrar o pegar en el cuadro de texto">Adjuntar</button><input type="file" accept="image/*,.heic,.heif,application/pdf,.pdf" multiple hidden data-adjf>' + '<label class="chk pc-chk" title="' + (ambito === "capturas" && id === "compDoc" ? "Que le llegue ya a Claude (quítalo para dejarlo para un lote)" : "Que le llegue a Claude") + '"><input type="checkbox" data-pcn' + (ambito === "capturas" && S.des ? "" : " checked") + '> Mandar a Claude' + (ambito === "capturas" && id === "compDoc" ? " ya" : "") + "</label>" +
       (pend ? '<button class="btn" data-cancelar>' + (pend.dibujo.t === "trazos" ? "Quitar el dibujo" : "Quitar la marca") + "</button>" : "") + "</div></div>";
   }
   function engancha(el, amb, doc) {
@@ -3797,7 +3834,7 @@ const Notas = (() => {
           const L = adjuntos.slice(); let i = 0;
           try { for (const a of L) { toast("Subiendo " + (L.length > 1 ? "la imagen " + (++i) + " de " + L.length : "la imagen") + "…", 8000); await subirImagenTema(doc, a.blob, a.meta); adjuntos.shift(); URL.revokeObjectURL(a.url); } }
           catch (e) { toast(e.message || String(e), 5000); pinta(); return; }
-          if (!t && !pend && !anx.length) { ta.value = ""; await pinta(); Docs.tiraVersiones(); toast((L.length > 1 ? "Imágenes añadidas" : "Imagen añadida") + ". Dibuja encima y/o escribe: le llega a Claude al publicar", 5000); return; }
+          if (!t && !pend && !anx.length) { ta.value = ""; await pinta(); Docs.tiraVersiones(); toast((L.length > 1 ? "Imágenes añadidas" : "Imagen añadida") + pieSubida(), 5000); return; }
         }
         const f = {ambito: amb, doc: doc, texto: t};
         if (anx.length) {      // los adjuntos (imágenes y PDF) van con el comentario
@@ -3812,15 +3849,15 @@ const Notas = (() => {
         if (pend && !comp.dataset.resp) { f.pagina = pend.pagina; f.dibujo = pend.dibujo; }
         else if (conImg) f.pagina = imagenesDe(doc).length + 1;
         else if (amb === "capturas" && Docs.verActual()) f.pagina = Docs.verActual();
-        const mandarYa = amb !== "capturas" || comp.dataset.resp || !pcn || pcn.checked;
+        const mandarYa = amb === "capturas" && S.des ? !!(pcn && pcn.checked) : (amb !== "capturas" || comp.dataset.resp || !pcn || pcn.checked);
         if (amb === "capturas") delete f.para_claude;       /* en capturas lo que se manda es la captura entera */
         try {
           const n = await crear(f); if (!comp.dataset.resp) pend = null; focoId = n.id; quitaAnx(comp.id);
           /* una respuesta mandada a Claude reabre el hilo para Claude (lo que vigila es el comentario principal) */
           if (f.respuesta_a && f.para_claude) { const raiz = (cache || []).find(x => x.id === f.respuesta_a); if (raiz && !raiz.para_claude) try { await marcar(raiz, true); } catch (e) {} }
           pinta();
-          if (amb === "capturas" && doc) { const d = Docs.actualDoc(); if (d && d.archivo === doc && !d.resuelta_por) { if (mandarYa) { await marcarCaptura(doc, true); d.alMandar && d.alMandar(); toast("Publicado y mandado a Claude", 3000); } else toast("Publicado. No se manda aún: para un lote, en «Lote para Claude»", 4000); } }
-        } catch (e) { toast(e.message, 4000); }
+          if (amb === "capturas" && doc) { const d = Docs.actualDoc(); if (d && d.archivo === doc && !d.resuelta_por) { if (mandarYa) { await marcarCaptura(doc, true); d.alMandar && d.alMandar(); toast("Publicado y mandado a Claude", 3000); } else toast(S.des ? "Publicado" : "Publicado. No se manda aún: para un lote, en «Lote para Claude»", S.des ? 2500 : 4000); } }
+        } catch (e) { toast(e.message, 10000); }
       };
       if (pend && pend.dibujo.t !== "trazos") setTimeout(() => comp.querySelector("textarea").focus(), 0);   /* al dibujar no se abre el teclado del iPad */
     }
@@ -3911,7 +3948,7 @@ const Notas = (() => {
   };
   async function temasLote() {
     const caps = ((await capturas()) || []).filter(c => !c.resuelta_por), T = [];
-    for (const c of caps) T.push({t: "captura", id: c.archivo, titulo: c.titulo, grupo: "Chat", nuevo: novedad(deDoc("capturas", c.archivo)), mandado: c.para_claude});
+    for (const c of caps) T.push({t: "captura", id: c.archivo, titulo: c.titulo, grupo: c.des ? "En desarrollo" : "Chat", nuevo: novedad(deDoc("capturas", c.archivo)), mandado: c.para_claude});
     for (const n of (cache || []).filter(n => AMB[n.ambito] && !n.respuesta_a && !n.resuelto_por && !soloImagen(n) && !n.borrado)) {
       const hilo = [n].concat((cache || []).filter(x => x.respuesta_a === n.id));
       T.push({t: "nota", id: n.id, ambito: n.ambito, doc: n.doc || null, pagina: n.pagina || null, grupo: {laminas: "Láminas", memorias: "Memorias", mediciones: "Mediciones"}[n.ambito],
@@ -3945,14 +3982,14 @@ const Notas = (() => {
     });
     if (!r || typeof r !== "object") return;
     try {
-      await crear({ambito: "lotes", doc: "lotes", texto: r.texto || "Ve punto por punto resolviendo lo que te he marcado.", temas: r.temas, para_claude: true});
-      toast("Lote mandado a Claude: " + r.temas.length + (r.temas.length === 1 ? " tema" : " temas") + ". El resumen saldrá aquí.", 5000);
+      const nl = await crear({ambito: "lotes", doc: "lotes", texto: r.texto || "Ve punto por punto resolviendo lo que te he marcado.", temas: r.temas, para_claude: true});
+      if (nl.para_claude) toast("Lote mandado a Claude: " + r.temas.length + (r.temas.length === 1 ? " tema" : " temas") + ". El resumen saldrá aquí.", 5000);
       ls("visor.lote.abierto", true); pintaLotes();
     } catch (e) { toast(e.message, 5000); }
   }
   function abrirTema(t) {
     const P = proy();
-    if (t.t === "captura") { ls("visor.doc." + P + ".capturas", t.id); if (S.modo === "cap") Docs.abrir("capturas"); else modo("cap"); return; }
+    if (t.t === "captura") { const c = (ultCaps || []).find(x => x.archivo === t.id); S.des = !!(c && c.des); ls(claveDoc("capturas"), t.id); if (S.modo === "cap") Docs.abrir("capturas"); else modo("cap"); return; }
     ls("visor.doc." + P + "." + t.ambito, t.doc); focoPend = t.id;
     const m = {laminas: "lam", memorias: "mem", mediciones: "datos"}[t.ambito]; if (m) modo(m);
   }
@@ -4310,6 +4347,8 @@ function modo(m) {
   const tabs = {"3d": "tab3d", "2d": "tab2d", lam: "tabLam", mem: "tabMem", datos: "tabDatos", cap: "tabCap"};
   $("btnCaptura").hidden = !(m === "3d" || m === "2d");
   for (const [k_, id] of Object.entries(tabs)) $(id).setAttribute("aria-pressed", m === k_);
+  $("tabCap").setAttribute("aria-pressed", m === "cap" && !S.des); $("tabDes").setAttribute("aria-pressed", m === "cap" && !!S.des);
+  { const tp = document.querySelector('.tabs [aria-pressed="true"]'); if (tp && tp.scrollIntoView && matchMedia("(max-width:820px)").matches) tp.scrollIntoView({block: "nearest", inline: "nearest"}); }   // en el móvil la fila de pestañas se desliza
   $("c3d").hidden = m !== "3d"; $("c2d").hidden = !plano; $("p3d").hidden = m !== "3d" && m !== "datos"; $("p2d").hidden = !plano; $("pDocs").hidden = !doc;
   $("tool2d").hidden = m !== "ed"; $("paleta").hidden = m !== "ed";
   document.querySelectorAll(".ed-only").forEach(x => x.hidden = m !== "ed");
@@ -4318,7 +4357,7 @@ function modo(m) {
   $("selModelo").hidden = m !== "3d" && m !== "datos";
   $("rotulo").hidden = m !== "3d";
   document.querySelectorAll(".aspa,.esq").forEach(x => x.hidden = m === "datos" || doc);
-  const h = {"3d": "", "2d": "#2d", ed: "", lam: "#laminas", mem: "#memorias", datos: "#datos", cap: "#capturas"}[m];
+  const h = {"3d": "", "2d": "#2d", ed: "", lam: "#laminas", mem: "#memorias", datos: "#datos", cap: S.des ? "#desarrollo" : "#capturas"}[m];
   if (!S.soloEditor) try { history.replaceState(null, "", h || location.pathname + location.search); } catch (e) { /* vista previa */ }
   if (m === "datos") { Datos.refrescar(); return; }
   if (doc) { $("vacio").hidden = true; Docs.abrir({lam: "laminas", mem: "memorias", cap: "capturas"}[m]); return; }
@@ -4328,7 +4367,7 @@ $("tab3d").onclick = () => modo("3d"); $("tab2d").onclick = () => modo("2d");
 // el editor va aparte: en la web, en otra pestaña del navegador; dentro de Claude, en la misma página con «Visor» para volver
 $("btnEditor").onclick = e => { if (window.claude) { e.preventDefault(); S.volverA = S.modo; modo("ed"); } };
 $("btnVolver").onclick = () => modo(S.volverA || "2d");
-$("tabLam").onclick = () => modo("lam"); $("tabMem").onclick = () => modo("mem"); $("tabDatos").onclick = () => modo("datos"); $("tabCap").onclick = () => modo("cap");
+$("tabLam").onclick = () => modo("lam"); $("tabMem").onclick = () => modo("mem"); $("tabDatos").onclick = () => modo("datos"); $("tabCap").onclick = () => { S.des = false; modo("cap"); }; $("tabDes").onclick = () => { S.des = true; modo("cap"); };
 $("btnVerTodo").onclick = () => V3.resaltar(null);
 $("selProyecto").onchange = e => elegirProyecto(e.target.value);
 $("selModelo").onchange = e => elegirModelo(e.target.value);
@@ -4437,7 +4476,8 @@ $("btnCaptura").onclick = async () => {
     const dest = sust ? {sust} : await elegirDestino(1); if (!dest) return;
     toast(sust ? "Sustituyendo la imagen " + sust.k + "…" : "Subiendo la captura…", 8000);
     const f = await subirImagen(blob, {vista, ancho: c.width, alto: c.height, dataURL: c.toDataURL("image/jpeg", 0.6), camara}, dest);
-    ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + ".capturas", f.id);
+    if (!sust) S.des = false;
+    ls(claveDoc("capturas"), f.id);
     S.sustituir = null;
     if (S.modo === "cap") Docs.abrir("capturas"); else modo("cap"); toast(sust ? "Imagen " + sust.k + " sustituida" : "Captura guardada. Dibuja encima y/o escribe: le llega a Claude al publicar", 5000);
   } catch (e) { toast(e.message || String(e), 5000); }
@@ -4458,12 +4498,13 @@ function dialogo(html, alAbrir) {
 }
 // ¿dónde va una imagen nueva? a un tema nuevo o a la conversación de uno abierto
 async function elegirDestino(n) {
-  const L = ((await Notas.capturas()) || []).filter(c => !c.resuelta_por);
+  const des = enDes();
+  const L = ((await Notas.capturas()) || []).filter(c => !c.resuelta_por && !!c.des === des);
   const act = S.modo === "cap" ? Docs.actualDoc() : null;
   return new Promise(ok => {
     const fondo = document.createElement("div"); fondo.className = "destino";
     fondo.innerHTML = '<div role="dialog" aria-label="Dónde va la imagen"><h3>' + (n > 1 ? n + " imágenes" : "Imagen") + '</h3>' +
-      '<input class="filtro" data-tema placeholder="Tema nuevo (p. ej. Aerotermia y tubos a cubierta)" maxlength="120">' +
+      '<input class="filtro" data-tema placeholder="' + (des ? "Nombre (p. ej. Planta baja, opción B); si no, el del archivo" : "Tema nuevo (p. ej. Aerotermia y tubos a cubierta)") + '" maxlength="120">' +
       '<button class="btn rojo" data-nuevo>Tema nuevo</button>' +
       (L.length ? '<p class="nota">o añádela a la conversación de:</p><div class="lst">' + L.slice(0, 8).map(c => '<button class="btn' + (act && act.archivo === c.archivo ? " on" : "") + '" data-a="' + c.archivo + '">' + escH(c.titulo) + "</button>").join("") + "</div>" : "") +
       '<button class="lnk" data-no>Cancelar</button></div>';
@@ -4481,42 +4522,68 @@ async function elegirDestino(n) {
 async function subirImagen(blob, meta, dest) {
   if (dest.sust) { await Notas.cambiarImagen(dest.sust.doc, dest.sust.k, blob, meta); Docs.restaura({t: "capturas", a: dest.sust.doc, v: dest.sust.k, z: 0, sx: 0, sy: 0}); return {id: dest.sust.doc}; }
   if (dest.a) { await Notas.subirImagenTema(dest.a, blob, meta); return {id: dest.a}; }
-  return Notas.subirCaptura(blob, Object.assign({}, meta, {tema: dest.tema || null}));
+  return Notas.subirCaptura(blob, Object.assign({}, meta, {tema: dest.tema || null, tipo: enDes() ? "des" : "chat"}));
 }
 // importar imágenes (pantallazos de Vectorworks, fotos…): se suben como capturas
 // una imagen (archivo, pantallazo pegado, foto) lista para subir: JPEG de 2400 px como mucho, sobre blanco
-async function prepImagen(f) {
+async function prepImagen(f, max = enDes() ? 4000 : 2400) {
   const url = URL.createObjectURL(f), im = new Image();
   try { await new Promise((ok, ko) => { im.onload = ok; im.onerror = () => ko(new Error("No se puede leer la imagen " + (f.name || ""))); im.src = url; }); }
   finally { setTimeout(() => URL.revokeObjectURL(url), 0); }
-  const k_ = Math.min(1, 2400 / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement("canvas");
+  const k_ = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement("canvas");
   c.width = Math.max(1, Math.round(im.naturalWidth * k_)); c.height = Math.max(1, Math.round(im.naturalHeight * k_));
   const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0, c.width, c.height);
   const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.88));
   const nom = (f.name || "").replace(/\.[^.]+$/, "").trim();
   return {blob, ancho: c.width, alto: c.height, dataURL: c.toDataURL("image/jpeg", 0.6), vista: "Importada" + (nom && !/^image$/i.test(nom) ? " · " + nom.slice(0, 120) : "")};
 }
+// una página de un PDF (un plano) como imagen, para dibujar encima: hasta 4000 px de lado en «En desarrollo»
+async function prepPagina(pdf, n, nombre, max) {
+  const p = await pdf.getPage(n), v0 = p.getViewport({scale: 1}), v = p.getViewport({scale: Math.min(max / Math.max(v0.width, v0.height), 4)});
+  const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(v.width)); c.height = Math.max(1, Math.round(v.height));
+  const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height);
+  await p.render({canvasContext: x, viewport: v}).promise;
+  const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.9));
+  const r = {blob, ancho: c.width, alto: c.height, dataURL: c.toDataURL("image/jpeg", 0.6), vista: "PDF · " + nombre + (pdf.numPages > 1 ? " · pág. " + n : "")};
+  c.width = c.height = 0; return r;
+}
+const esPdf = f => f.type === "application/pdf" || /\.pdf$/i.test(f.name || "");
 async function importarImagenes(files) {
-  const L = [...files].filter(f => /^image\//.test(f.type) || /\.(jpe?g|png|heic|heif|webp|gif|tiff?)$/i.test(f.name || ""));
-  if (!L.length) { toast("Eso no es una imagen"); return; }
-  let ult = null, n = 0;
-  const dest = await elegirDestino(L.length); if (!dest) return;
+  const L = [...files].filter(f => esPdf(f) || /^image\//.test(f.type) || /\.(jpe?g|png|heic|heif|webp|gif|tiff?)$/i.test(f.name || ""));
+  if (!L.length) { toast("Eso no es una imagen ni un PDF"); return; }
+  const des = enDes(), max = des ? 4000 : 2400, sinExt = f => (f.name || "").replace(/\.[^.]+$/, "").trim();
+  // cada archivo da una o varias imágenes (un PDF, una por página)
+  const T = [];
   for (const f of L) {
+    if (!esPdf(f)) { T.push(() => prepImagen(f, max)); continue; }
     try {
-      toast("Subiendo " + (L.length > 1 ? (n + 1) + " de " + L.length + "…" : "la imagen…"), 8000);
-      const r = await prepImagen(f);
+      toast("Leyendo el PDF…", 8000);
+      const pdf = await (await Docs.pdfjs()).getDocument({data: await f.arrayBuffer()}).promise, N = Math.min(pdf.numPages, 40), nombre = sinExt(f).slice(0, 100) || "PDF";
+      if (pdf.numPages > N) toast("El PDF tiene " + pdf.numPages + " páginas: se suben las " + N + " primeras", 5000);
+      for (let n = 1; n <= N; n++) T.push(() => prepPagina(pdf, n, nombre, max));
+    } catch (e) { toast("No se puede leer el PDF " + (f.name || "") + ": " + (e.message || e), 6000); }
+  }
+  if (!T.length) return;
+  let ult = null, n = 0;
+  let dest = await elegirDestino(T.length); if (!dest) return;
+  if (dest.nuevo && !dest.tema && des) dest.tema = sinExt(L[0]).slice(0, 120);
+  for (const t of T) {
+    try {
+      toast("Subiendo " + (T.length > 1 ? (n + 1) + " de " + T.length + "…" : "la imagen…"), 15000);
+      const r = await t();
       ult = await subirImagen(r.blob, {vista: r.vista, ancho: r.ancho, alto: r.alto, dataURL: r.dataURL}, dest); n++;
+      if (dest.nuevo) dest = {a: ult.id};          // las demás van a la misma conversación (juntas)
     } catch (e) { toast(e.message || String(e), 5000); }
   }
   if (!ult) return;
-  ls("visor.doc." + (S.proyecto ? S.proyecto.id : "") + ".capturas", ult.id);
+  ls(claveDoc("capturas"), ult.id);
   if (S.modo === "cap") Docs.abrir("capturas"); else modo("cap");
-  toast((n > 1 ? n + " imágenes subidas (van juntas)" : "Imagen subida") + ". Dibuja encima y/o escribe: le llega a Claude al publicar", 5000);
+  toast((n > 1 ? n + " imágenes subidas (van juntas)" : des ? "Subido" : "Imagen subida") + pieSubida(), 5000);
 }
 $("archImportar").onchange = e => { const f = e.target.files; if (f && f.length) importarImagenes(f); e.target.value = ""; };
 addEventListener("paste", e => {
   if (S.modo !== "cap") return;
-  const f = [...((e.clipboardData && e.clipboardData.files) || [])].filter(x => /^image\//.test(x.type));
+  const f = [...((e.clipboardData && e.clipboardData.files) || [])].filter(x => /^image\//.test(x.type) || x.type === "application/pdf");
   if (!f.length) return; e.preventDefault();
   const ae = document.activeElement;
   if (ae && ae.closest && ae.closest("#notasDoc .comp")) { Notas.adjuntar(f); return; }      // pegada mientras se escribe: va con el mensaje
@@ -4576,7 +4643,8 @@ if (/[?&]v=/.test(location.search)) try { history.replaceState(null, "", locatio
   await cargarPublicado();
   if (Object.keys(S.proyectos).length) rellenarProyectos(); else $("vacio").hidden = false;
   rotulo();
-  const hs = {"#2d": "2d", "#plano": "2d", "#editor": "ed", "#laminas": "lam", "#memorias": "mem", "#datos": "datos", "#capturas": "cap"}[location.hash];
+  const hs = {"#2d": "2d", "#plano": "2d", "#editor": "ed", "#laminas": "lam", "#memorias": "mem", "#datos": "datos", "#capturas": "cap", "#desarrollo": "cap"}[location.hash];
+  if (location.hash === "#desarrollo") S.des = true;
   S.soloEditor = /(^|[?&])editor\b/.test(location.search) || hs === "ed";
   if (S.soloEditor) { document.body.classList.add("solo-editor"); document.title = "Editor arrova"; $("marcaSub").textContent = "· editor"; }
   // quien solo puede ver la página en claude.ai (p. ej. el aparejador) no tiene el editor; en la web pública sí
