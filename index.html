@@ -45,6 +45,10 @@ header .marca span{font-weight:400}
 .tabs button{border:0.5px solid var(--ink);background:transparent;padding:0 12px;height:26px;min-width:40px;font-weight:700;cursor:pointer}
 .tabs button+button{border-left:0}
 .tabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.subtabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;margin:0 0 6px}
+.subtabs button{border:0.5px solid var(--ink);background:transparent;padding:0 4px;height:24px;font-size:var(--s-s);cursor:pointer}
+.subtabs button+button{border-left:0}
+.subtabs button.on{background:var(--ink);color:var(--paper);font-weight:700}
 header .sp{flex:1}
 header select{max-width:220px}
 .estado{font-size:var(--s-xs);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
@@ -309,12 +313,13 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
     <div class="barra">
     <div class="tabs" role="group" aria-label="Modo">
       <button id="tab3d" aria-pressed="true">3D</button>
-      <button id="tab2d" aria-pressed="false">2D</button>
-      <button id="tabLam" aria-pressed="false">Láminas</button>
-      <button id="tabMem" aria-pressed="false">Memorias</button>
-      <button id="tabDatos" aria-pressed="false">Mediciones</button>
-      <button id="tabCap" aria-pressed="false">Chat</button>
-      <button id="tabDes" aria-pressed="false" title="El tablón del proyecto: lo que se va subiendo mientras se trabaja (planos, imágenes, esquemas) para comentarlo y dibujar encima entre todos">Tablón</button>
+      <button id="tabDes" aria-pressed="false" title="El tablón del proyecto: lo que se va subiendo mientras se trabaja (planos, imágenes, esquemas) para comentarlo y dibujar encima entre todos; dentro, las láminas, memorias y mediciones definitivas">Tablón</button>
+      <button id="tabCap" aria-pressed="false" title="Conversaciones con Claude sobre capturas e imágenes">Chat</button>
+      <!-- (10-nov) el 2D se dibuja en el Editor; láminas, memorias y mediciones van dentro del Tablón -->
+      <button id="tab2d" aria-pressed="false" hidden>2D</button>
+      <button id="tabLam" aria-pressed="false" hidden>Láminas</button>
+      <button id="tabMem" aria-pressed="false" hidden>Memorias</button>
+      <button id="tabDatos" aria-pressed="false" hidden>Mediciones</button>
     </div>
     <button class="btn ico" id="btnRefrescar" title="Actualizar: carga la última versión publicada" aria-label="Actualizar"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16.2 10.6A6.2 6.2 0 1 1 14.4 5.6M14.9 2.6v3.4h-3.4"/></svg></button>
     <button class="btn ico" id="btnCaptura" title="Captura de lo que se ve, para marcar encima y comentar" aria-label="Captura"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 6.5h3l1.5-2h6l1.5 2h3v9h-15z"/><circle cx="10" cy="11" r="3"/></svg></button>
@@ -391,6 +396,9 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
     </div>
     <iframe class="render-frame" id="fRender" title="Render" hidden></iframe>
     <aside class="panel" id="panel">
+      <div class="subtabs" id="subTab" role="group" aria-label="Tablón" hidden>
+        <button data-sub="des" title="Lo que se va subiendo mientras se trabaja">Tablón</button><button data-sub="lam" title="Láminas definitivas (las publicadas desde Vectorworks y lo marcado como lámina en el tablón)">Láminas</button><button data-sub="mem">Memorias</button><button data-sub="datos">Mediciones</button>
+      </div>
       <div id="p3d">
         <div class="sec">
           <h3>Vista</h3>
@@ -4511,7 +4519,10 @@ function modo(m) {
   $("vista").hidden = ren; $("panel").hidden = ren; $("fRender").hidden = !ren; document.body.classList.toggle("modo-ren", ren);
   $("btnCaptura").hidden = !(m === "3d" || m === "2d");
   for (const [k_, id] of Object.entries(tabs)) $(id).setAttribute("aria-pressed", m === k_);
-  $("tabCap").setAttribute("aria-pressed", m === "cap" && !S.des); $("tabDes").setAttribute("aria-pressed", m === "cap" && !!S.des);
+  const enTablon = m === "lam" || m === "mem" || m === "datos" || (m === "cap" && !!S.des);
+  $("tabCap").setAttribute("aria-pressed", m === "cap" && !S.des); $("tabDes").setAttribute("aria-pressed", enTablon);
+  $("subTab").hidden = !enTablon;
+  document.querySelectorAll("#subTab [data-sub]").forEach(b => b.classList.toggle("on", b.dataset.sub === (m === "cap" ? "des" : m)));
   { const tp = document.querySelector('.tabs [aria-pressed="true"]'); if (tp && tp.scrollIntoView && matchMedia("(max-width:820px)").matches) tp.scrollIntoView({block: "nearest", inline: "nearest"}); }   // en el móvil la fila de pestañas se desliza
   $("c3d").hidden = m !== "3d"; $("c2d").hidden = !plano; $("p3d").hidden = m !== "3d" && m !== "datos"; $("p2d").hidden = !plano; $("pDocs").hidden = !doc;
   $("tool2d").hidden = m !== "ed"; $("paleta").hidden = m !== "ed";
@@ -4553,6 +4564,7 @@ window.visorRender = {pedir: o => Notas.pedidoRender(o), proyecto: () => S.proye
 $("btnEditor").onclick = e => { if (window.claude) { e.preventDefault(); S.volverA = S.modo; modo("ed"); } };
 $("btnVolver").onclick = () => modo(S.volverA || "2d");
 $("tabLam").onclick = () => modo("lam"); $("tabMem").onclick = () => modo("mem"); $("tabDatos").onclick = () => modo("datos"); $("tabCap").onclick = () => { S.des = false; modo("cap"); }; $("tabDes").onclick = () => { S.des = true; modo("cap"); };
+document.querySelectorAll("#subTab [data-sub]").forEach(b => b.onclick = () => { const k = b.dataset.sub; if (k === "des") { S.des = true; modo("cap"); } else modo(k); });
 $("btnVerTodo").onclick = () => V3.resaltar(null);
 $("selProyecto").onchange = e => elegirProyecto(e.target.value);
 $("selModelo").onchange = e => elegirModelo(e.target.value);
