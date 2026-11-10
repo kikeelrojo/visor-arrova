@@ -2,7 +2,7 @@
 // (para que Claude conteste en el Chat con un render nuevo tras cambiar datos/<proyecto>/render/ajustes.json).
 // Uso (desde la raíz de este repositorio):
 //   npm i --no-save playwright-core@1.47.2   (una vez)
-//   node herramientas/render.js --captura <id de la captura> --salida /tmp/r.jpg [--muestras 400] [--ancho 2400] [--publicado]
+//   node herramientas/render.js --captura <id de la captura> --salida /tmp/r.jpg [--muestras 400] [--ancho 2400] [--publicado] [--pases]
 //   node herramientas/render.js --estado '<json de capturas.camara.render>' --salida /tmp/r.jpg
 // --publicado: con los materiales de ajustes.json tal cual (sin los cambios locales que traía la petición; úsalo cuando ya
 // los hayas pasado a ajustes.json). Sirve este repositorio en local: no hace falta haber publicado.
@@ -47,6 +47,9 @@ function navegador() {
   const d = await p.evaluate(() => window.__resultado);
   const salida = A.salida || "/tmp/render.jpg";
   fs.writeFileSync(salida, Buffer.from(d.split(",")[1], "base64"));
+  // --pases: además mapa de materiales, profundidad y normales junto a la salida (<salida>_mapa.png…), para el paso de IA
+  if (A.pases) { const t = await p.evaluate(() => window.__tam), P = await p.evaluate(([w, h]) => window.__render.pases(w, h), [t.w, t.h]);
+    for (const [k, v] of Object.entries(P)) fs.writeFileSync(salida.replace(/\.[a-z]+$/i, "") + "_" + k + ".png", Buffer.from(v.split(",")[1], "base64")); }
   const tam = await p.evaluate(() => window.__tam);
   await b.close(); srv.close();
   console.log(JSON.stringify({ancho: tam.w, alto: tam.h, archivo: salida}));

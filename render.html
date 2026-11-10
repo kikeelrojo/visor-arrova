@@ -123,7 +123,7 @@ body.marcando #c{cursor:crosshair}
       <p class="nota" id="nRender"></p>
       <div class="dos" style="margin-top:6px">
         <button class="btn" id="bPausa" aria-pressed="false">Pausar la vista</button>
-        <button class="btn" id="bMapa" title="Un color plano por material, mismo encuadre y tamaño: para Visoid">Mapa de materiales</button>
+        <button class="btn" id="bMapa" title="Mapa de materiales (un color por material), profundidad y normales, con el mismo encuadre y tamaño que el render: para el paso de IA">Pases</button>
       </div>
     </div>
     <div class="sec">
@@ -796,25 +796,48 @@ function revela(src, w, h) {
   }
   x.putImageData(im, 0, 0); return c;
 }
-function nombreArchivo(suf) { const t = new Date(), p = n => String(n).padStart(2, "0"); return PROY + "_render_" + t.getFullYear() + p(t.getMonth() + 1) + p(t.getDate()) + "-" + p(t.getHours()) + p(t.getMinutes()) + (suf || "") + ".jpg"; }
-function descarga(c, nombre) { c.toBlob(b => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = nombre; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }, "image/jpeg", 0.93); }
+function nombreArchivo(suf, ext) { const t = new Date(), p = n => String(n).padStart(2, "0"); return PROY + "_render_" + t.getFullYear() + p(t.getMonth() + 1) + p(t.getDate()) + "-" + p(t.getHours()) + p(t.getMinutes()) + (suf || "") + "." + (ext || "jpg"); }
+function descarga(c, nombre, tipo) { c.toBlob(b => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = nombre; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }, tipo || "image/jpeg", 0.93); }
 let ultimoRender = null;
 $("bRender").onclick = async () => {
   if (exportando) { terminaExport(true); toast("Render cancelado"); return; }
   const c = await empiezaExport(); if (!c) return;
   ultimoRender = c; descarga(c, nombreArchivo()); toast("Render descargado", 3000);
 };
-$("bMapa").onclick = () => {
-  if (exportando) return;
-  const {w, h} = tamExport(), prev = new Map(), tm = renderer.toneMapping, bg = scene.background;
-  modelo.traverse(o => { if (o.isMesh) { prev.set(o, o.material); const M = MATS[o.userData.m]; const c = M ? M.mapa : [255, 255, 255]; o.material = new THREE.MeshBasicMaterial({color: new THREE.Color().setRGB(c[0] / 255, c[1] / 255, c[2] / 255, THREE.SRGBColorSpace), side: THREE.DoubleSide}); } });
-  renderer.toneMapping = THREE.NoToneMapping; scene.background = new THREE.Color(1, 1, 1); niebla.visible = false;
+// pases para IA o Visoid, con el mismo encuadre y tamaño que el render: mapa de materiales (un color plano por material),
+// profundidad (cerca blanco, lejos negro) y normales (de la cámara)
+const MAT_PROF = new THREE.ShaderMaterial({uniforms: {dmin: {value: 0.5}, dmax: {value: 100}}, side: THREE.DoubleSide,
+  vertexShader: "varying float vz; void main() { vec4 mv = modelViewMatrix * vec4(position, 1.0); vz = -mv.z; gl_Position = projectionMatrix * mv; }",
+  fragmentShader: "uniform float dmin; uniform float dmax; varying float vz; void main() { float d = 1.0 - clamp((vz - dmin) / (dmax - dmin), 0.0, 1.0); gl_FragColor = vec4(vec3(d), 1.0); }"});
+const MAT_NOR = new THREE.MeshNormalMaterial({side: THREE.DoubleSide});
+function pase(tipo, w, h) {
+  const prev = new Map(), tm = renderer.toneMapping, bg = scene.background, cs = renderer.outputColorSpace;
+  if (tipo === "profundidad") {   // de lo más cerca a lo más lejos del modelo visible (sin el suelo infinito)
+    const b = new THREE.Box3(); modelo.traverse(o => { if (o.isMesh && o !== suelo) b.expandByObject(o); });
+    let dmax = 1; for (const x of [b.min.x, b.max.x]) for (const y of [b.min.y, b.max.y]) for (const z of [b.min.z, b.max.z]) dmax = Math.max(dmax, cam.position.distanceTo(new THREE.Vector3(x, y, z)));
+    MAT_PROF.uniforms.dmin.value = 0.3; MAT_PROF.uniforms.dmax.value = dmax * 1.05;
+  }
+  modelo.traverse(o => {
+    if (!o.isMesh) return; prev.set(o, o.material);
+    if (tipo === "mapa") { const M = MATS[o.userData.m]; const c = M ? M.mapa : colorClave(o.userData.obj || "objeto"); o.material = new THREE.MeshBasicMaterial({color: new THREE.Color().setRGB(c[0] / 255, c[1] / 255, c[2] / 255, THREE.SRGBColorSpace), side: THREE.DoubleSide}); }
+    else o.material = tipo === "profundidad" ? MAT_PROF : MAT_NOR;
+  });
+  renderer.toneMapping = THREE.NoToneMapping; niebla.visible = false;
+  scene.background = tipo === "mapa" ? new THREE.Color(1, 1, 1) : tipo === "profundidad" ? new THREE.Color(0, 0, 0) : new THREE.Color(0.5, 0.5, 1);
+  if (tipo !== "mapa") renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
   renderer.setPixelRatio(1); renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
   renderer.render(scene, cam);
   const c = document.createElement("canvas"); c.width = w; c.height = h; c.getContext("2d").drawImage(canvas, 0, 0);
-  for (const [o, m] of prev) { o.material.dispose(); o.material = m; }
-  renderer.toneMapping = tm; scene.background = bg; niebla.visible = true; encaja(); pt && pt.reset();
-  descarga(c, nombreArchivo("_mapa")); toast("Mapa de materiales descargado (mismo encuadre y tamaño que el render)", 4000);
+  for (const [o, m] of prev) { if (tipo === "mapa") o.material.dispose(); o.material = m; }
+  renderer.toneMapping = tm; renderer.outputColorSpace = cs; scene.background = bg; niebla.visible = true;
+  return c;
+}
+$("bMapa").onclick = () => {
+  if (exportando) return;
+  const {w, h} = tamExport();
+  for (const t of ["mapa", "profundidad", "normales"]) descarga(pase(t, w, h), nombreArchivo("_" + t, "png"), "image/png");
+  encaja(); pt && pt.reset();
+  toast("Pases descargados: mapa de materiales, profundidad y normales (mismo encuadre y tamaño que el render)", 5000);
 };
 $("bPausa").onclick = () => { pausa = !pausa; $("bPausa").setAttribute("aria-pressed", pausa); $("bPausa").textContent = pausa ? "Seguir la vista" : "Pausar la vista"; };
 $("rCal").oninput = e => { $("oCal").textContent = e.target.value; ls("render.calidad", +e.target.value); };
@@ -1200,6 +1223,7 @@ async function visor() {
 window.__render = {
   estado,
   async renderizar(opc = {}) { const c = await empiezaExport({w: opc.w || 2400, h: opc.h || Math.round((opc.w || 2400) / C.aspect), n: opc.n || 400}); return c.toDataURL("image/jpeg", 0.9); },
+  pases(w, h) { const r = {}; for (const t of ["mapa", "profundidad", "normales"]) r[t] = pase(t, w, h).toDataURL("image/png"); encaja(); return r; },
 };
 function leeEstadoUrl() {
   const e = Q.get("e"); if (!e) return null;
