@@ -123,7 +123,7 @@ body.marcando #c{cursor:crosshair}
       <p class="nota" id="nRender"></p>
       <div class="dos" style="margin-top:6px">
         <button class="btn" id="bPausa" aria-pressed="false">Pausar la vista</button>
-        <button class="btn" id="bMapa" title="Mapa de materiales (un color por material), profundidad y normales, con el mismo encuadre y tamaño que el render: para el paso de IA">Pases</button>
+        <button class="btn" id="bMapa" title="Mapa de materiales (un color por material), profundidad, normales y máscara del edificio, con el mismo encuadre y tamaño que el render: para el paso de IA">Pases</button>
       </div>
     </div>
     <div class="sec">
@@ -810,6 +810,9 @@ const MAT_PROF = new THREE.ShaderMaterial({uniforms: {dmin: {value: 0.5}, dmax: 
   vertexShader: "varying float vz; void main() { vec4 mv = modelViewMatrix * vec4(position, 1.0); vz = -mv.z; gl_Position = projectionMatrix * mv; }",
   fragmentShader: "uniform float dmin; uniform float dmax; varying float vz; void main() { float d = 1.0 - clamp((vz - dmin) / (dmax - dmin), 0.0, 1.0); gl_FragColor = vec4(vec3(d), 1.0); }"});
 const MAT_NOR = new THREE.MeshNormalMaterial({side: THREE.DoubleSide});
+// máscara del edificio (blanco) frente a lo demás (negro: entorno, suelo, objetos, cielo): lo blanco sale tal cual del render
+// en la «foto» (líneas y detalle exactos) y la IA trabaja lo negro (vegetación, personas, fondo)
+const MAT_BLANCO = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide}), MAT_NEGRO = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.DoubleSide});
 function pase(tipo, w, h) {
   const prev = new Map(), tm = renderer.toneMapping, bg = scene.background, cs = renderer.outputColorSpace;
   if (tipo === "profundidad") {   // de lo más cerca a lo más lejos del modelo visible (sin el suelo infinito)
@@ -820,10 +823,11 @@ function pase(tipo, w, h) {
   modelo.traverse(o => {
     if (!o.isMesh) return; prev.set(o, o.material);
     if (tipo === "mapa") { const M = MATS[o.userData.m]; const c = M ? M.mapa : colorClave(o.userData.obj || "objeto"); o.material = new THREE.MeshBasicMaterial({color: new THREE.Color().setRGB(c[0] / 255, c[1] / 255, c[2] / 255, THREE.SRGBColorSpace), side: THREE.DoubleSide}); }
+    else if (tipo === "mascara") { let obj = false; for (let x = o; x; x = x.parent) if (x === objetos) obj = true; const edif = !obj && o !== suelo && o.userData.g !== "entorno"; o.material = edif ? MAT_BLANCO : MAT_NEGRO; }
     else o.material = tipo === "profundidad" ? MAT_PROF : MAT_NOR;
   });
   renderer.toneMapping = THREE.NoToneMapping; niebla.visible = false;
-  scene.background = tipo === "mapa" ? new THREE.Color(1, 1, 1) : tipo === "profundidad" ? new THREE.Color(0, 0, 0) : new THREE.Color(0.5, 0.5, 1);
+  scene.background = tipo === "mapa" ? new THREE.Color(1, 1, 1) : tipo === "profundidad" || tipo === "mascara" ? new THREE.Color(0, 0, 0) : new THREE.Color(0.5, 0.5, 1);
   if (tipo !== "mapa") renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
   renderer.setPixelRatio(1); renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
   renderer.render(scene, cam);
@@ -835,7 +839,7 @@ function pase(tipo, w, h) {
 $("bMapa").onclick = () => {
   if (exportando) return;
   const {w, h} = tamExport();
-  for (const t of ["mapa", "profundidad", "normales"]) descarga(pase(t, w, h), nombreArchivo("_" + t, "png"), "image/png");
+  for (const t of ["mapa", "profundidad", "normales", "mascara"]) descarga(pase(t, w, h), nombreArchivo("_" + t, "png"), "image/png");
   encaja(); pt && pt.reset();
   toast("Pases descargados: mapa de materiales, profundidad y normales (mismo encuadre y tamaño que el render)", 5000);
 };
@@ -1223,7 +1227,7 @@ async function visor() {
 window.__render = {
   estado,
   async renderizar(opc = {}) { const c = await empiezaExport({w: opc.w || 2400, h: opc.h || Math.round((opc.w || 2400) / C.aspect), n: opc.n || 400}); return c.toDataURL("image/jpeg", 0.9); },
-  pases(w, h) { const r = {}; for (const t of ["mapa", "profundidad", "normales"]) r[t] = pase(t, w, h).toDataURL("image/png"); encaja(); return r; },
+  pases(w, h) { const r = {}; for (const t of ["mapa", "profundidad", "normales", "mascara"]) r[t] = pase(t, w, h).toDataURL("image/png"); encaja(); return r; },
 };
 function leeEstadoUrl() {
   const e = Q.get("e"); if (!e) return null;
