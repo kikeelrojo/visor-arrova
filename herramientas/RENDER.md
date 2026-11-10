@@ -4,19 +4,19 @@ Desde el 10-nov-2026 el visor tiene el **Render** (`render.html`; se abre aparte
 
 ## Cómo llega una petición
 En «Pedir a Claude», Enrique (o un colaborador) escribe qué cambiar y añade imágenes de referencia. Se crea una conversación del Chat:
-- `capturas`: imagen 1 = la vista tal como la veía; `vista` empieza por «Render ·»; `tema` = «Render · …»; **`camara.render`** = el estado completo: `modelo`, `c` (encuadre: `pos` en metros con Y arriba, `yaw`, `f` focal en mm, `shift` descentramiento, `aspect`, `vert`), `luz`, `revelado`, `materiales_cambiados` (lo que tocó en su navegador, aún no publicado), `ocultos`, `capas`, `seleccionado` (el material que tenía elegido), `referencia` (la referencia elegida: Olivier Campagne, Baukunst, Bruther, Arrhov Frick, Leopold Banchini, Christian Kerez, Valerio Olgiati, Rudolf Olgiati, Peter Zumthor).
+- `capturas`: imagen 1 = la vista tal como la veía; `vista` empieza por «Render ·»; `tema` = «Render · …»; **`camara.render`** = el estado completo: `modelo`, `c` (encuadre: `pos` en metros con Y arriba, `yaw`, `f` focal en mm, `shift` descentramiento, `aspect`, `vert`), `luz`, `revelado`, `materiales_cambiados` (lo que tocó en su navegador, aún no publicado), `ocultos`, `capas`, `seleccionado` (el material que tenía elegido), `referencia` (la referencia elegida: Olivier Campagne, Baukunst, Bruther, Arrhov Frick, Leopold Banchini, Christian Kerez, Valerio Olgiati, Rudolf Olgiati, Peter Zumthor, SANAA, Kazuo Shinohara, Junya Ishigami), `anadir`, `marcas`, `lugar` (ver abajo).
 - Imágenes 2, 3…: las referencias (notas con `imagen`, texto «Referencia · nombre»).
 - Una nota con lo escrito. La captura llega con `para_claude = true`, como cualquier otra.
 
 ## Qué hacer
 1. Leer lo escrito, mirar la imagen 1 y las referencias.
-2. Cambiar **`datos/<proyecto>/render/ajustes.json`** (es lo que ven todos; el visor lo vuelve a leer cada 20 s y aplica los cambios solo). Incorporar también los `materiales_cambiados` de la petición si van en la línea de lo pedido (es la forma de «dejarlos para todos»).
+2. Cambiar los **ajustes de todos**: tabla de Supabase `render_ajustes`, fila `proyecto = <proyecto>`, `clave = 'ajustes'`, columna `datos` (el JSON de abajo). Leer la fila, cambiar lo pedido y escribir el JSON entero: `PATCH /rest/v1/render_ajustes?proyecto=eq.lodosa&clave=eq.ajustes` con `{"datos": {...}, "autor": "Claude"}` (clave pública del visor). El render la relee cada 5 s: se ve al momento, sin publicar. Cada cambio guarda la versión anterior en `render_historial` (para deshacer: volver a escribir esa `datos`). Si no hay fila, vale `datos/<proyecto>/render/ajustes.json` (y se crea la fila con POST). Incorporar también los `materiales_cambiados` de la petición si van en la línea de lo pedido.
 3. Render de respuesta con el mismo encuadre: `node herramientas/render.js --captura <id> --publicado --muestras 500 --ancho 2400 --salida /tmp/render.jpg` (sirve el repositorio en local: no hace falta haber publicado; en el Mac va con la GPU). Subirlo a la conversación como imagen nueva (igual que los pantallazos) y contestar en una frase qué se ha cambiado.
-4. Publicar `datos/<proyecto>/render/` como el resto del visor.
+4. Solo si se han añadido archivos (texturas, objetos, fotos de fondo): publicar `datos/<proyecto>/render/` como el resto del visor (los ajustes no hace falta: están en Supabase). Las fotos de fondo del proyecto pueden ir también al almacén público «capturas» de Supabase.
 
 ## ajustes.json
 ```json
-{"estilo": "campagne|baukunst|bruther|arrhovfrick|banchini|kerez|volgiati|rolgiati|zumthor (referencia por defecto)",
+{"estilo": "campagne|baukunst|bruther|arrhovfrick|banchini|kerez|volgiati|rolgiati|zumthor|sanaa|shinohara|ishigami (referencia por defecto)",
  "luz": {"cielo": "nublado|sol|amanecer|atardecer", "sol": 0-360, "intensidad": 1, "exposicion": 1, "niebla": 0-1},
  "revelado": {"contraste": 1.04, "saturacion": 0.92, "grano": 0.25, "temperatura": -1..1},
  "materiales": {"<clave del material>": {
@@ -34,6 +34,19 @@ En «Pedir a Claude», Enrique (o un colaborador) escribe qué cambiar y añade 
 ## Referencias de Enrique
 Olivier Campagne (sus imágenes de concurso para Baukunst, Bruther y Arrhov Frick) y las fotos de las obras de esos estudios; Leopold Banchini, Christian Kerez, Valerio Olgiati, Rudolf Olgiati y Peter Zumthor: tipo de luz, de material y tonos. En el render son la lista «Referencia» (luz y revelado de partida, en `ESTILOS` de render.html). Las fotos de referencia, privadas, en Dropbox › «Referencias render» › <arquitecto> (no en este repositorio, que es público): mirarlas cuando la petición diga una referencia o pida «como X».
 
+## Añadir vegetación, muebles, personas y fondo
+La petición trae `anadir` (vegetacion, muebles, personas, fondo), `marcas` (`n`, `pos` en metros de la escena, Y arriba, `normal`, `sobre` = material tocado; salen numeradas en la imagen 1) y `lugar` (dirección o coordenadas, si pidió fondo). Si subió una foto de fondo, va como imagen «foto de fondo».
+- **Objetos** (`objetos` en los ajustes): `{"id", "nombre", "archivo", "pos": [x, y, z], "giro": grados, "alto": m, "escala", "tipo": "modelo|recorte", "mira": "camara", "modelo": id}`. `modelo` = archivo `.glb/.gltf/.obj` escaneado con sus materiales y texturas; `recorte` = PNG con transparencia (persona, árbol) de pie en `pos`, con `alto`, y `mira: "camara"` para ponerlo de frente al encuadre. Sin `modelo`, valen para los modelos del visor.
+- **De dónde**: CC0 escaneados de Poly Haven (polyhaven.com: plantas, muebles; glTF 1K–2K), ambientCG; personas escaneadas o recortes de licencia libre (p. ej. xoio-air, comprobando su licencia). Se descargan desde el Mac y van a `lib/render/biblioteca/<vegetacion|muebles|personas>/` (si son CC0 y sirven para otros proyectos) o a `datos/<proyecto>/render/objetos/`. Nada con derechos de terceros en el repositorio (es público).
+- **Escala y sitio**: un árbol de calle 6–10 m, arbusto 1–2 m, persona 1,65–1,85 m; apoyado en `pos` de la marca (y = la del suelo tocado). Un objeto no debe atravesar muros: comprobar con el modelo.
+- **Fondo** (`fondo` en los ajustes): `{"imagen": "ruta o URL", "suelo": false}`: la foto va detrás, el cielo elegido sigue iluminando; `suelo: true` deja el suelo del modelo delante (cuando la foto no lo trae). La foto tiene que estar hecha desde un punto parecido al encuadre (horizonte a la altura del ojo); si no hay foto del lugar, decirlo y no inventar el entorno (Enrique no quiere edificios inventados).
+
+## Referencias (Dropbox › «Referencias render»)
+- `Arquitectos/<nombre>`: fotos e imágenes de las referencias de la lista «Referencia» (Olivier Campagne, Arrhov Frick, Baukunst, Bruther, Leopold Banchini, Christian Kerez, Valerio Olgiati, Rudolf Olgiati, Peter Zumthor, SANAA, Kazuo Shinohara, Junya Ishigami).
+- `Proyectos/<proyecto>`: lo propio de cada encargo (materiales, el lugar, fotos del solar, la vegetación de allí); manda sobre lo general. Subcarpetas «fondo», «vegetación», «materiales», «muebles» si las hay.
+- Orden: carpeta del proyecto → carpeta de la referencia elegida (`referencia` en la petición) → imágenes de la petición. Son privadas: nunca al repositorio.
+
 ## Notas
 - El render del navegador no lee las texturas ni la luz de Vectorworks o Rhino: solo geometría, y el material por nombre o capa.
-- Lo que cada uno cambia en su navegador se guarda solo en ese navegador hasta que Claude lo pasa a `ajustes.json`.
+- Lo que cada uno cambia en su navegador se guarda solo en ese navegador hasta que pulsa «Dejar mis cambios para todos» o Claude lo pasa a los ajustes.
+- Que parezca una foto: luz y exposición de fotógrafo (lo hace el render), materiales y objetos escaneados de verdad (texturas fotográficas, nada procedural cuando el material importa), un fondo real del lugar y, al final, si hace falta, un paso de IA sobre el render (p. ej. Visoid, que ya usa Enrique) con el «Mapa de materiales» para que no cambie la arquitectura.

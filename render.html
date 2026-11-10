@@ -31,7 +31,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--f);font-size:var
 button,select,input,textarea{font-family:var(--f);font-size:var(--s-s);color:var(--ink)}
 .main{display:grid;grid-template-columns:1fr var(--panel);height:100%}
 .vista{position:relative;min-width:0;min-height:0;touch-action:none;overflow:hidden;user-select:none;-webkit-user-select:none}
-#c{position:absolute;display:block;cursor:grab;outline:0.5px solid var(--ink)}
+#c{position:absolute;display:block;cursor:grab;outline:0.5px solid var(--ink);background-size:cover;background-position:center}
 #c:active{cursor:grabbing}
 #grano{position:absolute;pointer-events:none;mix-blend-mode:overlay}
 .aspa{position:absolute;top:10px;right:10px;width:14px;height:14px;pointer-events:none}
@@ -84,6 +84,9 @@ textarea{width:100%;min-height:76px;border:0.5px solid var(--ink);background:tra
 .refs button{position:absolute;top:-1px;right:-1px;border:0;background:var(--paper);width:16px;height:16px;line-height:14px;padding:0;cursor:pointer}
 .toast{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:7px 12px;font-size:var(--s-s);max-width:80%;z-index:5}
 .drop::after{content:"Suelta aquí el modelo (Rhino .3dm, Vectorworks .glb/.obj/.fbx/.3ds/.dae)";position:absolute;inset:40px;display:grid;place-items:center;border:0.5px dashed var(--ink);background:var(--paper);font-weight:700}
+.marcas{position:absolute;inset:0;pointer-events:none}
+.marcas b{position:absolute;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--warn);color:#fff;font-size:10px;line-height:18px;text-align:center}
+body.marcando #c{cursor:crosshair}
 .cargando{position:absolute;inset:0;display:grid;place-items:center;font-weight:700;pointer-events:none}
 @media (max-width:820px){
   .main{grid-template-columns:1fr;grid-template-rows:62vh auto;height:auto;min-height:100%}
@@ -102,6 +105,7 @@ textarea{width:100%;min-height:76px;border:0.5px solid var(--ink);background:tra
     <div class="esq a"></div><div class="esq b"></div>
     <div class="rotulo" id="rotulo"></div>
     <div class="ayuda" id="ayuda">Arrastra: mirar · rueda o pellizco: avanzar · botón derecho o dos dedos: desplazarse · doble clic: ir ahí · toca una superficie: su material</div>
+    <div class="marcas" id="marcas"></div>
     <div class="cargando" id="cargando">Cargando…</div>
     <div class="toast" id="toast" hidden></div>
   </div>
@@ -149,7 +153,15 @@ textarea{width:100%;min-height:76px;border:0.5px solid var(--ink);background:tra
     </div>
     <div class="sec">
       <h3>Pedir a Claude</h3>
-      <textarea id="tPide" placeholder="Qué cambiar: «el zócalo, hormigón de tablilla más cálido, como en la foto»…"></textarea>
+      <div class="grupo" role="group" aria-label="Añadir a la vista">
+        <button class="btn" data-pide="vegetacion">Vegetación</button><button class="btn" data-pide="muebles">Muebles</button><button class="btn" data-pide="personas">Personas</button><button class="btn" data-pide="fondo">Fondo</button>
+      </div>
+      <div class="dos" style="margin-top:6px">
+        <button class="btn" id="bMarca" aria-pressed="false" title="Toca en la vista los sitios donde va lo que pides: salen numerados en la imagen que recibe Claude">Marcar sitios</button>
+        <button class="btn" id="bQuitaMarcas" disabled>Quitar marcas</button>
+      </div>
+      <input type="text" id="tLugar" class="ancho" placeholder="Lugar: dirección o coordenadas" hidden style="margin-top:6px;border:0.5px solid var(--ink);background:transparent;padding:5px 6px">
+      <textarea id="tPide" style="margin-top:6px" placeholder="Qué cambiar: «el zócalo, hormigón de tablilla más cálido, como en la foto»…"></textarea>
       <div class="refs" id="refs"></div>
       <div class="dos" style="margin-top:6px">
         <button class="btn" id="bRef">Añadir referencia</button>
@@ -182,7 +194,8 @@ textarea{width:100%;min-height:76px;border:0.5px solid var(--ink);background:tra
           <button class="btn" id="eOcultar" aria-pressed="false">Ocultar</button>
         </div>
       </div>
-      <p class="nota">Toca una superficie en la vista para elegir su material. Tus cambios se ven al momento y se guardan en este navegador; al mandar a Claude, los deja para todos.</p>
+      <button class="btn ancho" id="bParaTodos" style="margin-top:8px" disabled title="Publica tus cambios de materiales, luz, revelado y referencia: los verán todos al momento">Dejar mis cambios para todos</button>
+      <p class="nota">Toca una superficie en la vista para elegir su material. Tus cambios se ven al momento y se guardan en este navegador; con «Dejar mis cambios para todos» (o al mandarlos a Claude) quedan para todos.</p>
     </div>
     <div class="sec">
       <h3>Luz</h3>
@@ -193,6 +206,12 @@ textarea{width:100%;min-height:76px;border:0.5px solid var(--ink);background:tra
       <label class="campo">Intensidad<input type="range" id="rInt" min="0.2" max="3" step="0.05"><output id="oInt"></output></label>
       <label class="campo">Exposición<input type="range" id="rExp" min="0.2" max="3" step="0.05"><output id="oExp"></output></label>
       <label class="campo">Niebla<input type="range" id="rNie" min="0" max="1" step="0.05"><output id="oNie"></output></label>
+      <div class="dos" style="margin-top:6px">
+        <button class="btn" id="bFondo" title="Una foto del lugar detrás del edificio (la luz sigue saliendo del cielo elegido)">Foto de fondo…</button>
+        <button class="btn" id="bSinFondo" disabled>Quitar foto</button>
+      </div>
+      <div class="fila" id="filaSueloFondo" hidden><span class="chk"><input type="checkbox" id="cSueloFondo"> Suelo del modelo delante de la foto</span></div>
+      <input type="file" id="fFondo" accept="image/*" hidden>
     </div>
     <div class="sec">
       <h3>Revelado</h3>
@@ -241,12 +260,29 @@ const guardaLoc = () => { if (!noGuardar) ls(LKEY, LOC); };
 const LUZ0 = {cielo: "nublado", sol: 210, intensidad: 1, exposicion: 1, niebla: 0}, REV0 = {contraste: 1.04, saturacion: 0.92, grano: 0.25, temperatura: 0};
 const luz = () => Object.assign({}, LUZ0, AJ.luz, LOC.luz);
 const rev = () => Object.assign({}, REV0, AJ.revelado, LOC.revelado);
+// lo de todos vive en Supabase (render_ajustes: proyecto, clave «ajustes»; al momento y con historial para deshacer);
+// si aún no hay fila, el archivo datos/<proyecto>/render/ajustes.json
+let SB = null, AJversion = null;
+async function sb(metodo, ruta, cuerpo, extra) {
+  if (!SB) { try { SB = await (await fetch("notas.json", {cache: "no-store"})).json(); } catch (e) { SB = {}; } }
+  if (!SB.url) throw new Error("Sin base de datos");
+  const k = SB.anon || SB.clave, h = Object.assign({apikey: k, "Content-Type": "application/json"}, extra || {});
+  if (!/^sb_/.test(k)) h.Authorization = "Bearer " + k;
+  const r = await fetch(SB.url.replace(/\/$/, "") + "/rest/v1/" + ruta, {method: metodo, headers: h, body: cuerpo ? JSON.stringify(cuerpo) : undefined});
+  if (!r.ok) throw new Error("Base de datos: " + r.status + " " + (await r.text()).slice(0, 120));
+  const t = await r.text(); return t ? JSON.parse(t) : null;
+}
+const filaAj = "render_ajustes?proyecto=eq." + encodeURIComponent(PROY) + "&clave=eq.ajustes";
 async function leerAjustes(primera) {
-  let t;
-  try { const r = await fetch(BASE + "render/ajustes.json?t=" + Date.now(), {cache: "no-store"}); if (!r.ok) return; t = await r.text(); } catch (e) { return; }
+  let t = null;
+  try {
+    const v = await sb("GET", filaAj + "&select=version");
+    if (v && v[0]) { if (v[0].version === AJversion && !primera) return; const f = await sb("GET", filaAj + "&select=version,datos"); AJversion = f[0].version; t = JSON.stringify(f[0].datos); }
+  } catch (e) { /* sin conexión con la base de datos: el archivo */ }
+  if (t === null) try { const r = await fetch(BASE + "render/ajustes.json?t=" + Date.now(), {cache: "no-store"}); if (!r.ok) return; t = await r.text(); } catch (e) { return; }
   if (t === AJtexto) return;
   let N; try { N = JSON.parse(t); } catch (e) { return; }
-  const antes = AJ.materiales || {};
+  const antes = AJ.materiales || {}, objsAntes = AJ.objetos || [];
   AJ = Object.assign({materiales: {}, luz: {}, revelado: {}, encuadres: []}, N); AJtexto = t;
   if (primera) return;
   // lo que ha cambiado en lo publicado manda sobre lo de este navegador (Claude ya lo ha hecho suyo)
@@ -254,7 +290,8 @@ async function leerAjustes(primera) {
   for (const k of cambiados) delete LOC.materiales[k];
   guardaLoc();
   for (const k of Object.keys(MATS)) aplicaMaterial(k);
-  ponLuz(); ponRevelado(); pintaMats(); pintaEncuadres();
+  cargaFondoImg(); ponLuz(); ponRevelado(); pintaMats(); pintaEncuadres();
+  if (JSON.stringify(N.objetos || []) !== JSON.stringify(objsAntes)) { await ponObjetos(); visibilidad(); pintaCapas(); await rehaceEscena(); }
   if (pt) pt.updateMaterials();
   toast(cambiados.length ? "Materiales actualizados: " + cambiados.map(nombreMat).join(", ") : "Ajustes del render actualizados", 5000);
 }
@@ -410,7 +447,7 @@ function colorClave(k) { let h = 2166136261; for (const ch of k) h = Math.imul(h
 
 /* ---------------------------------------------------------------- escena */
 const canvas = $("c");
-const renderer = new THREE.WebGLRenderer({canvas, antialias: true, preserveDrawingBuffer: true, powerPreference: "high-performance"});
+const renderer = new THREE.WebGLRenderer({canvas, antialias: true, alpha: true, preserveDrawingBuffer: true, powerPreference: "high-performance"});
 renderer.toneMapping = THREE.AgXToneMapping;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 const scene = new THREE.Scene();
@@ -419,7 +456,7 @@ cam.filmGauge = 36; cam.rotation.order = "YXZ";
 const modelo = new THREE.Group(), apartado = new THREE.Group();   // lo oculto se aparta de la escena (así el render no lo cuenta)
 scene.add(modelo);
 let suelo = null, pt = null, cajaEdif = new THREE.Box3(), PLANTAS = [{id: "suelo", nombre: "Suelo", y: 0}];
-const GRUPOS = {muros: "Muros", forjados: "Forjados", cubiertas: "Cubiertas", carpinterias: "Carpinterías", estructura: "Estructura", techos: "Techos", barandillas: "Barandillas",
+const GRUPOS = {objetos: "Árboles, muebles y personas", muros: "Muros", forjados: "Forjados", cubiertas: "Cubiertas", carpinterias: "Carpinterías", estructura: "Estructura", techos: "Techos", barandillas: "Barandillas",
   mobiliario: "Mobiliario", recintos: "Recintos", piel: "Piel", revoco: "Revoco de fachada", alfeizares: "Alféizares", entorno: "Entorno", instalaciones: "Instalaciones", maqueta: "Maqueta"};
 const OCULTOS0 = {recintos: 1, instalaciones: 1};
 const gruposVis = {};
@@ -454,7 +491,7 @@ function malla(trozos, mat) {
   return new THREE.Mesh(g, mat);
 }
 function vacia() {
-  for (const g of [modelo, apartado]) { for (const m of [...g.children]) { g.remove(m); m.traverse(o => o.geometry && o.geometry.dispose()); } }
+  for (const g of [modelo, apartado]) { for (const m of [...g.children]) { g.remove(m); if (m !== objetos) m.traverse(o => o.geometry && o.geometry.dispose()); } }
   for (const k of Object.keys(gruposVis)) delete gruposVis[k];
 }
 // modelo del visor (BIM, impresión): mm, Z arriba → metros, Y arriba (x este, y arriba, z sur)
@@ -554,14 +591,17 @@ const CIELOS = {nublado: "aristea_wreck_puresky_2k.hdr", sol: "quarry_01_1k.hdr"
 const hdrs = {};
 // niebla: una caja grande de niebla alrededor del edificio (la luz se dispersa dentro: aire, lejanía, rayos de sol)
 // (no muy alta: hacia el cielo sale pronto y el cielo se queda claro; alrededor llega lo justo para que lo lejano se aclare)
-const niebla = new THREE.Mesh(new THREE.BoxGeometry(160, 40, 160), new FogVolumeMaterial({color: 0xf2f3f3, density: 0}));
+const niebla = new THREE.Mesh(new THREE.BoxGeometry(160, 40, 160), new FogVolumeMaterial({color: 0xf2f3f3}));
 niebla.position.y = 19.9; niebla.userData = {niebla: true};
 function colocaNiebla() { const c = (cajaEdif.isEmpty() ? new THREE.Box3().setFromObject(modelo) : cajaEdif).getCenter(new THREE.Vector3()); niebla.position.set(c.x, 19.9, c.z); }
 async function ponLuz() {
   const L = luz(), f = CIELOS[L.cielo] || CIELOS.nublado;
   if (!hdrs[f]) hdrs[f] = new HDRLoader().loadAsync("lib/render/hdri/" + f).then(t => { t.mapping = THREE.EquirectangularReflectionMapping; return t; });
   const t = await hdrs[f];
-  scene.environment = t; scene.background = t;
+  scene.environment = t; scene.background = fondoUrl() ? null : t;      // con foto de fondo, el cielo solo ilumina
+  canvas.style.backgroundImage = fondoUrl() ? "url(" + JSON.stringify(fondoUrl()) + ")" : "";
+  if (suelo) { const conSuelo = !fondoUrl() || fondoSuelo(); if (conSuelo && !LOC.ocultos.suelo && suelo.parent !== modelo) { modelo.add(suelo); if (pt) rehaceEscena(); } else if (!conSuelo && suelo.parent === modelo) { apartado.add(suelo); if (pt) rehaceEscena(); } }
+  $("bSinFondo").disabled = !fondoUrl(); $("filaSueloFondo").hidden = !fondoUrl(); $("cSueloFondo").checked = fondoSuelo();
   const r = THREE.MathUtils.degToRad(L.sol);
   scene.environmentRotation.set(0, r, 0); scene.backgroundRotation.set(0, r, 0);
   scene.environmentIntensity = L.intensidad; scene.backgroundIntensity = L.intensidad;
@@ -681,9 +721,9 @@ function mueveTeclas(dt) {
 const ray = new THREE.Raycaster();
 function rayo(e) {
   const r = canvas.getBoundingClientRect(), p = new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-  ray.setFromCamera(p, cam); return ray.intersectObjects(modelo.children, false)[0] || null;
+  ray.setFromCamera(p, cam); return ray.intersectObjects(modelo.children, true)[0] || null;
 }
-function elige(e) { const h = rayo(e); if (h && h.object.userData.m) { selMat = h.object.userData.m; pintaMats(); pintaEdit(); const b = document.querySelector('.mats button.on'); if (b) b.scrollIntoView({block: "nearest"}); toast(nombreMat(selMat), 1600); } }
+function elige(e) { if (marcando) { marca(e); return; } const h = rayo(e); if (h && h.object.userData.obj) { toast(h.object.userData.obj, 1600); return; } if (h && h.object.userData.m) { selMat = h.object.userData.m; pintaMats(); pintaEdit(); const b = document.querySelector('.mats button.on'); if (b) b.scrollIntoView({block: "nearest"}); toast(nombreMat(selMat), 1600); } }
 
 /* ---------------------------------------------------------------- render */
 let exportando = null, pausa = false, objetivoVista = 1000, modeloTitulo = "";
@@ -714,6 +754,7 @@ function bucle(t) {
     if (pt.samples >= exportando.n) terminaExport();
     return;
   }
+  if (marcas.length) pintaMarcas();
   if (!pausa && pt.samples < objetivoVista) pt.renderSample();
   $("nRender").textContent = pausa ? "Vista en pausa · " + Math.floor(pt.samples) + " muestras" : pt.samples < objetivoVista ? "Vista: " + Math.floor(pt.samples) + " muestras" : "Vista terminada (" + objetivoVista + " muestras)";
 }
@@ -741,7 +782,9 @@ function terminaExport(cancelado) {
 // revelado (contraste, saturación, grano) sobre los píxeles, igual que se ve en pantalla
 function revela(src, w, h) {
   const R = rev(), c = document.createElement("canvas"); c.width = w; c.height = h;
-  const x = c.getContext("2d"); x.drawImage(src, 0, 0, w, h);
+  const x = c.getContext("2d");
+  if (fondoImg && fondoImg.complete && fondoImg.naturalWidth) { const k = Math.max(w / fondoImg.naturalWidth, h / fondoImg.naturalHeight), fw = fondoImg.naturalWidth * k, fh = fondoImg.naturalHeight * k; x.drawImage(fondoImg, (w - fw) / 2, (h - fh) / 2, fw, fh); }
+  x.drawImage(src, 0, 0, w, h);
   const im = x.getImageData(0, 0, w, h), d = im.data, ct = R.contraste, sa = R.saturacion, gr = R.grano * 14, [kr, kg, kb] = tempK(R.temperatura || 0);
   let s = 12345;
   for (let i = 0; i < d.length; i += 4) {
@@ -837,6 +880,12 @@ const ESTILOS = {
     luz: {cielo: "sol", sol: 160, intensidad: 1.05, exposicion: 1, niebla: 0}, revelado: {contraste: 1.12, saturacion: 0.9, grano: 0.2, temperatura: 0}},
   zumthor: {nombre: "Peter Zumthor", nota: "Piedra, madera y hormigón apisonado; penumbra y luz rasante. Con saturación 0, el blanco y negro de las fotos de Hélène Binet.",
     luz: {cielo: "atardecer", sol: 250, intensidad: 0.9, exposicion: 0.85, niebla: 0.1}, revelado: {contraste: 1.1, saturacion: 0.75, grano: 0.45, temperatura: 0.15}},
+  sanaa: {nombre: "SANAA", nota: "Blanco, ligereza, vidrio y reflejos suaves; día claro y luminoso, sombras casi inexistentes, colores muy bajos.",
+    luz: {cielo: "nublado", sol: 200, intensidad: 1.1, exposicion: 1.35, niebla: 0.1}, revelado: {contraste: 0.9, saturacion: 0.72, grano: 0.12, temperatura: -0.1}},
+  shinohara: {nombre: "Kazuo Shinohara", nota: "Espacio abstracto y geometría pura; hormigón, madera, blanco. Fotos en blanco y negro, contrastadas y con grano.",
+    luz: {cielo: "sol", sol: 140, intensidad: 1, exposicion: 1, niebla: 0}, revelado: {contraste: 1.22, saturacion: 0.1, grano: 0.55, temperatura: 0}},
+  ishigami: {nombre: "Junya Ishigami", nota: "Estructura casi invisible, finura extrema, el paisaje y el aire como material; luz blanda y algo de bruma.",
+    luz: {cielo: "nublado", sol: 220, intensidad: 1.05, exposicion: 1.3, niebla: 0.3}, revelado: {contraste: 0.9, saturacion: 0.8, grano: 0.15, temperatura: -0.05}},
 };
 function pintaEstilos() {
   const s = $("selEstilo"), e = LOC.estilo || AJ.estilo || "";
@@ -849,6 +898,112 @@ $("selEstilo").onchange = e => {
   LOC.estilo = k || null; LOC.luz = E ? Object.assign({}, E.luz) : null; LOC.revelado = E ? Object.assign({}, E.revelado) : null;
   guardaLoc(); pintaEstilos(); ponLuz(); ponRevelado();
 };
+
+/* ---------------------------------------------------------------- fondo: foto del lugar detrás (la de este navegador o la publicada) */
+let fondoLocal = null, fondoImg = null, fondoArchivo = null;
+const fondoUrl = () => fondoLocal || (AJ.fondo && AJ.fondo.imagen) || null;
+const fondoSuelo = () => LOC.fondoSuelo ?? !!(AJ.fondo && AJ.fondo.suelo);
+function cargaFondoImg() { const u = fondoUrl(); if (!u) { fondoImg = null; return; } if (fondoImg && fondoImg.src.endsWith(u)) return; fondoImg = new Image(); fondoImg.crossOrigin = "anonymous"; fondoImg.src = u; }
+$("bFondo").onclick = () => $("fFondo").click();
+$("fFondo").onchange = e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; if (fondoLocal) URL.revokeObjectURL(fondoLocal); fondoLocal = URL.createObjectURL(f); fondoArchivo = f; cargaFondoImg(); ponLuz(); toast("Foto de fondo puesta (solo en este navegador; mándala a Claude para dejarla)", 5000); };
+$("bSinFondo").onclick = () => { if (fondoLocal) { URL.revokeObjectURL(fondoLocal); fondoLocal = null; fondoArchivo = null; } else if (AJ.fondo) AJ.fondo = null; cargaFondoImg(); ponLuz(); };
+$("cSueloFondo").onchange = e => { LOC.fondoSuelo = e.target.checked; guardaLoc(); ponLuz(); };
+
+/* ---------------------------------------------------------------- pedir: qué añadir y dónde (marcas numeradas en la vista) */
+const PIDE = {vegetacion: "Vegetación", muebles: "Muebles", personas: "Personas", fondo: "Fondo"};
+const pide = new Set(), marcas = [];
+let marcando = false;
+document.querySelectorAll("[data-pide]").forEach(b => b.onclick = () => {
+  const k = b.dataset.pide; if (pide.has(k)) pide.delete(k); else pide.add(k);
+  b.classList.toggle("on", pide.has(k)); $("tLugar").hidden = !pide.has("fondo");
+  const ej = {vegetacion: "«dos árboles de hoja caduca en la acera (marcas 1 y 2), sin hojas, invierno»", muebles: "«mesa larga de madera y sillas de Thonet en la cocina (marca 1)»", personas: "«una mujer en bici pasando por la calle, de espaldas»", fondo: "«el fondo como en las fotos: casas de Lodosa, huerta al fondo»"};
+  $("tPide").placeholder = pide.size ? "Qué y cómo: " + [...pide].map(x => ej[x]).join(" · ") : "Qué cambiar: «el zócalo, hormigón de tablilla más cálido, como en la foto»…";
+  if (pide.has(k) && k !== "fondo" && !marcas.length && !marcando) $("bMarca").click();
+});
+$("bMarca").onclick = () => { marcando = !marcando; $("bMarca").setAttribute("aria-pressed", marcando); document.body.classList.toggle("marcando", marcando); if (marcando) toast("Toca en la vista dónde va (cada toque, una marca numerada)", 3500); };
+$("bQuitaMarcas").onclick = () => { marcas.length = 0; pintaMarcas(); };
+function marca(e) {
+  const h = rayo(e); if (!h) { toast("Ahí no hay nada del modelo"); return; }
+  const n = h.face ? h.face.normal.clone().transformDirection(h.object.matrixWorld) : new THREE.Vector3(0, 1, 0);
+  marcas.push({n: marcas.length + 1, pos: h.point.toArray().map(v => +v.toFixed(3)), normal: n.toArray().map(v => +v.toFixed(3)), sobre: h.object.userData.m ? nombreMat(h.object.userData.m) : (h.object.userData.obj || "")});
+  pintaMarcas();
+}
+const proy = new THREE.Vector3();
+function pintaMarcas() {
+  const el = $("marcas"), r = canvas.getBoundingClientRect(), v = $("vista").getBoundingClientRect();
+  $("bQuitaMarcas").disabled = !marcas.length;
+  el.innerHTML = marcas.map(m => { proy.fromArray(m.pos).project(cam); if (proy.z > 1) return ""; const x = r.left - v.left + (proy.x + 1) / 2 * r.width, y = r.top - v.top + (1 - proy.y) / 2 * r.height; return '<b style="left:' + x + "px;top:" + y + 'px">' + m.n + "</b>"; }).join("");
+}
+// las marcas, dibujadas en la imagen que recibe Claude
+function dibujaMarcas(c) {
+  if (!marcas.length) return c;
+  const x = c.getContext("2d"), R = Math.max(10, c.width / 90);
+  for (const m of marcas) { proy.fromArray(m.pos).project(cam); if (proy.z > 1) continue; const px = (proy.x + 1) / 2 * c.width, py = (1 - proy.y) / 2 * c.height;
+    x.fillStyle = "#c8102e"; x.beginPath(); x.arc(px, py, R, 0, Math.PI * 2); x.fill(); x.fillStyle = "#fff"; x.font = "bold " + Math.round(R * 1.1) + "px Helvetica, Arial"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(String(m.n), px, py + 1); }
+  return c;
+}
+
+/* ---------------------------------------------------------------- objetos que pone Claude (ajustes.json › objetos): árboles, muebles, personas
+   modelo: .glb/.gltf/.obj escaneado (con sus materiales y texturas); recorte: foto PNG con transparencia, de pie, a su altura */
+const objetos = new THREE.Group(); objetos.userData = {g: "objetos"};
+const cacheObj = {};
+async function cargaUnObjeto(o) {
+  const url = o.archivo, ext = (url.split("?")[0].split(".").pop() || "").toLowerCase();
+  if (o.tipo === "recorte" || /^(png|webp|jpg|jpeg)$/.test(ext)) {
+    const t = await new THREE.TextureLoader().loadAsync(url); t.colorSpace = THREE.SRGBColorSpace;
+    const alto = o.alto || 1.75, ancho = alto * t.image.width / t.image.height;
+    const g = new THREE.PlaneGeometry(ancho, alto); g.translate(0, alto / 2, 0);
+    const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({map: t, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.9}));
+    const gr = new THREE.Group(); gr.add(m); return gr;
+  }
+  if (!cacheObj[url]) cacheObj[url] = (async () => {
+    if (ext === "obj") { const {OBJLoader} = await import("three/addons/loaders/OBJLoader.js"); return new OBJLoader().loadAsync(url); }
+    const {GLTFLoader} = await import("three/addons/loaders/GLTFLoader.js"); return (await new GLTFLoader().loadAsync(url)).scene;
+  })();
+  const base = await cacheObj[url], c = base.clone(true);
+  if (o.alto) { const b = new THREE.Box3().setFromObject(c), sz = b.getSize(new THREE.Vector3()); if (sz.y > 0) c.scale.multiplyScalar(o.alto / sz.y); }
+  return c;
+}
+async function ponObjetos() {
+  for (const ch of [...objetos.children]) objetos.remove(ch);
+  const L = (AJ.objetos || []).filter(o => !o.modelo ? !archivos[fuenteId()] : o.modelo === fuenteId());
+  if (!L.length) { if (objetos.parent) objetos.parent.remove(objetos); return; }
+  await Promise.all(L.map(async o => {
+    try {
+      const c = await cargaUnObjeto(o);
+      const w = new THREE.Group(); w.add(c);
+      w.position.fromArray(o.pos || [0, 0, 0]);
+      let giro = o.giro || 0;
+      if (o.mira === "camara" && C.pos) giro = Math.atan2(C.pos[0] - w.position.x, C.pos[2] - w.position.z) * 180 / Math.PI;
+      w.rotation.y = THREE.MathUtils.degToRad(giro); if (o.escala) w.scale.setScalar(o.escala);
+      w.traverse(x => { if (x.isMesh) { x.userData = {obj: o.nombre || o.id || "objeto"}; const ms = Array.isArray(x.material) ? x.material : [x.material]; for (const m of ms) if (m) m.side = THREE.DoubleSide; } });
+      objetos.add(w);
+    } catch (e) { console.warn("objeto", o, e); }
+  }));
+  if (gruposVis.objetos === undefined) gruposVis.objetos = true;
+  if (gruposVis.objetos) modelo.add(objetos); else apartado.add(objetos);
+}
+
+/* ---------------------------------------------------------------- dejar para todos: lo de este navegador pasa a render_ajustes */
+function hayPropios() { return Object.keys(LOC.materiales).length || LOC.luz || LOC.revelado || LOC.estilo; }
+function pintaParaTodos() { $("bParaTodos").disabled = !hayPropios() || noGuardar; }
+$("bParaTodos").onclick = async () => {
+  const N = JSON.parse(JSON.stringify(AJ)); N.materiales = N.materiales || {};
+  for (const [k, v] of Object.entries(LOC.materiales)) N.materiales[k] = Object.assign({}, N.materiales[k], v);
+  if (LOC.luz) N.luz = luz(); if (LOC.revelado) N.revelado = rev(); if (LOC.estilo !== undefined && LOC.estilo !== null) N.estilo = LOC.estilo;
+  N.fecha = new Date().toISOString().slice(0, 10);
+  const quien = (localStorage.getItem("visor.autor") || "").replace(/^"|"$/g, "") || "visor";
+  $("bParaTodos").disabled = true;
+  try {
+    if (AJversion === null) await sb("POST", "render_ajustes", {proyecto: PROY, clave: "ajustes", datos: N, autor: quien}, {Prefer: "resolution=merge-duplicates,return=minimal"});
+    else await sb("PATCH", filaAj, {datos: N, autor: quien}, {Prefer: "return=minimal"});
+    LOC.materiales = {}; LOC.luz = null; LOC.revelado = null; guardaLoc();
+    AJversion = -1; await leerAjustes(false); pintaMats(); pintaEdit(); ponLuz(); ponRevelado();
+    toast("Publicado: ya lo ven todos", 3500);
+  } catch (e) { toast(e.message, 6000); }
+  pintaParaTodos();
+};
+setInterval(pintaParaTodos, 1500);
 
 /* ---------------------------------------------------------------- panel: materiales */
 let selMat = null;
@@ -892,6 +1047,7 @@ $("eOcultar").onclick = async () => {
 };
 function visibilidad() {
   for (const m of [...modelo.children, ...apartado.children]) {
+    if (m === objetos && !objetos.children.length) continue;
     const g = m.userData.g, ver = gruposVis[g] !== false && !LOC.ocultos[m.userData.m];
     if (ver && m.parent !== modelo) modelo.add(m); else if (!ver && m.parent !== apartado) apartado.add(m);
   }
@@ -927,7 +1083,7 @@ async function cargaFuente(id) {
     $("selPlanta").innerHTML = PLANTAS.map(p => '<option value="' + p.id + '">' + p.nombre + "</option>").join("");
     if (!PLANTAS.some(p => p.id === C.planta)) C.planta = PLANTAS[0].id; $("selPlanta").value = C.planta;
     if (selMat && !usados().includes(selMat)) selMat = null;
-    colocaNiebla();
+    colocaNiebla(); await ponObjetos();
     visibilidad(); pintaCapas(); pintaMats(); pintaEdit(); pintaEncuadres(); encaja();
     await rehaceEscena();
   } catch (e) { $("cargando").textContent = e.message; throw e; }
@@ -1003,7 +1159,8 @@ $("tPide").addEventListener("paste", e => { const F = [...((e.clipboardData && e
 function estado() {
   return {para_claude: "Petición de la pestaña Render: ver herramientas/RENDER.md del visor", proyecto: PROY, modelo: fuenteId(), archivo: archivos[fuenteId()] ? archivos[fuenteId()].nombre : null, c: JSON.parse(JSON.stringify(C)),
     luz: luz(), revelado: rev(), materiales_cambiados: LOC.materiales, ocultos: LOC.ocultos, capas: Object.fromEntries(Object.entries(gruposVis)),
-    seleccionado: selMat, calidad: +$("rCal").value, referencia: LOC.estilo ? ESTILOS[LOC.estilo].nombre : null};
+    seleccionado: selMat, calidad: +$("rCal").value, referencia: LOC.estilo ? ESTILOS[LOC.estilo].nombre : null,
+    anadir: [...pide], marcas: marcas.slice(), lugar: pide.has("fondo") ? $("tLugar").value.trim() || null : null, fondo_propio: !!fondoLocal};
 }
 $("bPide").onclick = async () => {
   const t = $("tPide").value.trim();
@@ -1012,11 +1169,13 @@ $("bPide").onclick = async () => {
   try {
     const V = await visor();
     toast("Preparando la imagen…", 8000);
-    const vista = revela(canvas, canvas.width, canvas.height);
+    const vista = dibujaMarcas(revela(canvas, canvas.width, canvas.height));
     const img = await prepImg(vista, 2400), R = [];
+    if (fondoArchivo) R.push(Object.assign(await prepImg(fondoArchivo, 3000), {nombre: "foto de fondo"}));
     for (const r of refs) R.push(Object.assign(await prepImg(r.file, 2000), {nombre: r.nombre}));
-    const id = await V.pedir({texto: t, render: img, refs: R, estado: estado(), vista: "Render · " + modeloTitulo + " · " + Math.round(C.f) + " mm"});
-    $("tPide").value = ""; refs.splice(0).forEach(r => URL.revokeObjectURL(r.url)); pintaRefs();
+    const qu = [...pide].map(k => PIDE[k]).join(", ");
+    const id = await V.pedir({texto: (qu ? qu + ". " : "") + t + ($("tLugar").value.trim() && pide.has("fondo") ? "\nLugar: " + $("tLugar").value.trim() : ""), render: img, refs: R, estado: estado(), vista: "Render · " + modeloTitulo + " · " + Math.round(C.f) + " mm"});
+    $("tPide").value = ""; marcas.length = 0; pintaMarcas(); pide.clear(); document.querySelectorAll("[data-pide]").forEach(b => b.classList.remove("on")); $("tLugar").hidden = true; $("tLugar").value = ""; if (marcando) $("bMarca").click(); refs.splice(0).forEach(r => URL.revokeObjectURL(r.url)); pintaRefs();
     toast("Mandado a Claude: la conversación está en el Chat", 5000);
   } catch (e) { toast(e.message || String(e), 9000); }
   finally { $("bPide").disabled = false; }
@@ -1056,7 +1215,7 @@ function leeEstadoUrl() {
     if (Q.has("publicado")) LOC.materiales = {};
     noGuardar = true;
   }
-  ponRevelado(); pintaEstilos();
+  ponRevelado(); pintaEstilos(); cargaFondoImg();
   try { const r = await fetch(BASE + "indice.json?t=" + Date.now()); indice = await r.json(); } catch (e) { indice = {modelos: []}; }
   pintaModelos();
   const pedido = (E && E.modelo && !String(E.modelo).startsWith("archivo:") && E.modelo) || Q.get("m") || ls("render." + PROY + ".modelo") || indice.preferido || (indice.modelos[0] || {}).id;
@@ -1070,7 +1229,7 @@ function leeEstadoUrl() {
     const n = +Q.get("muestras") || 300, w = +Q.get("ancho") || 2400;
     const c = await empiezaExport({w, h: Math.round(w / C.aspect), n});
     window.__tam = {w: c.width, h: c.height}; window.__resultado = c.toDataURL("image/jpeg", 0.9); document.body.dataset.listo = "1";
-  } else setInterval(() => leerAjustes(false), 20000);
+  } else setInterval(() => leerAjustes(false), 5000);
 })();
 </script>
 </body>
