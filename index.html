@@ -313,9 +313,9 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
     <div class="barra">
     <div class="tabs" role="group" aria-label="Modo">
       <button id="tab3d" aria-pressed="true">3D</button>
-      <button id="tabDes" aria-pressed="false" title="El tablón del proyecto: lo que se va subiendo mientras se trabaja (planos, imágenes, esquemas) para comentarlo y dibujar encima entre todos; dentro, las láminas, memorias y mediciones definitivas">Tablón</button>
-      <button id="tabCap" aria-pressed="false" title="Conversaciones con Claude sobre capturas e imágenes">Chat</button>
-      <!-- (10-nov) el 2D se dibuja en el Editor; láminas, memorias y mediciones van dentro del Tablón -->
+      <button id="tabDes" aria-pressed="false" title="El tablón del proyecto: el Chat, donde se sube y se comenta lo que está en desarrollo (todos, también Claude), y las láminas, memorias y mediciones">Tablón</button>
+      <!-- (10-nov) el 2D se dibuja en el Editor; el Chat, las láminas, memorias y mediciones van dentro del Tablón -->
+      <button id="tabCap" aria-pressed="false" hidden>Chat</button>
       <button id="tab2d" aria-pressed="false" hidden>2D</button>
       <button id="tabLam" aria-pressed="false" hidden>Láminas</button>
       <button id="tabMem" aria-pressed="false" hidden>Memorias</button>
@@ -397,7 +397,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
     <iframe class="render-frame" id="fRender" title="Render" hidden></iframe>
     <aside class="panel" id="panel">
       <div class="subtabs" id="subTab" role="group" aria-label="Tablón" hidden>
-        <button data-sub="des" title="Lo que se va subiendo mientras se trabaja">Tablón</button><button data-sub="lam" title="Láminas definitivas (las publicadas desde Vectorworks y lo marcado como lámina en el tablón)">Láminas</button><button data-sub="mem">Memorias</button><button data-sub="datos">Mediciones</button>
+        <button data-sub="cap" title="Donde se sube y se comenta lo que está en desarrollo: todos, también Claude">Chat</button><button data-sub="lam" title="Láminas definitivas (las publicadas desde Vectorworks y lo marcado como lámina en el tablón)">Láminas</button><button data-sub="mem">Memorias</button><button data-sub="datos">Mediciones</button>
       </div>
       <div id="p3d">
         <div class="sec">
@@ -609,6 +609,8 @@ function toast(t, ms = 2600) { const el = $("toast"); el.textContent = t; el.hid
 // qué documento estaba abierto en cada pestaña (el Chat y el Tablón comparten mecanismo, pero cada uno recuerda el suyo)
 function claveDoc(t) { return "visor.doc." + (S.proyecto ? S.proyecto.id : "") + "." + (t === "capturas" && S.des ? "desarrollo" : t); }
 const enDes = () => S.modo === "cap" && !!S.des;
+// ¿este usuario manda a Claude? (con cuentas: administrador o con permiso; sin cuentas, como antes)
+const puedoClaude = () => { try { const y = Cuenta.yo(); if (y) return !!(y.admin || y.puede_claude); return !Cuenta.activa() || !!(window.visorAdmin && window.visorAdmin.es); } catch (e) { return true; } };
 const pieSubida = () => enDes() ? ". Dibuja encima y/o escribe para comentarlo" : ". Dibuja encima y/o escribe: le llega a Claude al publicar";
 function ls(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }
 const capP = {};
@@ -3128,16 +3130,16 @@ const Docs = (() => {
     return P.docs[t];
   }
   async function abrir(t) {
-    tipo = t; $("docsTit").textContent = {laminas: "Láminas", memorias: "Memorias", capturas: S.des ? "Tablón" : "Chat"}[t];
+    tipo = t; $("docsTit").textContent = {laminas: "Láminas", memorias: "Memorias", capturas: "Chat"}[t];
     const cap = t === "capturas", des = cap && !!S.des;
-    $("txtImportar").textContent = des ? "Subir plano o imagen" : "Importar imagen"; $("notaImportar").textContent = des ? "PDF o imagen; o arrástralo aquí, o pégalo (⌘V)" : "imagen o PDF; o arrástrala aquí, o pégala (⌘V)";
+    $("txtImportar").textContent = "Subir plano o imagen"; $("notaImportar").textContent = "PDF o imagen; o arrástralo aquí, o pégalo (⌘V)";
     $("secLote").hidden = false; Notas.pintaLotes();   // lotes también desde Láminas y Memorias (Enrique 28-oct)
     $("btnAbrirPdf").textContent = cap ? "Abrir la imagen" : "Abrir el PDF"; $("btnBorrarCap").hidden = true; $("secClaude").hidden = true; $("filaImportar").hidden = !cap; $("secNotas").classList.remove("cerrada");
-    $("notaDocs").textContent = des ? "El tablón del proyecto: lo que se tiene entre manos mientras se trabaja. Sube un plano (PDF), una imagen o un esquema y cualquiera con el visor puede dibujar encima con las herramientas de «Comentarios» y escribir al lado. No se manda a Claude salvo que lo pidas." : cap ? "Capturas de lo que se ve en 3D o 2D (botón de la cámara, arriba) o imágenes importadas. Marca encima con las herramientas de «Comentarios» y escribe al lado." : "«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.";
-    const L0 = await lista(t), L = cap ? L0.filter(d => !!d.des === des) : L0, el = $("listaDocs"); el.innerHTML = "";
+    $("notaDocs").textContent = cap ? "El chat del proyecto: lo que está en desarrollo. Sube un plano (PDF), una imagen, un esquema o una captura del 3D (botón de la cámara) y cualquiera dibuja encima con las herramientas de «Comentarios» y escribe al lado; con «Mandar a Claude» lo hace él." : "«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.";
+    const L0 = await lista(t), L = L0, el = $("listaDocs");      // (10-nov) un solo Chat: también lo que estaba «en desarrollo» el.innerHTML = "";
     if (!L.length) {
-      el.innerHTML = '<span class="nota">' + ({laminas: "Aún no hay láminas: se publican desde Vectorworks (las hojas del archivo, en PDF).", memorias: "Aún no hay memorias publicadas.", capturas: des ? "El tablón está vacío: sube un plano (PDF), una imagen o un esquema." : "Aún no hay conversaciones: en 3D o 2D pulsa el botón de la cámara, o importa una imagen."}[t]) + "</span>";
-      $("docsPag").innerHTML = '<div class="vacio-doc"><b>' + ({laminas: "Sin láminas", memorias: "Sin memorias", capturas: des ? "Nada en el tablón todavía" : "Sin conversaciones"}[t]) + "</b></div>"; $("btnAbrirPdf").hidden = true; return;
+      el.innerHTML = '<span class="nota">' + ({laminas: "Aún no hay láminas: se publican desde Vectorworks (las hojas del archivo, en PDF).", memorias: "Aún no hay memorias publicadas.", capturas: "Aún no hay conversaciones: sube un plano (PDF), una imagen o un esquema, o en 3D pulsa el botón de la cámara."}[t]) + "</span>";
+      $("docsPag").innerHTML = '<div class="vacio-doc"><b>' + ({laminas: "Sin láminas", memorias: "Sin memorias", capturas: "Sin conversaciones"}[t]) + "</b></div>"; $("btnAbrirPdf").hidden = true; return;
     }
     const res = cap ? L.filter(d => d.resuelta_por) : [], abiertas = L.filter(d => !res.includes(d));
     let grupo = null;
@@ -3173,7 +3175,7 @@ const Docs = (() => {
       pcb.onclick = async () => { const si = !d.para_claude; try { await Notas.marcarCaptura(d.archivo, si); d.para_claude = si; pon(); toast(si ? "Mandada a Claude" : "Quitada de lo pendiente de Claude", 3500); } catch (e) { toast(e.message, 10000); } };
       $("btnUnirCap").hidden = !!d.resuelta_por;
       $("btnUnirCap").onclick = async () => {
-        const L = ((await Notas.capturas()) || []).filter(c => c.archivo !== d.archivo && !c.resuelta_por && !!c.des === !!d.des);
+        const L = ((await Notas.capturas()) || []).filter(c => c.archivo !== d.archivo && !c.resuelta_por);
         if (!L.length) { toast("No hay otra conversación abierta"); return; }
         const v = await dialogo("<h3>Unir a «" + escH(d.titulo) + "»</h3>" +
           '<p class="nota">La conversación que elijas pasa al final de esta, con sus imágenes y mensajes (sus imágenes se numeran detrás de las de esta), y desaparece de la lista.</p>' +
@@ -3976,7 +3978,7 @@ const Notas = (() => {
       '<textarea class="filtro" rows="3" placeholder="' + escH(texto) + '"></textarea>' +
       (ambito === "capturas" && id === "compDoc" ? '<div class="adjs" data-adjs>' + adjuntos.map((a, i) => '<span class="adj"><img src="' + a.url + '" alt=""><button class="lnk" data-quita="' + i + '" aria-label="Quitar">×</button></span>').join("") + "</div>" : "") +
       '<div class="adjs" data-anx>' + htmlAnx(id) + "</div>" +
-      '<div class="fila"><button class="btn" data-guardar>Publicar</button><button class="btn" data-adj title="Imágenes (JPG, PNG…) o PDF con el mensaje; también se pueden arrastrar o pegar en el cuadro de texto">Adjuntar</button><input type="file" accept="image/*,.heic,.heif,application/pdf,.pdf" multiple hidden data-adjf>' + '<label class="chk pc-chk" title="' + (ambito === "capturas" && id === "compDoc" ? "Que le llegue ya a Claude (quítalo para dejarlo para un lote)" : "Que le llegue a Claude") + '"><input type="checkbox" data-pcn' + (ambito === "capturas" && S.des ? "" : " checked") + '> Mandar a Claude' + (ambito === "capturas" && id === "compDoc" ? " ya" : "") + "</label>" +
+      '<div class="fila"><button class="btn" data-guardar>Publicar</button><button class="btn" data-adj title="Imágenes (JPG, PNG…) o PDF con el mensaje; también se pueden arrastrar o pegar en el cuadro de texto">Adjuntar</button><input type="file" accept="image/*,.heic,.heif,application/pdf,.pdf" multiple hidden data-adjf>' + '<label class="chk pc-chk" title="' + (ambito === "capturas" && id === "compDoc" ? "Que le llegue ya a Claude (quítalo para dejarlo para un lote)" : "Que le llegue a Claude") + '"><input type="checkbox" data-pcn' + (ambito === "capturas" && (S.des || !puedoClaude()) ? "" : " checked") + '> Mandar a Claude' + (ambito === "capturas" && id === "compDoc" ? " ya" : "") + "</label>" +
       (pend ? '<button class="btn" data-cancelar>' + (pend.dibujo.t === "trazos" ? "Quitar el dibujo" : "Quitar la marca") + "</button>" : "") + "</div></div>";
   }
   function engancha(el, amb, doc) {
@@ -4118,7 +4120,7 @@ const Notas = (() => {
   };
   async function temasLote() {
     const caps = ((await capturas()) || []).filter(c => !c.resuelta_por), T = [];
-    for (const c of caps) T.push({t: "captura", id: c.archivo, titulo: c.titulo, grupo: c.des ? "Tablón" : "Chat", nuevo: novedad(deDoc("capturas", c.archivo)), mandado: c.para_claude});
+    for (const c of caps) T.push({t: "captura", id: c.archivo, titulo: c.titulo, grupo: "Chat", nuevo: novedad(deDoc("capturas", c.archivo)), mandado: c.para_claude});
     for (const n of (cache || []).filter(n => AMB[n.ambito] && !n.respuesta_a && !n.resuelto_por && !soloImagen(n) && !n.borrado)) {
       const hilo = [n].concat((cache || []).filter(x => x.respuesta_a === n.id));
       T.push({t: "nota", id: n.id, ambito: n.ambito, doc: n.doc || null, pagina: n.pagina || null, grupo: {laminas: "Láminas", memorias: "Memorias", mediciones: "Mediciones"}[n.ambito],
@@ -4159,7 +4161,7 @@ const Notas = (() => {
   }
   function abrirTema(t) {
     const P = proy();
-    if (t.t === "captura") { const c = (ultCaps || []).find(x => x.archivo === t.id); S.des = !!(c && c.des); ls(claveDoc("capturas"), t.id); if (S.modo === "cap") Docs.abrir("capturas"); else modo("cap"); return; }
+    if (t.t === "captura") { const c = (ultCaps || []).find(x => x.archivo === t.id); S.des = false; ls(claveDoc("capturas"), t.id); if (S.modo === "cap") Docs.abrir("capturas"); else modo("cap"); return; }
     ls("visor.doc." + P + "." + t.ambito, t.doc); focoPend = t.id;
     const m = {laminas: "lam", memorias: "mem", mediciones: "datos"}[t.ambito]; if (m) modo(m);
   }
@@ -4519,10 +4521,10 @@ function modo(m) {
   $("vista").hidden = ren; $("panel").hidden = ren; $("fRender").hidden = !ren; document.body.classList.toggle("modo-ren", ren);
   $("btnCaptura").hidden = !(m === "3d" || m === "2d");
   for (const [k_, id] of Object.entries(tabs)) $(id).setAttribute("aria-pressed", m === k_);
-  const enTablon = m === "lam" || m === "mem" || m === "datos" || (m === "cap" && !!S.des);
-  $("tabCap").setAttribute("aria-pressed", m === "cap" && !S.des); $("tabDes").setAttribute("aria-pressed", enTablon);
+  const enTablon = m === "lam" || m === "mem" || m === "datos" || m === "cap";
+  $("tabCap").setAttribute("aria-pressed", false); $("tabDes").setAttribute("aria-pressed", enTablon);
   $("subTab").hidden = !enTablon;
-  document.querySelectorAll("#subTab [data-sub]").forEach(b => b.classList.toggle("on", b.dataset.sub === (m === "cap" ? "des" : m)));
+  document.querySelectorAll("#subTab [data-sub]").forEach(b => b.classList.toggle("on", b.dataset.sub === m));
   { const tp = document.querySelector('.tabs [aria-pressed="true"]'); if (tp && tp.scrollIntoView && matchMedia("(max-width:820px)").matches) tp.scrollIntoView({block: "nearest", inline: "nearest"}); }   // en el móvil la fila de pestañas se desliza
   $("c3d").hidden = m !== "3d"; $("c2d").hidden = !plano; $("p3d").hidden = m !== "3d" && m !== "datos"; $("p2d").hidden = !plano; $("pDocs").hidden = !doc;
   $("tool2d").hidden = m !== "ed"; $("paleta").hidden = m !== "ed";
@@ -4532,7 +4534,7 @@ function modo(m) {
   $("selModelo").hidden = m !== "3d" && m !== "datos";
   $("rotulo").hidden = m !== "3d";
   document.querySelectorAll(".aspa,.esq").forEach(x => x.hidden = m === "datos" || doc);
-  const h = {"3d": "", "2d": "#2d", ed: "", ren: "#render", lam: "#laminas", mem: "#memorias", datos: "#datos", cap: S.des ? "#tablon" : "#capturas"}[m];
+  const h = {"3d": "", "2d": "#2d", ed: "", ren: "#render", lam: "#laminas", mem: "#memorias", datos: "#datos", cap: "#chat"}[m];
   if (!S.soloEditor) try { history.replaceState(null, "", h || location.pathname + location.search); } catch (e) { /* vista previa */ }
   $("btnVolver").hidden = !ren;     /* en el editor lo enseña el CSS */
   if (ren) { abrirRender(); return; }
@@ -4563,8 +4565,8 @@ window.visorRender = {pedir: o => Notas.pedidoRender(o), proyecto: () => S.proye
 // el editor va aparte: en la web, en otra pestaña del navegador; dentro de Claude, en la misma página con «Visor» para volver
 $("btnEditor").onclick = e => { if (window.claude) { e.preventDefault(); S.volverA = S.modo; modo("ed"); } };
 $("btnVolver").onclick = () => modo(S.volverA || "2d");
-$("tabLam").onclick = () => modo("lam"); $("tabMem").onclick = () => modo("mem"); $("tabDatos").onclick = () => modo("datos"); $("tabCap").onclick = () => { S.des = false; modo("cap"); }; $("tabDes").onclick = () => { S.des = true; modo("cap"); };
-document.querySelectorAll("#subTab [data-sub]").forEach(b => b.onclick = () => { const k = b.dataset.sub; if (k === "des") { S.des = true; modo("cap"); } else modo(k); });
+$("tabLam").onclick = () => modo("lam"); $("tabMem").onclick = () => modo("mem"); $("tabDatos").onclick = () => modo("datos"); $("tabCap").onclick = () => { S.des = false; modo("cap"); }; $("tabDes").onclick = () => { S.des = false; modo("cap"); };
+document.querySelectorAll("#subTab [data-sub]").forEach(b => b.onclick = () => { S.des = false; modo(b.dataset.sub); });
 $("btnVerTodo").onclick = () => V3.resaltar(null);
 $("selProyecto").onchange = e => elegirProyecto(e.target.value);
 $("selModelo").onchange = e => elegirModelo(e.target.value);
@@ -4696,7 +4698,7 @@ function dialogo(html, alAbrir) {
 // ¿dónde va una imagen nueva? a un tema nuevo o a la conversación de uno abierto
 async function elegirDestino(n) {
   const des = enDes();
-  const L = ((await Notas.capturas()) || []).filter(c => !c.resuelta_por && !!c.des === des);
+  const L = ((await Notas.capturas()) || []).filter(c => !c.resuelta_por);
   const act = S.modo === "cap" ? Docs.actualDoc() : null;
   return new Promise(ok => {
     const fondo = document.createElement("div"); fondo.className = "destino";
@@ -4723,7 +4725,7 @@ async function subirImagen(blob, meta, dest) {
 }
 // importar imágenes (pantallazos de Vectorworks, fotos…): se suben como capturas
 // una imagen (archivo, pantallazo pegado, foto) lista para subir: JPEG de 2400 px como mucho, sobre blanco
-async function prepImagen(f, max = enDes() ? 4000 : 2400) {
+async function prepImagen(f, max = 4000) {      // (10-nov) planos y esquemas: hasta 4000 px en el Chat
   const url = URL.createObjectURL(f), im = new Image();
   try { await new Promise((ok, ko) => { im.onload = ok; im.onerror = () => ko(new Error("No se puede leer la imagen " + (f.name || ""))); im.src = url; }); }
   finally { setTimeout(() => URL.revokeObjectURL(url), 0); }
@@ -4748,7 +4750,7 @@ const esPdf = f => f.type === "application/pdf" || /\.pdf$/i.test(f.name || "");
 async function importarImagenes(files) {
   const L = [...files].filter(f => esPdf(f) || /^image\//.test(f.type) || /\.(jpe?g|png|heic|heif|webp|gif|tiff?)$/i.test(f.name || ""));
   if (!L.length) { toast("Eso no es una imagen ni un PDF"); return; }
-  const des = enDes(), max = des ? 4000 : 2400, sinExt = f => (f.name || "").replace(/\.[^.]+$/, "").trim();
+  const des = enDes(), max = 4000, sinExt = f => (f.name || "").replace(/\.[^.]+$/, "").trim();
   // cada archivo da una o varias imágenes (un PDF, una por página)
   const T = [];
   for (const f of L) {
@@ -4841,8 +4843,7 @@ if (/[?&]v=/.test(location.search)) try { history.replaceState(null, "", locatio
   await cargarPublicado();
   if (Object.keys(S.proyectos).length) rellenarProyectos(); else $("vacio").hidden = false;
   rotulo();
-  const hs = {"#2d": "2d", "#plano": "2d", "#render": "ren", "#editor": "ed", "#laminas": "lam", "#memorias": "mem", "#datos": "datos", "#capturas": "cap", "#desarrollo": "cap", "#tablon": "cap"}[location.hash];
-  if (location.hash === "#desarrollo" || location.hash === "#tablon") S.des = true;
+  const hs = {"#2d": "2d", "#plano": "2d", "#render": "ren", "#editor": "ed", "#laminas": "lam", "#memorias": "mem", "#datos": "datos", "#capturas": "cap", "#desarrollo": "cap", "#tablon": "cap", "#chat": "cap"}[location.hash];
   S.soloEditor = /(^|[?&])editor\b/.test(location.search) || hs === "ed";
   if (S.soloEditor) { document.body.classList.add("solo-editor"); document.title = "Editor arrova"; $("marcaSub").textContent = "· editor"; }
   // quien solo puede ver la página en claude.ai (p. ej. el aparejador) no tiene el editor; en la web pública sí
