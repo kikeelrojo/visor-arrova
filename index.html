@@ -45,6 +45,7 @@ header .marca span{font-weight:400}
 .tabs button{border:0.5px solid var(--ink);background:transparent;padding:0 12px;height:26px;min-width:40px;font-weight:700;cursor:pointer}
 .tabs button+button{border-left:0}
 .tabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.tabs.tipos button{font-weight:400;padding:0 9px}
 .subtabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;margin:0 0 6px}
 .subtabs button{border:0.5px solid var(--ink);background:transparent;padding:0 4px;height:24px;font-size:var(--s-s);cursor:pointer}
 .subtabs button+button{border-left:0}
@@ -134,8 +135,7 @@ table.med td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
 .attr select{min-width:0;width:100%}
 .attr input[type=color]{width:34px;height:22px;border:0.5px solid var(--ink);padding:0;background:none}
 .attr input[type=range]{accent-color:var(--ink)}
-.solo-editor .tabs,.solo-editor #selModelo,.solo-editor #btnEditor,.editor .tabs,.editor #selModelo,.editor #btnEditor{display:none!important}
-.editor:not(.solo-editor) #btnVolver{display:inline-block!important}
+.solo-editor .tabs,.solo-editor #selModelo,.solo-editor #tipoModelo,.solo-editor #btnEditor{display:none!important}
 .lcap{display:grid;gap:2px;font-size:var(--s-s);max-height:260px;overflow-y:auto}
 .lcap .lin{display:flex;align-items:center;gap:6px;min-width:0;padding:1px 0}
 .lcap .lin .chk{min-width:0;flex:1}
@@ -312,9 +312,11 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
     <div class="marca">arrova <span id="marcaSub">· visor</span></div>
     <div class="barra">
     <div class="tabs" role="group" aria-label="Modo">
-      <button id="tab3d" aria-pressed="true">3D</button>
+      <button id="tab3d" aria-pressed="true" title="El modelo en 3D: la maqueta o el BIM">Visor 3D</button>
+      <button id="tabEd" aria-pressed="false" title="Los planos: dibujar y corregir en 2D">Editor 2D</button>
+      <button id="tabRen" aria-pressed="false" title="Imágenes del proyecto: punto de vista con su focal, verticales rectas, materiales y luz; los cambios se piden a Claude">Editor de imágenes</button>
       <button id="tabDes" aria-pressed="false" title="El tablón del proyecto: el Chat, donde se sube y se comenta lo que está en desarrollo (todos, también Claude), y las láminas, memorias y mediciones">Tablón</button>
-      <!-- (10-nov) el 2D se dibuja en el Editor; el Chat, las láminas, memorias y mediciones van dentro del Tablón -->
+      <!-- (10-nov) pestañas Visor 3D · Editor 2D · Editor de imágenes · Tablón (el Chat, las láminas, memorias y mediciones van dentro del Tablón) -->
       <button id="tabCap" aria-pressed="false" hidden>Chat</button>
       <button id="tab2d" aria-pressed="false" hidden>2D</button>
       <button id="tabLam" aria-pressed="false" hidden>Láminas</button>
@@ -324,14 +326,15 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
     <button class="btn ico" id="btnRefrescar" title="Actualizar: carga la última versión publicada" aria-label="Actualizar"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16.2 10.6A6.2 6.2 0 1 1 14.4 5.6M14.9 2.6v3.4h-3.4"/></svg></button>
     <button class="btn ico" id="btnCaptura" title="Captura de lo que se ve, para marcar encima y comentar" aria-label="Captura"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 6.5h3l1.5-2h6l1.5 2h3v9h-15z"/><circle cx="10" cy="11" r="3"/></svg></button>
     <select id="selProyecto" aria-label="Proyecto"></select>
+    <div class="tabs tipos" id="tipoModelo" role="group" aria-label="Qué modelo" hidden><button data-t="maqueta" aria-pressed="false" title="El modelo sencillo, el de la maqueta">Maqueta</button><button data-t="bim" aria-pressed="false" title="El modelo BIM, con sus elementos y mediciones">BIM</button></div>
     <select id="selModelo" aria-label="Modelo"></select>
     <div class="estado" id="estado"></div>
     <div class="sp"></div>
     <button class="btn panel-toggle" id="btnPanel">Panel</button>
     </div>
     <div class="acciones">
-    <a class="btn rojo" id="btnEditor" href="?editor" target="_blank" rel="noopener" title="El editor de planos, aparte del visor">Editor ↗</a>
-    <a class="btn" id="btnRender" href="render.html" target="arrova-render" title="Render fotográfico, aparte del visor: punto de vista con su focal, verticales rectas, materiales y luz; los cambios se piden a Claude">Render ↗</a>
+    <a class="btn" id="btnEditor" href="?editor" target="_blank" rel="noopener" title="El Editor 2D en otra ventana del navegador" hidden>Aparte ↗</a>
+    <a class="btn" id="btnRender" href="render.html" target="arrova-render" title="El Editor de imágenes en otra ventana del navegador" hidden>Aparte ↗</a>
     <button class="btn" id="btnVolver" hidden title="Volver al visor">Visor</button>
     <button class="btn" id="btnAbrir" title="Abrir los archivos del visor desde iCloud o del ordenador">Abrir…</button>
     <button class="btn" id="btnCuenta" hidden title="Tu cuenta en el visor"></button>
@@ -690,16 +693,42 @@ function rellenarProyectos(sel) {
   elegirProyecto(s.value);
 }
 
+// (10-nov) en el Visor 3D se elige Maqueta o BIM; el desplegable solo sale si de ese tipo hay más de un modelo
+const tipoDe = id => /^bim/.test(id || "") ? "bim" : "maqueta";
+function opcionesModelo(tipo, sel) {
+  const s = $("selModelo"); s.innerHTML = "";
+  const M = S.proyecto ? S.proyecto.indice.modelos : [], L = M.filter(m => tipoDe(m.id) === tipo);
+  for (const m of L) { const o = document.createElement("option"); o.value = m.id; o.textContent = m.titulo; s.appendChild(o); }
+  if (sel) s.value = sel;
+  s.dataset.uno = L.length < 2 ? "1" : "";
+  $("tipoModelo").dataset.ambos = new Set(M.map(m => tipoDe(m.id))).size > 1 ? "1" : "";
+  document.querySelectorAll("#tipoModelo [data-t]").forEach(b => b.setAttribute("aria-pressed", b.dataset.t === tipo));
+  visModelo();
+}
+function visModelo() {
+  const v = S.modo === "3d" || S.modo === "datos";
+  $("selModelo").hidden = !v || $("selModelo").dataset.uno === "1";
+  $("tipoModelo").hidden = !v || $("tipoModelo").dataset.ambos !== "1";
+}
+document.querySelectorAll("#tipoModelo [data-t]").forEach(b => b.onclick = () => {
+  if (!S.proyecto) return; const t = b.dataset.t, M = S.proyecto.indice.modelos;
+  const ult = ls("visor.modelo." + S.proyecto.id + "." + t), m = M.find(x => x.id === ult && tipoDe(x.id) === t) || M.find(x => tipoDe(x.id) === t);
+  if (!m || m.id === $("selModelo").value) return;
+  opcionesModelo(t, m.id); elegirModelo(m.id);
+});
+
 async function elegirProyecto(id) {
   S.proyecto = S.proyectos[id] || null;
   const s = $("selModelo"); s.innerHTML = "";
-  if (!S.proyecto) { $("vacio").hidden = false; return; }
-  for (const m of S.proyecto.indice.modelos) { const o = document.createElement("option"); o.value = m.id; o.textContent = m.titulo; s.appendChild(o); }
+  if (!S.proyecto) { $("vacio").hidden = false; $("tipoModelo").hidden = true; return; }
+  const M = S.proyecto.indice.modelos, hay = x => x && S.proyecto.modelos[x];
   const pref = S.camaraUrl && S.camaraUrl.m ? S.camaraUrl.m : ls("visor.modelo." + id), nuevo = S.camaraUrl ? null : S.proyecto.indice.preferido;
-  const bim1 = S.proyecto.indice.modelos.find(m => m.id.startsWith("bim"));
-  if (nuevo && S.proyecto.modelos[nuevo] && ls("visor.preferido." + id) !== nuevo) { s.value = nuevo; ls("visor.preferido." + id, nuevo); }
-  else if (pref && S.proyecto.modelos[pref]) s.value = pref;
-  else if (bim1) s.value = bim1.id;
+  const bim1 = M.find(m => m.id.startsWith("bim"));
+  let el = M[0] ? M[0].id : "";
+  if (hay(nuevo) && ls("visor.preferido." + id) !== nuevo) { el = nuevo; ls("visor.preferido." + id, nuevo); }
+  else if (hay(pref)) el = pref;
+  else if (bim1) el = bim1.id;
+  opcionesModelo(tipoDe(el), el);
   await elegirModelo(s.value);
   if (S.modo === "2d" || S.modo === "ed") await abrir2d();
   if (S.modo === "lam" || S.modo === "mem" || S.modo === "cap") Docs.abrir({lam: "laminas", mem: "memorias", cap: "capturas"}[S.modo]);
@@ -707,7 +736,7 @@ async function elegirProyecto(id) {
 
 async function elegirModelo(id) {
   if (!S.proyecto || !id) { $("vacio").hidden = S.modo !== "3d" ? true : false; return; }
-  ls("visor.modelo." + S.proyecto.id, id);
+  ls("visor.modelo." + S.proyecto.id, id); ls("visor.modelo." + S.proyecto.id + "." + tipoDe(id), id);
   $("estado").textContent = "Cargando…";
   try {
     const D = await obtener(S.proyecto.modelos[id]);
@@ -4548,6 +4577,9 @@ function modo(m) {
   $("vista").hidden = ren; $("panel").hidden = ren; $("fRender").hidden = !ren; document.body.classList.toggle("modo-ren", ren);
   $("btnCaptura").hidden = !(m === "3d" || m === "2d");
   for (const [k_, id] of Object.entries(tabs)) $(id).setAttribute("aria-pressed", m === k_);
+  $("tabEd").setAttribute("aria-pressed", m === "ed" || m === "2d"); $("tabRen").setAttribute("aria-pressed", ren);
+  // «Aparte ↗»: el editor que se está viendo, en otra ventana del navegador (dentro de la app de Claude no hay ventanas)
+  $("btnEditor").hidden = m !== "ed" || !!window.claude || !!S.soloVer; $("btnRender").hidden = !ren || !!window.claude;
   const enTablon = m === "lam" || m === "mem" || m === "datos" || m === "cap";
   $("tabCap").setAttribute("aria-pressed", false); $("tabDes").setAttribute("aria-pressed", enTablon);
   $("subTab").hidden = !enTablon;
@@ -4558,12 +4590,12 @@ function modo(m) {
   document.querySelectorAll(".ed-only").forEach(x => x.hidden = m !== "ed");
   document.body.classList.toggle("modo-ed", m === "ed");
   $("datos").hidden = m !== "datos"; $("docs").hidden = !doc;
-  $("selModelo").hidden = m !== "3d" && m !== "datos";
+  visModelo();
   $("rotulo").hidden = m !== "3d";
   document.querySelectorAll(".aspa,.esq").forEach(x => x.hidden = m === "datos" || doc);
-  const h = {"3d": "", "2d": "#2d", ed: "", ren: "#render", lam: "#laminas", mem: "#memorias", datos: "#datos", cap: "#chat"}[m];
+  const h = {"3d": "", "2d": "#2d", ed: "#dibujo", ren: "#render", lam: "#laminas", mem: "#memorias", datos: "#datos", cap: "#chat"}[m];
   if (!S.soloEditor) try { history.replaceState(null, "", h || location.pathname + location.search); } catch (e) { /* vista previa */ }
-  $("btnVolver").hidden = !ren;     /* en el editor lo enseña el CSS */
+  $("btnVolver").hidden = true;     /* (10-nov) ya no hace falta: el Editor 2D y el de imágenes son pestañas */
   if (ren) { abrirRender(); return; }
   if (m === "datos") { Datos.refrescar(); return; }
   if (doc) { $("vacio").hidden = true; Docs.abrir({lam: "laminas", mem: "memorias", cap: "capturas"}[m]); return; }
@@ -4576,10 +4608,11 @@ let ventanaRender = null;
 $("btnRender").onclick = e => {
   e.preventDefault();
   const url = "render.html?p=" + encodeURIComponent(S.proyecto ? S.proyecto.id : "");
-  if (window.claude) { S.volverA = S.modo; modo("ren"); return; }
   try { if (ventanaRender && !ventanaRender.closed && ventanaRender.location.href.endsWith(url)) { ventanaRender.focus(); return; } } catch (err) { /* cerrada */ }
   ventanaRender = window.open(url, "arrova-render");
-  if (!ventanaRender) { S.volverA = S.modo; modo("ren"); }        // ventanas emergentes bloqueadas: dentro del visor
+  if (!ventanaRender) { toast("El navegador no deja abrir otra ventana: sigue aquí", 4000); return; }
+  // abierto aparte: el de esta página se cierra, para no tener dos renders a la vez gastando la tarjeta gráfica
+  const f = $("fRender"); f.dataset.src = ""; f.src = "about:blank"; modo(S.ultVista || "3d");
 };
 // en esta página (dentro de Claude, o con #render en la dirección): se carga la primera vez
 function abrirRender() {
@@ -4590,7 +4623,7 @@ function abrirRender() {
 // lo que el render manda a Claude: la vista, lo escrito y las imágenes de referencia, como una conversación nueva del Chat
 window.visorRender = {pedir: o => Notas.pedidoRender(o), proyecto: () => S.proyecto ? S.proyecto.id : null};
 // el editor va aparte: en la web, en otra pestaña del navegador; dentro de Claude, en la misma página con «Visor» para volver
-$("btnEditor").onclick = e => { if (window.claude) { e.preventDefault(); S.volverA = S.modo; modo("ed"); } };
+$("tabEd").onclick = () => modo("ed"); $("tabRen").onclick = () => modo("ren");
 $("btnVolver").onclick = () => modo(S.volverA || "2d");
 $("tabLam").onclick = () => modo("lam"); $("tabMem").onclick = () => modo("mem"); $("tabDatos").onclick = () => modo("datos"); $("tabCap").onclick = () => { S.des = false; modo("cap"); }; $("tabDes").onclick = () => { S.des = false; modo("cap"); };
 document.querySelectorAll("#subTab [data-sub]").forEach(b => b.onclick = () => { S.des = false; modo(b.dataset.sub); });
@@ -4870,14 +4903,15 @@ if (/[?&]v=/.test(location.search)) try { history.replaceState(null, "", locatio
   await cargarPublicado();
   if (Object.keys(S.proyectos).length) rellenarProyectos(); else $("vacio").hidden = false;
   rotulo();
-  const hs = {"#2d": "2d", "#plano": "2d", "#render": "ren", "#editor": "ed", "#laminas": "lam", "#memorias": "mem", "#datos": "datos", "#capturas": "cap", "#desarrollo": "cap", "#tablon": "cap", "#chat": "cap"}[location.hash];
+  let hs = {"#2d": "2d", "#plano": "2d", "#render": "ren", "#imagenes": "ren", "#editor": "ed", "#dibujo": "ed2", "#laminas": "lam", "#memorias": "mem", "#datos": "datos", "#capturas": "cap", "#desarrollo": "cap", "#tablon": "cap", "#chat": "cap"}[location.hash];
   S.soloEditor = /(^|[?&])editor\b/.test(location.search) || hs === "ed";
+  if (hs === "ed2") hs = "ed";
   if (S.soloEditor) { document.body.classList.add("solo-editor"); document.title = "Editor arrova"; $("marcaSub").textContent = "· editor"; }
   // quien solo puede ver la página en claude.ai (p. ej. el aparejador) no tiene el editor; en la web pública sí
   // (sus cambios salen como archivo, que solo recoge el Mac de Enrique)
   const u = await cap("user");
-  if (u && u.canEdit && !u.canEdit()) { S.soloVer = true; $("btnEditor").hidden = true; }
-  if (S.soloEditor && !S.soloVer) modo("ed"); else if (hs && hs !== "ed") modo(hs);
+  if (u && u.canEdit && !u.canEdit()) { S.soloVer = true; $("btnEditor").hidden = true; $("tabEd").textContent = "Planos 2D"; }
+  if (S.soloEditor && !S.soloVer) modo("ed"); else if (hs && !(hs === "ed" && S.soloEditor)) modo(hs);
   if (S.restaura && (S.restaura.panel || S.restaura.ws)) { const pa = $("panel"), y = S.restaura.panel || 0, w = S.restaura.ws || 0;
     const f = () => { if (y && pa.scrollTop < 5) pa.scrollTop = y; if (w && window.scrollY < 5) window.scrollTo(0, w); }; setTimeout(f, 400); setTimeout(f, 1500); }
 })();
