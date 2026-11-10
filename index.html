@@ -60,7 +60,7 @@ header .marca span{font-weight:400}
 .llam-t .ini{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px}
 .llam-t .nom{position:absolute;left:0;bottom:0;max-width:100%;padding:1px 4px;background:var(--paper);font-size:var(--s-xs);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .llam-t .aviso{position:absolute;left:0;right:0;top:0;padding:2px 4px;background:var(--paper);font-size:var(--s-xs);color:var(--warn)}
-.llam-ctl{display:flex;gap:4px;flex-wrap:wrap}.llam-ctl .btn[aria-pressed="false"]{text-decoration:line-through}
+.llam-ctl{display:flex;gap:4px;flex-wrap:wrap}.llam-est{font-size:var(--s-xs);margin:0 0 6px;max-width:460px}.llam-ctl .btn[aria-pressed="false"]{text-decoration:line-through}
 header .sp{flex:1}
 header select{max-width:220px}
 .estado{font-size:var(--s-xs);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
@@ -269,6 +269,10 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
 .estilo-nota{display:grid;grid-template-columns:auto repeat(3,1fr);gap:4px;align-items:center}.estilo-nota[hidden]{display:none}.estilo-nota .nota{margin:0 4px 0 0}.estilo-nota .btn{width:100%;margin:0}
 .estilo-nota .btn{padding:3px 4px;line-height:0}.estilo-nota svg{width:24px;height:12px;fill:none;stroke:currentColor}
 .estilo-nota .btn.on{background:var(--ink);color:var(--paper)}
+/* capas por persona (10-nov): enciende y apaga lo dibujado por cada uno */
+.capas{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:6px 0}.capas .nota{margin:0 4px 0 0}
+.capas button{display:inline-flex;align-items:center;gap:5px;border:0.5px solid var(--ink);background:transparent;padding:2px 6px;font-size:var(--s-xs);cursor:pointer}
+.capas button i{width:9px;height:9px;display:inline-block}.capas button[aria-pressed="false"]{text-decoration:line-through;opacity:.55}.capas button[aria-pressed="false"] i{background:transparent!important;outline:0.5px solid var(--ink)}
 .marcas .tz{fill:none;stroke-linecap:round;stroke-linejoin:round}.marcas .tz.prov{opacity:.85}.marcas .quien{font-weight:700;pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:.25em}
 #notasHerr{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}#notasHerr .btn{width:100%;margin:0}
 #notasHerr .btn.on{background:var(--ink);color:var(--paper)}
@@ -409,7 +413,8 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
       <div class="toast" id="toast" hidden></div>
       <div class="llamada" id="llamada" hidden>
         <div class="llam-tiles" id="llamTiles"></div>
-        <div class="llam-ctl"><button class="btn" id="llamMic" aria-pressed="true">Micro</button><button class="btn" id="llamCam" aria-pressed="true">Cámara</button><button class="btn" id="llamVer" aria-pressed="true" title="Ocultar o enseñar los vídeos (la voz sigue)">Vídeos</button><button class="btn rojo" id="llamSalir">Colgar</button></div>
+        <div class="llam-est" id="llamEst" hidden></div>
+        <div class="llam-ctl"><button class="btn" id="llamMic" aria-pressed="true">Micro</button><button class="btn" id="llamCam" aria-pressed="true">Cámara</button><button class="btn" id="llamVer" aria-pressed="true" title="Ocultar o enseñar los vídeos (la voz sigue)">Vídeos</button><button class="btn" id="llamTx" aria-pressed="true" title="Lo que dices se pasa a texto en tu dispositivo para el resumen al colgar (no se graba audio)">Texto</button><button class="btn rojo" id="llamSalir">Colgar</button></div>
       </div>
     </div>
     <iframe class="render-frame" id="fRender" title="Render" hidden></iframe>
@@ -597,6 +602,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
             <button class="btn" data-nh="flecha" title="Flecha: de dónde a dónde">Flecha</button>
             <button class="btn" data-nh="nota" title="Un punto en la página">Nota</button>
           </div>
+          <div class="capas" id="notasCapas" hidden></div>
           <div class="fila estilo-nota" id="notasEstilo" hidden>
             <span class="nota">Grosor</span>
             <button class="btn" data-gr="1.2" aria-label="Fino"><svg viewBox="0 0 24 12"><path d="M3 6h18" stroke-width="1"/></svg></button>
@@ -4328,6 +4334,24 @@ const Notas = (() => {
   const dSeg = (p, a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy; const t = L ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L)) : 0; return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy); };
   const dashDe = (l, w) => l === "d" ? (3.2 * w) + " " + (2.6 * w) : l === "p" ? "0 " + (2.4 * w) : null;
   const primerPunto = dib => !dib ? [0, 0] : dib.t === "trazos" ? ((dib.s[0] || {}).q || [[[0, 0]]])[0][0] : dib.t === "rect" ? [Math.min(dib.p[0][0], dib.p[1][0]), Math.min(dib.p[0][1], dib.p[1][1])] : dib.p[0];
+  /* ---------- capas por persona (Enrique 10-nov): cada uno puede encender y apagar lo dibujado por cada autor (también lo que
+     está dibujando ahora mismo). Se recuerda en este navegador. */
+  const ocultas = new Set(ls("visor.capas.ocultas") || []);
+  function pintaCapas() {
+    const el = $("notasCapas"); if (!el) return;
+    const A = new Set(deDoc(ambito, docAct).filter(x => x.dibujo && !x.respuesta_a && !x.resuelto_por).map(x => x.autor || ""));
+    try { for (const a of Directo.deAqui(null, true)) A.add(a.autor || ""); } catch (e) { /* aún arrancando */ }
+    const L = [...A].sort((a, b) => a.localeCompare(b, "es"));
+    el.hidden = ambito === "mediciones" || !L.length;
+    if (el.hidden) { el.innerHTML = ""; return; }
+    const firma = L.join("|") + "#" + [...ocultas].join("|");
+    if (el.dataset.f === firma) return; el.dataset.f = firma;
+    el.innerHTML = '<span class="nota">Capas</span>' + L.map(a => '<button data-capa="' + escH(a) + '" aria-pressed="' + !ocultas.has(a) + '" title="Enciende o apaga lo dibujado por ' + escH(a || "sin nombre") + '"><i style="background:' + colorDe(a) + '"></i>' + escH(a || "Sin nombre") + "</button>").join("");
+    el.querySelectorAll("[data-capa]").forEach(b => b.onclick = () => {
+      const a = b.dataset.capa; if (ocultas.has(a)) ocultas.delete(a); else ocultas.add(a);
+      ls("visor.capas.ocultas", [...ocultas]); pintaCapas(); for (const k of paginas.keys()) marcas(k);
+    });
+  }
   function marcas(n) {
     const P = paginas.get(n); if (!P) return;
     const lst = deDoc(ambito, docAct), num = numeros(lst), g = P.g;
@@ -4351,10 +4375,11 @@ const Notas = (() => {
       c.innerHTML = '<circle r="' + r + '"/><text y="' + (r * 0.36) + '" font-size="' + (r * 1.05) + '">' + (k || "·") + "</text>";
       if (id) c.onclick = e => { e.stopPropagation(); focoId = id; pinta(); }; g.appendChild(c);
     };
-    for (const x of lst) if (x.dibujo && x.pagina === n && !x.respuesta_a && !x.resuelto_por) pon(x.dibujo, x.id, num.get(x.id), false, colorDe(x.autor));
+    for (const x of lst) if (x.dibujo && x.pagina === n && !x.respuesta_a && !x.resuelto_por && !ocultas.has(x.autor || "")) pon(x.dibujo, x.id, num.get(x.id), false, colorDe(x.autor));
     // lo que otros están dibujando ahora mismo aquí (en directo, aún sin publicar), con su nombre
     let aj = []; try { aj = Directo.deAqui(n); } catch (e) { /* aún arrancando */ }
     for (const a of aj) {
+      if (ocultas.has(a.autor || "")) continue;
       const col = colorDe(a.autor); pon({t: "trazos", s: a.s}, null, "", true, col);
       const q = ((a.s[0] || {}).q || [[[0, 0]]])[0][0], tx = document.createElementNS(NS, "text");
       tx.setAttribute("class", "quien"); tx.setAttribute("x", q[0] + r * 0.8); tx.setAttribute("y", q[1] - r * 0.8); tx.setAttribute("font-size", r * 1.2);
@@ -4369,7 +4394,7 @@ const Notas = (() => {
     el.innerHTML = textoPend(); return true;
   }
   const privPend = () => { const p = document.querySelector("#compDoc [data-pcn]"); return !!(p && p.checked && Cuenta.yo()); };
-  const textoPend = () => pend.dibujo.t === "trazos" ? "<b>Dibujo en " + (ambito === "capturas" ? "la captura" : "la página " + pend.pagina) + "</b> (" + pend.dibujo.s.length + " trazo" + (pend.dibujo.s.length === 1 ? "" : "s") + "): sigue dibujando o escribe el comentario y «Publicar»." + (privPend() ? " Con «Mandar a Claude» es privado: los demás no lo ven. Quítalo si quieres que lo vean mientras dibujas." : "")
+  const textoPend = () => pend.dibujo.t === "trazos" ? "<b>Dibujo en " + (ambito === "capturas" ? "la captura" : "la página " + pend.pagina) + "</b> (" + pend.dibujo.s.length + " trazo" + (pend.dibujo.s.length === 1 ? "" : "s") + "): sigue dibujando o escribe el comentario y «Publicar»." + (privPend() && Directo.enLlamada() ? " Con «Mandar a Claude» es privado: los de la llamada no lo ven. Quítalo si quieres que lo vean mientras dibujas." : "")
     : "<b>" + (ambito === "capturas" ? "Marca en la captura" : "Marca en la página " + pend.pagina) + "</b>: escribe el comentario.";
   function pagina(cont, n, W, H, esc) {
     // la capa de marcas de una página (o captura), en sus propias unidades: puntos del PDF o píxeles de la imagen
@@ -4454,11 +4479,12 @@ const Notas = (() => {
     el.classList.toggle("chat", cerrada);
     pintaEstado();
     if (ambito === "capturas") Docs.tiraVersiones();
-    if (cerrada) { pend = null; if (herr !== "ver") herramienta("ver"); el.innerHTML = htmlLista(deDoc(ambito, docAct)).replace('<p class="nota">Sin comentarios todavía.</p>', "").replace(/<details class="hechas">/, '<details class="hechas" open>'); engancha(el, ambito, docAct); for (const n of paginas.keys()) marcas(n); cuentas(); apuntaVistos(); return; }
+    if (cerrada) { pend = null; if (herr !== "ver") herramienta("ver"); el.innerHTML = htmlLista(deDoc(ambito, docAct)).replace('<p class="nota">Sin comentarios todavía.</p>', "").replace(/<details class="hechas">/, '<details class="hechas" open>'); engancha(el, ambito, docAct); for (const n of paginas.keys()) marcas(n); pintaCapas(); cuentas(); apuntaVistos(); return; }
     if (ambito === "capturas" || ambito === "laminas" || ambito === "memorias") pintaLotes();
     el.innerHTML = htmlLista(deDoc(ambito, docAct)) + compositor("compDoc", pend ? "Comentario…" : ambito === "capturas" ? "Qué hay que cambiar: escribe aquí y marca encima de la imagen con las herramientas de arriba…" : "Comentario general del documento, o marca algo en la página con las herramientas de arriba…");
     engancha(el, ambito, docAct);
     for (const n of paginas.keys()) marcas(n);
+    pintaCapas();
     const f = el.querySelector(".nota-i.foco"); if (f && f.scrollIntoView) f.scrollIntoView({block: "nearest"});
     cuentas(); apuntaVistos();
   }
@@ -4676,8 +4702,10 @@ const Notas = (() => {
       if (ambito === "capturas") { const c = (ultCaps || []).find(x => x.archivo === docAct); if (!c || c.privada) return true; }
       return false;
     }
+    // Enrique 10-nov: fuera de una llamada, lo de los demás se ve al publicar (como siempre); los trazos en curso, solo en la llamada
+    const enLlamada = () => { try { return Llamada.dentro(); } catch (e) { return false; } };
     function payload() {
-      const d = pend && pend.dibujo && pend.dibujo.t === "trazos" && pend.dibujo.s.length && !seraPrivado() ? pend : null;
+      const d = enLlamada() && pend && pend.dibujo && pend.dibujo.t === "trazos" && pend.dibujo.s.length && !seraPrivado() ? pend : null;
       return d ? {quien, autor: autor(), ambito, doc: docAct, pagina: d.pagina, s: d.dibujo.s} : {quien, nada: true};
     }
     function emite(forzar) {
@@ -4696,10 +4724,12 @@ const Notas = (() => {
     }
     function trazoAjeno(p) {
       if (!p.quien || p.quien === quien) return;
+      if (!p.nada && !enLlamada()) return;                         // solo los que están en la llamada ven lo que se está dibujando
       const antes = ajenos.get(p.quien);
       if (p.nada) ajenos.delete(p.quien); else ajenos.set(p.quien, {autor: p.autor || "", ambito: p.ambito, doc: p.doc, pagina: p.pagina, s: Array.isArray(p.s) ? p.s : [], t: Date.now()});
       const ahora = ajenos.get(p.quien);
       for (const a of [antes, ahora]) if (a && a.ambito === ambito && a.doc === docAct && paginas.has(a.pagina)) marcas(a.pagina);
+      if (!antes !== !ahora) pintaCapas();
     }
     setInterval(() => {                                             // lo de alguien que se ha ido sin despedirse (cerrar la pestaña, sin red)
       for (const [k, a] of ajenos) if (Date.now() - a.t > 60000) { ajenos.delete(k); if (a.ambito === ambito && a.doc === docAct && paginas.has(a.pagina)) marcas(a.pagina); }
@@ -4711,8 +4741,10 @@ const Notas = (() => {
       if (!ws) { clearTimeout(reintento); conecta(); return; }
       if (ws.readyState === 1 && proy() && tema !== nombreTema()) une();          // ha cambiado de proyecto, o ha entrado con su cuenta
     }
-    const deAqui = n => [...ajenos.values()].filter(a => a.ambito === ambito && a.doc === docAct && a.pagina === n && a.s.length);
-    return {asegura, ok: () => !!(ws && ws.readyState === 1 && unido), emite, deAqui, seraPrivado, quien, on, envia, presencia, presencias: () => pres};
+    const deAqui = (n, todas) => [...ajenos.values()].filter(a => a.ambito === ambito && a.doc === docAct && (todas || a.pagina === n) && a.s.length);
+    // al salir de la llamada: se quita lo de los demás a medias y lo mío de sus pantallas
+    function finLlamada() { emite(true); const ps = new Set([...ajenos.values()].map(a => a.pagina)); ajenos.clear(); for (const n of ps) if (paginas.has(n)) marcas(n); pintaCapas(); }
+    return {asegura, ok: () => !!(ws && ws.readyState === 1 && unido), emite, finLlamada, deAqui, seraPrivado, enLlamada, quien, on, envia, presencia, presencias: () => pres};
   })();
   config().then(() => Directo.asegura());
   document.addEventListener("visibilitychange", () => { if (!document.hidden) Directo.asegura(); });
@@ -4733,7 +4765,95 @@ const Notas = (() => {
     toast("Listo para guardar como app en modo admin: en el iPad, Compartir › Añadir a pantalla de inicio; en el Mac, Archivo › Añadir al Dock. No compartas esta dirección.", 9000);
   }
   return {enDoc, enDatos, pagina, escala, marcaBloque, grupos, adjuntar, herramienta, capturas, subirCaptura, subirImagenTema, imagenesDe, ponTema, borrarCaptura, marcarCaptura, resolverCaptura,
-    puedeImagen, puedeChat, quitarImagen, cambiarImagen, unirCapturas, pintaLotes, nuevoLote, pedidoRender, directo: Directo};
+    puedeImagen, puedeChat, quitarImagen, cambiarImagen, unirCapturas, pintaLotes, nuevoLote, pedidoRender, directo: Directo, rest: async (m, r, c, e) => { await config(); return api(m, r, c, e); }};
+})();
+
+/* ============================================================ texto de la llamada (para el resumen) */
+// Enrique 10-nov: no se graba audio ni vídeo. Cada navegador pasa a texto SOLO el micrófono de su usuario (Whisper dentro del
+// navegador: el audio no sale del dispositivo) y guarda las frases en llamada_frases, que no puede leer nadie por la API. Al
+// colgar el último, el Claude de Enrique hace el resumen y la transcripción se borra. El modelo se descarga la primera vez
+// (Hugging Face) y queda guardado en el navegador; mientras se descarga, lo dicho espera en cola.
+const Texto = (() => {
+  const BASE = new URL("lib/transcribir/", location.href).href;
+  let w = null, listo = false, ocupado = false, fallo = null, progreso = "", cola = [], ctx = null, nodos = null, lid = null, on = false, alCambio = () => {};
+  const RUIDO = /^(gracias(\s+por\s+ver)?[.!]*|subt[ií]tulos.*|.*amara\.org.*|¡?suscr[ií]bete.*|\[.*\]|\(.*\)|[.…\s-]*|música|aplausos)$/i;
+  function arranca() {
+    if (w || fallo) return;
+    const codigo = `import {pipeline, env} from "${BASE}transformers.min.js";
+env.allowLocalModels = false; env.backends.onnx.wasm.wasmPaths = "${BASE}";
+let asr = null;
+const prog = p => { if (p && p.status === "progress" && p.total) self.postMessage({t: "progreso", f: p.file, p: Math.round(p.loaded / p.total * 100)}); };
+async function carga() {
+  let gpu = false; try { gpu = !!(navigator.gpu && await navigator.gpu.requestAdapter()); } catch (e) { gpu = false; }
+  const op = gpu ? [["onnx-community/whisper-small", {device: "webgpu", dtype: {encoder_model: "fp32", decoder_model_merged: "q4"}}], ["onnx-community/whisper-base", {device: "webgpu", dtype: {encoder_model: "fp32", decoder_model_merged: "q4"}}]] : [];
+  op.push(["onnx-community/whisper-base", {device: "wasm", dtype: "q8"}]);
+  let ult = null;
+  for (const [m, o] of op) { try { asr = await pipeline("automatic-speech-recognition", m, Object.assign({progress_callback: prog}, o)); self.postMessage({t: "listo", m, d: o.device}); return; } catch (e) { ult = e; } }
+  self.postMessage({t: "error", e: String(ult && ult.message || ult)});
+}
+self.onmessage = async e => {
+  const m = e.data;
+  if (m.t === "carga") return carga();
+  if (m.t === "audio") {
+    try { const r = await asr(m.pcm, {language: "spanish", task: "transcribe"}); self.postMessage({t: "texto", texto: String(r && r.text || "").trim(), dicho: m.dicho}); }
+    catch (err) { self.postMessage({t: "texto", texto: "", dicho: m.dicho, e: String(err && err.message || err)}); }
+  }
+};`;
+    try { w = new Worker(URL.createObjectURL(new Blob([codigo], {type: "text/javascript"})), {type: "module"}); }
+    catch (e) { fallo = "Este navegador no puede pasar la voz a texto"; alCambio(); return; }
+    w.onmessage = e => {
+      const m = e.data;
+      if (m.t === "progreso") { progreso = "preparando el texto " + m.p + " %"; alCambio(); }
+      else if (m.t === "listo") { listo = true; progreso = ""; alCambio(); siguiente(); }
+      else if (m.t === "error") { fallo = "No se ha podido preparar el paso a texto en este dispositivo"; console.error("Texto:", m.e); alCambio(); }
+      else if (m.t === "texto") { ocupado = false; guarda(m.texto, m.dicho); siguiente(); }
+    };
+    w.onerror = e => { fallo = "No se ha podido preparar el paso a texto en este dispositivo"; console.error(e); alCambio(); };
+    w.postMessage({t: "carga"});
+  }
+  function siguiente() { if (!listo || ocupado || !cola.length) return; const s = cola.shift(); ocupado = true; w.postMessage({t: "audio", pcm: s.pcm, dicho: s.dicho}, [s.pcm.buffer]); }
+  async function guarda(t, dicho) {
+    t = String(t || "").replace(/\s+/g, " ").trim();
+    if (!t || t.length < 2 || RUIDO.test(t) || !lid) return;
+    try { await Notas.rest("POST", "llamada_frases", {llamada: lid, autor: "-", texto: t.slice(0, 4000), dicho}); }
+    catch (e) { console.error("Texto:", e); }
+  }
+  /* ---------- escuchar el micrófono propio y cortar en frases (cuando hay un silencio) */
+  function escucha(stream) {
+    para();
+    try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+    ctx.resume().catch(() => {});
+    const src = ctx.createMediaStreamSource(stream), pr = ctx.createScriptProcessor(4096, 1, 1), mudo = ctx.createGain(); mudo.gain.value = 0;
+    src.connect(pr); pr.connect(mudo); mudo.connect(ctx.destination);
+    const R = ctx.sampleRate, paso = R / 16000;
+    let trozos = [], hablado = 0, silencio = 0, total = 0, inicio = null, fondo = 0.006;
+    pr.onaudioprocess = e => {
+      if (!on) { trozos = []; hablado = silencio = total = 0; inicio = null; return; }
+      const x = e.inputBuffer.getChannelData(0), n = Math.floor(x.length / paso), y = new Float32Array(n);
+      let s2 = 0; for (let i = 0; i < n; i++) { const v = x[Math.floor(i * paso)]; y[i] = v; s2 += v * v; }
+      const rms = Math.sqrt(s2 / Math.max(1, n)), dur = x.length / R, voz = rms > Math.max(0.012, fondo * 3);
+      if (!voz) fondo = fondo * 0.97 + rms * 0.03;                  // ruido de fondo, para no cortar en una sala ruidosa
+      if (voz) { if (!inicio) inicio = new Date(Date.now() - 300).toISOString(); hablado += dur; silencio = 0; }
+      else silencio += dur;
+      if (inicio) { trozos.push(y); total += dur; }
+      if (inicio && ((silencio > 0.8 && hablado > 0) || total > 25)) {
+        if (hablado >= 0.6) { const L = trozos.reduce((a, b) => a + b.length, 0), pcm = new Float32Array(L); let o = 0; for (const t of trozos) { pcm.set(t, o); o += t.length; } cola.push({pcm, dicho: inicio}); if (cola.length > 40) cola.shift(); siguiente(); }
+        trozos = []; hablado = silencio = total = 0; inicio = null;
+      }
+    };
+    nodos = {src, pr, mudo};
+  }
+  function para() { if (nodos) try { nodos.src.disconnect(); nodos.pr.disconnect(); nodos.mudo.disconnect(); } catch (e) { /* nada */ } nodos = null; if (ctx) ctx.close().catch(() => {}); ctx = null; }
+  return {
+    empieza(stream, id, cb) { lid = id; on = true; alCambio = cb || (() => {}); arranca(); escucha(stream); },
+    llamada(id) { lid = id; },
+    pon(si) { on = si; alCambio(); },
+    activo: () => on,
+    termina() { on = false; para(); },                            // lo que quede en cola se sigue pasando a texto
+    async vacia(ms) { const fin = Date.now() + ms; while (listo && !fallo && (cola.length || ocupado) && Date.now() < fin) await new Promise(r => setTimeout(r, 300)); cola = []; },
+    pendiente: () => cola.length + (ocupado ? 1 : 0),
+    estado: () => fallo || (on && !listo ? progreso || "preparando el texto…" : "")
+  };
 })();
 
 /* ============================================================ llamada (voz y vídeo) */
@@ -4744,6 +4864,7 @@ const Notas = (() => {
 const Llamada = (() => {
   const D = () => Notas.directo;
   const ICE = [{urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"]}];
+  let lid = null, lt = 0, tx = true;                               // la llamada (fila en «llamadas»), cuándo entré, si paso a texto
   let dentro = false, local = null, mic = true, cam = true, verVid = true, actx = null, habla = null, hablaHasta = 0, enganchado = false;
   const pares = new Map();                 // id de la otra ventana → {pc, autor, el, stream, an, colaIce, caido}
   const yo = () => D().quien;
@@ -4753,13 +4874,33 @@ const Llamada = (() => {
   function engancha() {
     if (enganchado) return; enganchado = true;
     D().on("b:rtc", recibe);
-    D().on("presencia", () => { pintaFila(); quitaIdos(); });
+    D().on("presencia", () => {
+      pintaFila(); quitaIdos();
+      const o = dentro && suLlamada();
+      if (o && o.lid !== lid && o.lt < lt) { lid = o.lid; lt = o.lt; Texto.llamada(lid); rpc("llamada_entra", {p_id: lid}).catch(() => {}); D().presencia(meta()); }
+    });
     D().on("unido", () => { if (dentro) { D().presencia(meta()); manda({t: "hola"}); } pintaFila(); });
   }
-  const meta = () => ({autor: nombre(), llamada: true, mic, cam});
+  const meta = () => ({autor: nombre(), llamada: true, mic, cam, lid, lt, tx});
+  const rpc = (f, a) => Notas.rest("POST", "rpc/" + f, a);
+  // la llamada en la que están los demás (si hubiera dos por empezar a la vez, vale la más antigua)
+  function suLlamada() { let b = null; for (const x of enLlamada()) if (x.id !== yo() && x.lid && (!b || x.lt < b.lt)) b = x; return b; }
+  async function abreLlamada() {
+    const o = suLlamada();
+    if (o) lid = o.lid;
+    else { const r = await Notas.rest("POST", "llamadas", {proyecto: S.proyecto ? S.proyecto.id : ""}, {Prefer: "return=representation"}); lid = r && r[0] && r[0].id; }
+    if (!lid) throw new Error("No se ha podido abrir la llamada");
+    await rpc("llamada_entra", {p_id: lid});
+  }
+  function pintaEst() {
+    const e = $("llamEst"); if (!e) return;
+    const t = Texto.estado();
+    e.textContent = !tx ? "No se pasa a texto lo que dices: no entrará en el resumen." : t ? "Texto para el resumen: " + t : "Lo que dices se pasa a texto en tu dispositivo para el resumen al colgar. No se graba audio.";
+    e.hidden = false; ponBotones();
+  }
   // quién hay en la llamada (lo que ven también los que no han entrado)
   function enLlamada() {
-    const L = []; for (const [k, ms] of D().presencias()) { const m = ms.find(x => x && x.llamada); if (m) L.push({id: k, autor: m.autor || "Alguien", mic: m.mic !== false, cam: m.cam !== false}); }
+    const L = []; for (const [k, ms] of D().presencias()) { const m = ms.find(x => x && x.llamada); if (m) L.push({id: k, autor: m.autor || "Alguien", mic: m.mic !== false, cam: m.cam !== false, lid: m.lid || null, lt: m.lt || 0}); }
     return L;
   }
   function pintaFila() {
@@ -4778,19 +4919,30 @@ const Llamada = (() => {
     const audio = {echoCancellation: true, noiseSuppression: true, autoGainControl: true};
     try { local = await navigator.mediaDevices.getUserMedia({audio, video: {width: {ideal: 320}, height: {ideal: 240}, frameRate: {ideal: 15, max: 15}, facingMode: "user"}}); }
     catch (e) { try { local = await navigator.mediaDevices.getUserMedia({audio}); toast("Sin cámara: entras solo con voz", 4000); } catch (e2) { toast("No se puede usar el micrófono: dale permiso en el navegador", 6000); return; } }
+    lt = Date.now();
+    try { await abreLlamada(); } catch (e) { for (const t of local.getTracks()) t.stop(); local = null; toast(e.message || String(e), 6000); return; }
     dentro = true; mic = true; cam = local.getVideoTracks().length > 0;
+    if (tx) { Texto.empieza(local, lid, pintaEst); toast("Lo que dices se pasa a texto en tu dispositivo para el resumen al colgar. No se graba audio. Puedes quitarlo con «Texto».", 7000); }
+    pintaEst();
     try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); await actx.resume(); } catch (e) { actx = null; }
     $("llamada").hidden = false; ponBotones(); pintaTile(yo());
-    D().presencia(meta()); manda({t: "hola"}); pintaFila();
+    D().presencia(meta()); manda({t: "hola"}); pintaFila(); D().emite(true);
     clearInterval(tHabla); tHabla = setInterval(quienHabla, 250);
   }
-  function salir() {
+  async function salir() {
     if (!dentro) return;
+    const id = lid, ultimo = !enLlamada().some(x => x.id !== yo() && x.lid === id);
     manda({t: "adios"}); D().presencia(null);
+    Texto.termina();
     for (const id of [...pares.keys()]) cierra(id);
     if (local) for (const t of local.getTracks()) t.stop();
-    local = null; dentro = false; habla = null; clearInterval(tHabla);
+    local = null; dentro = false; habla = null; clearInterval(tHabla); D().finLlamada();
     const el = $("llamTiles"); el.innerHTML = ""; $("llamada").hidden = true; pintaFila();
+    lid = null;
+    if (Texto.pendiente()) toast("Terminando de pasar a texto lo último…", 6000);
+    await Texto.vacia(30000);
+    try { const r = await rpc("llamada_cuelga", {p_id: id, p_ultimo: ultimo}); if (r === "para_resumen") toast("Llamada terminada. El resumen saldrá en el Chat en cuanto lo haga Claude.", 6000); }
+    catch (e) { console.error(e); }
   }
   addEventListener("pagehide", () => { if (dentro) manda({t: "adios"}); });
   /* ---------- con cada uno de los demás, una conexión */
@@ -4895,14 +5047,14 @@ const Llamada = (() => {
     v.style.visibility = conVideo ? "" : "hidden";
     const a = esYo ? nombre() + " (tú)" : p.autor;
     t.querySelector(".ini").textContent = conVideo ? "" : ini(esYo ? nombre() : p.autor);
-    t.querySelector(".nom").textContent = a + (esYo && !mic ? " · sin micro" : "");
+    t.querySelector(".nom").textContent = a + (esYo && !mic ? " · sin micro" : "") + (esYo && !tx ? " · sin texto" : "");
     const av = t.querySelector(".aviso"); av.hidden = esYo || !p.caido; if (!esYo) av.textContent = p.caido || "";
     cont.hidden = !verVid;
     marcaHabla();
   }
   function ponBotones() {
     const b = (id, on, si, no) => { const x = $(id); x.setAttribute("aria-pressed", on); x.textContent = on ? si : no; };
-    b("llamMic", mic, "Micro", "Micro apagado"); b("llamCam", cam, "Cámara", "Cámara apagada"); b("llamVer", verVid, "Ocultar vídeos", "Ver vídeos");
+    b("llamMic", mic, "Micro", "Micro apagado"); b("llamCam", cam, "Cámara", "Cámara apagada"); b("llamVer", verVid, "Ocultar vídeos", "Ver vídeos"); b("llamTx", tx, "Texto", "Sin texto");
     $("llamCam").disabled = !(local && local.getVideoTracks().length);
   }
   function ponMic(si) { mic = si; if (local) for (const t of local.getAudioTracks()) t.enabled = si; ponBotones(); pintaTile(yo()); D().presencia(meta()); }
@@ -4911,6 +5063,7 @@ const Llamada = (() => {
   $("llamSalir").onclick = salir;
   $("llamMic").onclick = () => ponMic(!mic);
   $("llamCam").onclick = () => ponCam(!cam);
+  $("llamTx").onclick = () => { tx = !tx; if (dentro) { if (tx && !Texto.activo()) Texto.empieza(local, lid, pintaEst); else Texto.pon(tx); D().presencia(meta()); } pintaEst(); };
   $("llamVer").onclick = () => { verVid = !verVid; ponBotones(); $("llamTiles").hidden = !verVid; };
   // que se vea quién está en la llamada aunque no hayas entrado
   const espera = setInterval(() => { try { if (Notas.directo) { engancha(); pintaFila(); clearInterval(espera); } } catch (e) { /* aún no */ } }, 1000);
