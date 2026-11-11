@@ -571,6 +571,7 @@ header .barra .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stro
           <h3 id="docsTit">Láminas</h3>
           <div class="fila importar" id="filaImportar" hidden>
             <label class="btn" id="btnImportar" title="Pantallazos de Vectorworks, fotos, lo que sea: se suben como capturas"><span id="txtImportar">Importar imagen</span><input type="file" id="archImportar" accept="image/*,.heic,.heif,application/pdf,.pdf" multiple hidden></label>
+            <button class="btn" id="btnTemaNuevo" title="Un tema solo con texto, sin imagen">Tema nuevo</button>
             <span class="nota" id="notaImportar">o arrástrala aquí, o pégala (⌘V)</span>
           </div>
           <details class="lote" id="secLote" hidden><summary>Lote para Claude</summary><div id="loteCuerpo"></div></details>
@@ -3194,7 +3195,7 @@ const Docs = (() => {
     const cap = t === "capturas", des = cap && !!S.des;
     $("txtImportar").textContent = "Subir plano o imagen"; $("notaImportar").textContent = "PDF o imagen; o arrástralo aquí, o pégalo (⌘V)";
     $("secLote").hidden = false; Notas.pintaLotes();   // lotes también desde Láminas y Memorias (Enrique 28-oct)
-    $("btnAbrirPdf").textContent = cap ? "Abrir la imagen" : "Abrir el PDF"; $("btnBorrarCap").hidden = true; $("secClaude").hidden = true; $("filaImportar").hidden = !cap; $("secNotas").classList.remove("cerrada");
+    $("btnAbrirPdf").textContent = cap ? "Abrir la imagen" : "Abrir el PDF"; $("btnBorrarCap").hidden = true; $("secClaude").hidden = true; $("filaImportar").hidden = !cap; $("btnTemaNuevo").hidden = des; $("secNotas").classList.remove("cerrada");
     $("notaDocs").textContent = cap ? "El chat del proyecto: lo que está en desarrollo. Sube un plano (PDF), una imagen, un esquema o una captura del 3D (botón de la cámara) y cualquiera dibuja encima con las herramientas de «Comentarios» y escribe al lado; con «Mandar a Claude» lo hace él." : "«Abrir el PDF» lo abre en el visor del navegador, vectorial, para ampliar o descargar.";
     const L0 = await lista(t), L = L0, el = $("listaDocs");      // (10-nov) un solo Chat: también lo que estaba «en desarrollo» el.innerHTML = "";
     if (!L.length) {
@@ -5383,6 +5384,30 @@ async function importarImagenes(files) {
   if (S.modo === "cap") Docs.abrir("capturas"); else modo("cap");
   toast((n > 1 ? n + " imágenes subidas (van juntas)" : des ? "Subido" : "Imagen subida") + pieSubida(), 5000);
 }
+// (11-nov, Enrique: «no me dejaba crear tema nuevo») tema nuevo sin imagen: basta el nombre; su imagen 1 es una portada con el nombre
+async function temaNuevo() {
+  const t = await dialogo('<h3>Tema nuevo</h3><input class="filtro" data-tema placeholder="Nombre (p. ej. Cambio de cubiertas y alturas)" maxlength="120"><button class="btn rojo" data-ok>Crear el tema</button><button class="lnk" data-no>Cancelar</button>', (f, fin) => {
+    const i = f.querySelector("[data-tema]"), ok = () => { const v = i.value.trim().slice(0, 120); if (v) fin(v); else i.focus(); };
+    f.querySelector("[data-ok]").onclick = ok; i.onkeydown = e => { if (e.key === "Enter") ok(); }; i.focus();
+  });
+  if (!t) return;
+  try {
+    const c = document.createElement("canvas"); c.width = 1600; c.height = 900;
+    const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height);
+    x.fillStyle = "#000"; x.font = "bold 64px Helvetica, Arial, sans-serif"; x.textBaseline = "top";
+    const lin = []; let l = "";
+    for (const w of t.split(/\s+/)) { const p = l ? l + " " + w : w; if (l && x.measureText(p).width > 1440) { lin.push(l); l = w; } else l = p; }
+    if (l) lin.push(l);
+    lin.slice(0, 8).forEach((s_, k) => x.fillText(s_, 80, 80 + k * 80));
+    const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.9));
+    toast("Creando el tema…", 8000);
+    const r = await Notas.subirCaptura(blob, {vista: "Tema", ancho: c.width, alto: c.height, dataURL: c.toDataURL("image/jpeg", 0.6), tema: t, tipo: "chat"});
+    ls(claveDoc("capturas"), r.id);
+    if (S.modo === "cap") Docs.abrir("capturas"); else modo("cap");
+    toast("Tema creado: escribe en su conversación", 5000);
+  } catch (e) { toast(e.message || String(e), 6000); }
+}
+$("btnTemaNuevo").onclick = temaNuevo;
 $("archImportar").onchange = e => { const f = e.target.files; if (f && f.length) importarImagenes(f); e.target.value = ""; };
 addEventListener("paste", e => {
   if (S.modo !== "cap") return;
