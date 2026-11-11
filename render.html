@@ -209,6 +209,7 @@ body.marcando #c{cursor:crosshair}
       <div class="fila"><span class="chk" title="Una calle con edificios alrededor, para que los vidrios reflejen algo (como en las fotos) y no solo cielo"><input type="checkbox" id="cCalle"> Calle reflejada en los vidrios</span></div>
       <label class="campo">Ventanas<select id="sVen" title="Lo que se ve por dentro de los vidrios"><option value="nada">Nada dentro</option><option value="visillos">Visillos</option></select></label>
       <label class="campo">Luces dentro<input type="range" id="rLuces" min="0" max="1" step="0.1" title="Parte de las ventanas con la luz encendida dentro"><output id="oLuces"></output></label>
+      <label class="campo">Fuerza luz dentro<input type="range" id="rLucF" min="0" max="3" step="0.1" title="Potencia de la luz de dentro: poca, para que se vea el interior iluminado detrás del vidrio"><output id="oLucF"></output></label>
       <div class="dos" style="margin-top:6px">
         <button class="btn" id="bFondo" title="Una foto del lugar detrás del edificio (la luz sigue saliendo del cielo elegido)">Foto de fondo…</button>
         <button class="btn" id="bSinFondo" disabled>Quitar foto</button>
@@ -664,7 +665,8 @@ async function ponLuz() {
   if (!hdrs[f]) hdrs[f] = new HDRLoader().loadAsync("lib/render/hdri/" + f).then(t => { t.mapping = THREE.EquirectangularReflectionMapping; return t; });
   const t = await hdrs[f];
   scene.environment = L.calle === false ? t : conCalle(t); scene.background = fondoUrl() ? null : t;      // con foto de fondo, el cielo solo ilumina
-  $("cCalle").checked = L.calle !== false; $("sVen").value = L.ventanas || "nada"; $("rLuces").value = L.luces || 0; $("oLuces").textContent = Math.round((L.luces || 0) * 100) + " %";
+  $("cCalle").checked = L.calle !== false; $("sVen").value = L.ventanas || "nada"; $("rLuces").value = L.luces || 0; $("oLuces").textContent = Math.round((L.luces || 0) * 100) + " %"; $("rLucF").value = fuerzaLuz(L); $("oLucF").textContent = fmt(fuerzaLuz(L));
+  MAT_LUZ.emissiveIntensity = 2.5 * fuerzaLuz(L);
   if (fuente && firmaVentanas !== (L.ventanas || "nada") + "|" + (L.luces || 0)) { ponVentanas(); if (pt) { await rehaceEscena(); } }
   canvas.style.backgroundImage = fondoUrl() ? "url(" + JSON.stringify(fondoUrl()) + ")" : "";
   if (suelo) { const conSuelo = !fondoUrl() || fondoSuelo(); if (conSuelo && !LOC.ocultos.suelo && suelo.parent !== modelo) { modelo.add(suelo); if (pt) rehaceEscena(); } else if (!conSuelo && suelo.parent === modelo) { apartado.add(suelo); if (pt) rehaceEscena(); } }
@@ -686,6 +688,7 @@ async function ponLuz() {
 function cambiaLuz(campos) { LOC.luz = Object.assign({}, LOC.luz, campos); guardaLoc(); ponLuz(); }
 $("cCalle").onchange = e => cambiaLuz({calle: e.target.checked});
 $("sVen").onchange = e => cambiaLuz({ventanas: e.target.value});
+let lucFT = 0; $("rLucF").oninput = e => { $("oLucF").textContent = fmt(+e.target.value); clearTimeout(lucFT); lucFT = setTimeout(() => cambiaLuz({luz_dentro: +e.target.value}), 250); };
 let lucT = 0; $("rLuces").oninput = e => { $("oLuces").textContent = Math.round(e.target.value * 100) + " %"; clearTimeout(lucT); lucT = setTimeout(() => cambiaLuz({luces: +e.target.value}), 250); };
 
 /* ---------------------------------------------------------------- vidrios como en las fotos (10-nov, Enrique: «fíjate qué diferencia con
@@ -716,7 +719,10 @@ function conCalle(t) {
   envCalle.set(t, tx); return tx;
 }
 const ventanas = new THREE.Group(); ventanas.userData = {g: "ventanas"};
-const MAT_LUZ = new THREE.MeshPhysicalMaterial({color: 0x000000, emissive: 0xffd2a0, emissiveIntensity: 7, side: THREE.DoubleSide});
+// luz de dentro (11-nov, Enrique: «falta poder verse más el interior iluminado; una luz artificial de poca potencia dentro»):
+// un plafón cálido en el techo de la pieza, ancho como la ventana y a 1,5 m del vidrio; la fuerza (luz.luz_dentro) la da el panel Luz
+const MAT_LUZ = new THREE.MeshPhysicalMaterial({color: 0x000000, emissive: 0xffd2a0, emissiveIntensity: 2.5, side: THREE.DoubleSide});
+const fuerzaLuz = L => L.luz_dentro == null ? 1 : Math.max(0, +L.luz_dentro);
 let firmaVentanas = "";
 // los paños de vidrio del modelo: triángulos verticales agrupados por plano y, dentro de cada plano, por cajas que se tocan
 function panosDeVidrio() {
@@ -764,7 +770,8 @@ function ponVentanas() {
       const tramos = lado < 0.4 ? [[q.uc - q.w / 2 + w / 2, w]] : lado < 0.8 ? [[q.uc + q.w / 2 - w / 2, w]] : [[q.uc - q.w / 2 + w / 4, w / 2], [q.uc + q.w / 2 - w / 4, w / 2]];
       for (const [uc, ww] of tramos) { const g = new THREE.PlaneGeometry(ww, q.h * 0.98); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * ww, uv.getY(i) * q.h); pon(g, mv, centro(uc, q.nc - 0.12, q.vc), q.n, "visillo"); }
     }
-    if (fr && azar() < fr) { const g = new THREE.PlaneGeometry(0.5, 0.5); const me = pon(g, MAT_LUZ, centro(q.uc, q.nc - 1.4, q.vc + q.h / 2 + 0.3), new THREE.Vector3(0, -1, 0)); me.userData.m = undefined; }
+    if (fr && azar() < fr) { const g = new THREE.PlaneGeometry(Math.min(2, Math.max(0.6, q.w * 0.8)), 0.8).rotateX(Math.PI / 2).rotateY(Math.atan2(-q.u.z, q.u.x));
+      const me = new THREE.Mesh(g, MAT_LUZ); me.position.copy(centro(q.uc, q.nc - 1.5, q.vc + q.h / 2 - 0.03)); me.userData = {g: "ventanas"}; ventanas.add(me); }
   }
   if (ventanas.children.length) modelo.add(ventanas);
 }
