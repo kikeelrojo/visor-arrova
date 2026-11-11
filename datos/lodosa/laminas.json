@@ -1,7 +1,7 @@
 {
  "formato": "arrova-laminas",
  "proyecto": "lodosa",
- "fecha": "2026-10-28 18:04",
+ "fecha": "2026-11-11 19:01",
  "doc": "basico op3_claude.vwxw",
  "hojas": [
   {
@@ -175,9 +175,14 @@
  ],
  "pdfs": [
   {
-   "archivo": "laminas/Lodosa Basico_Éjecución.pdf",
-   "titulo": "Lodosa basico éjecución",
-   "nota": "29 páginas · 28-10-2026 17:26"
+   "archivo": "laminas/Lodosa Basico_Ejecución.pdf",
+   "titulo": "Lodosa basico ejecución",
+   "nota": "29 páginas · 09-11-2026 18:37"
+  },
+  {
+   "archivo": "laminas/basico op3.pdf",
+   "titulo": "Juego completo de láminas",
+   "nota": "29 páginas · 11-11-2026 19:00"
   }
  ]
 }
