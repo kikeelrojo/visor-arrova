@@ -1,7 +1,7 @@
 {
  "formato": "arrova-memorias",
  "proyecto": "lodosa",
- "fecha": "2026-11-12 03:25",
+ "fecha": "2026-11-12 09:17",
  "pdfs": [
   {
    "archivo": "memorias/00_Hoja_Control_Pendientes.pdf",
@@ -12,7 +12,7 @@
   {
    "archivo": "memorias/00_Datos_Certificado_Energetico.pdf",
    "titulo": "Datos para el certificado energético",
-   "nota": "10 páginas · 12-11-2026 00:22"
+   "nota": "10 páginas · 12-11-2026 08:32"
   },
   {
    "archivo": "memorias/00_Esquemas_Soleamiento.pdf",
@@ -47,7 +47,7 @@
   {
    "archivo": "memorias/03_Memoria_Descriptiva_y_Constructiva.pdf",
    "titulo": "Memoria descriptiva y constructiva",
-   "nota": "03 · 16 páginas · 12-11-2026 00:22"
+   "nota": "03 · 16 páginas · 12-11-2026 08:32"
   },
   {
    "archivo": "memorias/04_1_Memoria_Cumplimiento_CTE.pdf",
@@ -82,12 +82,12 @@
   {
    "archivo": "memorias/08_Plan_Control_Calidad.pdf",
    "titulo": "Plan de control de calidad",
-   "nota": "08 · 13 páginas · 09-11-2026 18:03"
+   "nota": "08 · 13 páginas · 12-11-2026 08:32"
   },
   {
    "archivo": "memorias/09_Pliego_de_Condiciones.pdf",
    "titulo": "Pliego de condiciones",
-   "nota": "09 · 36 páginas · 12-11-2026 00:22"
+   "nota": "09 · 36 páginas · 12-11-2026 08:32"
   },
   {
    "archivo": "memorias/10_Manual_Uso_y_Mantenimiento.pdf",
