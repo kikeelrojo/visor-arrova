@@ -1,18 +1,18 @@
 {
  "formato": "arrova-memorias",
  "proyecto": "lodosa",
- "fecha": "2026-11-12 14:04",
+ "fecha": "2026-11-12 17:27",
  "pdfs": [
   {
    "archivo": "memorias/00_Hoja_Control_Pendientes.pdf",
    "titulo": "Hoja de control · pendientes y discrepancias",
-   "nota": "14 páginas · 12-11-2026 13:29",
+   "nota": "14 páginas · 12-11-2026 17:25",
    "marcado": true
   },
   {
    "archivo": "memorias/00_Datos_Certificado_Energetico.pdf",
    "titulo": "Datos para el certificado energético",
-   "nota": "10 páginas · 12-11-2026 13:29"
+   "nota": "10 páginas · 12-11-2026 17:25"
   },
   {
    "archivo": "memorias/00_Esquemas_Soleamiento.pdf",
@@ -22,7 +22,7 @@
   {
    "archivo": "memorias/00_Ficha_Resumen_e_Indice.pdf",
    "titulo": "Ficha resumen e índice",
-   "nota": "4 páginas · 09-11-2026 18:03"
+   "nota": "4 páginas · 12-11-2026 17:25"
   },
   {
    "archivo": "memorias/00_Indice_General_Proyecto.pdf",
@@ -37,27 +37,27 @@
   {
    "archivo": "memorias/01_Ficha_Urbanistica.pdf",
    "titulo": "Ficha urbanística",
-   "nota": "01 · 5 páginas · 12-11-2026 00:22"
+   "nota": "01 · 5 páginas · 12-11-2026 17:25"
   },
   {
    "archivo": "memorias/02_Memoria_Habitabilidad.pdf",
    "titulo": "Memoria de habitabilidad",
-   "nota": "02 · 7 páginas · 12-11-2026 00:22"
+   "nota": "02 · 7 páginas · 12-11-2026 17:25"
   },
   {
    "archivo": "memorias/03_Memoria_Descriptiva_y_Constructiva.pdf",
    "titulo": "Memoria descriptiva y constructiva",
-   "nota": "03 · 17 páginas · 12-11-2026 13:29"
+   "nota": "03 · 17 páginas · 12-11-2026 17:25"
   },
   {
    "archivo": "memorias/04_1_Memoria_Cumplimiento_CTE.pdf",
    "titulo": "Memoria de cumplimiento del CTE",
-   "nota": "04_1 · 34 páginas · 12-11-2026 13:29"
+   "nota": "04_1 · 35 páginas · 12-11-2026 17:25"
   },
   {
    "archivo": "memorias/04_2_Anejo_Justificacion_DB-HE.pdf",
    "titulo": "Anejo · justificación DB-HE",
-   "nota": "04_2 · 11 páginas · 12-11-2026 13:29"
+   "nota": "04_2 · 11 páginas · 12-11-2026 17:25"
   },
   {
    "archivo": "memorias/04_3_Memoria_Estructural.pdf",
@@ -67,12 +67,12 @@
   {
    "archivo": "memorias/05_Justificacion_Accesibilidad.pdf",
    "titulo": "Justificación de accesibilidad",
-   "nota": "05 · 7 páginas · 12-11-2026 00:22"
+   "nota": "05 · 7 páginas · 12-11-2026 17:25"
   },
   {
    "archivo": "memorias/06_Estudio_Seguridad_y_Salud.pdf",
    "titulo": "Estudio de seguridad y salud",
-   "nota": "06 · 18 páginas · 12-11-2026 00:22"
+   "nota": "06 · 18 páginas · 12-11-2026 17:25"
   },
   {
    "archivo": "memorias/07_Estudio_Gestion_Residuos.pdf",
@@ -82,17 +82,17 @@
   {
    "archivo": "memorias/08_Plan_Control_Calidad.pdf",
    "titulo": "Plan de control de calidad",
-   "nota": "08 · 14 páginas · 12-11-2026 13:29"
+   "nota": "08 · 14 páginas · 12-11-2026 17:25"
   },
   {
    "archivo": "memorias/09_Pliego_de_Condiciones.pdf",
    "titulo": "Pliego de condiciones",
-   "nota": "09 · 37 páginas · 12-11-2026 13:29"
+   "nota": "09 · 37 páginas · 12-11-2026 17:25"
   },
   {
    "archivo": "memorias/10_Manual_Uso_y_Mantenimiento.pdf",
    "titulo": "Manual de uso y mantenimiento",
-   "nota": "10 · 23 páginas · 12-11-2026 10:51"
+   "nota": "10 · 23 páginas · 12-11-2026 17:25"
   },
   {
    "archivo": "memorias/11_Proyecto_de_Derribo_completo.pdf",
@@ -107,7 +107,7 @@
   {
    "archivo": "memorias/14_Mediciones_y_Presupuesto.pdf",
    "titulo": "Mediciones y presupuesto",
-   "nota": "14 · 46 páginas · 12-11-2026 13:29"
+   "nota": "14 · 46 páginas · 12-11-2026 17:25"
   }
  ]
 }
