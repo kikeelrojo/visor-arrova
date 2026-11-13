@@ -1,11 +1,11 @@
 {
  "formato": "arrova-presupuestos",
  "proyecto": "lodosa",
- "fecha": "2026-11-13 15:40",
+ "fecha": "2026-11-13 22:37",
  "docs": [
   {
    "titulo": "Presupuesto de la vivienda (obra nueva)",
-   "nota": "PEM 330.231,66 € · 13-11-2026 14:23",
+   "nota": "PEM 331.359,24 € · 13-11-2026 22:28",
    "archivos": [
     {
      "fmt": "Excel",
@@ -19,7 +19,7 @@
   },
   {
    "titulo": "Presupuesto conjunto (derribo + obra nueva)",
-   "nota": "PEM 351.570,94 € · 13-11-2026 14:23",
+   "nota": "PEM 352.698,52 € · 13-11-2026 22:28",
    "archivos": [
     {
      "fmt": "Excel",
