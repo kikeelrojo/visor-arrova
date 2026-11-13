@@ -1,6 +1,6 @@
 ~V|ARROVA|FIEBDC-3/2016|Claude|\|ANSI||||||
 ~K|\2\2\3\2\2\2\2\EUR\|0|
-~C|LODOSA##||VIVIENDA UNIFAMILIAR EN LODOSA · C. ANCHA 34|328648.18|27102026|0|
+~C|LODOSA##||VIVIENDA UNIFAMILIAR EN LODOSA · C. ANCHA 34|330231.66|13112026|0|
 ~D|LODOSA##|01#\1\1\02#\1\1\03#\1\1\04#\1\1\05#\1\1\06#\1\1\07#\1\1\08#\1\1\09#\1\1\10#\1\1\11#\1\1\12#\1\1\13#\1\1\14#\1\1\15#\1\1\16#\1\1\18#\1\1\19#\1\1\20#\1\1\|
 ~C|01#||CONSIDERACIONES PREVIAS|1530.90|27102026|0|
 ~D|01#|01.01\1\1\01.02\1\1\01.03\1\1\01.04\1\1\01.05\1\1\01.06\1\1\|
@@ -44,8 +44,8 @@
 ~C|03.05|m2|LÁMINA DE POLIETILENO 0,2 mm BAJO FORJADO SANITARIO|3.78|27102026|0|
 ~T|03.05|M². Lámina de polietileno de 0,2 mm de espesor, i/p.P. De perdidas por recortes y solapes.|
 ~M|03#\03.05||111|\Planta baja\1\111\\\|
-~C|04#||DRENAJES Y SANEAMIENTO|5870.92|27102026|0|
-~D|04#|04.01\1\42\04.02\1\6\04.03\1\2\04.04\1\21\04.05\1\18\04.06\1\1\04.07\1\12\|
+~C|04#||DRENAJES Y SANEAMIENTO|6787.12|13112026|0|
+~D|04#|04.01\1\42\04.02\1\6\04.03\1\2\04.04\1\21\04.05\1\18\04.06\1\1\04.07\1\12\04.08\1\8.6\04.09\1\9.5\04.10\1\9\|
 ~C|04.01|m|COLECTOR ENTERRADO PVC SN4 Ø110–125 MM|34.30|27102026|0|
 ~T|04.01|Colector enterrado bajo el forjado sanitario de PVC compacto SN4 de 110–125 mm, con pendiente >= 2 %, sobre cama de arena de 10 cm, relleno lateral y superior, juntas elásticas y piezas especiales. Sistema separativo (fecales y pluviales).|
 ~M|04#\04.01||42|\Fecales\1\24\\\\Pluviales\1\18\\\|
@@ -67,12 +67,21 @@
 ~C|04.07|m|CONDUCTO DE VENTILACIÓN DE LA CÁMARA A CUBIERTA Ø160 MM|23.47|27102026|0|
 ~T|04.07|Conducto de PVC Ø160 mm desde la cámara del forjado sanitario hasta cubierta, con remate y sombrerete, para la ventilación permanente de la cámara (protección frente al radón y la humedad).|
 ~M|04#\04.07||12|\Conducto a cubierta\1\12\\\|
-~C|05#||CIMENTACIÓN Y ESTRUCTURA|81962.52|27102026|0|
+~C|04.08|m|COLECTOR COLGADO DE PVC Ø 90 MM DE PLUVIALES EN FALSO TECHO|24.00|13112026|0|
+~T|04.08|Colector de PVC serie B de 90 mm colgado del forjado de cubierta en la cámara de los falsos techos de planta segunda, con pendiente >= 1,5 %, abrazaderas isofónicas cada 1 m, coquilla anticondensación, piezas especiales y registro, desde los sumideros de la terraza técnica hasta las bajantes; probado. Precio estimado, a contrastar.|
+~M|04#\04.08||8.6|\Sumidero S1 a la bajante del patinillo oeste\1\4.7\\\\Sumidero S2 a la bajante BP2\1\3.9\\\|
+~C|04.09|m|BAJANTE INTERIOR DE PLUVIALES DE PVC Ø 90 MM INSONORIZADA, CON CAJEADO (BP2)|44.40|13112026|0|
+~T|04.09|Bajante interior de pluviales de 90 mm insonorizada, con abrazaderas isofónicas y piezas especiales, en el rincón del baño de planta segunda y su vertical en primera y baja, hasta el colector enterrado de pluviales; incluso cajeado de placa de yeso laminado hidrófuga sobre perfilería, con registro a pie de bajante. Precio estimado, a contrastar.|
+~M|04#\04.09||9.5|\BP2, de la cámara del falso techo de segunda al colector enterrado\1\9.5\\\|
+~C|04.10|m|DESVÍO DEL COLECTOR DE RESIDUALES Ø 110 MM DEL ASEO, COLGADO|32.00|13112026|0|
+~T|04.10|Colector de polipropileno insonorizado de 110 mm colgado en falso techo, con pendiente >= 2 %, abrazaderas isofónicas y piezas especiales, para rodear por el oeste y el sur el hueco de reserva de ascensor en plantas primera y segunda (planos LO-H3 y LO-H4), hasta la bajante. Precio estimado, a contrastar.|
+~M|04#\04.10||9|\Planta primera\1\4.5\\\\Planta segunda\1\4.5\\\|
+~C|05#||CIMENTACIÓN Y ESTRUCTURA|82516.21|13112026|0|
 ~D|05#|05.01#\1\1\05.02#\1\1\|
 ~C|05.01#||CIMENTACIÓN Y FORJADO SANITARIO|23099.91|27102026|0|
 ~D|05.01#|05.01.01\1\5.65\05.01.02\1\26.57\05.01.03\1\27.71\05.01.04\1\111\05.01.05\1\109.16\|
-~C|05.02#||ESTRUCTURA|58862.61|27102026|0|
-~D|05.02#|05.02.01\1\244.83\05.02.02\1\19.17\05.02.03\1\1842\05.02.04\1\217.53\05.02.05\1\30\05.02.06\1\4.4\05.02.07\1\82.13\05.02.08\1\39\05.02.09\1\49.52\05.02.10\1\430\05.02.11\1\11.08\05.02.12\1\34\|
+~C|05.02#||ESTRUCTURA|59416.30|13112026|0|
+~D|05.02#|05.02.01\1\244.83\05.02.02\1\19.17\05.02.03\1\1842\05.02.04\1\217.53\05.02.05\1\30\05.02.06\1\4.4\05.02.07\1\87.81\05.02.08\1\39\05.02.09\1\49.52\05.02.10\1\430\05.02.11\1\11.08\05.02.12\1\34\|
 ~C|05.01.01|m3|HORMIGÓN DE LIMPIEZA HM-20 BAJO ZAPATAS|88.45|27102026|0|
 ~T|05.01.01|Hormigón de limpieza HM-20/P/20/I de 10 cm de espesor en el fondo de zapatas y vigas de atado, vertido y nivelado.|
 ~M|05.01#\05.01.01||5.65|\Medición del IFC con la estructura del ingeniero (lodosa_bim_20261024-0000.ifc): planta de zapatas corridas 43,43 + aisladas 4,71 + vigas de atado 8,37 m²\1\56.51\\0.1\|
@@ -106,9 +115,9 @@
 ~C|05.02.06|m3|PETO DE HORMIGÓN ARMADO EN CUBIERTA|388.12|27102026|0|
 ~T|05.02.06|Peto de hormigón armado HA-25 de 20 cm en el borde de la cubierta plana y terrazas, encofrado a dos caras.|
 ~M|05.02#\05.02.06||4.4|\Petos\1\20\0.2\1.1\|
-~C|05.02.07|m2|LOSA ARMADA DE HORMIGÓN CELULAR YTONG PARA CUBIERTA, 25 CM|97.48|27102026|0|
+~C|05.02.07|m2|LOSA ARMADA DE HORMIGÓN CELULAR YTONG PARA CUBIERTA, 25 CM|97.48|13112026|0|
 ~T|05.02.07|Losa armada de hormigón celular Ytong de 25 cm para cubierta inclinada, suministrada y colocada con grúa sobre muros y zunchos, con armadura de atado y relleno de juntas.|
-~M|05.02#\05.02.07||82.13|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\82.13\\\|
+~M|05.02#\05.02.07||87.81|\Medido sobre la planta de cubierta nueva (13-nov-2026)\1\87.81\\\|
 ~C|05.02.08|ud|PELDAÑO DE CHAPA DE ACERO DE 10 MM SOBRE ZANCAS LATERALES|135.39|27102026|0|
 ~T|05.02.08|Peldaño y meseta de chapa lisa de acero S275 de 10 mm, de 0,93 m de largo entre zancas y 27 cm de huella, atornillado a los angulares soldados a las zancas laterales, con acabado antideslizante de clase 2, imprimación y lacado; sin empotrar en los muros (plano LO-E3). Contrahuella de 18 cm: 19 de planta baja a primera y 17 de primera a segunda.|
 ~M|05.02#\05.02.08||39|\Planta baja a primera: 17 peldaños (5 + 12) y meseta de 0,93 × 0,96 m (3,5 peldaños)\20.5\\\\\Planta primera a segunda: 15 peldaños (3 + 12) y meseta de 0,93 × 0,96 m (3,5 peldaños)\18.5\\\\|
@@ -124,8 +133,8 @@
 ~C|05.02.12|ud|PIEZA DE POLICARBONATO RÍGIDO BAJO PELDAÑO|31.59|27102026|0|
 ~T|05.02.12|Pieza de policarbonato compacto incoloro de 10 mm de espesor, 7 cm de alto y 0,93 m de largo, atornillada con tornillería de acero inoxidable bajo el borde de cada peldaño y de cada meseta, para que el hueco libre entre peldaños quede en 10 cm (tabica abierta de 17 cm bajo la chapa de 10 mm).|
 ~M|05.02#\05.02.12||34|\Bajo los 32 peldaños y el borde de las 2 mesetas\34\\\\|
-~C|06#||ALBAÑILERÍA|43040.97|27102026|0|
-~D|06#|06.01\1\83.88\06.02\1\83.8\06.03\1\369.19\06.04\1\326.37\06.05\1\96.78\06.06\1\103.72\06.07\1\17.1\06.08\1\43.78\06.09\1\25\06.10\1\10\06.11\1\1\06.12\1\1\06.13\1\1\|
+~C|06#||ALBAÑILERÍA|44296.07|13112026|0|
+~D|06#|06.01\1\83.88\06.02\1\83.8\06.03\1\369.19\06.04\1\326.37\06.05\1\134.77\06.06\1\103.72\06.07\1\19\06.08\1\43.78\06.09\1\25\06.10\1\10\06.11\1\1\06.12\1\1\06.13\1\1\|
 ~C|06.01|m2|FÁBRICA DE HORMIGÓN CELULAR YTONG 30 CM, D350 (FACHADAS)|74.01|27102026|0|
 ~T|06.01|Fábrica de bloques de hormigón celular Ytong de 30 cm (densidad 350 kg/m³, machihembrados) tomados con adhesivo de capa fina, incluso piezas especiales, cortes, armadura de tendel donde lo indique el proyecto, replanteo, nivelación y aplomado.|
 ~M|06#\06.01||83.88|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\83.88\\\|
@@ -138,15 +147,15 @@
 ~C|06.04|m2|JUNTA DE POLIESTIRENO EXPANDIDO 10 MM CONTRA MEDIANERA|4.33|27102026|0|
 ~T|06.04|Junta de 10 mm de poliestireno expandido entre la fábrica nueva y la medianera existente, en toda su superficie.|
 ~M|06#\06.04||326.37|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\326.37\\\|
-~C|06.05|m2|TRASDOSADO DE HORMIGÓN CELULAR YTONG 7 CM CON CÁMARA|30.69|27102026|0|
+~C|06.05|m2|TRASDOSADO DE HORMIGÓN CELULAR YTONG 7 CM CON CÁMARA|30.69|13112026|0|
 ~T|06.05|Trasdosado de piezas de hormigón celular Ytong de 7 cm separado del muro por una cámara de espesor variable (regulariza la planta), tomado con adhesivo, con anclajes al muro.|
-~M|06#\06.05||96.78|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\96.78\\\|
+~M|06#\06.05||134.77|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\96.78\\\\Terraza técnica, muro del fondo norte (hasta el nicho de la aerotermia)\1\4.93\\2.9\\Terraza técnica, lateral oeste bajo el faldón (altura media)\1\7.54\\1.57\\Terraza técnica, lateral este bajo el faldón (altura media)\1\7.55\\1.57\|
 ~C|06.06|m2|TABIQUE DE HORMIGÓN CELULAR YTONG 7 CM|29.79|27102026|0|
 ~T|06.06|Tabique de piezas de hormigón celular Ytong de 7 cm tomadas con adhesivo de capa fina, con anclajes a muros y banda elástica en el encuentro con el forjado.|
 ~M|06#\06.06||103.72|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\103.72\\\|
-~C|06.07|m|CAJÓN DE PERSIANA Y DINTEL CON PIEZAS EN U DE YTONG|46.94|27102026|0|
+~C|06.07|m|CAJÓN DE PERSIANA Y DINTEL CON PIEZAS EN U DE YTONG|46.94|13112026|0|
 ~T|06.07|Dintel y cajón de persiana formados con piezas en U de hormigón celular Ytong envolviendo el zuncho, con el hueco libre necesario para el paquete de lamas, aislamiento y remates.|
-~M|06#\06.07||17.1|\V1\4\1.35\\\\V2 y V3\3\1.35\\\\P1\1\2.05\\\\PG\1\5.6\\\|
+~M|06#\06.07||19|\V1 y V2\5\1.55\\\\V3\2\1.8\\\\P1\1\2.05\\\\PG\1\5.6\\\|
 ~C|06.08|m|FRENTE DE FORJADO CON PLAQUETA YTONG Y XPS 4 CM|26.18|27102026|0|
 ~T|06.08|Revestimiento del frente de forjado y zuncho con plaqueta de hormigón celular Ytong y 4 cm de XPS, con malla de fibra de vidrio en el revoco.|
 ~M|06#\06.08||43.78|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\43.78\\\|
@@ -165,49 +174,46 @@
 ~C|06.13|ud|AYUDAS ALBAÑ. CALEFACCIÓN, VENTILACIÓN Y ACS|2066.66|27102026|0|
 ~T|06.13|Ayudas de albañilería a la instalación completa de calefacción, ventilación y agua caliente sanitaria (10 % de los subcapítulos 16.03 y 16.04).|
 ~M|06#\06.13||1|\General\1\\\\|
-~C|07#||CUBIERTA|13294.93|27102026|0|
-~D|07#|07.01\1\82.13\07.02\1\88.44\07.03\1\88.44\07.04\1\88.44\07.05\1\88.44\07.06\1\29.67\07.07\1\27\07.08\1\45.59\07.09\1\29.44\07.10\1\4\07.11\1\0\07.12\1\70.14\07.13\1\59.06\|
-~C|07.01|m2|AISLAMIENTO XPS 10 CM SOBRE LOSA DE CUBIERTA|15.80|27102026|0|
+~C|07#||CUBIERTA|13021.31|13112026|0|
+~D|07#|07.01\1\87.81\07.02\1\90.97\07.03\1\90.97\07.04\1\90.97\07.05\1\90.97\07.06\1\15.12\07.07\1\27\07.08\1\45.59\07.09\1\30.25\07.10\1\5\07.12\1\73.31\07.13\1\61.17\|
+~C|07.01|m2|AISLAMIENTO XPS 10 CM SOBRE LOSA DE CUBIERTA|15.80|13112026|0|
 ~T|07.01|Aislamiento de poliestireno extruido de 10 cm (lambda  0,034) sobre la losa de Ytong, con juntas a tope y continuidad en la coronación del zuncho.|
-~M|07#\07.01||82.13|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\82.13\\\|
-~C|07.02|m2|TABLERO OSB/3 HIDRÓFUGO 20 MM|17.60|27102026|0|
+~M|07#\07.01||87.81|\Medido sobre la planta de cubierta nueva (13-nov-2026)\1\87.81\\\|
+~C|07.02|m2|TABLERO OSB/3 HIDRÓFUGO 20 MM|17.60|13112026|0|
 ~T|07.02|Tablero OSB/3 hidrófugo de 20 mm fijado mecánicamente a la losa a través del aislamiento.|
-~M|07#\07.02||88.44|\Medición del IFC final (opción 3, 21-oct): igual que la teja, faldones 82,06 + aleros 6,31 m²\1\88.44\\\|
-~C|07.03|m2|LÁMINA IMPERMEABLE TRANSPIRABLE BAJO TEJA|3.90|27102026|0|
+~M|07#\07.02||90.97|\Igual que la teja (07.05)\1\90.97\\\|
+~C|07.03|m2|LÁMINA IMPERMEABLE TRANSPIRABLE BAJO TEJA|3.90|13112026|0|
 ~T|07.03|Suministro y colocación de lámina flexible metalizada tipo tyvek enercor de dupontcompuesta de polietileno de alta densidad termoligado metalizado con capa superficial en polipropileno, en impermeabilizado de cubierta, colocado sobre rastreles de teja y con solapes de 10 cm., Medida la superficie, s/teja. VOLUMEN 1|
-~M|07#\07.03||88.44|\Medición del IFC final (opción 3, 21-oct): igual que la teja, faldones 82,06 + aleros 6,31 m²\1\88.44\\\|
-~C|07.04|m2|RASTRELES Y CONTRARRASTRELES DE MADERA TRATADA|8.57|27102026|0|
+~M|07#\07.03||90.97|\Igual que la teja (07.05)\1\90.97\\\|
+~C|07.04|m2|RASTRELES Y CONTRARRASTRELES DE MADERA TRATADA|8.57|13112026|0|
 ~T|07.04|Rastreles y contrarrastreles de madera tratada en autoclave formando cámara ventilada bajo teja, con rejilla antipájaros en la salida.|
-~M|07#\07.04||88.44|\Medición del IFC final (opción 3, 21-oct): igual que la teja, faldones 82,06 + aleros 6,31 m²\1\88.44\\\|
-~C|07.05|m²|COBERTURA DE TEJA CERÁMICA MIXTA|36.12|27102026|0|
+~M|07#\07.04||90.97|\Igual que la teja (07.05)\1\90.97\\\|
+~C|07.05|m²|COBERTURA DE TEJA CERÁMICA MIXTA|36.12|13112026|0|
 ~T|07.05|Cobertura de teja cerámica mixta sobre rastreles, fijada según el fabricante, con piezas especiales de alero, cumbrera y limatesa, totalmente terminada.|
-~M|07#\07.05||88.44|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\88.44\\\|
-~C|07.06|m|CANALÓN DE CHAPA DE ZINC|48.79|27102026|0|
+~M|07#\07.05||90.97|\Faldón de C. Ancha 51,38 m² y de C. del Peso 35,75 m² en planta, × 1,044 (30 %)\1\90.97\\\|
+~C|07.06|m|CANALÓN DE CHAPA DE ZINC|48.79|13112026|0|
 ~T|07.06|Ml.Suministro, puesta en obra y montaje de canalón doble de chapa galvanizada de 1,5 mm de espesor y desarrollo aprox. 1.100 Mm, segun detalles, incluyendo; Beloque de chapa galvanizada de 1,5 mm de 20 cm de desarrollo en encuentro con pared, cortes, juntas de dilatación cada 8 mts, con cubrejuntas, embocaduras, para bajantes, tapas laterales, ingletes, pérdidas, pasivizados, tornillería galvanizada, formación de pendientes, posibles ganchos de sujección. Completo. Según cotas, secciones, despieces y disposiciones de proyecto. (Se medirá longitud ejecutada).|
-~M|07#\07.06||29.67|\Canalones: estimación de la propuesta (24 m) + 5,67 m junto a la medianera oeste, donde vierte el faldón de la opción 3 (IFC, 21-oct)\1\29.67\\\|
+~M|07#\07.06||15.12|\Aleros de C. Ancha (7,60 m) y de C. del Peso (7,52 m)\1\15.12\\\|
 ~C|07.07|m|BAJANTE PLUVIAL VISTA DE ZINC Ø100|39.71|27102026|0|
 ~T|07.07|Bajante de pluviales vista de chapa de zinc de 100 mm con abrazaderas y conexión a la red enterrada.|
 ~M|07#\07.07||27|\Fachada C. Ancha\1\9.5\\\\Fachada C. del Peso\1\9.5\\\\Patios\1\8\\\|
 ~C|07.08|m|REMATES, BABEROS Y VIERTEAGUAS DE ZINC|36.10|27102026|0|
 ~T|07.08|Remates de alero, coronación, babero sobre la última hilada de teja y encuentros con petos, de chapa de zinc plegada.|
 ~M|07#\07.08||45.59|\Remates: 59,51 m de la opción 2 - 13,92 m: desaparecen los bordes del faldón ventilado y de la celosía y se añaden la coronación del faldón a la medianera oeste sobre el muro del patio y su encuentro al norte (bordes libres medidos en el modelo, 21-oct)\1\45.59\\\|
-~C|07.09|m2|AISLAMIENTO XPS 10 CM EN CUBIERTA PLANA|15.80|27102026|0|
-~T|07.09|Aislamiento de poliestireno extruido de 10 cm sobre el forjado de la cubierta plana, bajo la lámina antiimpacto y el mortero de pendientes; se completa con 4 cm de lana mineral sobre el falso techo de planta segunda bajo la terraza (09.04). No hay cubierta invertida: patio, porche, terraza y cubierta plana son forjado de viguetas + XPS + lámina antiimpacto + mortero de pendientes + lámina de betún modificado + mortero de protección + microcemento exterior (Enrique, 14-oct).|
-~M|07#\07.09||29.44|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\29.44\\\|
-~C|07.10|ud|SUMIDERO SIFÓNICO Ø90 CON REBOSADERO|121.85|27102026|0|
-~T|07.10|Sumidero sifónico de 90 mm con rebosadero, babero de conexión con la impermeabilización y rejilla.|
-~M|07#\07.10||4|\Cubiertas planas y terrazas\4\\\\|
-~C|07.11|ud|PUNTO DE ANCLAJE PARA LIMPIEZA Y MANTENIMIENTO|166.98|27102026|0|
-~T|07.11|Punto de anclaje homologado (UNE-EN 795) junto al lucernario para la limpieza y el mantenimiento de la cubierta.|
-~M|07#\07.11||0|\Ya no se colocan: con la opción 2 de cubiertas el ventanal de la escalera se limpia desde la terraza en cubierta\0\\\\|
-~C|07.12|m2|FORMACIÓN DE PENDIENTES CON MORTERO (1–2 %) EN PATIO, PORCHE, TERRAZA Y CUBIERTA PLANA|11.73|27102026|0|
-~T|07.12|Formación de pendientes del 1–2 % hacia los sumideros con mortero de cemento sobre la lámina antiimpacto y el aislamiento, espesor mínimo 2 cm junto a los sumideros (medio ~ 5 cm; ~ 3 cm en la terraza en cubierta), maestreado y fratasado como soporte de la lámina impermeable.|
-~M|07#\07.12||70.14|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\70.14\\\|
-~C|07.13|m2|BARRERA DE VAPOR BAJO EL AISLAMIENTO EN CUBIERTA PLANA, PATIO Y PORCHE|3.43|27102026|0|
+~C|07.09|m2|AISLAMIENTO XPS CON GRAFITO 12 CM EN CUBIERTA PLANA|15.80|13112026|0|
+~T|07.09|Aislamiento de poliestireno extruido con grafito de 12 cm (lambdaD <= 0,028 W/m·K, 300 kPa) sobre el forjado de la cubierta plana, bajo la lámina antiimpacto y el mortero de pendientes; se completa con 4 cm de lana mineral sobre los falsos techos de planta segunda bajo la cubierta plana (09.04). Patio, porche, terraza y cubierta plana (no es cubierta invertida): forjado de viguetas + XPS + lámina antiimpacto + mortero de pendientes + lámina de betún modificado + mortero de protección + microcemento exterior.|
+~M|07#\07.09||30.25|\Medido sobre la planta de cubierta nueva (13-nov-2026)\1\30.25\\\|
+~C|07.10|ud|SUMIDERO SIFÓNICO Ø90 CON REBOSADERO|121.85|13112026|0|
+~T|07.10|Sumidero sifónico de 90 mm, de salida vertical en la cubierta plana, con rebosadero, babero de conexión con la impermeabilización y rejilla.|
+~M|07#\07.10||5|\Cubiertas planas y terrazas\5\\\\|
+~C|07.12|m2|FORMACIÓN DE PENDIENTES CON MORTERO (1–2 %) EN PATIO, PORCHE, TERRAZA Y CUBIERTA PLANA|11.73|13112026|0|
+~T|07.12|Formación de pendientes del 1–2 % hacia los sumideros con mortero de cemento sobre la lámina antiimpacto y el aislamiento, espesor mínimo 2 cm junto a los sumideros (medio ~ 5 cm; en la terraza en cubierta, mortero ligero de arlita al 1 %, mín. 4 cm, medio ~ 7 cm), maestreado y fratasado como soporte de la lámina impermeable.|
+~M|07#\07.12||73.31|\Medido sobre la planta de cubierta nueva (13-nov-2026)\1\73.31\\\|
+~C|07.13|m2|BARRERA DE VAPOR BAJO EL AISLAMIENTO EN CUBIERTA PLANA, PATIO Y PORCHE|3.43|13112026|0|
 ~T|07.13|Barrera de vapor de film de polietileno de baja densidad de 0,2 mm sobre el forjado, bajo el XPS, con solapes de 10 cm sellados con cinta y entrega en los perímetros hasta la cara superior del aislamiento, en la cubierta plana y en el patio y el porche de planta primera (Enrique, 14-oct).|
-~M|07#\07.13||59.06|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\59.06\\\|
-~C|08#||AISLAMIENTOS, IMPERMEABILIZACIÓN Y SELLADOS|7003.13|27102026|0|
-~D|08#|08.01\1\59.65\08.02\1\190.46\08.03\1\219.91\08.04\1\69.7\08.05\1\20\08.06\1\140.42\08.07\1\6\08.08\1\70.14\|
+~M|07#\07.13||61.17|\Medido sobre la planta de cubierta nueva (13-nov-2026)\1\61.17\\\|
+~C|08#||AISLAMIENTOS, IMPERMEABILIZACIÓN Y SELLADOS|6892.81|13112026|0|
+~D|08#|08.01\1\59.65\08.02\1\190.46\08.03\1\219.91\08.04\1\69.7\08.05\1\20\08.06\1\140.42\08.07\1\73.31\|
 ~C|08.01|m2|AISLAMIENTO XPS 10 CM SOBRE FORJADO SANITARIO|14.89|27102026|0|
 ~T|08.01|Aislamiento de poliestireno extruido de 10 cm (lambda  0,034), con juntas a tope, sobre el forjado sanitario de las zonas calefactadas, incluso franja de 3,5 cm bajo umbrales.|
 ~M|08#\08.01||59.65|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\59.65\\\|
@@ -226,14 +232,11 @@
 ~C|08.06|m|SELLADO HERMÉTICO DE CARPINTERÍAS|6.14|27102026|0|
 ~T|08.06|Sellado del perímetro de las carpinterías con cinta expansiva y láminas de estanqueidad interior/exterior para la hermeticidad (n50).|
 ~M|08#\08.06||140.42|\Perímetro de huecos: 145 m de la propuesta - 13,40 m del lucernario de la propuesta + 8,82 m del V12 (lucernario escalera–terraza, opción 3)\1\140.42\\\|
-~C|08.07|m2|IMPERMEABILIZACIÓN Y DRENAJE DE JARDINERA|28.88|27102026|0|
-~T|08.07|Lámina antirraíz, capa drenante y geotextil en la jardinera integrada en la viga de borde.|
-~M|08#\08.07||6|\Jardinera\1\6\\\|
-~C|08.08|m2|IMPERMEABILIZACIÓN CON LÁMINA DE BETÚN MODIFICADO EN PATIO, PORCHE, TERRAZA Y CUBIERTA PLANA|19.86|27102026|0|
-~T|08.08|Impermeabilización con lámina de betún modificado LBM-40/FP adherida sobre el mortero de pendientes de los forjados exteriores (patio y porche, terraza de planta segunda y cubierta plana), con imprimación, media caña y remonte >= 20 cm en petos y paramentos, refuerzos en sumideros y encuentros; bajo el mortero de protección y el microcemento exterior (Enrique, 14-oct: lámina y microcemento; no se confía la estanqueidad solo al microcemento).|
-~M|08#\08.08||70.14|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\70.14\\\|
-~C|09#||FALSOS TECHOS|3533.88|27102026|0|
-~D|09#|09.01\1\88.76\09.02\1\11\09.03\1\21.35\09.04\1\29.44\|
+~C|08.07|m2|IMPERMEABILIZACIÓN CON LÁMINA DE BETÚN MODIFICADO EN PATIO, PORCHE, TERRAZA Y CUBIERTA PLANA|19.86|13112026|0|
+~T|08.07|Impermeabilización con lámina de betún modificado LBM-40/FP adherida sobre el mortero de pendientes de los forjados exteriores (patio y porche, terraza de planta segunda y cubierta plana), con imprimación, media caña y remonte >= 20 cm en petos y paramentos, refuerzos en sumideros y encuentros; bajo el mortero de protección y el microcemento exterior (Enrique, 14-oct: lámina y microcemento; no se confía la estanqueidad solo al microcemento).|
+~M|08#\08.07||73.31|\Medido sobre la planta de cubierta nueva (13-nov-2026)\1\73.31\\\|
+~C|09#||FALSOS TECHOS|3540.46|13112026|0|
+~D|09#|09.01\1\88.76\09.02\1\11\09.03\1\21.35\09.04\1\30.25\|
 ~C|09.01|m2|FALSO TECHO DE PLACA DE YESO LAMINADO 15 MM|24.37|27102026|0|
 ~T|09.01|Falso techo de placa de yeso laminado de 15 mm (hidrófuga en baños y aseos) sobre perfilería de acero galvanizado y varilla roscada, con juntas tratadas, listo para pintar.|
 ~M|09#\09.01||88.76|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\88.76\\\|
@@ -243,11 +246,11 @@
 ~C|09.03|m2|TABICA DE PLACA DE YESO LAMINADO EN LOS BORDES DEL FALSO TECHO|30.69|27102026|0|
 ~T|09.03|Tabica (cierre vertical) de placa de yeso laminado de 15 mm sobre perfilería de acero galvanizado, desde el borde del falso techo hasta la cara inferior del forjado, donde el falso techo termina en mitad de un espacio, con cantonera en la arista, juntas tratadas y lista para pintar (Enrique, 14-oct).|
 ~M|09#\09.03||21.35|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\21.35\\\|
-~C|09.04|m2|LANA MINERAL DE 4 CM SOBRE EL FALSO TECHO BAJO LA TERRAZA EN CUBIERTA|8.12|27102026|0|
-~T|09.04|Panel de lana mineral de 40 mm (lambda  <= 0,035 W/mK, UNE-EN 13162) sobre la placa del falso techo de planta segunda bajo la terraza en cubierta, colocado sin juntas abiertas y continuo hasta los muros; completa el aislamiento de la cubierta plana (XPS 10 cm, 07.09).|
-~M|09#\09.04||29.44|\Igual que el XPS de la cubierta plana (07.09)\1\29.44\\\|
-~C|10#||PAVIMENTOS|17460.89|27102026|0|
-~D|10#|10.01\1\209.42\10.02\1\87\10.03\1\136.51\10.04\1\70.14\10.05\1\15.15\10.06\1\49.52\10.07\1\5.4\10.08\1\1\10.09\1\70.14\10.10\1\55.25\|
+~C|09.04|m2|LANA MINERAL DE 4 CM SOBRE EL FALSO TECHO BAJO LA TERRAZA EN CUBIERTA|8.12|13112026|0|
+~T|09.04|Panel de lana mineral de 40 mm (lambda <= 0,035 W/mK, UNE-EN 13162) sobre la placa de los falsos techos de planta segunda situados bajo la cubierta plana, colocado sin juntas abiertas y continuo hasta los muros; completa el aislamiento de la cubierta plana (XPS 12 cm, 07.09).|
+~M|09#\09.04||30.25|\Igual que el XPS de la cubierta plana (07.09)\1\30.25\\\|
+~C|10#||PAVIMENTOS|17664.05|13112026|0|
+~D|10#|10.01\1\209.42\10.02\1\87\10.03\1\136.51\10.04\1\73.31\10.05\1\15.15\10.06\1\49.52\10.07\1\5.4\10.08\1\1\10.09\1\73.31\10.10\1\55.25\|
 ~C|10.01|m2|MORTERO AUTONIVELANTE DE 4 CM CON SUELO RADIANTE|13.54|27102026|0|
 ~T|10.01|Mortero autonivelante de 4 cm sobre el suelo radiante compacto, con aditivo para calefacción, juntas de dilatación y protocolo de primer encendido.|
 ~M|10#\10.01||209.42|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\209.42\\\|
@@ -257,9 +260,9 @@
 ~C|10.03|m2|PAVIMENTO CONTINUO DE MICROCEMENTO PULIDO INTERIOR|43.32|27102026|0|
 ~T|10.03|Pavimento continuo de microcemento pulido sobre el mortero, con imprimación, malla, capas de base y acabado y sellado de poliuretano mate.|
 ~M|10#\10.03||136.51|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\191.76\\\\Txoko y almacenaje: sin microcemento, mortero sellado (10.10)\-1\55.25\\\|
-~C|10.04|m2|PAVIMENTO CONTINUO DE MICROCEMENTO EXTERIOR|50.55|27102026|0|
+~C|10.04|m2|PAVIMENTO CONTINUO DE MICROCEMENTO EXTERIOR|50.55|13112026|0|
 ~T|10.04|Pavimento continuo de microcemento para exterior, antideslizante clase 3, sobre el mortero autonivelante del patio, el porche, la terraza y la cubierta plana, con sellado alifático.|
-~M|10#\10.04||70.14|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\70.14\\\|
+~M|10#\10.04||73.31|\Medido sobre la planta de cubierta nueva (13-nov-2026)\1\73.31\\\|
 ~C|10.05|m2|PAVIMENTO DE GRES PORCELÁNICO EN BAÑOS Y ASEOS|48.74|27102026|0|
 ~T|10.05|Pavimento de gres porcelánico tomado con adhesivo C2 y rejuntado, en baños y aseos.|
 ~M|10#\10.05||15.15|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\17.66\\\\Aseo de planta baja: pavimento a cargo de la propiedad\-1\2.51\\\|
@@ -272,9 +275,9 @@
 ~C|10.08|ud|UMBRAL DE PIEDRA Y ZAGUÁN DE P1|857.47|27102026|0|
 ~T|10.08|Losa del zaguán con pendiente, acanaladuras rellenas de grava, umbral de piedra con goterón y umbral de aluminio con RPT <= 2 cm.|
 ~M|10#\10.08||1|\P1\1\\\\|
-~C|10.09|m2|MORTERO DE PROTECCIÓN DE 4 CM SOBRE LA LÁMINA (PATIO, PORCHE, TERRAZA Y CUBIERTA PLANA)|13.54|27102026|0|
+~C|10.09|m2|MORTERO DE PROTECCIÓN DE 4 CM SOBRE LA LÁMINA (PATIO, PORCHE, TERRAZA Y CUBIERTA PLANA)|13.54|13112026|0|
 ~T|10.09|Mortero de protección de 4 cm armado con malla, sobre la lámina impermeable de los forjados exteriores (patio y porche, terraza de planta segunda y cubierta plana), como base del microcemento exterior, con juntas de dilatación y junta perimetral.|
-~M|10#\10.09||70.14|\Medición del IFC de Vectorworks del 27-oct-2026 (cotas definitivas +3,42 / +6,48 / +9,64)\1\70.14\\\|
+~M|10#\10.09||73.31|\Medido sobre la planta de cubierta nueva (13-nov-2026)\1\73.31\\\|
 ~C|10.10|m2|SELLADO DEL MORTERO AUTONIVELANTE EN TXOKO Y ALMACENAJE|5.42|27102026|0|
 ~T|10.10|Imprimación selladora sobre el mortero autonivelante del suelo radiante del txoko y del almacenaje, como acabado de planta baja; el pavimento definitivo, a cargo de la propiedad.|
 ~M|10#\10.10||55.25|\Txoko 29,35 + almacenaje 25,90\1\55.25\\\|
@@ -306,7 +309,7 @@
 ~C|12.04|ud|SUMINISTRO PREMARCO MADERA|59.18|27102026|0|
 ~T|12.04|Suministro de premarcos de madera para puertas interiores. Igual a medición P01                                                                    5,00 =12/12.05.CanPres Igual a medcion P02                                                                     2,00 =12/12.22.CanPres|
 ~M|12#\12.04||8|\Puertas de paso\8\\\\|
-~C|13#||CARPINTERÍA EXTERIOR|47882.02|27102026|0|
+~C|13#||CARPINTERÍA EXTERIOR|46584.71|13112026|0|
 ~D|13#|13.01\1\4\13.02\1\3\13.03\1\1\13.04\1\2\13.05\1\1\13.06\1\2\13.07\1\1\13.08\1\1\13.09\1\1\13.10\1\1\13.11\1\1\13.12\1\1\13.13\1\1\13.14\1\1\13.15\1\1\13.16\1\21\|
 ~C|13.01|ud|CARPINTERÍA V1 · 1,15 × 2,28, FACHADA C. ANCHA|1633.28|27102026|0|
 ~T|13.01|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 690 €/m² (2.62 m²).|
@@ -317,11 +320,11 @@
 ~C|13.03|ud|CARPINTERÍA V4 · PLANTA BAJA, C. ANCHA|570.05|27102026|0|
 ~T|13.03|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 779 €/m² (0.81 m²).|
 ~M|13#\13.03||1|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\1\\\|
-~C|13.04|ud|CARPINTERÍA V5 · FIJO EN ESQUINA AL PATIO PEQUEÑO (PLANTAS 1ª Y 2ª)|2961.97|27102026|0|
-~T|13.04|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 560 €/m² (5.86 m²).|
+~C|13.04|ud|CARPINTERÍA V5 · FIJO EN ESQUINA Y HOJA PRACTICABLE AL PATIO DE RESERVA DE ASCENSOR (PLANTAS 1ª Y 2ª)|3008.05|13112026|0|
+~T|13.04|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = fijos × 560 €/m² + hoja practicable × 779 €/m² (5,55 m²: fijo de 1,06 m y hoja de 0,45 m al sur, fijo de 0,93 m al oeste).|
 ~M|13#\13.04||2|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\2\\\|
-~C|13.05|ud|CARPINTERÍA V5b · FIJO EN ESQUINA AL PATIO PEQUEÑO (PLANTA BAJA)|3184.37|27102026|0|
-~T|13.05|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 560 €/m² (6.30 m²).|
+~C|13.05|ud|CARPINTERÍA V5b · FIJO EN ESQUINA Y HOJA PRACTICABLE AL PATIO DE RESERVA DE ASCENSOR (PLANTA BAJA)|3233.91|13112026|0|
+~T|13.05|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = fijos × 560 €/m² + hoja practicable × 779 €/m² (5,96 m²: fijo de 1,06 m y hoja de 0,45 m al sur, fijo de 0,93 m al oeste).|
 ~M|13#\13.05||1|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\1\\\|
 ~C|13.06|ud|CARPINTERÍA V6 · ASEO AL PATIO PEQUEÑO (PLANTAS 1ª Y 2ª)|436.33|27102026|0|
 ~T|13.06|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 779 €/m² (0.62 m²).|
@@ -350,20 +353,20 @@
 ~C|13.14|ud|PG · PUERTA BASCULANTE DE GARAJE 5,40 × 2,45 MOTORIZADA|6227.94|27102026|0|
 ~T|13.14|Puerta basculante no desbordante de una pieza de 5,40 × 2,45 m revestida en 4 paños verticales, con contrapesos en cajones laterales, carriles colgados, motor lateral, rejillas de ventilación >= 480 cm² y montaje, según la ficha LO-G2.|
 ~M|13#\13.14||1|\PG\1\\\\|
-~C|13.15|ud|CARPINTERÍA V12 · LUCERNARIO ESCALERA–TERRAZA · 2,74 × 2,02/1,20, FIJO + PRACTICABLE, VIDRIO DE CONTROL SOLAR|2919.01|27102026|0|
-~T|13.15|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. V12, lucernario de la escalera a la terraza en cubierta, en el frente este del faldón que cubre la escalera: 2,74 m de largo, alféizar a +9,60, a nivel de la terraza, y cabeza en el plano del faldón (de 2,02 a 1,20 m de alto), con travesaño a +10,17; fijos y hoja practicable de 0,60 m. Acristalamiento 44.1 / 16 argón / 44.1 con capa de control solar (g <= 0,35, tipo SGG Cool-Lite) en lugar de estor. Precio unitario = superficie × 690 €/m² (4,40 m²) + suplemento del vidrio de control solar (45 €/m²).|
-~M|13#\13.15||1|\Medición del IFC de Vectorworks con las cotas definitivas (27-oct-2026)\1\\\\|
+~C|13.15|ud|LUCERNARIO FIJO V12 DE LA ESCALERA · A MEDIDA 1,15 × 1,04, TIPO VELUX GGL O EQUIVALENTE, CON CERCO Y BROCHALES|1480.00|13112026|0|
+~T|13.15|Lucernario fijo a medida, tipo Velux GGL o equivalente, de 1146 × 1040 mm, fabricado por el carpintero de la carpintería exterior en madera de alerce con perfiles exteriores de aluminio, sin apertura, acristalamiento laminar 44.1 / 16 argón / templado 4 con capa de control solar (g <= 0,35), colocado en el faldón de C. Ancha (pendiente 30 %) centrado sobre los tres primeros peldaños de la escalera a planta segunda, con cerco de estanqueidad a medida de chapa de zinc y premarco aislante, y chapa de remate de zinc de 0,65 mm y 33 cm de desarrollo (1,35 m) en el costado oeste, entre el marco, que monta 9 cm sobre la medianera propia, y la medianera vecina; incluso apertura del hueco de 0,98 × 0,84 m en la losa de placas Ytong con dos brochales de angular L 150.100.10 galvanizado de 1,60 m, recercado interior a plomo de placa de yeso laminado (hueco visto 0,967 × 0,81 m), remates y medios auxiliares (ficha V12, LO-G2; detalle A.3, LO-F5).|
+~M|13#\13.15||1|\Faldón de C. Ancha, sobre la escalera\1\\\\|
 ~C|13.16|m|VIERTEAGUAS DE ZINC / ALUMINIO|59.37|27102026|0|
 ~T|13.16|Ml. Vierteaguas de chapa de aluminio anodizado o lacado en su color de 2 mm de espesor, mismas especificaciones que la carpintería exteriory/o panel composite de 4 mm idem fachada y 60 cm. De desarrollo, según detalle, colocado sobre tablero de dm hidrófugo de 19 mm incluido en el precio, i/patillas de sujeción soldadas, sellado de juntas con silicona incolora y limpieza, medido en su longitud. VOLUMEN 1 Fachada norte|
 ~M|13#\13.16||21|\Ventanas de fachada\1\12\\\\Ventanas a patio\1\9\\\|
-~C|14#||PROTECCIONES SOLARES, METALISTERÍA Y VIDRIERÍA|17980.28|27102026|0|
-~D|14#|14.01\1\19.61\14.02\1\2\14.03\1\24.08\14.04\1\7\14.05\1\8.43\14.06\1\0\|
+~C|14#||PROTECCIONES SOLARES, METALISTERÍA Y VIDRIERÍA|18310.28|13112026|0|
+~D|14#|14.01\1\19.61\14.02\1\2\14.03\1\24.08\14.04\1\7\14.05\1\8.43\14.06\1\1\|
 ~C|14.01|m2|PERSIANA EXTERIOR WAREMA RAFFSTORE E 80 MOTORIZADA|388.12|27102026|0|
 ~T|14.01|Persiana veneciana exterior WAREMA Raffstore E 80 A6 Z de lama de aluminio anodizado, con guías empotradas, motor y conexión al accionador, alojada en el cajón.|
 ~M|14#\14.01||19.61|\V1\1\10.49\\\\V2 y V3\1\9.12\\\|
-~C|14.02|ud|ESTOR EXTERIOR BANDALUX SCREEN MOTORIZADO|704.03|27102026|0|
+~C|14.02|ud|ESTOR EXTERIOR BANDALUX SCREEN MOTORIZADO|704.03|13112026|0|
 ~T|14.02|Estor enrollable exterior Bandalux de tejido técnico screen (cara exterior clara, te <= 0,20), con cajón, guías de cable laterales, motor y conexión al accionador.|
-~M|14#\14.02||2|\V7\1\\\\\V11\1\\\\\V12 (lucernario escalera–terraza): sin estor; control solar con vidrio g <= 0,35 (13.15)\0\\\\|
+~M|14#\14.02||2|\V7\1\\\\\V11\1\\\\|
 ~C|14.03|m|BARANDILLA DE ACERO LACADO DE BARROTES REDONDOS|194.06|27102026|0|
 ~T|14.03|Barandilla de acero lacado de barrotes redondos macizos Ø15 mm con luz libre <= 100 mm, pasamanos de chapa angular L 40.40.5 y pletina base de 120×10 mm anclada a la viga de borde o al forjado con varillas M12 cada 60 cm; altura 1,10 m en todas, medida desde el pavimento terminado y sin peto ni remate bajo la barandilla (DB-SUA 1).|
 ~M|14#\14.03||24.08|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\24.08\\\|
@@ -373,9 +376,9 @@
 ~C|14.05|m|BARANDILLA Y PASAMANOS DE LA ESCALERA|148.93|27102026|0|
 ~T|14.05|Barandilla de la escalera de 1,10 m de altura sobre la línea de peldaños, de acero lacado, con barrotes redondos macizos verticales de Ø 15 mm cada 11,5 cm (hueco <= 10 cm) soldados a la zanca libre y pasamanos de chapa angular L 40 × 40 × 5 mm (plano LO-E3).|
 ~M|14#\14.05||8.43|\Medida en pendiente en el BIM: tramo de planta baja a primera 3,89 m + arranque en planta baja 0,65 m + tramo de primera a segunda 3,89 m\1\8.43\\\|
-~C|14.06|ud|CELOSÍA DE TRAMEX GALVANIZADO DEL FALDÓN VENTILADO · 2,77 × 1,80, FIJO + PUERTA DE 0,80|1308.77|27102026|0|
-~T|14.06|Celosía de rejilla electrosoldada (tramex) de acero galvanizado en caliente, malla 33 × 100 mm con pletina portante de 30 × 3 mm, en un paño fijo de ~ 1,85 m y una puerta abatible de 0,80 m del mismo material, con bastidor de pletina, bisagras soldadas y cerradura de llave; marco perimetral de angular L 40.40.4 galvanizado anclado al piñón, al muro y a la cubierta plana (sobre la protección de la lámina, sin perforarla) con tacos químicos y sellado. 2,77 × 1,80 m. Cierra el frente del faldón ventilado de C. del Peso, donde van la unidad exterior de la aerotermia y un almacenaje. Según la ficha de carpintería LO-G.|
-~M|14#\14.06||0|\Opción 3 de cubiertas (IFC, 21-oct): no hay faldón ventilado ni celosía\0\\\\|
+~C|14.06|ud|CELOSÍA V13 DE TRAMEX GALVANIZADO ANTE LA UNIDAD DE AEROTERMIA, 1,47 × 1,20 m, 2 HOJAS ABATIBLES|330.00|13112026|0|
+~T|14.06|Celosía de rejilla electrosoldada tipo tramex de acero galvanizado en caliente, malla 30 × 30 mm y pletina portante 30 × 2 mm, en 2 hojas abatibles de 0,735 × 1,20 m con bastidor de tubo 40.40.2, sobre cerco de angular L 40.40.4 galvanizado recibido al muro del fondo norte de la terraza técnica (umbral a +10,00), con pernios y cierre de cuadradillo, paso de aire libre >= 80 %; oculta la unidad exterior de aerotermia (ficha V13, LO-G2).|
+~M|14#\14.06||1|\Fondo norte de la terraza técnica\1\1\\\|
 ~C|15#||PINTURA|4615.88|27102026|0|
 ~D|15#|15.01\1\660.63\15.02\1\47.57\|
 ~C|15.01|m2|PINTURA PLÁSTICA LISA EN PAREDES Y TECHOS|6.37|27102026|0|
@@ -464,8 +467,8 @@
 ~C|16.02.03|UD|PLACA DE SEÑALIZACION PARA EXTINTOR|10.25|27102026|0|
 ~T|16.02.03|Suministro e instalación de : Placa de señalización fotoluminiscente, para extintor, de dimensiones 230 x 340 mm referencia cir 124, según normas une 23033-1 y une 23035-4. Mano de obra y medios auxiliares.|
 ~M|16.02#\16.02.03||2|\Extintores\2\\\\|
-~C|16.03.01|ud|BOMBA DE CALOR AIRE-AGUA 8 KW CON DEPÓSITO DE ACS 230 L|8303.92|27102026|0|
-~T|16.03.01|Bomba de calor aire-agua de baja temperatura tipo Daikin Altherma 3 de 8 kW (SCOP 4,61 a 35 °C, A+++), unidad exterior en el hueco del muro grueso de la cubierta, junto al V12, sobre bancada antivibratoria, ventilada y registrable desde la terraza, sobre bancada antivibratoria y unidad interior con depósito de ACS de 230 L y resistencia de apoyo integrada en el almacenaje de planta baja, con puesta en marcha.|
+~C|16.03.01|ud|BOMBA DE CALOR AIRE-AGUA 8 KW CON DEPÓSITO DE ACS 230 L|8303.92|13112026|0|
+~T|16.03.01|Bomba de calor aire-agua de baja temperatura tipo Daikin Altherma 3 de 8 kW (SCOP 4,61 a 35 °C, a+++), unidad exterior en el fondo norte de la terraza técnica, en un nicho del muro que la cierra y tras la celosía V13, sobre bancada antivibratoria, ventilada y registrable desde la terraza y unidad interior con depósito de ACS de 230 L y resistencia de apoyo integrada en el almacenaje de planta baja, con puesta en marcha.|
 ~M|16.03#\16.03.01||1|\Almacenaje de planta baja / cubierta\1\\\\|
 ~C|16.03.02|UD|JUEGO CONEXIÓN HIDRÁULICO SALIDA SUPERIOR|128.56|27102026|0|
 ~T|16.03.02|Suministro y montaje de set conexión circuito de calefacción/refrigeración para instalación sobre pared hacia arriba. Todos los conductos de calefacción, refrigeración, llenado agua, acs, etc. Salen por la parte superior del equipo.|
