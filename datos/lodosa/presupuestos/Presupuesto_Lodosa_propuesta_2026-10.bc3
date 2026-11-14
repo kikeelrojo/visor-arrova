@@ -313,7 +313,7 @@
 ~T|12.04|Suministro de premarcos de madera para puertas interiores. Igual a medición P01                                                                    5,00 =12/12.05.CanPres Igual a medcion P02                                                                     2,00 =12/12.22.CanPres|
 ~M|12#\12.04||8|\Puertas de paso\8\\\\|
 ~C|13#||CARPINTERÍA EXTERIOR|46292.23|13112026|0|
-~D|13#|13.01\1\4\13.02\1\3\13.03\1\1\13.04\1\2\13.05\1\1\13.06\1\2\13.07\1\1\13.08\1\1\13.09\1\1\13.10\1\1\13.11\1\1\13.12\1\1\13.13\1\1\13.14\1\1\13.15\1\1\13.16\1\22.13\13.17\1\1\|
+~D|13#|13.01\1\4\13.02\1\3\13.03\1\1\13.04\1\2\13.05\1\1\13.06\1\2\13.07\1\1\13.08\1\1\13.09\1\1\13.10\1\1\13.11\1\1\13.12\1\1\13.13\1\1\13.14\1\1\13.15\1\1\13.16\1\21\13.17\1\1\|
 ~C|13.01|ud|CARPINTERÍA V1 · 1,15 × 2,28, FACHADA C. ANCHA|1580.00|27102026|0|
 ~T|13.01|Carpintería de madera de alerce sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), con herraje oscilobatiente, manillas Ocariz, acristalamiento según la ficha (Planitherm XN con argón; laminar donde lo exige el DB-SUA) y montaje sobre premarco con sellado; dimensiones y despiece según las fichas LO-G1 / LO-G2. Precio unitario = superficie × 690 €/m² (2.62 m²).|
 ~M|13#\13.01||4|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\4\\\|
@@ -357,13 +357,13 @@
 ~T|13.14|Puerta basculante no desbordante de una pieza de 5,40 × 2,45 m revestida en 4 paños verticales, con contrapesos en cajones laterales, carriles colgados, motor lateral, rejillas de ventilación >= 480 cm² y montaje, según la ficha LO-G2.|
 ~M|13#\13.14||1|\PG\1\\\\|
 ~C|13.15|ud|LUCERNARIO FIJO V13 DE LA ESCALERA · A MEDIDA 1,15 × 1,14, TIPO VELUX GGL O EQUIVALENTE, CON CERCO Y BROCHALES|1420.00|13112026|0|
-~T|13.15|Lucernario fijo a medida, tipo Velux GGL o equivalente, de 1146 × 1144 mm, fabricado por el carpintero de la carpintería exterior en madera de alerce con perfiles exteriores de aluminio, sin apertura, acristalamiento laminar 44.1 / 16 argón / templado 4 con capa de control solar (g <= 0,35), colocado en el faldón de C. Ancha (pendiente 30 %) en el desembarco de la escalera en planta segunda, junto a la medianera oeste, con cerco de estanqueidad a medida de chapa de zinc y premarco aislante, y chapa de remate de zinc de 0,65 mm y 52 cm de desarrollo (1,46 m) en el costado oeste, entre el marco, que monta 9 cm sobre la medianera propia, y la medianera vecina; incluso apertura del hueco de 0,98 × 0,94 m en la losa de placas Ytong con dos brochales de angular L 150.100.10 galvanizado de 1,60 m, recercado interior a plomo de placa de yeso laminado (hueco visto 0,967 × 0,974 m; hueco libre interior 0,94 × 0,91 m), remates y medios auxiliares (ficha V13, LO-G3; detalle A.3, LO-F5).|
+~T|13.15|Lucernario fijo a medida, tipo Velux GGL o equivalente, de 1146 × 1144 mm, fabricado por el carpintero de la carpintería exterior en madera de alerce con perfiles exteriores de aluminio, sin apertura, acristalamiento laminar 44.1 / 16 argón / templado 4 con capa de control solar (g <= 0,35), colocado en el faldón de C. Ancha (pendiente 30 %) en el desembarco de la escalera en planta segunda, junto a la medianera oeste, con cerco de estanqueidad a medida de chapa de zinc y premarco aislante, y chapa de remate de zinc de 0,65 mm y 52 cm de desarrollo (1,46 m) en el costado oeste, entre el marco, que monta 9 cm sobre la medianera propia, y la medianera vecina; incluso apertura del hueco de 0,98 × 0,94 m en la losa de placas Ytong con dos brochales de angular L 150.100.10 galvanizado de 1,60 m, recercado interior a plomo de placa de yeso laminado (hueco visto 0,967 × 0,974 m; hueco libre interior 0,94 × 0,91 m), remates y medios auxiliares sin estor (control solar por vidrio); (ficha V13, LO-G3; detalle A.3, LO-F5).|
 ~M|13#\13.15||1|\Faldón de C. Ancha, en el desembarco de la escalera en planta segunda, junto a la medianera oeste\1\\\\|
 ~C|13.16|m|VIERTEAGUAS DE ZINC / ALUMINIO|59.37|27102026|0|
 ~T|13.16|Ml. Vierteaguas de chapa de aluminio anodizado o lacado en su color de 2 mm de espesor, mismas especificaciones que la carpintería exteriory/o panel composite de 4 mm idem fachada y 60 cm. De desarrollo, según detalle, colocado sobre tablero de dm hidrófugo de 19 mm incluido en el precio, i/patillas de sujeción soldadas, sellado de juntas con silicona incolora y limpieza, medido en su longitud. VOLUMEN 1 Fachada norte|
-~M|13#\13.16||22.13|\Ventanas de fachada\1\12\\\\Ventanas a patio\1\9\\\\V12 (fijo de la pared del patio)\1\1.13\\\|
-~C|13.17|ud|CARPINTERÍA V12 · FIJO 1,13 × 1,52 EN LA PARED DEL PATIO, SOBRE LA PLANA DEL PASO (ESCALERA)|850.00|14112026|0|
-~T|13.17|Carpintería fija a medida de 1,13 × 1,52 m (1,72 m2), de madera de alerce, sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), sin herraje, con acristalamiento laminar 44.1 / 16 argón / 4 con capa de control solar (g <= 0,35; Ug = 1,1 W/m2K), colocada en la pared del patio (eje c) sobre la plana del paso, con premarco, sellado y remates (ficha V12, LO-G3).|
+~M|13#\13.16||21|\Ventanas de fachada\1\12\\\\Ventanas a patio\1\9\\\|
+~C|13.17|ud|CARPINTERÍA V12 · FIJO 1,13 × 1,45 EN LA PARED DEL PATIO, A RAS DE LA PLANA DEL PASO (ESCALERA)|917.09|14112026|0|
+~T|13.17|Carpintería fija a medida de 1,13 × 1,45 m (1,64 m2), de madera de alerce, sistema Esperia 69 Sirio Aluminio (marco 70×70, hoja 69 mm, triple junta, perfil de aluminio exterior), sin herraje, con acristalamiento laminar 44.1 / 16 argón / 4 con capa de control solar (g <= 0,35; Ug = 1,1 W/m2K), colocada en la pared del patio (eje c) a ras de la plana del paso, sin remonte, con la lámina de la plana pasada bajo el marco y canaleta con rejilla de drenaje de 1,13 m delante; sin estor; con premarco, sellado y remates (ficha V12, LO-G3).|
 ~M|13#\13.17||1|\Pared del patio (eje c), sobre la plana del paso\1\\\\|
 ~C|14#||PROTECCIONES SOLARES, METALISTERÍA Y VIDRIERÍA|22187.60|14112026|0|
 ~D|14#|14.01\1\19.61\14.02\1\2\14.03\1\40.99\14.04\1\7\14.05\1\8.43\14.06\1\1\|
@@ -658,7 +658,7 @@
 ~M|16.05#\16.05.35||72|\Tomas 16 A\72\\\\|
 ~C|16.05.36|UD|PULSADOR DOBLE PERSIANA JUNG LS990 BL|19.07|27102026|0|
 ~T|16.05.36|Pulsador jung ls990 bl color blanco formado por: - 1 Pulsador completo jung ls990 bl. - 1 Caja 64x64.|
-~M|16.05#\16.05.36||9|\Accionadores de persiana / estor (el V13 no lleva estor: vidrio de control solar)\9\\\\|
+~M|16.05#\16.05.36||9|\Accionadores de persiana / estor (V12 y V13 no llevan estor: vidrio de control solar)\9\\\\|
 ~C|16.05.37|ud|PREINSTALACIÓN DE RECARGA DE VEHÍCULO ELÉCTRICO (DB-HE 6)|189.55|27102026|0|
 ~T|16.05.37|Conducción de cables para la futura recarga del vehículo eléctrico (ITC-BT-52): tubo vacío Ø32 mm desde el cuadro general por el montante hasta una caja de registro en el muro del garaje, con guía; según el plano LO-H7.|
 ~M|16.05#\16.05.37||1|\Garaje\1\\\\|
