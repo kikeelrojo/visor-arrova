@@ -1,7 +1,7 @@
 {
  "formato": "arrova-laminas",
  "proyecto": "lodosa",
- "fecha": "2026-11-14 04:44",
+ "fecha": "2026-11-14 21:20",
  "doc": "basico op3_claude.vwxw",
  "hojas": [
   {
@@ -153,10 +153,6 @@
    "titulo": "[Sheet Title]"
   },
   {
-   "n": "LO-D4",
-   "titulo": "Alzados"
-  },
-  {
    "n": "LO-G3b",
    "titulo": "Propuesta V12 · puerta de la aerotermia"
   },
@@ -182,7 +178,7 @@
   {
    "archivo": "laminas/basico op3.pdf",
    "titulo": "Juego completo de láminas",
-   "nota": "29 páginas · 14-11-2026 04:44"
+   "nota": "30 páginas · 14-11-2026 21:20"
   }
  ]
 }
