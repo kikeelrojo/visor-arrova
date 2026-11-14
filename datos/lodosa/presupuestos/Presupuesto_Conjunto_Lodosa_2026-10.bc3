@@ -1,6 +1,6 @@
 ~V|ARROVA|FIEBDC-3/2016|Claude|\|ANSI||||||
 ~K|\2\2\3\2\2\2\2\EUR\|0|
-~C|LODOSA##||VIVIENDA UNIFAMILIAR EN LODOSA · C. ANCHA 34|352698.52|13112026|0|
+~C|LODOSA##||VIVIENDA UNIFAMILIAR EN LODOSA · C. ANCHA 34|355776.32|13112026|0|
 ~D|LODOSA##|D#\1\1\ON#\1\1\|
 ~C|D#||DERRIBO|21339.28|27102026|0|
 ~D|D#|D01#\1\1\D02#\1\1\D03#\1\1\D04#\1\1\|
@@ -81,7 +81,7 @@
 ~C|D04.05|ud|HIGIENE, BOTIQUÍN Y FORMACIÓN|178.00|27102026|0|
 ~T|D04.05|Instalaciones de higiene (aseo químico o local habilitado), botiquín y formación e información de los trabajadores. Según el Estudio Básico de Seguridad y Salud del Proyecto de Derribo (anexo 4).|
 ~M|D04#\D04.05||1|\Partida alzada\1\\\\|
-~C|ON#||OBRA NUEVA|331359.24|13112026|0|
+~C|ON#||OBRA NUEVA|334437.04|13112026|0|
 ~D|ON#|01#\1\1\02#\1\1\03#\1\1\04#\1\1\05#\1\1\06#\1\1\07#\1\1\08#\1\1\09#\1\1\10#\1\1\11#\1\1\12#\1\1\13#\1\1\14#\1\1\15#\1\1\16#\1\1\18#\1\1\19#\1\1\20#\1\1\|
 ~C|01#||CONSIDERACIONES PREVIAS|1530.90|27102026|0|
 ~D|01#|01.01\1\1\01.02\1\1\01.03\1\1\01.04\1\1\01.05\1\1\01.06\1\1\|
@@ -440,8 +440,8 @@
 ~C|13.16|m|VIERTEAGUAS DE ZINC / ALUMINIO|59.37|27102026|0|
 ~T|13.16|Ml. Vierteaguas de chapa de aluminio anodizado o lacado en su color de 2 mm de espesor, mismas especificaciones que la carpintería exteriory/o panel composite de 4 mm idem fachada y 60 cm. De desarrollo, según detalle, colocado sobre tablero de dm hidrófugo de 19 mm incluido en el precio, i/patillas de sujeción soldadas, sellado de juntas con silicona incolora y limpieza, medido en su longitud. VOLUMEN 1 Fachada norte|
 ~M|13#\13.16||21|\Ventanas de fachada\1\12\\\\Ventanas a patio\1\9\\\|
-~C|14#||PROTECCIONES SOLARES, METALISTERÍA Y VIDRIERÍA|19630.28|13112026|0|
-~D|14#|14.01\1\19.61\14.02\1\2\14.03\1\24.08\14.04\1\7\14.05\1\8.43\14.06\1\1\|
+~C|14#||PROTECCIONES SOLARES, METALISTERÍA Y VIDRIERÍA|22708.08|13112026|0|
+~D|14#|14.01\1\19.61\14.02\1\2\14.03\1\39.94\14.04\1\7\14.05\1\8.43\14.06\1\1\|
 ~C|14.01|m2|PERSIANA EXTERIOR WAREMA RAFFSTORE E 80 MOTORIZADA|388.12|27102026|0|
 ~T|14.01|Persiana veneciana exterior WAREMA Raffstore E 80 A6 Z de lama de aluminio anodizado, con guías empotradas, motor y conexión al accionador, alojada en el cajón.|
 ~M|14#\14.01||19.61|\V1\1\10.49\\\\V2 y V3\1\9.12\\\|
@@ -449,8 +449,8 @@
 ~T|14.02|Estor enrollable exterior Bandalux de tejido técnico screen (cara exterior clara, te <= 0,20), con cajón, guías de cable laterales, motor y conexión al accionador.|
 ~M|14#\14.02||2|\V7\1\\\\\V11\1\\\\|
 ~C|14.03|m|BARANDILLA DE ACERO LACADO DE BARROTES REDONDOS|194.06|27102026|0|
-~T|14.03|Barandilla de acero lacado de barrotes redondos macizos Ø15 mm con luz libre <= 100 mm, pasamanos de chapa angular L 40.40.5 y pletina base de 120×10 mm anclada a la viga de borde o al forjado con varillas M12 cada 60 cm; altura 1,10 m en todas, medida desde el pavimento terminado y sin peto ni remate bajo la barandilla (DB-SUA 1).|
-~M|14#\14.03||24.08|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\24.08\\\|
+~T|14.03|Barandilla de acero lacado de barrotes redondos macizos Ø15 mm con luz libre <= 100 mm, pasamanos de chapa angular L 40.40.5 y pletina base de 120×10 mm anclada a la viga de borde o al forjado con varillas M12 cada 60 cm; altura 1,10 m (DB-SUA 1), salvo la de la terraza técnica de cubierta, de 0,90 m (zona de acceso exclusivo para mantenimiento), medida desde el pavimento terminado y sin peto ni remate bajo la barandilla (DB-SUA 1).|
+~M|14#\14.03||39.94|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\24.08\\\\Terraza técnica (cubierta, +9,80), h 0,90\1\15.86\\\|
 ~C|14.04|ud|MINI-BALCÓN DE CHAPA DE ACERO EN VENTANA DE FACHADA|433.25|27102026|0|
 ~T|14.04|Mini-balcón abierto de chapa de acero plegada lacada (vuelo 0,30 m) con barandilla de barrotes redondos macizos Ø15 mm (luz libre <= 100 mm) y pasamanos de chapa angular L 40.40.5, altura 1,10 m (DB-SUA 1), anclado al zuncho.|
 ~M|14#\14.04||7|\Medición del modelo BIM de Vectorworks (14-oct-2026)\1\7\\\|
