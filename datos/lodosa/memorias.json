@@ -1,12 +1,12 @@
 {
  "formato": "arrova-memorias",
  "proyecto": "lodosa",
- "fecha": "2026-11-15 15:51",
+ "fecha": "2026-11-15 17:37",
  "pdfs": [
   {
    "archivo": "memorias/00_Hoja_Control_Pendientes.pdf",
    "titulo": "Hoja de control · pendientes y discrepancias",
-   "nota": "16 páginas · 14-11-2026 22:07",
+   "nota": "16 páginas · 15-11-2026 17:36",
    "marcado": true
   },
   {
@@ -47,7 +47,7 @@
   {
    "archivo": "memorias/03_Memoria_Descriptiva_y_Constructiva.pdf",
    "titulo": "Memoria descriptiva y constructiva",
-   "nota": "03 · 16 páginas · 15-11-2026 15:32"
+   "nota": "03 · 16 páginas · 15-11-2026 17:36"
   },
   {
    "archivo": "memorias/04_1_Memoria_Cumplimiento_CTE.pdf",
@@ -107,7 +107,7 @@
   {
    "archivo": "memorias/14_Mediciones_y_Presupuesto.pdf",
    "titulo": "Mediciones y presupuesto",
-   "nota": "14 · 45 páginas · 15-11-2026 14:37"
+   "nota": "14 · 45 páginas · 15-11-2026 17:36"
   }
  ]
 }
