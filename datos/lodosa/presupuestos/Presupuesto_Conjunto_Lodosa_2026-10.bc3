@@ -157,12 +157,12 @@
 ~C|04.10|m|DESVÍO DEL COLECTOR DE RESIDUALES Ø 110 MM DEL ASEO, COLGADO|32.00|13112026|0|
 ~T|04.10|Colector de polipropileno insonorizado de 110 mm colgado en falso techo, con pendiente >= 2 %, abrazaderas isofónicas y piezas especiales, para rodear por el oeste y el sur el hueco de reserva de ascensor en plantas primera y segunda (planos LO-H3 y LO-H4), hasta la bajante. Precio estimado, a contrastar.|
 ~M|04#\04.10||9|\Planta primera\1\4.5\\\\Planta segunda\1\4.5\\\|
-~C|05#||CIMENTACIÓN Y ESTRUCTURA|80568.85|13112026|0|
+~C|05#||CIMENTACIÓN Y ESTRUCTURA|77189.53|15112026|0|
 ~D|05#|05.01#\1\1\05.02#\1\1\|
 ~C|05.01#||CIMENTACIÓN Y FORJADO SANITARIO|22914.45|27102026|0|
 ~D|05.01#|05.01.01\1\5.65\05.01.02\1\26.57\05.01.03\1\27.71\05.01.04\1\111\05.01.05\1\109.16\|
-~C|05.02#||ESTRUCTURA|57654.40|13112026|0|
-~D|05.02#|05.02.01\1\244.83\05.02.02\1\19.17\05.02.03\1\1842\05.02.04\1\217.53\05.02.05\1\30\05.02.06\1\4.4\05.02.07\1\87.81\05.02.08\1\39\05.02.09\1\49.52\05.02.10\1\430\05.02.11\1\11.08\05.02.12\1\34\|
+~C|05.02#||ESTRUCTURA|54275.08|15112026|0|
+~D|05.02#|05.02.01\1\244.83\05.02.02\1\19.17\05.02.03\1\1842\05.02.04\1\217.53\05.02.05\1\30\05.02.06\1\4.4\05.02.07\1\52.05\05.02.08\1\39\05.02.09\1\49.52\05.02.10\1\430\05.02.11\1\11.08\05.02.12\1\34\|
 ~C|05.01.01|m3|HORMIGÓN DE LIMPIEZA HM-20 BAJO ZAPATAS|88.45|27102026|0|
 ~T|05.01.01|Hormigón de limpieza HM-20/P/20/I de 10 cm de espesor en el fondo de zapatas y vigas de atado, vertido y nivelado.|
 ~M|05.01#\05.01.01||5.65|\Medición del IFC con la estructura del ingeniero (lodosa_bim_20261024-0000.ifc): planta de zapatas corridas 43,43 + aisladas 4,71 + vigas de atado 8,37 m²\1\56.51\\0.1\|
@@ -197,8 +197,8 @@
 ~T|05.02.06|Peto de hormigón armado HA-25 de 20 cm en el borde de la cubierta plana y terrazas, encofrado a dos caras.|
 ~M|05.02#\05.02.06||4.4|\Petos\1\20\0.2\1.1\|
 ~C|05.02.07|m2|LOSA ARMADA DE HORMIGÓN CELULAR YTONG PARA CUBIERTA, 25 CM|94.50|13112026|0|
-~T|05.02.07|Losa armada de hormigón celular Ytong de 25 cm para cubierta inclinada, suministrada y colocada con grúa sobre muros y zunchos, con armadura de atado y relleno de juntas.|
-~M|05.02#\05.02.07||87.81|\Medido sobre la planta de cubierta nueva (13-nov-2026)\1\87.81\\\|
+~T|05.02.07|Losa armada de hormigón celular Ytong de 25 cm para cubierta inclinada, suministrada y colocada con grúa sobre muros y zunchos, con armadura de atado y relleno de juntas. Solo en el faldón de C. Ancha: en el de C. del Peso la pendiente se forma sobre el forjado plano (06.14, 06.15, 07.14 y 07.15).|
+~M|05.02#\05.02.07||52.05|\Medido sobre la planta de cubierta nueva (13-nov-2026)\1\87.81\\\\A descontar el faldón de C. del Peso (forjado plano con palomeros y tablero cerámico, LO-F6 y LO-F7; 15-nov-2026)\-1\35.76\\\|
 ~C|05.02.08|ud|PELDAÑO DE CHAPA DE ACERO DE 10 MM SOBRE ZANCAS LATERALES|129.00|27102026|0|
 ~T|05.02.08|Peldaño y meseta de chapa lisa de acero S275 de 10 mm, de 0,93 m de largo entre zancas y 27 cm de huella, atornillado a los angulares soldados a las zancas laterales, con acabado antideslizante de clase 2, imprimación y lacado; sin empotrar en los muros (plano LO-E3). Contrahuella de 17,9 cm: 20 de planta baja a primera y 17 de primera a segunda.|
 ~M|05.02#\05.02.08||39|\Planta baja a primera: 17 peldaños (5 + 12) y meseta de 0,93 × 0,96 m (3,5 peldaños)\20.5\\\\\Planta primera a segunda: 15 peldaños (3 + 12) y meseta de 0,93 × 0,96 m (3,5 peldaños)\18.5\\\\|
@@ -214,24 +214,24 @@
 ~C|05.02.12|ud|PIEZA DE POLICARBONATO RÍGIDO BAJO PELDAÑO|31.59|27102026|0|
 ~T|05.02.12|Pieza de policarbonato compacto incoloro de 10 mm de espesor, 7 cm de alto y 0,93 m de largo, atornillada con tornillería de acero inoxidable bajo el borde de cada peldaño y de cada meseta, para que el hueco libre entre peldaños quede en 10 cm (tabica abierta de 17 cm bajo la chapa de 10 mm).|
 ~M|05.02#\05.02.12||34|\Bajo los 32 peldaños y el borde de las 2 mesetas\34\\\\|
-~C|06#||ALBAÑILERÍA|42895.58|14112026|0|
-~D|06#|06.01\1\83.88\06.02\1\81.41\06.03\1\369.19\06.04\1\326.37\06.05\1\126.43\06.06\1\103.72\06.07\1\19\06.08\1\43.78\06.09\1\25\06.10\1\10\06.11\1\1\06.12\1\1\06.13\1\1\|
-~C|06.01|m2|FÁBRICA DE HORMIGÓN CELULAR YTONG 30 CM, D350 (FACHADAS)|71.90|27102026|0|
+~C|06#||ALBAÑILERÍA|44558.44|15112026|0|
+~D|06#|06.01\1\83.88\06.02\1\87.47\06.03\1\369.19\06.04\1\326.37\06.05\1\126.43\06.06\1\103.72\06.07\1\19\06.08\1\43.78\06.09\1\25\06.10\1\10\06.11\1\1\06.12\1\1\06.13\1\1\06.14\1\6.43\06.15\1\4.52\|
+~C|06.01|m2|FÁBRICA DE HORMIGÓN CELULAR YTONG 30 CM, D350 (FACHADAS)|74.01|15112026|0|
 ~T|06.01|Fábrica de bloques de hormigón celular Ytong de 30 cm (densidad 350 kg/m³, machihembrados) tomados con adhesivo de capa fina, incluso piezas especiales, cortes, armadura de tendel donde lo indique el proyecto, replanteo, nivelación y aplomado.|
 ~M|06#\06.01||83.88|\Medición del IFC de Vectorworks del 27-oct-2026\1\83.88\\\|
 ~C|06.02|m2|FÁBRICA DE HORMIGÓN CELULAR YTONG 20 CM, D350 (MUROS A PATIO)|52.35|27102026|0|
 ~T|06.02|Fábrica de bloques de hormigón celular Ytong de 20 cm de densidad 350 kg/m³ (exigida por la transmitancia) en muros exteriores a patio y sin edificio colindante, tomados con adhesivo de capa fina.|
-~M|06#\06.02||81.41|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\83.8\\\\A descontar hueco de paso del fondo norte (1,05 × 2,28 m)\-1\1.05\\2.28\|
-~C|06.03|m2|FÁBRICA DE HORMIGÓN CELULAR YTONG 20 CM (MEDIANERAS Y MUROS DE CARGA)|47.20|27102026|0|
+~M|06#\06.02||87.47|\Medición del IFC final de Vectorworks, opción 3 de cubiertas (21-oct-2026)\1\83.8\\\\A descontar hueco de paso del fondo norte (1,05 × 2,28 m)\-1\1.05\\2.28\\Murete trasero del faldón de C. del Peso, sobre el forjado: 3 hiladas de 25 cm (+9,57 a +10,32, LO-F7); largo medio 6,97 m (LO-F2: 7,24 m en la cara del faldón hasta la medianera y 6,80 m en la cara trasera hasta el muro del patio)\1\6.97\\0.75\\Pieza de coronación del murete cortada al 30 %, de 0,09 a 0,15 m de alto (media 0,12; LO-F7)\1\6.97\\0.12\|
+~C|06.03|m2|FÁBRICA DE HORMIGÓN CELULAR YTONG 20 CM (MEDIANERAS Y MUROS DE CARGA)|48.74|15112026|0|
 ~T|06.03|Fábrica de bloques de hormigón celular Ytong de 20 cm en medianeras y muros interiores de carga, tomados con adhesivo de capa fina, separada de las medianeras existentes por la junta de poliestireno.|
 ~M|06#\06.03||369.19|\Medición del IFC de Vectorworks del 27-oct-2026\1\369.19\\\|
 ~C|06.04|m2|JUNTA DE POLIESTIRENO EXPANDIDO 10 MM CONTRA MEDIANERA|4.33|27102026|0|
 ~T|06.04|Junta de 10 mm de poliestireno expandido entre la fábrica nueva y la medianera existente, en toda su superficie.|
 ~M|06#\06.04||326.37|\Medición del IFC de Vectorworks del 27-oct-2026\1\326.37\\\|
-~C|06.05|m2|TRASDOSADO DE HORMIGÓN CELULAR YTONG 7 CM CON CÁMARA|29.50|13112026|0|
+~C|06.05|m2|TRASDOSADO DE HORMIGÓN CELULAR YTONG 7 CM CON CÁMARA|30.69|15112026|0|
 ~T|06.05|Trasdosado de piezas de hormigón celular Ytong de 7 cm separado del muro por una cámara de espesor variable (regulariza la planta), tomado con adhesivo, con anclajes al muro.|
 ~M|06#\06.05||126.43|\Medición del IFC de Vectorworks del 27-oct-2026\1\96.78\\\\Terraza técnica, muro del fondo norte (fuera del nicho de la V14)\1\2.88\\2.9\\Terraza técnica, lateral oeste bajo el faldón (altura media)\1\7.54\\1.57\\Terraza técnica, lateral este bajo el faldón (altura media)\1\7.55\\1.57\\A descontar hueco de paso del fondo norte (1,05 × 2,28 m)\-1\1.05\\2.28\|
-~C|06.06|m2|TABIQUE DE HORMIGÓN CELULAR YTONG 7 CM|28.60|27102026|0|
+~C|06.06|m2|TABIQUE DE HORMIGÓN CELULAR YTONG 7 CM|29.79|15112026|0|
 ~T|06.06|Tabique de piezas de hormigón celular Ytong de 7 cm tomadas con adhesivo de capa fina, con anclajes a muros y banda elástica en el encuentro con el forjado.|
 ~M|06#\06.06||103.72|\Medición del IFC de Vectorworks del 27-oct-2026\1\103.72\\\|
 ~C|06.07|m|CAJÓN DE PERSIANA Y DINTEL CON PIEZAS EN U DE YTONG|46.94|13112026|0|
@@ -255,10 +255,16 @@
 ~C|06.13|ud|AYUDAS ALBAÑ. CALEFACCIÓN, VENTILACIÓN Y ACS|2066.66|27102026|0|
 ~T|06.13|Ayudas de albañilería a la instalación completa de calefacción, ventilación y agua caliente sanitaria (10 % de los subcapítulos 16.03 y 16.04).|
 ~M|06#\06.13||1|\General\1\\\\|
-~C|07#||CUBIERTA|13021.31|13112026|0|
-~D|07#|07.01\1\87.81\07.02\1\90.97\07.03\1\90.97\07.04\1\90.97\07.05\1\90.97\07.06\1\15.12\07.07\1\27\07.08\1\45.59\07.09\1\30.25\07.10\1\5\07.12\1\73.31\07.13\1\61.17\|
-~C|07.01|m2|AISLAMIENTO XPS 10 CM SOBRE LOSA DE CUBIERTA|15.80|13112026|0|
-~T|07.01|Aislamiento de poliestireno extruido de 10 cm (lambda  0,034) sobre la losa de Ytong, con juntas a tope y continuidad en la coronación del zuncho.|
+~C|06.14|m2|TABIQUE PALOMERO DE HORMIGÓN CELULAR YTONG 7 CM (FALDÓN DE C. DEL PESO)|29.79|15112026|0|
+~T|06.14|Tabique palomero de piezas de hormigón celular Ytong de 7 cm tomadas con adhesivo de capa fina, cada 1,00 m, cortado en pendiente (30 %), sobre el forjado plano y sobre la viga plana de la cabeza de los muros de la terraza técnica, para apoyo del tablero de cubierta (ref. 74 de LO-F6 y LO-F7).|
+~M|06#\06.14||6.43|\Banda sur, sobre el forjado plano: 9 palomeros cada 1,00 m entre medianeras (7,21 m), del murete al zuncho, de 0,57 a 0,02 m de alto\9\1.84\\0.295\\Cabeza del muro oeste, sobre la viga plana: 9 palomeros de 0,33 a 0,85 m de largo, de 0,03 m más el 30 %\1\0.67\\\\Cabeza del muro norte (fondo), sobre la viga plana: 8 palomeros de 0,28 a 0,85 m de largo\1\0.56\\\\Cabeza del muro este, sobre la viga plana: 9 palomeros de 0,39 m de largo\1\0.31\\\|
+~C|06.15|m2|BANDA DE HORMIGÓN CELULAR YTONG 7 CM EN EL CANTO DEL FALDÓN|29.79|15112026|0|
+~T|06.15|Banda de piezas de hormigón celular Ytong de 7 cm tomadas con adhesivo, sobre la viga plana, que cierra el canto del faldón de C. del Peso hacia la terraza técnica, cortada en pendiente, de 0,20 a 0,22 m de alto (ref. 78 de LO-F6 y LO-F7).|
+~M|06#\06.15||4.52|\Canto oeste de la terraza técnica\1\7.54\\0.21\\Canto norte de la terraza técnica\1\6.42\\0.21\\Canto este de la terraza técnica y del patio\1\7.55\\0.21\|
+~C|07#||CUBIERTA|13921.71|15112026|0|
+~D|07#|07.01\1\87.81\07.02\1\90.97\07.03\1\90.97\07.04\1\90.97\07.05\1\90.97\07.06\1\15.12\07.07\1\27\07.08\1\45.59\07.09\1\30.25\07.10\1\5\07.12\1\73.31\07.13\1\61.17\07.14\1\26.96\07.15\1\12.11\|
+~C|07.01|m2|AISLAMIENTO XPS 10 CM SOBRE LOSA O TABLERO DE CUBIERTA|15.80|13112026|0|
+~T|07.01|Aislamiento de poliestireno extruido de 10 cm (lambda  0,034) sobre la losa de Ytong (faldón de C. Ancha) o sobre el tablero cerámico (faldón de C. del Peso), con juntas a tope y continuidad en la coronación del zuncho.|
 ~M|07#\07.01||87.81|\Medido sobre la planta de cubierta nueva (13-nov-2026)\1\87.81\\\|
 ~C|07.02|m2|TABLERO OSB/3 HIDRÓFUGO 20 MM|17.60|13112026|0|
 ~T|07.02|Tablero OSB/3 hidrófugo de 20 mm fijado mecánicamente a la losa a través del aislamiento.|
@@ -293,6 +299,12 @@
 ~C|07.13|m2|BARRERA DE VAPOR BAJO EL AISLAMIENTO EN CUBIERTA PLANA, PATIO Y PORCHE|3.43|13112026|0|
 ~T|07.13|Barrera de vapor de film de polietileno de baja densidad de 0,2 mm sobre el forjado, bajo el XPS, con solapes de 10 cm sellados con cinta y entrega en los perímetros hasta la cara superior del aislamiento, en la cubierta plana y en el patio y el porche de planta primera (Enrique, 14-oct).|
 ~M|07#\07.13||61.17|\Medido sobre la planta de cubierta nueva (13-nov-2026)\1\61.17\\\|
+~C|07.14|m2|TABLERO CERÁMICO MACHIHEMBRADO CON CAPA DE COMPRESIÓN (FALDÓN DE C. DEL PESO)|29.40|15112026|0|
+~T|07.14|Tablero de piezas cerámicas machihembradas de 100 × 30 × 4 cm apoyado en los tabiques palomeros, con capa de compresión de mortero de 3 cm armada con mallazo, medido en pendiente y sin el alero (ref. 75 de LO-F6 y LO-F7).|
+~M|07#\07.14||26.96|\Banda sur: 7,60 m × 1,90 m (del murete a la cara exterior de la fachada), en pendiente (× 1,044)\1\7.60\1.90\1.044\\Cabeza del muro oeste: ancho libre de 0,85 a 0,33 m × 7,54 m = 4,46 m2 en planta, en pendiente\1\4.46\\1.044\\Cabeza del muro norte: ancho libre de 0,28 a 0,85 m × 6,42 m = 3,62 m2 en planta, en pendiente\1\3.62\\1.044\\Cabeza del muro este: ancho libre de 0,39 a 0,40 m × 7,55 m = 2,98 m2 en planta, en pendiente\1\2.98\\1.044\\Esquina noroeste: 0,92 × 0,35 m en planta, en pendiente\1\0.32\\1.044\|
+~C|07.15|m2|AISLAMIENTO XPS 5 CM SOBRE EL FORJADO, ENTRE PALOMEROS|8.90|15112026|0|
+~T|07.15|Aislamiento de poliestireno extruido de 5 cm (lambda 0,034) sobre el forjado plano del faldón de C. del Peso, entre los tabiques palomeros, con juntas a tope (ref. 76 de LO-F6 y LO-F7).|
+~M|07#\07.15||12.11|\Banda sur, entre medianeras, del murete al zuncho\1\7.21\1.84\\\A descontar 9 palomeros de 7 cm\-9\0.07\1.84\\|
 ~C|08#||AISLAMIENTOS, IMPERMEABILIZACIÓN Y SELLADOS|7140.35|13112026|0|
 ~D|08#|08.01\1\59.65\08.02\1\190.46\08.03\1\279.56\08.04\1\69.7\08.05\1\20\08.06\1\140.42\08.07\1\73.31\|
 ~C|08.01|m2|AISLAMIENTO XPS 10 CM SOBRE FORJADO SANITARIO|14.89|27102026|0|
@@ -330,7 +342,7 @@
 ~C|09.04|m2|LANA MINERAL DE 4 CM SOBRE EL FALSO TECHO BAJO LA TERRAZA EN CUBIERTA|8.12|13112026|0|
 ~T|09.04|Panel de lana mineral de 40 mm (lambda <= 0,035 W/mK, UNE-EN 13162) sobre la placa de los falsos techos de planta segunda situados bajo la cubierta plana, colocado sin juntas abiertas y continuo hasta los muros; completa el aislamiento de la cubierta plana (XPS 12 cm, 07.09).|
 ~M|09#\09.04||30.25|\Igual que el XPS de la cubierta plana (07.09)\1\30.25\\\|
-~C|10#||PAVIMENTOS|17426.98|13112026|0|
+~C|10#||PAVIMENTOS|17675.42|15112026|0|
 ~D|10#|10.01\1\149.77\10.02\1\87\10.03\1\136.51\10.04\1\73.31\10.05\1\15.15\10.06\1\49.52\10.07\1\5.4\10.08\1\1\10.09\1\73.31\10.10\1\55.25\10.11\1\59.65\|
 ~C|10.01|m2|MORTERO AUTONIVELANTE DE 4 CM CON SUELO RADIANTE (PLANTAS PRIMERA Y SEGUNDA)|13.54|27102026|0|
 ~T|10.01|Mortero autonivelante de 4 cm sobre el suelo radiante compacto, con aditivo para calefacción, juntas de dilatación y protocolo de primer encendido.|
@@ -338,7 +350,7 @@
 ~C|10.02|m2|RECRECIDO DE HORMIGÓN LIGERO 9 CM (SUELO DE PLANTA PRIMERA)|12.64|27102026|0|
 ~T|10.02|Recrecido de hormigón ligero de 9 cm sobre el forjado de planta primera para el paso de instalaciones.|
 ~M|10#\10.02||87|\Planta primera\1\87\\\|
-~C|10.03|m2|PAVIMENTO CONTINUO DE MICROCEMENTO PULIDO INTERIOR|41.50|27102026|0|
+~C|10.03|m2|PAVIMENTO CONTINUO DE MICROCEMENTO PULIDO INTERIOR|43.32|15112026|0|
 ~T|10.03|Pavimento continuo de microcemento pulido sobre el mortero, con imprimación, malla, capas de base y acabado y sellado de poliuretano mate.|
 ~M|10#\10.03||136.51|\Medición del IFC de Vectorworks del 27-oct-2026\1\191.76\\\\Txoko y almacenaje: sin microcemento, mortero sellado (10.10)\-1\55.25\\\|
 ~C|10.04|m2|PAVIMENTO CONTINUO DE MICROCEMENTO EXTERIOR|48.50|13112026|0|
@@ -365,12 +377,12 @@
 ~C|10.11|m2|MORTERO AUTONIVELANTE DE 6 CM CON SUELO RADIANTE EN PLANTA BAJA|16.25|14112026|0|
 ~T|10.11|Mortero autonivelante de 6 cm sobre la lámina antiimpacto y el suelo radiante compacto de planta baja (forjado sanitario), con aditivo para calefacción, juntas de dilatación y protocolo de primer encendido.|
 ~M|10#\10.11||59.65|\Planta baja, zonas calefactadas\1\59.65\\\|
-~C|11#||REVESTIMIENTOS|19799.17|14112026|0|
+~C|11#||REVESTIMIENTOS|20190.20|15112026|0|
 ~D|11#|11.01\1\317.11\11.02\1\724.12\11.03\1\23.71\11.04\1\8.4\|
 ~C|11.01|m²|REVESTIMIENTO MONOCAPA COLOREADO EN MASA EN FACHADAS Y PATIOS|29.04|14112026|0|
 ~T|11.01|Revestimiento exterior de mortero monocapa coloreado en masa (o mortero de cal pigmentado, a elegir por la dirección facultativa), en espesores de 10–15 mm, con malla de fibra de vidrio en encuentros y frentes de forjado y juntas de trabajo, acabado y color según muestra, sin pintura posterior.|
 ~M|11#\11.01||317.11|\Medición del IFC de Vectorworks del 27-oct-2026\1\317.11\\\|
-~C|11.02|m2|GUARNECIDO Y ENLUCIDO DE YESO EN PAREDES Y TECHOS|12.10|27102026|0|
+~C|11.02|m2|GUARNECIDO Y ENLUCIDO DE YESO EN PAREDES Y TECHOS|12.64|15112026|0|
 ~T|11.02|Guarnecido maestreado y enlucido de yeso de 15 mm en paredes y techos interiores, con guardavivos y malla en encuentros de materiales.|
 ~M|11#\11.02||724.12|\Medición del IFC de Vectorworks del 27-oct-2026\1\925.05\\\\Techo del garaje: revestido con el yeso proyectado de 05.02.09\-1\49.52\\\\Paredes de garaje y almacenaje: fábrica de Ytong vista, sin revestir\-1\172.2\\\\Aseo de planta baja: paredes por encima de 2,28 m, a cargo de la propiedad\-1\7.7\\\\Baños y aseos de primera y segunda: paredes fuera de duchas y frentes de lavabo\1\47.57\\\\A descontar techos que pasan a falso techo (09.01, esquema del 14-nov-2026)\-1\19.08\\\|
 ~C|11.03|m2|ALICATADO CERÁMICO 10 MM EN DUCHAS Y FRENTES DE LAVABO|57.77|27102026|0|
@@ -474,13 +486,13 @@
 ~C|15.02|m2|PINTURA ACRÍLICA IMPERMEABLE Y LAVABLE EN BAÑOS Y ASEOS|8.57|27102026|0|
 ~T|15.02|Imprimación y dos manos de pintura acrílica al agua de acabado satinado, impermeable y lavable, apta para locales húmedos, sobre el yeso de las paredes de baños y aseos fuera de las duchas y de los frentes de lavabo.|
 ~M|15#\15.02||47.57|\Baños y aseos de primera y segunda: paredes fuera de duchas y frentes de lavabo\1\47.57\\\|
-~C|16#||INSTALACIONES|41035.54|14112026|0|
+~C|16#||INSTALACIONES|41212.13|15112026|0|
 ~D|16#|16.01#\1\1\16.02#\1\1\16.03#\1\1\16.04#\1\1\16.05#\1\1\16.06#\1\1\|
 ~C|16.01#||FONTANERÍA|8222.57|27102026|0|
 ~D|16.01#|16.01.01\1\1\16.01.02\1\1\16.01.03\1\10\16.01.04\1\1\16.01.05\1\110\16.01.06\1\160\16.01.07\1\50\16.01.08\1\25\16.01.09\1\16\16.01.10\1\2\16.01.11\1\1\16.01.12\1\2\16.01.13\1\2\16.01.14\1\3\16.01.15\1\1\16.01.16\1\3\16.01.17\1\4\16.01.18\1\2\16.01.19\1\3\|
 ~C|16.02#||CONTRA INCENDIOS|149.49|27102026|0|
 ~D|16.02#|16.02.01\1\1\16.02.02\1\1\16.02.03\1\2\|
-~C|16.03#||CALEFACCIÓN Y A.C.S.|16463.12|14112026|0|
+~C|16.03#||CALEFACCIÓN Y A.C.S.|16639.71|15112026|0|
 ~D|16.03#|16.03.01\1\1\16.03.02\1\1\16.03.03\1\1\16.03.04\1\1\16.03.05\1\1\16.03.06\1\1\16.03.07\1\1\16.03.08\1\1\16.03.09\1\1\16.03.10\1\1\16.03.11\1\1\16.03.12\1\1\16.03.13\1\23\16.03.14\1\1\16.03.15\1\1\16.03.16\1\1\16.03.20\1\188.3\16.03.21\1\3\16.03.22\1\6\16.03.23\1\1\|
 ~C|16.04#||VENTILACIÓN|3699.59|27102026|0|
 ~D|16.04#|16.04.01\1\10\16.04.02\1\10\16.04.03\1\9\16.04.04\1\20\16.04.05\1\12\16.04.06\1\3\|
@@ -554,7 +566,7 @@
 ~C|16.02.03|UD|PLACA DE SEÑALIZACION PARA EXTINTOR|10.25|27102026|0|
 ~T|16.02.03|Suministro e instalación de : Placa de señalización fotoluminiscente, para extintor, de dimensiones 230 x 340 mm referencia cir 124, según normas une 23033-1 y une 23035-4. Mano de obra y medios auxiliares.|
 ~M|16.02#\16.02.03||2|\Extintores\2\\\\|
-~C|16.03.01|ud|BOMBA DE CALOR AIRE-AGUA 8 KW CON DEPÓSITO DE ACS 230 L|7800.00|14112026|0|
+~C|16.03.01|ud|BOMBA DE CALOR AIRE-AGUA 8 KW CON DEPÓSITO DE ACS 230 L|7976.59|15112026|0|
 ~T|16.03.01|Bomba de calor aire-agua de baja temperatura tipo Daikin Altherma 3 de 8 kW (SCOP 4,61 a 35 °C, a+++), unidad exterior en el fondo norte de la terraza técnica, en el extremo oeste del nicho del muro que la cierra, tras la celosía V14, sobre bancada antivibratoria, ventilada y registrable desde la terraza y unidad interior con depósito de ACS de 230 L y resistencia de apoyo integrada en el almacenaje de planta baja, con puesta en marcha.|
 ~M|16.03#\16.03.01||1|\Almacenaje de planta baja / cubierta\1\\\\|
 ~C|16.03.02|UD|JUEGO CONEXIÓN HIDRÁULICO SALIDA SUPERIOR|128.56|27102026|0|
