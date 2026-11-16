@@ -1,12 +1,12 @@
 {
  "formato": "arrova-memorias",
  "proyecto": "lodosa",
- "fecha": "2026-11-15 17:37",
+ "fecha": "2026-11-16 14:53",
  "pdfs": [
   {
    "archivo": "memorias/00_Hoja_Control_Pendientes.pdf",
    "titulo": "Hoja de control · pendientes y discrepancias",
-   "nota": "16 páginas · 15-11-2026 17:36",
+   "nota": "16 páginas · 16-11-2026 14:46",
    "marcado": true
   },
   {
@@ -107,7 +107,7 @@
   {
    "archivo": "memorias/14_Mediciones_y_Presupuesto.pdf",
    "titulo": "Mediciones y presupuesto",
-   "nota": "14 · 45 páginas · 15-11-2026 17:36"
+   "nota": "14 · 45 páginas · 16-11-2026 14:46"
   }
  ]
 }
