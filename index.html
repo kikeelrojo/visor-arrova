@@ -842,11 +842,12 @@ const V3 = (() => {
     else mat = new THREE.MeshBasicMaterial(Object.assign({color: rgb(M.mapa || M.color)}, comun));
     return (matCache[k] = mat);
   }
-  // las aristas se adelantan 4 mm hacia la cámara al comprobar la profundidad: las de cada cara se ven, y las de lo que queda
-  // justo detrás de otra cara (p. ej. la obra 15 mm detrás del revoco) quedan ocultas
+  // las aristas se adelantan hacia la cámara al comprobar la profundidad (1 mm en vista paralela, 4 mm en perspectiva): las de
+  // cada cara se ven, y las de lo que queda detrás de otra cara (la obra 10 mm detrás del revoco) quedan ocultas. (18-nov: con
+  // 4 mm, mirando una fachada en escorzo, los cantos de forjado 10 mm detrás del revoco salían punteados a través de él)
   const acercar = m => { m.onBeforeCompile = sh => { sh.vertexShader = sh.vertexShader.replace("#include <project_vertex>",
     "vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);\n" +
-    "if (projectionMatrix[3][3] > 0.5) { mvPosition.z += 0.004; } else { float L_ = length(mvPosition.xyz); mvPosition.xyz *= max(0.0, 1.0 - 0.004 / max(L_, 0.01)); }\n" +
+    "if (projectionMatrix[3][3] > 0.5) { mvPosition.z += 0.001; } else { float L_ = length(mvPosition.xyz); mvPosition.xyz *= max(0.0, 1.0 - 0.004 / max(L_, 0.01)); }\n" +
     "gl_Position = projectionMatrix * mvPosition;"); }; return m; };
   const lineaMat = () => matCache["__l" + estilo] || (matCache["__l" + estilo] = acercar(new THREE.LineBasicMaterial({color: colores().ink, transparent: estilo !== "linea", opacity: estilo === "linea" ? 1 : 0.35})));
   const fantasma = () => matCache.__f || (matCache.__f = new THREE.MeshBasicMaterial({color: colores().paper, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 0, polygonOffsetUnits: 0}));
